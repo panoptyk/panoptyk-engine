@@ -1,0 +1,38 @@
+{
+  "name": "panoptyk-engine",
+  "version": "0.2.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start-server": "ts-node src/server/server.ts",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "watch": "mocha ",
+    "ts-node": "ts-node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panoptyk/panoptyk-engine.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/panoptyk/panoptyk-engine/issues"
+  },
+  "homepage": "https://github.com/panoptyk/panoptyk-engine#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/express": "^4.17.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.6.2",
+    "@types/socket.io": "^2.1.2",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
