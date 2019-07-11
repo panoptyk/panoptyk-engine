@@ -2,27 +2,20 @@
     "compilerOptions": {
       "module": "commonjs",
       "declaration": true,
+      "composite": true,
       "removeComments": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "target": "es6",
       "sourceMap": true,
-      "outDir": "./build",
-      "rootDir": "./src",
+      "outDir": "server",
       "typeRoots": [
         "node_modules/@types",
         "src/types"
       ],
     },
-    "references": [
-      {"server": "./src/server"},
-      {"client-api": "./src/client-api"}
-    ],
-    "include": [
-        "./src"
-    ],
     "exclude": [
-      "src/**/*.spec.ts",
+      "**/*.spec.ts",
       "node_modules",
     ]
   }
