@@ -4,7 +4,4 @@
     "rootDir": "../",
     "outDir": "../../build/",
   },
-    "references": [
-      {"path": "../core"},
-    ],
 }

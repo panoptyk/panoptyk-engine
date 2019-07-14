@@ -4,12 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "prestart": "tsc -b",
+    "prestart": "tsc -b src/server",
     "start": "node build/server/server.js",
     "build": "tsc -b",
+    "build:core": "tsc -b ./src/core",
     "build:server": "tsc -b ./src/server",
     "build:client-api": "tsc -b ./src/client-api",
-    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
     "watch": "mocha ",
     "ts-node": "ts-node"
   },

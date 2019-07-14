@@ -13,6 +13,7 @@ pids
 
 # TS build folder
 build/**/*
+**/*.tsbuildinfo
 
 # Panoptyke specific
 data/*

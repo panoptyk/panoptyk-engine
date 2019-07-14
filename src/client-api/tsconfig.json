@@ -1,21 +1,10 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "declaration": true,
-      "composite": true,
-      "removeComments": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "target": "es6",
-      "sourceMap": true,
-      "outDir": "client-api",
-      "typeRoots": [
-        "node_modules/@types",
-        "src/types"
-      ],
-    },
-    "exclude": [
-      "**/*.spec.ts",
-      "node_modules",
-    ]
-  }
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "rootDir": "../",
+    "outDir": "../../build/",
+  },
+  "references": [
+      {"path": "../core/"},
+    ],
+}
