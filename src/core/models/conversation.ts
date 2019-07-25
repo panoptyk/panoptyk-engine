@@ -1,5 +1,10 @@
-'use strict'
-class Conversation{
+export default class Conversation{
+  private static objects = new Map();
+
+  private room;
+  private max_agents: number;
+  private conversation_id: number;
+  private agents;
   /**
    * Conversation constructor.
    * @param {Object} room - room object conversation is in
@@ -145,7 +150,3 @@ class Conversation{
     return null;
   }
 }
-
-Conversation.objects = {};
-
-module.exports = Conversation;
