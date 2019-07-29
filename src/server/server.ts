@@ -1,3 +1,3 @@
-import { Test } from "../core/afile";
+import { logger } from "../core/utilities/logger";
 
-console.log("I haven't been implemented" + Test);
+logger.log("Not implemented yet!!!");
