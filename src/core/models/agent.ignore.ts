@@ -1,5 +1,7 @@
+import { logger } from "../utilities/logger";
+
 export default class Agent {
-  private static nextId: number = 1;
+  private static nextId = 1;
   private static objects = new Map();
 
   private name: string;
@@ -30,7 +32,7 @@ export default class Agent {
 
     this.agent_id = (id == null ? Agent.nextId++ : id);
     Agent.objects[this.agent_id] = this;
-    server.log('Agent ' + this.name + ' initialized.', 2);
+    logger.log('Agent ' + this.name + ' initialized.', 2);
   }
 
 
@@ -100,17 +102,17 @@ export default class Agent {
    * Serialize and write all agents to files.
    */
   static save_all() {
-    server.log("Saving agents...", 2);
+    logger.log("Saving agents...", 2);
     for (var id in Agent.objects) {
       var agent = Agent.objects[id];
-      server.log("Saving agent: " + agent.name, 2);
+      logger.log("Saving agent: " + agent.name, 2);
 
       server.modules.fs.writeFileSync(server.settings.data_dir + '/agents/' +
           agent.agent_id + '_' + agent.name + '.json',
         JSON.stringify(agent.serialize()), 'utf8');
 
     }
-    server.log("Agents saved.", 2);
+    logger.log("Agents saved.", 2);
   }
 
 
@@ -118,24 +120,24 @@ export default class Agent {
    * Load all agents from file into memory.
    */
   static load_all() {
-    server.log("Loading agents...", 2);
+    logger.log("Loading agents...", 2);
 
     server.modules.fs.readdirSync(server.settings.data_dir + '/agents/').forEach(function(file) {
       server.modules.fs.readFile(server.settings.data_dir +
         '/agents/' + file, function read(err, data) {
 
         if (err) {
-          server.log(err);
+          logger.log(err);
           return;
         }
 
         var json = JSON.parse(data);
-        server.log("Loading agent " + json.name, 2);
+        logger.log("Loading agent " + json.name, 2);
         Agent.load(json);
       });
     });
 
-    server.log("Agents loaded", 2);
+    logger.log("Agents loaded", 2);
   }
 
 
@@ -148,7 +150,7 @@ export default class Agent {
     if (Agent.objects[agent_id]){
       return Agent.objects[agent_id];
     }
-    server.log('Could not find agent with id ' + agent_id + '.', 1);
+    logger.log('Could not find agent with id ' + agent_id + '.', 1);
     return null;
   }
 
@@ -167,7 +169,7 @@ export default class Agent {
       }
     }
 
-    server.log('Could not find agent with socket ' + socket.id + '.', 1);
+    logger.log('Could not find agent with socket ' + socket.id + '.', 1);
     return null;
   }
 
@@ -189,7 +191,7 @@ export default class Agent {
     var index = this.inventory.indexOf(item.id);
 
     if (index == -1) {
-      server.log('Tried to remove invalid item '+item.name+' from agent '+this.name+'.', 0);
+      logger.log('Tried to remove invalid item '+item.name+' from agent '+this.name+'.', 0);
       return false;
     }
 
@@ -214,7 +216,7 @@ export default class Agent {
     var index = this.inventory.indexOf(info.id);
 
     if (index == -1) {
-      server.log('Tried to remove invalid information '+info.id+' from agent '+this.name+'.', 0);
+      logger.log('Tried to remove invalid information '+info.id+' from agent '+this.name+'.', 0);
       return false;
     }
 
@@ -282,7 +284,7 @@ export default class Agent {
    * Called on agent logout.
    */
   logout() {
-    server.log("Agent " + this.name + " logged out.", 2);
+    logger.log("Agent " + this.name + " logged out.", 2);
 
     server.control.remove_agent_from_room(this, null, false);
   }
@@ -302,6 +304,6 @@ export default class Agent {
    * Remove an agent from its' conversation.
    */
   leave_conversation() {
-    this.conversation = null;
+    this.conversation = undefined;
   }
 }
