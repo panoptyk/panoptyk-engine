@@ -16,3 +16,11 @@ export let getPanoptykDatetime = function() {
   const today = new Date();
   return today.getUTCSeconds();
 };
+
+export let panoptykSettings = {
+  "default_room_id": 0,
+  "data_dir": "data",
+  "port": 8080,
+  "log_level": 2,
+  "log_line_length": 99,
+};
