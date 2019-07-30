@@ -1,11 +1,25 @@
-'use strict'
-class Room {
+import fs = require('fs');
+import { logger } from "../utilities/logger";
+import { panoptykSettings } from "../utilities/util"
+
+export default class Room {
+  private static nextId = 1;
+  private static objects = new Map();
+
+  private id: number;
+  private name: string;
+  private adjacents: number[];
+  private occupants: number[];
+  private items: number[];
+  private conversations: number[];
+  private max_occupants: number;
+
   /**
    * Room model.
    * @param {string} name - name of room
-   * @param {int} room_id - Room id, if null one will be assigned.
+   * @param {int} id - Room id, if null one will be assigned.
    */
-  constructor(name, max_occupants, room_id=null) {
+  constructor(name, max_occupants, id=null) {
     this.name = name;
     this.adjacents = [];
     this.occupants = [];
@@ -13,9 +27,9 @@ class Room {
     this.conversations = [];
     this.max_occupants = max_occupants;
 
-    this.room_id = (room_id == null ? Room.nextId++ : room_id);
-    Room.objects[this.room_id] = this;
-    server.log('Room ' + this.name + ' Initialized with id ' + this.room_id + '.', 2);
+    this.id = (id == null ? Room.nextId++ : id);
+    Room.objects[this.id] = this;
+    logger.log('Room ' + this.name + ' Initialized with id ' + this.id + '.', 2);
   }
 
 
@@ -24,7 +38,7 @@ class Room {
    * @param {JSON} data - serialized room JSON.
    */
   static load(data) {
-    new Room(data.name, data.max_occupants, data.room_id);
+    new Room(data.name, data.max_occupants, data.id);
   }
 
 
@@ -36,7 +50,7 @@ class Room {
     var data = {
       name: this.name,
       max_occupants: this.max_occupants,
-      room_id: this.room_id
+      id: this.id
     }
 
     return data;
@@ -49,26 +63,26 @@ class Room {
   static save_all() {
     var room_to_adjacents = {};
 
-    server.log("Saving rooms...", 2);
+    logger.log("Saving rooms...", 2);
     for (var id in Room.objects) {
       var room = Room.objects[id];
-      server.log("Saving room " + room.name, 2);
-      server.modules.fs.writeFileSync(server.settings.data_dir +
-        '/rooms/' + room.room_id + "_" + room.name + '.json',
+      logger.log("Saving room " + room.name, 2);
+      fs.writeFileSync(panoptykSettings.data_dir +
+        '/rooms/' + room.id + "_" + room.name + '.json',
         JSON.stringify(room.serialize()), 'utf8');
 
-      room_to_adjacents[room.room_id] = [];
+      room_to_adjacents[room.id] = [];
       for (let adj of room.adjacents) {
-        room_to_adjacents[room.room_id].push(adj.room_id);
+        room_to_adjacents[room.id].push(adj.id);
       }
     }
 
-    server.log("Saving Room Connections", 2);
+    logger.log("Saving Room Connections", 2);
 
-    server.modules.fs.writeFileSync(server.settings.data_dir + '/rooms/room_connections.json',
+    fs.writeFileSync(panoptykSettings.data_dir + '/rooms/room_connections.json',
       JSON.stringify(room_to_adjacents), 'utf8');
 
-    server.log("Rooms saved.", 2);
+    logger.log("Rooms saved.", 2);
   }
 
 
@@ -76,37 +90,37 @@ class Room {
    * Load all room from file to memory.
    */
   static load_all() {
-    server.log("Loading rooms...", 2);
+    logger.log("Loading rooms...", 2);
 
-    server.modules.fs.readdirSync(server.settings.data_dir + '/rooms/').forEach(function(file) {
+    fs.readdirSync(panoptykSettings.data_dir + '/rooms/').forEach(function(file) {
       if (file !== 'room_connections.json') {
-        var data = server.modules.fs.readFileSync(server.settings.data_dir +
+        const rawdata = fs.readFileSync(panoptykSettings.data_dir +
           '/rooms/' + file, 'utf8');
 
-        data = JSON.parse(data);
-        server.log("Loading room " + data.name, 2);
+        const data = JSON.parse(rawdata);
+        logger.log("Loading room " + data.name, 2);
         Room.load(data);
       }
     });
 
-    server.log("Loading Room Connections", 2);
+    logger.log("Loading Room Connections", 2);
     try {
-      var connections = JSON.parse(server.modules.fs.readFileSync(server.settings.data_dir +
-        '/rooms/room_connections.json'));
+      var connections = JSON.parse(fs.readFileSync(panoptykSettings.data_dir +
+        '/rooms/room_connections.json').toString());
 
-      for (var room_id in connections) {
-        var room = Room.get_room_by_id(room_id);
-        for (let adj_id of connections[room_id]) {
+      for (var id in connections) {
+        var room = Room.get_room_by_id(id);
+        for (let adj_id of connections[id]) {
           var adj = Room.get_room_by_id(adj_id);
           room.connect_room(adj, false);
         }
       }
     }
     catch(err) {
-      server.log(err, 1);
+      logger.log(err, 1);
     }
 
-    server.log("Rooms loaded.", 2);
+    logger.log("Rooms loaded.", 2);
   }
 
 
@@ -121,7 +135,7 @@ class Room {
       other_room.connect_room(this, false);
     }
 
-    server.log('Conected room ' + this.name + ' to room ' + other_room.name + '.', 2);
+    logger.log('Conected room ' + this.name + ' to room ' + other_room.name + '.', 2);
   }
 
 
@@ -149,7 +163,7 @@ class Room {
    * @param {Object} item - item to put in room.
    */
   add_item(item) {
-    server.log("Adding item " + item.name + " to room " + this.name, 2);
+    logger.log("Adding item " + item.name + " to room " + this.name, 2);
     this.items.push(item);
   }
 
@@ -159,7 +173,7 @@ class Room {
    * @param {Object} item - item to remove.
    */
   remove_item(item) {
-    server.log("Removing item " + item.name + " from room object " +
+    logger.log("Removing item " + item.name + " from room object " +
       this.name + ", index=" + this.items.indexOf(item), 2);
 
     this.items.splice(this.items.indexOf(item), 1);
@@ -175,7 +189,7 @@ class Room {
     var index = this.occupants.indexOf(agent);
 
     if (index == -1) {
-      server.log('Agent ' + agent.name + ' not in room ' + this.name + '.', 0);
+      logger.log('Agent ' + agent.name + ' not in room ' + this.name + '.', 0);
       return false;
     }
 
@@ -190,16 +204,16 @@ class Room {
   get_data() {
     var adj_ids = [];
     for (let room of this.adjacents) {
-      adj_ids.push({'room_id':room.room_id, 'room_name':room.name});
+      //TODO adj_ids.push({'id':room.id, 'room_name':room.name});
     }
 
     var conversation_datas = [];
     for (let conversation of this.conversations) {
-      conversation_datas.push(conversation.get_data());
+      //TODO conversation_datas.push(conversation.get_data());
     }
 
     var data = {
-      'room_id': this.room_id,
+      'id': this.id,
       'room_name': this.name,
       'adjacent_rooms': adj_ids,
       'layout': {
@@ -228,7 +242,7 @@ class Room {
     var index = this.conversations.indexOf(conversation);
 
     if (index == -1) {
-      server.log("Could not remove conversation " + conversation.conversation_id, 0);
+      logger.log("Could not remove conversation " + conversation.conversation_id, 0);
       return;
     }
 
@@ -244,7 +258,7 @@ class Room {
     var agents = [];
     for (let agent of this.occupants) {
       if (agent !== cur_agent) {
-        agents.push(agent.get_public_data());
+        //TODO agents.push(agent.get_public_data());
       }
     }
 
@@ -260,7 +274,7 @@ class Room {
     var items_data = [];
 
     for (let item of this.items) {
-      items_data.push(item.get_data());
+      //TODO items_data.push(item.get_data());
     }
     return items_data;
   }
@@ -268,21 +282,16 @@ class Room {
 
   /**
    * Static function. Get a room by id.
-   * @param room_id {int} - id of room.
+   * @param id {int} - id of room.
    * @returns {Object/null}
    */
-  static get_room_by_id(room_id) {
+  static get_room_by_id(id) {
 
-    if (Room.objects[room_id] != undefined){
-      return Room.objects[room_id];
+    if (Room.objects[id] != undefined){
+      return Room.objects[id];
     }
 
-    server.log('Could not find room with id ' + room_id + '.', 1);
+    logger.log('Could not find room with id ' + id + '.', 1);
     return null;
   }
 }
-
-Room.objects = {};
-Room.nextId = 1;
-
-module.exports = Room;

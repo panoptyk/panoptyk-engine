@@ -1,10 +1,29 @@
-'use strict'
-class Trade {
+import fs = require('fs');
+import { logger } from "../utilities/logger";
+import { panoptykSettings } from "../utilities/util"
+
+
+export default class Trade {
+  private static nextId = 1;
+  private static objects = new Map();
+  private static actives = new Set();
+
+  private id: number;
+  private agent_ini: number;
+  private agent_res: number;
+  private conversation: number;
+  private result_status: number;
+  private items_ini: number[];
+  private items_res: number[];
+  private status_ini: boolean;
+  private status_res: boolean;
+
+
   /**
    * Trade model.
-   * @param {Object} agent_ini - initiating agent
-   * @param {Object} agent_res - responding agent
-   * @param {Object} conversation - conversation trade is happening in.
+   * @param {int} agent_ini - initiating agent id
+   * @param {int} agent_res - responding agent id
+   * @param {int} conversation - id of conversation trade is happening in.
    * @param {int} id - id of trade. If null, one will be assigned.
    * @param {int} result_status - result status of trade.
    *              0=failed, 1=success, 2=in progress, 3=requested
@@ -21,14 +40,14 @@ class Trade {
     this.status_ini = false;
     this.status_res = false;
 
-    this.trade_id = id == null ? Trade.nextId++ : id;
-    Trade.objects[this.trade_id] = this;
+    this.id = id == null ? Trade.nextId++ : id;
+    Trade.objects[this.id] = this;
 
     if (this.result_status == 3) {
-      Trade.actives.push(this);
+      Trade.actives.add(this.id);
     }
 
-    server.log('Trade ' + this.trade_id + ' Initialized.', 2);
+    logger.log('Trade ' + this.id + ' Initialized.', 2);
   }
 
 
@@ -37,10 +56,10 @@ class Trade {
    * @param {JSON} data - serialized trade object.
    */
   static load(data) {
-    new Trade(server.models.Agent.get_agent_by_id(data.agent_ini_id),
-              server.models.Agent.get_agent_by_id(data.agent_res_id),
-              server.models.Conversation.get_conversation_by_id(data.conversation_id),
-              data.trade_id,
+    new Trade(data.agent_ini_id,
+              data.agent_res_id,
+              data.conversation_id,
+              data.id,
               data.result_status);
 
   }
@@ -52,10 +71,10 @@ class Trade {
    */
   serialize() {
     var data = {
-      trade_id: this.trade_id,
-      agent_ini_id: this.agent_ini.agent_id,
-      agent_res_id: this.agent_res.agent_id,
-      conversation_id: this.conversation.conversation_id,
+      id: this.id,
+      agent_ini_id: this.agent_ini,
+      agent_res_id: this.agent_res,
+      conversation_id: this.conversation,
       result_status: this.result_status
     }
 
@@ -67,18 +86,18 @@ class Trade {
    * Serialize all trades and save them to files.
    */
   static save_all() {
-    server.log("Saving trades...", 2);
+    logger.log("Saving trades...", 2);
 
     for (var id in Trade.objects) {
       var trade = Trade.objects[id];
-      server.log("Saving trade " + trade.trade_id, 2);
+      logger.log("Saving trade " + trade.id, 2);
 
-      server.modules.fs.writeFileSync(server.settings.data_dir + '/trades/trade_'
-        + trade.trade_id + '.json',
+      fs.writeFileSync(panoptykSettings.data_dir + '/trades/trade_'
+        + trade.id + '.json',
         JSON.stringify(trade.serialize()), 'utf8');
     }
 
-    server.log("Trades saved.", 2);
+    logger.log("Trades saved.", 2);
   }
 
 
@@ -86,19 +105,19 @@ class Trade {
    * Load all trades from file into memory.
    */
   static load_all() {
-    server.log("Loading trades...", 2);
+    logger.log("Loading trades...", 2);
 
-    server.modules.fs.readdirSync(server.settings.data_dir + '/trades/').forEach(function(file) {
-      server.modules.fs.readFile(server.settings.data_dir +
+    fs.readdirSync(panoptykSettings.data_dir + '/trades/').forEach(function(file) {
+      fs.readFile(panoptykSettings.data_dir +
         '/trades/' + file, function read(err, data) {
 
         if (err) {
-          server.log(err);
+          logger.log(err);
           return;
         }
 
-        var json = JSON.parse(data);
-        server.log("Loading trade " + json.trade_id, 2);
+        var json = JSON.parse(data.toString());
+        logger.log("Loading trade " + json.id, 2);
         Trade.load(json);
       });
     });
@@ -111,15 +130,15 @@ class Trade {
    * @returns [Object] list of item data dictionaries.
    */
   get_agent_items_data(agent) {
-    data = [];
+    let data = [];
 
     if (agent == this.agent_ini || agent == this.agent_res) {
       for (let item of agent == this.agent_ini ? this.items_ini : this.items_res) {
-        data.push(item.get_data());
+        //TODO data.push(item.get_data());
       }
     }
     else {
-      server.log("No matching agent for trade item data.", 0, 'trade.js');
+      logger.log("No matching agent for trade item data.", 0, 'trade.js');
     }
 
     return data;
@@ -132,13 +151,12 @@ class Trade {
    */
   get_data() {
     return {
-      'trade_id': this.trade_id,
-      'agent_ini_id': this.agent_ini.agent_id,
-      'agent_res_id': this.agent_res.agent_id,
-      'items_ini': this.get_agent_ini_items_data(),
-      'items_res': this.get_agent_res_items_data(),
-      'room_id': this.room.room_id,
-      'conversation_id': this.conversation.conversation_id,
+      'id': this.id,
+      'agent_ini_id': this.agent_ini,
+      'agent_res_id': this.agent_res,
+      'items_ini': this.items_ini,
+      'items_res': this.items_res,
+      'conversation_id': this.conversation,
       'result_status': this.result_status
     }
   }
@@ -184,7 +202,7 @@ class Trade {
       this.items_res.push(...items);
     }
     else {
-      server.log("Agent not in trade", 0, "trade.js");
+      logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
 
@@ -211,7 +229,7 @@ class Trade {
       });
     }
     else {
-      server.log("Agent not in trade", 0, "trade.js");
+      logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
 
@@ -225,36 +243,36 @@ class Trade {
    * Call when trade is over, nomatter if it was successful or not.
    * Unlocks all the items in the trade and removes it from the active trade list.
    */
-  cleanup() {
-    var unlocked = '';
+  // cleanup() { TODO
+  //   var unlocked = '';
 
-    for (let item of this.items_ini) {
-      item.in_transaction = false;
-      unlocked += item.item_id + " ";
-    }
+  //   for (let item of this.items_ini) {
+  //     item.in_transaction = false;
+  //     unlocked += item.item_id + " ";
+  //   }
 
-    for (let item of this.items_res) {
-      item.in_transaction = false;
-      unlocked += item.item_id + " ";
-    }
+  //   for (let item of this.items_res) {
+  //     item.in_transaction = false;
+  //     unlocked += item.item_id + " ";
+  //   }
 
-    Trade.actives.splice(Trade.actives.indexOf(this), 1);
+  //   Trade.actives.splice(Trade.actives.indexOf(this), 1);
 
-    server.log("Unlocked trade " + this.trade_id + " items [ " + unlocked + "]", 2);
-  }
+  //   logger.log("Unlocked trade " + this.id + " items [ " + unlocked + "]", 2);
+  // }
 
 
   /**
    * Find a trade by its id.
-   * @param {int} trade_id - trade id
+   * @param {int} id - trade id
    * @return {Object/null}
    */
-  static get_trade_by_id(trade_id) {
-    if (Trade.objects[trade_id] != undefined) {
-      return Trade.objects[trade_id];
+  static get_trade_by_id(id) {
+    if (Trade.objects[id] != undefined) {
+      return Trade.objects[id];
     }
 
-    server.log('Could not find trade with id ' + trade_id + '.', 0, 'trade.js');
+    logger.log('Could not find trade with id ' + id + '.', 0, 'trade.js');
     return null;
   }
 
@@ -267,18 +285,12 @@ class Trade {
   static get_active_trades_with_agent(agent) {
     var trades = [];
 
-    for (let trade of Trade.actives) {
-      if (trade.agent_ini == agent || trade.agent_res == agent) {
-        trades.push(trade);
-      }
-    }
+    // for (let trade of Trade.actives) {  TODO
+    //   if (trade.agent_ini == agent || trade.agent_res == agent) {
+    //     trades.push(trade);
+    //   }
+    // }
 
     return trades;
   }
 }
-
-Trade.objects = {};
-Trade.nextId = 1;
-Trade.actives = [];
-
-module.exports = Trade;

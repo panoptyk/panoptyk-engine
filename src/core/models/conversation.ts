@@ -1,26 +1,30 @@
+import fs = require('fs');
+import { logger } from "../utilities/logger";
+import { panoptykSettings } from "../utilities/util"
+
 export default class Conversation{
   private static objects = new Map();
 
   private room;
   private max_agents: number;
-  private conversation_id: number;
+  private id: number;
   private agents;
   /**
    * Conversation constructor.
-   * @param {Object} room - room object conversation is in
+   * @param {int} room - room object conversation is in
    * @param {int} max_agents - number of agents that can use this conversation at once.
    * @param {int} id - conversation id, if null one will be assigned.
    */
   constructor(room, max_agents=4, id=null) {
-    this.conversation_id = id === null ? Conversation.objects.length : id;
-    Conversation.objects[this.conversation_id] = this;
+    this.id = id === null ? Conversation.objects.size : id;
+    Conversation.objects[this.id] = this;
 
     this.max_agents = max_agents;
     this.agents = [];
     this.room = room;
     room.add_conversation(this);
 
-    server.log('Conversation intialized in room ' + room.room_id, 2);
+    logger.log('Conversation intialized in room ' + room.room_id, 2);
   }
 
 
@@ -29,7 +33,7 @@ export default class Conversation{
    * @param {JSON} data - serialized conversation json.
    */
   static load(data) {
-    new Conversation(server.models.Room.get_room_by_id(data.room_id), data.max_agents, data.conversation_id);
+    new Conversation(data.room_id, data.max_agents, data.id);
   }
 
 
@@ -41,7 +45,7 @@ export default class Conversation{
     return {
       room_id: this.room.room_id,
       max_agents: this.max_agents,
-      conversation_id: this.conversation_id
+      id: this.id
     }
   }
 
@@ -50,15 +54,15 @@ export default class Conversation{
    * Serialize and write all conversations to file.
    */
   static save_all() {
-    server.log("Saving conversations...", 2);
+    logger.log("Saving conversations...", 2);
     for (var id in Conversation.objects) {
       var conversation = Conversation.objects[id];
-      server.log("Saving conversation " + id, 2);
-      server.modules.fs.writeFileSync(server.settings.data_dir +
+      logger.log("Saving conversation " + id, 2);
+      fs.writeFileSync(panoptykSettings.data_dir +
         '/conversations/' + id + '_conversation.json', JSON.stringify(conversation.serialize()), 'utf8');
     }
 
-    server.log("Conversations saved.", 2);
+    logger.log("Conversations saved.", 2);
   }
 
 
@@ -66,18 +70,18 @@ export default class Conversation{
    * Load all conversations from file into memory.
    */
   static load_all() {
-    server.log("Loading conversations...", 2);
+    logger.log("Loading conversations...", 2);
 
-    server.modules.fs.readdirSync(server.settings.data_dir + '/conversations/').forEach(function(file) {
-      var data = server.modules.fs.readFileSync(server.settings.data_dir +
+    fs.readdirSync(panoptykSettings.data_dir + '/conversations/').forEach(function(file) {
+      const rawdata = fs.readFileSync(panoptykSettings.data_dir +
         '/conversations/' + file, 'utf8');
 
-      data = JSON.parse(data);
-      server.log("Loading conversation " + data.conversation_id, 2);
+      const data = JSON.parse(rawdata);
+      logger.log("Loading conversation " + data.id, 2);
       Conversation.load(data);
     });
 
-    server.log("Conversations loaded.", 2);
+    logger.log("Conversations loaded.", 2);
   }
 
 
@@ -98,7 +102,7 @@ export default class Conversation{
     var index = this.agents.indexOf(agent);
 
     if (index == -1) {
-      server.log("Tried to remove agent not in conversation " + this.conversation_id, 0);
+      logger.log("Tried to remove agent not in conversation " + this.id, 0);
       return;
     }
 
@@ -129,7 +133,7 @@ export default class Conversation{
    */
   get_data() {
     return {
-      conversation_id: this.conversation_id,
+      id: this.id,
       max_agents: this.max_agents,
       agent_ids: this.get_agent_ids()
     }
@@ -138,15 +142,15 @@ export default class Conversation{
 
   /**
    * Find a conversation given an id.
-   * @param {int} conversation_id - id of conversation to find.
+   * @param {int} id - id of conversation to find.
    * @return {Object/null}
    */
-  static get_conversation_by_id(conversation_id) {
-    if (Conversation.objects[conversation_id]) {
-      return Conversation.objects[conversation_id];
+  static get_conversation_by_id(id) {
+    if (Conversation.objects[id]) {
+      return Conversation.objects[id];
     }
 
-    server.log("Could not find conversation with id " + conversation_id, 1);
+    logger.log("Could not find conversation with id " + id, 1);
     return null;
   }
 }

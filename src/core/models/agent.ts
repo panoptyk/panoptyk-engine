@@ -1,11 +1,26 @@
-'use_strict'
-class Agent {
+import fs = require('fs');
+import { logger } from "../utilities/logger";
+import { panoptykSettings } from "../utilities/util"
+
+export default class Agent {
+  private static nextId = 1;
+  private static objects = new Map();
+
+  private name: string;
+  private id: number;
+  private room: number[];
+  private socket;
+  private inventory: number[];
+  private knowledge: number[];
+  private conversation: number[];
+  private conversation_requests = new Map();
+
   /**
    * Agent model.
    * @param {string} username - username of agent
    * @param {int} room - room id of agent. Does not put agent in room, simply saves it.
-   * @param {[Object]} inventory - list of items that agent owns.
-   * @param {[Object]} knowledge - list of items that agent owns.
+   * @param {[int]} inventory - list of items that agent owns.
+   * @param {[int]} knowledge - list of items that agent owns.
    * @param {int} id - id of agent. If null, one will be assigned.
    */
   constructor(username, room=null, inventory=[], knowledge=[], id=null) {
@@ -15,11 +30,10 @@ class Agent {
     this.inventory = inventory;
     this.knowledge = knowledge;
     this.conversation = null;
-    this.conversation_requests = {};
 
-    this.agent_id = (id == null ? Agent.nextId++ : id);
-    Agent.objects[this.agent_id] = this;
-    server.log('Agent ' + this.name + ' initialized.', 2);
+    this.id = (id == null ? Agent.nextId++ : id);
+    Agent.objects[this.id] = this;
+    logger.log('Agent ' + this.name + ' initialized.', 2);
   }
 
 
@@ -32,7 +46,7 @@ class Agent {
     var knowledge = [];
     // load items (handled by items)
 
-    new Agent(data.name, server.models.Room.get_room_by_id(data.room_id), inventory, knowledge, data.agent_id);
+    new Agent(data.name, data.room_id, inventory, knowledge, data.id);
   }
 
 
@@ -55,12 +69,12 @@ class Agent {
 
     if (sel_agent === null) {
       sel_agent = new Agent(username,
-        server.settings.default_room_id);
+        panoptykSettings.default_room_id);
     }
 
     sel_agent.socket = socket;
-    server.send.login_complete(sel_agent);
-    server.control.add_agent_to_room(sel_agent, server.models.Room.objects[sel_agent.room]);
+    //TODO server.send.login_complete(sel_agent);
+    //TODO server.control.add_agent_to_room(sel_agent, server.models.Room.objects[sel_agent.room]);
 
     return sel_agent;
   }
@@ -73,12 +87,12 @@ class Agent {
   serialize() {
     var data = {
       name: this.name,
-      room_id: this.room.room_id,
+      room_id: this.room,
       inventory: [],
-      agent_id: this.agent_id
+      id: this.id
     }
     for (let item of this.inventory) {
-      data.inventory.push(item.item_id);
+      //TODO data.inventory.push(item.item_id);
     }
 
     return data;
@@ -89,17 +103,17 @@ class Agent {
    * Serialize and write all agents to files.
    */
   static save_all() {
-    server.log("Saving agents...", 2);
+    logger.log("Saving agents...", 2);
     for (var id in Agent.objects) {
       var agent = Agent.objects[id];
-      server.log("Saving agent: " + agent.name, 2);
+      logger.log("Saving agent: " + agent.name, 2);
 
-      server.modules.fs.writeFileSync(server.settings.data_dir + '/agents/' +
-          agent.agent_id + '_' + agent.name + '.json',
+      fs.writeFileSync(panoptykSettings.data_dir + '/agents/' +
+          agent.id + '_' + agent.name + '.json',
         JSON.stringify(agent.serialize()), 'utf8');
 
     }
-    server.log("Agents saved.", 2);
+    logger.log("Agents saved.", 2);
   }
 
 
@@ -107,37 +121,37 @@ class Agent {
    * Load all agents from file into memory.
    */
   static load_all() {
-    server.log("Loading agents...", 2);
+    logger.log("Loading agents...", 2);
 
-    server.modules.fs.readdirSync(server.settings.data_dir + '/agents/').forEach(function(file) {
-      server.modules.fs.readFile(server.settings.data_dir +
+    fs.readdirSync(panoptykSettings.data_dir + '/agents/').forEach(function(file) {
+      fs.readFile(panoptykSettings.data_dir +
         '/agents/' + file, function read(err, data) {
 
         if (err) {
-          server.log(err);
+          logger.log(err);
           return;
         }
 
-        var json = JSON.parse(data);
-        server.log("Loading agent " + json.name, 2);
+        var json = JSON.parse(data.toString());
+        logger.log("Loading agent " + json.name, 2);
         Agent.load(json);
       });
     });
 
-    server.log("Agents loaded", 2);
+    logger.log("Agents loaded", 2);
   }
 
 
   /**
    * Static function. Find agent with given id.
-   * @param {int} agent_id - agent id
+   * @param {int} id - agent id
    * @returns {Object/null}
    */
-  static get_agent_by_id(agent_id) {
-    if (Agent.objects[agent_id]){
-      return Agent.objects[agent_id];
+  static get_agent_by_id(id) {
+    if (Agent.objects[id]){
+      return Agent.objects[id];
     }
-    server.log('Could not find agent with id ' + agent_id + '.', 1);
+    logger.log('Could not find agent with id ' + id + '.', 1);
     return null;
   }
 
@@ -156,7 +170,7 @@ class Agent {
       }
     }
 
-    server.log('Could not find agent with socket ' + socket.id + '.', 1);
+    logger.log('Could not find agent with socket ' + socket.id + '.', 1);
     return null;
   }
 
@@ -178,7 +192,7 @@ class Agent {
     var index = this.inventory.indexOf(item.id);
 
     if (index == -1) {
-      server.log('Tried to remove invalid item '+item.name+' from agent '+this.name+'.', 0);
+      logger.log('Tried to remove invalid item '+item.name+' from agent '+this.name+'.', 0);
       return false;
     }
 
@@ -203,7 +217,7 @@ class Agent {
     var index = this.inventory.indexOf(info.id);
 
     if (index == -1) {
-      server.log('Tried to remove invalid information '+info.id+' from agent '+this.name+'.', 0);
+      logger.log('Tried to remove invalid information '+info.id+' from agent '+this.name+'.', 0);
       return false;
     }
 
@@ -226,7 +240,7 @@ class Agent {
    */
   remove_from_room() {
     this.room = null;
-    this.conversation_requests = {};
+    this.conversation_requests = new Map();
   }
 
 
@@ -237,7 +251,7 @@ class Agent {
   get_inventory_data() {
     var dat = [];
     for (let item of this.inventory) {
-      dat.push(item.get_data());
+      //TODO dat.push(item.get_data());
     }
     return dat;
   }
@@ -249,7 +263,7 @@ class Agent {
    */
   get_public_data() {
     return {
-      'agent_id': this.agent_id,
+      'id': this.id,
       'agent_name': this.name,
       'room_id': this.room
     }
@@ -262,7 +276,7 @@ class Agent {
    */
   get_private_data() {
     var dat = this.get_public_data();
-    dat.inventory = this.get_inventory_data();
+    //TODO dat.inventory = this.get_inventory_data();
     return dat;
   }
 
@@ -271,9 +285,9 @@ class Agent {
    * Called on agent logout.
    */
   logout() {
-    server.log("Agent " + this.name + " logged out.", 2);
+    logger.log("Agent " + this.name + " logged out.", 2);
 
-    server.control.remove_agent_from_room(this, null, false);
+    //TODO server.control.remove_agent_from_room(this, null, false);
   }
 
 
@@ -282,7 +296,7 @@ class Agent {
    * @param {Object} conversation - conversation object.
    */
   join_conversation(conversation) {
-    this.conversation_requests = {};
+    this.conversation_requests = new Map();
     this.conversation = conversation;
   }
 
@@ -291,11 +305,6 @@ class Agent {
    * Remove an agent from its' conversation.
    */
   leave_conversation() {
-    this.conversation = null;
+    this.conversation = undefined;
   }
 }
-
-Agent.objects = {};
-Agent.nextId = 1;
-
-module.exports = Agent;

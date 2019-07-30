@@ -1,12 +1,25 @@
-'use strict'
-class Item {
+import fs = require('fs');
+import { logger } from "../utilities/logger";
+import { panoptykSettings } from "../utilities/util"
+
+export default class Item {
+  private static nextId = 1;
+  private static objects = new Map();
+
+  private id: number;
+  private type: number;
+  private name: string;
+  private room: number;
+  private agent: number;
+  private in_transaction: boolean;
+
   /**
    * Item model.
    * @param {string} name - item name
    * @param {string} type - item type
-   * @param {Object} room - room object item is in. (Optional).
-   * @param {Object} agent - agent that owns item. (Optional).
-   * @param {int} id - id of item. If null, one will be assigned.
+   * @param {number} room - room object item is in. (Optional).
+   * @param {number} agent - agent that owns item. (Optional).
+   * @param {number} id - id of item. If null, one will be assigned.
    */
   constructor(name, type, room=null, agent=null, id=null) {
     this.type = type;
@@ -16,18 +29,18 @@ class Item {
 
     this.in_transaction = false;
 
-    this.item_id = id == null ? Item.nextId++ : id;
-    Item.objects[this.item_id] = this;
+    this.id = id == null ? Item.nextId++ : id;
+    Item.objects[this.id] = this;
 
     if (this.room !== null) {
-      this.room.items.push(this);
+      //TODO this.room.items.push(this);
     }
 
     if (this.agent !== null) {
-      this.agent.inventory.push(this);
+      //TODO this.agent.inventory.push(this);
     }
 
-    server.log('Item ' + this.type + ':' + this.name + ' Initialized.', 2);
+    logger.log('Item ' + this.type + ':' + this.name + ' Initialized.', 2);
   }
 
 
@@ -39,9 +52,9 @@ class Item {
     new Item(
       data.name,
       data.type,
-      server.models.Room.get_room_by_id(data.room_id),
-      server.models.Agent.get_agent_by_id(data.agent_id),
-      data.item_id);
+      data.room_id,
+      data.agent_id,
+      data.id);
   }
 
 
@@ -53,9 +66,9 @@ class Item {
     var data = {
       name: this.name,
       type: this.type,
-      room_id: this.room == null ? null : this.room.room_id,
-      agent_id: this.agent == null ? null : this.agent.agent_id,
-      item_id: this.item_id
+      room_id: this.room == null ? null : this.room,
+      agent_id: this.agent == null ? null : this.agent,
+      id: this.id
     }
 
     return data;
@@ -66,18 +79,18 @@ class Item {
    * Serialize all items and save them to files.
    */
   static save_all() {
-    server.log("Saving items...", 2);
+    logger.log("Saving items...", 2);
 
     for (var id in Item.objects) {
       var item = Item.objects[id];
-      server.log("Saving item " + item.name, 2);
+      logger.log("Saving item " + item.name, 2);
 
-      server.modules.fs.writeFileSync(server.settings.data_dir +
-        '/items/' + item.item_id + '_' + item.name + '.json',
+      fs.writeFileSync(panoptykSettings.data_dir +
+        '/items/' + item.id + '_' + item.name + '.json',
         JSON.stringify(item.serialize()), 'utf8');
     }
 
-    server.log("Items saved.", 2);
+    logger.log("Items saved.", 2);
   }
 
 
@@ -85,19 +98,19 @@ class Item {
    * Load all items from file into memory.
    */
   static load_all() {
-    server.log("Loading items...", 2);
+    logger.log("Loading items...", 2);
 
-    server.modules.fs.readdirSync(server.settings.data_dir + '/items/').forEach(function(file) {
-      server.modules.fs.readFile(server.settings.data_dir +
+    fs.readdirSync(panoptykSettings.data_dir + '/items/').forEach(function(file) {
+      fs.readFile(panoptykSettings.data_dir +
         '/items/' + file, function read(err, data) {
 
         if (err) {
-          server.log(err);
+          logger.log(err);
           return;
         }
 
-        var json = JSON.parse(data);
-        server.log("Loading item " + json.name, 2);
+        var json = JSON.parse(data.toString());
+        logger.log("Loading item " + json.name, 2);
         Item.load(json);
       });
     });
@@ -144,7 +157,7 @@ class Item {
    */
   get_data() {
     return {
-      'item_id': this.item_id,
+      'id': this.id,
       'item_type': this.type,
       'item_name': this.name
     }
@@ -153,30 +166,30 @@ class Item {
 
   /**
    * Find an item by its id.
-   * @param {int} item_id - item id
+   * @param {int} id - item id
    * @return {Object/null}
    */
-  static get_item_by_id(item_id) {
-    if (Item.objects[item_id] != undefined) {
-      return Item.objects[item_id];
+  static get_item_by_id(id) {
+    if (Item.objects[id] != undefined) {
+      return Item.objects[id];
     }
 
-    server.log('Could not find item with id ' + item_id + '.', 0);
+    logger.log('Could not find item with id ' + id + '.', 0);
     return null;
   }
 
 
   /**
    * Turn list of ids into list of items.
-   * @param {[int]} item_ids - list of item ids
+   * @param {[int]} ids - list of item ids
    * @returns {[Object]/null}
    */
-  static get_items_by_ids(item_ids) {
+  static get_items_by_ids(ids) {
     var items = [];
-    for (let id of item_ids) {
+    for (let id of ids) {
       items.push(Item.get_item_by_id(id));
       if (items[-1] === null) {
-        server.log('Could not find item for id ' + id + '.', 0);
+        logger.log('Could not find item for id ' + id + '.', 0);
         return null;
       }
     }
@@ -184,8 +197,3 @@ class Item {
     return items;
   }
 }
-
-Item.objects = {};
-Item.nextId = 1;
-
-module.exports = Item;
