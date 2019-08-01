@@ -1,14 +1,18 @@
 import fs = require('fs');
 import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util"
+import { panoptykSettings } from "../utilities/util";
+import Item from "./item";
 
 export default class Agent {
   private static nextId = 1;
-  private static objects = new Map();
+  private static _objects = new Map();
+  public static get objects() {
+    return Agent._objects;
+  }
 
   private name: string;
   private id: number;
-  private room: number[];
+  private room: number;
   private socket;
   private inventory: number[];
   private knowledge: number[];
@@ -23,7 +27,7 @@ export default class Agent {
    * @param {[int]} knowledge - list of items that agent owns.
    * @param {int} id - id of agent. If null, one will be assigned.
    */
-  constructor(username, room=null, inventory=[], knowledge=[], id=null) {
+  constructor(username: string, room: number = null, inventory: number[] = [], knowledge: number[] = [], id: number = null) {
     this.name = username;
     this.room = room;
     this.socket = null;
@@ -32,7 +36,7 @@ export default class Agent {
     this.conversation = null;
 
     this.id = (id == null ? Agent.nextId++ : id);
-    Agent.objects[this.id] = this;
+    Agent._objects[this.id] = this;
     logger.log('Agent ' + this.name + ' initialized.', 2);
   }
 
@@ -59,8 +63,8 @@ export default class Agent {
 
     var sel_agent = null;
 
-    for (var id in Agent.objects) {
-      var agent = Agent.objects[id];
+    for (var id in Agent._objects) {
+      var agent = Agent._objects[id];
       if (agent.name == username) {
         sel_agent = agent;
         break;
@@ -85,16 +89,12 @@ export default class Agent {
    * @returns {JSON}
    */
   serialize() {
-    var data = {
+    const data = {
       name: this.name,
       room_id: this.room,
-      inventory: [],
+      inventory: this.inventory,
       id: this.id
     }
-    for (let item of this.inventory) {
-      //TODO data.inventory.push(item.item_id);
-    }
-
     return data;
   }
 
@@ -104,8 +104,8 @@ export default class Agent {
    */
   static save_all() {
     logger.log("Saving agents...", 2);
-    for (var id in Agent.objects) {
-      var agent = Agent.objects[id];
+    for (var id in Agent._objects) {
+      var agent = Agent._objects[id];
       logger.log("Saving agent: " + agent.name, 2);
 
       fs.writeFileSync(panoptykSettings.data_dir + '/agents/' +
@@ -148,8 +148,8 @@ export default class Agent {
    * @returns {Object/null}
    */
   static get_agent_by_id(id) {
-    if (Agent.objects[id]){
-      return Agent.objects[id];
+    if (Agent._objects[id]){
+      return Agent._objects[id];
     }
     logger.log('Could not find agent with id ' + id + '.', 1);
     return null;
@@ -163,8 +163,8 @@ export default class Agent {
    * @returns {Object/null}
    */
   static get_agent_by_socket(socket) {
-    for (var id in Agent.objects) {
-      var agent = Agent.objects[id];
+    for (var id in Agent._objects) {
+      var agent = Agent._objects[id];
       if (agent.socket === socket) {
         return agent;
       }
@@ -251,7 +251,7 @@ export default class Agent {
   get_inventory_data() {
     var dat = [];
     for (let item of this.inventory) {
-      //TODO dat.push(item.get_data());
+      dat.push(Item[item]);
     }
     return dat;
   }
@@ -265,7 +265,8 @@ export default class Agent {
     return {
       'id': this.id,
       'agent_name': this.name,
-      'room_id': this.room
+      'room_id': this.room,
+      "inventory": []
     }
   }
 
@@ -275,8 +276,8 @@ export default class Agent {
    * @returns {Object}
    */
   get_private_data() {
-    var dat = this.get_public_data();
-    //TODO dat.inventory = this.get_inventory_data();
+    let dat = this.get_public_data();
+    dat.inventory = this.get_inventory_data();
     return dat;
   }
 

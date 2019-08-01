@@ -4,7 +4,10 @@ import { panoptykSettings } from "../utilities/util";
 
 export class Info {
   private static nextID = 0;
-  private static objects = new Map();
+  private static _objects = new Map();
+  public static get objects() {
+    return Info._objects;
+  }
 
   private id?: number;
   private action?: number;
@@ -43,7 +46,7 @@ export class Info {
     this.owner = owner;
     this.time = time;
     this.infoID = infoID;
-    Info.objects[this.id] = this;
+    Info._objects[this.id] = this;
 
     // logger.log('Information ' + 'ID#' + this.id + ' Initialized.', 2);
   }
@@ -94,7 +97,7 @@ export class Info {
 
     fs.writeFileSync(
       panoptykSettings.data_dir + "/info/" + "all_info" + ".json",
-      JSON.stringify({ objects: Info.objects, nextID: Info.nextID })
+      JSON.stringify({ objects: Info._objects, nextID: Info.nextID })
     );
 
     logger.log("Information saved.", 2);
@@ -133,7 +136,7 @@ export class Info {
    * @param {int} id - Info object's id
    */
   static get_info_by_id(id) {
-    return Info.objects[id];
+    return Info._objects[id];
   }
 
   // Predicate types

@@ -1,9 +1,12 @@
 import fs = require('fs');
 import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util"
+import { panoptykSettings } from "../utilities/util";
 
 export default class Conversation{
-  private static objects = new Map();
+  private static _objects = new Map();
+  public static get objects() {
+    return Conversation._objects;
+  }
 
   private room;
   private max_agents: number;
@@ -16,8 +19,8 @@ export default class Conversation{
    * @param {int} id - conversation id, if null one will be assigned.
    */
   constructor(room, max_agents=4, id=null) {
-    this.id = id === null ? Conversation.objects.size : id;
-    Conversation.objects[this.id] = this;
+    this.id = id === null ? Conversation._objects.size : id;
+    Conversation._objects[this.id] = this;
 
     this.max_agents = max_agents;
     this.agents = [];
@@ -55,8 +58,8 @@ export default class Conversation{
    */
   static save_all() {
     logger.log("Saving conversations...", 2);
-    for (var id in Conversation.objects) {
-      var conversation = Conversation.objects[id];
+    for (var id in Conversation._objects) {
+      var conversation = Conversation._objects[id];
       logger.log("Saving conversation " + id, 2);
       fs.writeFileSync(panoptykSettings.data_dir +
         '/conversations/' + id + '_conversation.json', JSON.stringify(conversation.serialize()), 'utf8');
@@ -146,8 +149,8 @@ export default class Conversation{
    * @return {Object/null}
    */
   static get_conversation_by_id(id) {
-    if (Conversation.objects[id]) {
-      return Conversation.objects[id];
+    if (Conversation._objects[id]) {
+      return Conversation._objects[id];
     }
 
     logger.log("Could not find conversation with id " + id, 1);

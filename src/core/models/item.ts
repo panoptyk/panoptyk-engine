@@ -1,10 +1,15 @@
 import fs = require('fs');
 import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util"
+import { panoptykSettings } from "../utilities/util";
+import Room from "./room";
+import Agent from "./agent";
 
 export default class Item {
   private static nextId = 1;
-  private static objects = new Map();
+  private static _objects = new Map();
+  public static get objects() {
+    return Item._objects;
+  }
 
   private id: number;
   private type: number;
@@ -30,14 +35,14 @@ export default class Item {
     this.in_transaction = false;
 
     this.id = id == null ? Item.nextId++ : id;
-    Item.objects[this.id] = this;
+    Item._objects[this.id] = this;
 
     if (this.room !== null) {
-      //TODO this.room.items.push(this);
+      Room[this.room].items.push(this);
     }
 
     if (this.agent !== null) {
-      //TODO this.agent.inventory.push(this);
+      Agent[this.agent].inventory.push(this);
     }
 
     logger.log('Item ' + this.type + ':' + this.name + ' Initialized.', 2);
@@ -81,8 +86,8 @@ export default class Item {
   static save_all() {
     logger.log("Saving items...", 2);
 
-    for (var id in Item.objects) {
-      var item = Item.objects[id];
+    for (var id in Item._objects) {
+      var item = Item._objects[id];
       logger.log("Saving item " + item.name, 2);
 
       fs.writeFileSync(panoptykSettings.data_dir +
@@ -170,8 +175,8 @@ export default class Item {
    * @return {Object/null}
    */
   static get_item_by_id(id) {
-    if (Item.objects[id] != undefined) {
-      return Item.objects[id];
+    if (Item._objects[id] != undefined) {
+      return Item._objects[id];
     }
 
     logger.log('Could not find item with id ' + id + '.', 0);

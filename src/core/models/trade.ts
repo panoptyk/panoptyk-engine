@@ -1,12 +1,16 @@
 import fs = require('fs');
 import { logger } from "../utilities/logger";
 import { panoptykSettings } from "../utilities/util"
-
+import Agent from "./agent";
+import Item from "./item";
 
 export default class Trade {
   private static nextId = 1;
-  private static objects = new Map();
-  private static actives = new Set();
+  private static _objects = new Map();
+  public static get objects() {
+    return Trade._objects;
+  }
+  private static actives: Set<Trade> = new Set();
 
   private id: number;
   private agent_ini: number;
@@ -41,10 +45,10 @@ export default class Trade {
     this.status_res = false;
 
     this.id = id == null ? Trade.nextId++ : id;
-    Trade.objects[this.id] = this;
+    Trade._objects[this.id] = this;
 
     if (this.result_status == 3) {
-      Trade.actives.add(this.id);
+      Trade.actives.add(this);
     }
 
     logger.log('Trade ' + this.id + ' Initialized.', 2);
@@ -88,8 +92,8 @@ export default class Trade {
   static save_all() {
     logger.log("Saving trades...", 2);
 
-    for (var id in Trade.objects) {
-      var trade = Trade.objects[id];
+    for (var id in Trade._objects) {
+      var trade = Trade._objects[id];
       logger.log("Saving trade " + trade.id, 2);
 
       fs.writeFileSync(panoptykSettings.data_dir + '/trades/trade_'
@@ -134,7 +138,7 @@ export default class Trade {
 
     if (agent == this.agent_ini || agent == this.agent_res) {
       for (let item of agent == this.agent_ini ? this.items_ini : this.items_res) {
-        //TODO data.push(item.get_data());
+        data.push(Item[item].get_data());
       }
     }
     else {
@@ -243,23 +247,23 @@ export default class Trade {
    * Call when trade is over, nomatter if it was successful or not.
    * Unlocks all the items in the trade and removes it from the active trade list.
    */
-  // cleanup() { TODO
-  //   var unlocked = '';
+  cleanup() {
+    var unlocked = '';
 
-  //   for (let item of this.items_ini) {
-  //     item.in_transaction = false;
-  //     unlocked += item.item_id + " ";
-  //   }
+    for (let item of this.items_ini) {
+      Item[item].in_transaction = false;
+      unlocked += Item[item].item_id + " ";
+    }
 
-  //   for (let item of this.items_res) {
-  //     item.in_transaction = false;
-  //     unlocked += item.item_id + " ";
-  //   }
+    for (let item of this.items_res) {
+      Item[item].in_transaction = false;
+      unlocked += Item[item].item_id + " ";
+    }
 
-  //   Trade.actives.splice(Trade.actives.indexOf(this), 1);
+    Trade.actives.delete(this);
 
-  //   logger.log("Unlocked trade " + this.id + " items [ " + unlocked + "]", 2);
-  // }
+    logger.log("Unlocked trade " + this.id + " items [ " + unlocked + "]", 2);
+  }
 
 
   /**
@@ -268,8 +272,8 @@ export default class Trade {
    * @return {Object/null}
    */
   static get_trade_by_id(id) {
-    if (Trade.objects[id] != undefined) {
-      return Trade.objects[id];
+    if (Trade._objects[id] != undefined) {
+      return Trade._objects[id];
     }
 
     logger.log('Could not find trade with id ' + id + '.', 0, 'trade.js');
@@ -285,11 +289,11 @@ export default class Trade {
   static get_active_trades_with_agent(agent) {
     var trades = [];
 
-    // for (let trade of Trade.actives) {  TODO
-    //   if (trade.agent_ini == agent || trade.agent_res == agent) {
-    //     trades.push(trade);
-    //   }
-    // }
+    for (let trade of Trade.actives) {
+      if (trade.agent_ini == agent || trade.agent_res == agent) {
+        trades.push(trade);
+      }
+    }
 
     return trades;
   }

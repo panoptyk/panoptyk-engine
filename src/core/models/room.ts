@@ -1,10 +1,16 @@
 import fs = require('fs');
 import { logger } from "../utilities/logger";
 import { panoptykSettings } from "../utilities/util"
+import Agent from "./agent";
+import Item from "./item";
+import Conversation from "./conversation";
 
 export default class Room {
   private static nextId = 1;
-  private static objects = new Map();
+  private static _objects = new Map();
+  public static get objects() {
+    return Room._objects;
+  }
 
   private id: number;
   private name: string;
@@ -28,7 +34,7 @@ export default class Room {
     this.max_occupants = max_occupants;
 
     this.id = (id == null ? Room.nextId++ : id);
-    Room.objects[this.id] = this;
+    Room._objects[this.id] = this;
     logger.log('Room ' + this.name + ' Initialized with id ' + this.id + '.', 2);
   }
 
@@ -64,8 +70,8 @@ export default class Room {
     var room_to_adjacents = {};
 
     logger.log("Saving rooms...", 2);
-    for (var id in Room.objects) {
-      var room = Room.objects[id];
+    for (var id in room._objects) {
+      var room = room._objects[id];
       logger.log("Saving room " + room.name, 2);
       fs.writeFileSync(panoptykSettings.data_dir +
         '/rooms/' + room.id + "_" + room.name + '.json',
@@ -204,12 +210,12 @@ export default class Room {
   get_data() {
     var adj_ids = [];
     for (let room of this.adjacents) {
-      //TODO adj_ids.push({'id':room.id, 'room_name':room.name});
+      adj_ids.push({'id':room, 'room_name':Room[room].name});
     }
 
     var conversation_datas = [];
     for (let conversation of this.conversations) {
-      //TODO conversation_datas.push(conversation.get_data());
+      conversation_datas.push(Conversation[conversation].get_data());
     }
 
     var data = {
@@ -258,7 +264,7 @@ export default class Room {
     var agents = [];
     for (let agent of this.occupants) {
       if (agent !== cur_agent) {
-        //TODO agents.push(agent.get_public_data());
+        agents.push(Agent[agent].get_public_data());
       }
     }
 
@@ -272,9 +278,8 @@ export default class Room {
    */
   get_items() {
     var items_data = [];
-
     for (let item of this.items) {
-      //TODO items_data.push(item.get_data());
+      items_data.push(Item[item].get_data());
     }
     return items_data;
   }
@@ -287,8 +292,8 @@ export default class Room {
    */
   static get_room_by_id(id) {
 
-    if (Room.objects[id] != undefined){
-      return Room.objects[id];
+    if (Room._objects[id] != undefined){
+      return Room._objects[id];
     }
 
     logger.log('Could not find room with id ' + id + '.', 1);
