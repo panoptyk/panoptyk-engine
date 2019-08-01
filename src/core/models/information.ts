@@ -1,15 +1,10 @@
 import { logger } from "../utilities/logger";
 import fs = require("fs");
 import { panoptykSettings } from "../utilities/util";
+import { IDObject } from "./idObject";
 
-export class Info {
-  private static nextID = 0;
-  private static _objects = new Map();
-  public static get objects() {
-    return Info._objects;
-  }
+export class Info extends IDObject {
 
-  private id?: number;
   private action?: number;
   private predicate?: string;
   private owner?: number;
@@ -42,11 +37,10 @@ export class Info {
    * @param {number} infoID - possible predicate pointing to other info needed
    */
   constructor(id, owner, time, infoID?) {
-    this.id = id === undefined ? Info.nextID++ : id;
+    super(id);
     this.owner = owner;
     this.time = time;
     this.infoID = infoID;
-    Info._objects[this.id] = this;
 
     // logger.log('Information ' + 'ID#' + this.id + ' Initialized.', 2);
   }
@@ -87,56 +81,6 @@ export class Info {
       i[key] = info[key];
     }
     return i;
-  }
-
-  /**
-   * Serialize all info and save them to files.
-   */
-  static save_all() {
-    logger.log("Saving information...", 2);
-
-    fs.writeFileSync(
-      panoptykSettings.data_dir + "/info/" + "all_info" + ".json",
-      JSON.stringify({ objects: Info._objects, nextID: Info.nextID })
-    );
-
-    logger.log("Information saved.", 2);
-  }
-
-  /**
-   * Load all info from file into memory.
-   */
-  static load_all() {
-    logger.log("Loading Information...", 2);
-
-    fs
-      .readdirSync(panoptykSettings.data_dir + "/info/")
-      .forEach(function(file) {
-        fs.readFile(
-          panoptykSettings.data_dir + "/info/" + file,
-          function read(err, data) {
-            if (err) {
-              logger.log(err);
-              return;
-            }
-
-            const json = JSON.parse(data.toString());
-            for (const info in json.objects) {
-              Info.load(json.objects[info]);
-            }
-            Info.nextID = json.nextID !== undefined ? json.nextID : 1;
-            // logger.log("Loading info " + json.id, 2);
-          }
-        );
-      });
-  }
-
-  /**
-   * Retrieve Info object by id
-   * @param {int} id - Info object's id
-   */
-  static get_info_by_id(id) {
-    return Info._objects[id];
   }
 
   // Predicate types
@@ -476,3 +420,14 @@ export class Info {
 
 }
 
+// console.log(Info.ACTION.DROP.create(11, [2, 3, 4, 5]));
+// console.log(Info.ACTION.DROP.create(12, [2, 3, 4, 5]));
+// console.log(Info.ACTION.DROP.create(13, [2, 3, 4, 5]));
+// console.log(Info.getObjects());
+// Info.setFileName("info.json");
+// Info.saveAll();
+// Info.purge();
+// console.log(Info.getObjects());
+
+// Info.loadAll();
+// setTimeout(function() {console.log(Info.getObjects()); }, 1000);
