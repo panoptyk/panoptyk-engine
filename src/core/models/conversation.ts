@@ -1,33 +1,28 @@
-import fs = require('fs');
 import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util";
+import { IDObject } from "./idObject";
+import { Room } from "./room";
+import { Agent } from "./agent";
 
-export default class Conversation{
-  private static _objects = new Map();
-  public static get objects() {
-    return Conversation._objects;
-  }
+export class Conversation extends IDObject {
 
-  private room;
-  private max_agents: number;
-  private id: number;
-  private agents;
+  private room: number;
+  private maxAgents: number;
+  private agents: number[];
   /**
    * Conversation constructor.
-   * @param {int} room - room object conversation is in
-   * @param {int} max_agents - number of agents that can use this conversation at once.
-   * @param {int} id - conversation id, if null one will be assigned.
+   * @param {Room} room - room object conversation is in
+   * @param {int} maxAgents - number of agents that can use this conversation at once.
+   * @param {int} id - conversation id, if undefined one will be assigned.
    */
-  constructor(room, max_agents=4, id=null) {
-    this.id = id === null ? Conversation._objects.size : id;
-    Conversation._objects[this.id] = this;
+  constructor(room: Room, maxAgents = 4, id?) {
+    super("Conversation", id);
 
-    this.max_agents = max_agents;
+    this.maxAgents = maxAgents;
     this.agents = [];
-    this.room = room;
-    room.add_conversation(this);
+    this.room = room.id;
+    room.addConversation(this);
 
-    logger.log('Conversation intialized in room ' + room.room_id, 2);
+    logger.log("Conversation intialized in room " + room.id, 2);
   }
 
 
@@ -36,57 +31,8 @@ export default class Conversation{
    * @param {JSON} data - serialized conversation json.
    */
   static load(data) {
-    new Conversation(data.room_id, data.max_agents, data.id);
+    new Conversation(data.room, data.maxAgents, data.id);
   }
-
-
-  /**
-   * Represent this conversation as a json dictionary.
-   * @return {JSON}
-   */
-  serialize() {
-    return {
-      room_id: this.room.room_id,
-      max_agents: this.max_agents,
-      id: this.id
-    }
-  }
-
-
-  /**
-   * Serialize and write all conversations to file.
-   */
-  static save_all() {
-    logger.log("Saving conversations...", 2);
-    for (var id in Conversation._objects) {
-      var conversation = Conversation._objects[id];
-      logger.log("Saving conversation " + id, 2);
-      fs.writeFileSync(panoptykSettings.data_dir +
-        '/conversations/' + id + '_conversation.json', JSON.stringify(conversation.serialize()), 'utf8');
-    }
-
-    logger.log("Conversations saved.", 2);
-  }
-
-
-  /**
-   * Load all conversations from file into memory.
-   */
-  static load_all() {
-    logger.log("Loading conversations...", 2);
-
-    fs.readdirSync(panoptykSettings.data_dir + '/conversations/').forEach(function(file) {
-      const rawdata = fs.readFileSync(panoptykSettings.data_dir +
-        '/conversations/' + file, 'utf8');
-
-      const data = JSON.parse(rawdata);
-      logger.log("Loading conversation " + data.id, 2);
-      Conversation.load(data);
-    });
-
-    logger.log("Conversations loaded.", 2);
-  }
-
 
   /**
    * Add an agent to this conversation.
@@ -102,9 +48,9 @@ export default class Conversation{
    * @param {Object} agent - agent object.
    */
   remove_agent(agent) {
-    var index = this.agents.indexOf(agent);
+    const index = this.agents.indexOf(agent);
 
-    if (index == -1) {
+    if (index === -1) {
       logger.log("Tried to remove agent not in conversation " + this.id, 0);
       return;
     }
@@ -115,14 +61,14 @@ export default class Conversation{
 
   /**
    * Get a list of agent ids for this conversation.
-   * @param {Object} ignore_agent - do not include this agent object in list. (Optional).
+   * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
    * @return {[int]}
    */
-  get_agent_ids(ignore_agent=null) {
-    var ids = [];
-    for (let agent of this.agents) {
-      if (agent !== ignore_agent) {
-        ids.push(agent.agent_id);
+  get_agent_ids(ignoreAgent?: Agent) {
+    const ids = [];
+    for (const agent of this.agents) {
+      if (agent !== ignoreAgent.id) {
+        ids.push(agent);
       }
     }
 
@@ -137,23 +83,9 @@ export default class Conversation{
   get_data() {
     return {
       id: this.id,
-      max_agents: this.max_agents,
+      maxAgents: this.maxAgents,
       agent_ids: this.get_agent_ids()
-    }
+    };
   }
 
-
-  /**
-   * Find a conversation given an id.
-   * @param {int} id - id of conversation to find.
-   * @return {Object/null}
-   */
-  static get_conversation_by_id(id) {
-    if (Conversation._objects[id]) {
-      return Conversation._objects[id];
-    }
-
-    logger.log("Could not find conversation with id " + id, 1);
-    return null;
-  }
 }

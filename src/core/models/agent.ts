@@ -1,23 +1,18 @@
-import fs = require('fs');
+import fs = require("fs");
 import { logger } from "../utilities/logger";
 import { panoptykSettings } from "../utilities/util";
-import Item from "./item";
+import { Item } from "./item";
+import { IDObject } from "./idObject";
 
-export default class Agent {
-  private static nextId = 1;
-  private static _objects = new Map();
-  public static get objects() {
-    return Agent._objects;
-  }
+export class Agent extends IDObject {
 
-  private name: string;
-  private id: number;
+  private roomName: string;
   private room: number;
   private socket;
   private inventory: number[];
   private knowledge: number[];
   private conversation: number[];
-  private conversation_requests = new Map();
+  private conversationRequests = new Map();
 
   /**
    * Agent model.
@@ -25,34 +20,37 @@ export default class Agent {
    * @param {int} room - room id of agent. Does not put agent in room, simply saves it.
    * @param {[int]} inventory - list of items that agent owns.
    * @param {[int]} knowledge - list of items that agent owns.
-   * @param {int} id - id of agent. If null, one will be assigned.
+   * @param {int} id - id of agent. If undefined, one will be assigned.
    */
-  constructor(username: string, room: number = null, inventory: number[] = [], knowledge: number[] = [], id: number = null) {
-    this.name = username;
+  constructor(
+    username: string,
+    room: number = undefined,
+    inventory: number[] = [],
+    knowledge: number[] = [],
+    id: number = undefined
+  ) {
+    super("Agent", id);
+    this.roomName = username;
     this.room = room;
-    this.socket = null;
+    this.socket = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
-    this.conversation = null;
+    this.conversation = undefined;
 
-    this.id = (id == null ? Agent.nextId++ : id);
-    Agent._objects[this.id] = this;
-    logger.log('Agent ' + this.name + ' initialized.', 2);
+    logger.log("Agent " + this.roomName + " initialized.", 2);
   }
-
 
   /**
    * Load and initialize agent object from JSON.
    * @param {dict} data - serialized agent JSON.
    */
   static load(data) {
-    var inventory = [];
-    var knowledge = [];
+    const inventory = [];
+    const knowledge = [];
     // load items (handled by items)
 
     new Agent(data.name, data.room_id, inventory, knowledge, data.id);
   }
-
 
   /**
    * Login an agent. Create new agent or update existing agent with new socket. Send out updates.
@@ -60,29 +58,26 @@ export default class Agent {
    * @param {Object} socket - socket.io client socket object.
    */
   static login(username, socket) {
+    let selAgent = undefined;
 
-    var sel_agent = null;
-
-    for (var id in Agent._objects) {
-      var agent = Agent._objects[id];
-      if (agent.name == username) {
-        sel_agent = agent;
+    for (const id in Agent.objects) {
+      const agent = Agent.objects[id];
+      if (agent.name === username) {
+        selAgent = agent;
         break;
       }
     }
 
-    if (sel_agent === null) {
-      sel_agent = new Agent(username,
-        panoptykSettings.default_room_id);
+    if (selAgent === undefined) {
+      selAgent = new Agent(username, panoptykSettings.default_room_id);
     }
 
-    sel_agent.socket = socket;
-    //TODO server.send.login_complete(sel_agent);
-    //TODO server.control.add_agent_to_room(sel_agent, server.models.Room.objects[sel_agent.room]);
+    selAgent.socket = socket;
+    // TODO server.send.login_complete(selAgent);
+    // TODO server.control.add_agent_to_room(selAgent, server.models.Room.objects[selAgent.room]);
 
-    return sel_agent;
+    return selAgent;
   }
-
 
   /**
    * Get JSON dictionary representing this agent.
@@ -90,90 +85,31 @@ export default class Agent {
    */
   serialize() {
     const data = {
-      name: this.name,
+      name: this.roomName,
       room_id: this.room,
       inventory: this.inventory,
       id: this.id
-    }
+    };
     return data;
   }
-
-
-  /**
-   * Serialize and write all agents to files.
-   */
-  static save_all() {
-    logger.log("Saving agents...", 2);
-    for (var id in Agent._objects) {
-      var agent = Agent._objects[id];
-      logger.log("Saving agent: " + agent.name, 2);
-
-      fs.writeFileSync(panoptykSettings.data_dir + '/agents/' +
-          agent.id + '_' + agent.name + '.json',
-        JSON.stringify(agent.serialize()), 'utf8');
-
-    }
-    logger.log("Agents saved.", 2);
-  }
-
-
-  /**
-   * Load all agents from file into memory.
-   */
-  static load_all() {
-    logger.log("Loading agents...", 2);
-
-    fs.readdirSync(panoptykSettings.data_dir + '/agents/').forEach(function(file) {
-      fs.readFile(panoptykSettings.data_dir +
-        '/agents/' + file, function read(err, data) {
-
-        if (err) {
-          logger.log(err);
-          return;
-        }
-
-        var json = JSON.parse(data.toString());
-        logger.log("Loading agent " + json.name, 2);
-        Agent.load(json);
-      });
-    });
-
-    logger.log("Agents loaded", 2);
-  }
-
-
-  /**
-   * Static function. Find agent with given id.
-   * @param {int} id - agent id
-   * @returns {Object/null}
-   */
-  static get_agent_by_id(id) {
-    if (Agent._objects[id]){
-      return Agent._objects[id];
-    }
-    logger.log('Could not find agent with id ' + id + '.', 1);
-    return null;
-  }
-
 
   /**
    * TODO: Look at this function
    * Static function. Find agent associated with a socket.
    * @param {Object} socket - Socket.io object
-   * @returns {Object/null}
+   * @returns {Object/undefined}
    */
   static get_agent_by_socket(socket) {
-    for (var id in Agent._objects) {
-      var agent = Agent._objects[id];
+    for (const id in Agent.objects) {
+      const agent = Agent.objects[id];
       if (agent.socket === socket) {
         return agent;
       }
     }
 
-    logger.log('Could not find agent with socket ' + socket.id + '.', 1);
-    return null;
+    logger.log("Could not find agent with socket " + socket.id + ".", 1);
+    return undefined;
   }
-
 
   /**
    * Add an item to agent's inventory.
@@ -183,7 +119,6 @@ export default class Agent {
     this.inventory.push(item.id);
   }
 
-
   /**
    * Remove an item from agent inventory.
    * @param {Object} item - item object
@@ -191,8 +126,15 @@ export default class Agent {
   remove_item_inventory(item) {
     var index = this.inventory.indexOf(item.id);
 
-    if (index == -1) {
-      logger.log('Tried to remove invalid item '+item.name+' from agent '+this.name+'.', 0);
+    if (index === -1) {
+      logger.log(
+        "Tried to remove invalid item " +
+          item.name +
+          " from agent " +
+          this.roomName +
+          ".",
+        0
+      );
       return false;
     }
 
@@ -200,14 +142,13 @@ export default class Agent {
     return true;
   }
 
-   /**
+  /**
    * Add an info to agent's knowledge.
    * @param {Info} info - information on event
    */
   add_info_knowledge(info) {
     this.inventory.push(info.id);
   }
-
 
   /**
    * Remove an item from agent inventory.
@@ -217,14 +158,20 @@ export default class Agent {
     var index = this.inventory.indexOf(info.id);
 
     if (index == -1) {
-      logger.log('Tried to remove invalid information '+info.id+' from agent '+this.name+'.', 0);
+      logger.log(
+        "Tried to remove invalid information " +
+          info.id +
+          " from agent " +
+          this.roomName +
+          ".",
+        0
+      );
       return false;
     }
 
     this.inventory.splice(index, 1);
     return true;
   }
-
 
   /**
    * Put agent in room.
@@ -234,15 +181,13 @@ export default class Agent {
     this.room = new_room.room_id;
   }
 
-
   /**
    * Remove agent from room.
    */
   remove_from_room() {
-    this.room = null;
-    this.conversation_requests = new Map();
+    this.room = undefined;
+    this.conversationRequests = new Map();
   }
-
 
   /**
    * Get the data object for this agent's inventory.
@@ -256,20 +201,18 @@ export default class Agent {
     return dat;
   }
 
-
   /**
    * Get the data object for this agent that other agent's can see.
    * @returns {Object}
    */
   get_public_data() {
     return {
-      'id': this.id,
-      'agent_name': this.name,
-      'room_id': this.room,
-      "inventory": []
-    }
+      id: this.id,
+      agent_name: this.roomName,
+      room_id: this.room,
+      inventory: []
+    };
   }
-
 
   /**
    * Get the data object for this agent that the owner agent can see.
@@ -281,26 +224,23 @@ export default class Agent {
     return dat;
   }
 
-
   /**
    * Called on agent logout.
    */
   logout() {
-    logger.log("Agent " + this.name + " logged out.", 2);
+    logger.log("Agent " + this.roomName + " logged out.", 2);
 
-    //TODO server.control.remove_agent_from_room(this, null, false);
+    //TODO server.control.remove_agent_from_room(this, undefined, false);
   }
-
 
   /**
    * Add agent to conversation.
    * @param {Object} conversation - conversation object.
    */
   join_conversation(conversation) {
-    this.conversation_requests = new Map();
+    this.conversationRequests = new Map();
     this.conversation = conversation;
   }
-
 
   /**
    * Remove an agent from its' conversation.

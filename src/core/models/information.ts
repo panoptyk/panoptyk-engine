@@ -1,6 +1,5 @@
-import { logger } from "../utilities/logger";
 import fs = require("fs");
-import { panoptykSettings } from "../utilities/util";
+import { Agent } from "./agent";
 import { IDObject } from "./idObject";
 
 export class Info extends IDObject {
@@ -24,7 +23,7 @@ export class Info extends IDObject {
    * @param {number} id - id of item. If undefined, one will be assigned
    * @param {number} action - action occured as number code
    * @param {String} predicate - predicate contents see Info.PREDICATE Enum
-   * @param {number} owner - Agent who owns this info
+   * @param {Agent} owner - Agent who owns this info
    * @param {number} time - Time information/event happened (possible predicate)
    * @param {bool} query - is this info just a query?
    * @param {number} location - possible predicate of location event occured at
@@ -36,9 +35,9 @@ export class Info extends IDObject {
    * @param {bool} reference - whether this is just a copy of info owned by another agent
    * @param {number} infoID - possible predicate pointing to other info needed
    */
-  constructor(id, owner, time, infoID?) {
-    super(id);
-    this.owner = owner;
+  constructor(owner: Agent | number, time, infoID?, id?) {
+    super("Info", id);
+    this.owner = (owner instanceof Agent) ? owner.id : owner;
     this.time = time;
     this.infoID = infoID;
 
@@ -47,11 +46,11 @@ export class Info extends IDObject {
 
   /**
    * Creates a new copy that references old info for recieving Agent to own
-   * @param {int} owner - Agent who owns this info
+   * @param {Agent} owner - Agent who owns this info
    * @param {int} time - Time information copied
    */
-  make_copy(owner, time) {
-    const i = new Info(undefined, owner, time, this.reference ? this.infoID : this.id);
+  make_copy(owner: Agent | number, time) {
+    const i = new Info(owner, time, this.reference ? this.infoID : this.id);
     i.reference = true;
     return i;
   }

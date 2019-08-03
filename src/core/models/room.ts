@@ -1,302 +1,204 @@
-import fs = require('fs');
+import fs = require("fs");
 import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util"
-import Agent from "./agent";
-import Item from "./item";
-import Conversation from "./conversation";
+import { panoptykSettings } from "../utilities/util";
+import { Agent } from "./agent";
+import { Item } from "./item";
+import { Conversation } from "./conversation";
+import { IDObject } from "./idObject";
 
-export default class Room {
-  private static nextId = 1;
-  private static _objects = new Map();
-  public static get objects() {
-    return Room._objects;
-  }
-
-  private id: number;
+export class Room extends IDObject {
   private name: string;
   private adjacents: number[];
   private occupants: number[];
   private items: number[];
   private conversations: number[];
-  private max_occupants: number;
+  private maxOccupants: number;
 
   /**
    * Room model.
    * @param {string} name - name of room
    * @param {int} id - Room id, if null one will be assigned.
    */
-  constructor(name, max_occupants, id=null) {
+  constructor(name, maxOccupants, id?) {
+    super("Room", id);
     this.name = name;
     this.adjacents = [];
     this.occupants = [];
     this.items = [];
     this.conversations = [];
-    this.max_occupants = max_occupants;
+    this.maxOccupants = maxOccupants;
 
-    this.id = (id == null ? Room.nextId++ : id);
-    Room._objects[this.id] = this;
-    logger.log('Room ' + this.name + ' Initialized with id ' + this.id + '.', 2);
+    logger.log(
+      "Room " + this.name + " Initialized with id " + this.id + ".",
+      2
+    );
   }
-
 
   /**
    * Load a JSON object into memory.
    * @param {JSON} data - serialized room JSON.
    */
   static load(data) {
-    new Room(data.name, data.max_occupants, data.id);
-  }
-
-
-  /**
-   * Serialize this room into JSON object.
-   * @return {JSON}
-   */
-  serialize() {
-    var data = {
-      name: this.name,
-      max_occupants: this.max_occupants,
-      id: this.id
+    const r = new Room(data.name, data.maxOccupants, data.id);
+    for (const key in data) {
+      r[key] = data[key];
     }
-
-    return data;
+    return r;
   }
-
-
-  /**
-   * Serialize and write all rooms to file.
-   */
-  static save_all() {
-    var room_to_adjacents = {};
-
-    logger.log("Saving rooms...", 2);
-    for (var id in room._objects) {
-      var room = room._objects[id];
-      logger.log("Saving room " + room.name, 2);
-      fs.writeFileSync(panoptykSettings.data_dir +
-        '/rooms/' + room.id + "_" + room.name + '.json',
-        JSON.stringify(room.serialize()), 'utf8');
-
-      room_to_adjacents[room.id] = [];
-      for (let adj of room.adjacents) {
-        room_to_adjacents[room.id].push(adj.id);
-      }
-    }
-
-    logger.log("Saving Room Connections", 2);
-
-    fs.writeFileSync(panoptykSettings.data_dir + '/rooms/room_connections.json',
-      JSON.stringify(room_to_adjacents), 'utf8');
-
-    logger.log("Rooms saved.", 2);
-  }
-
-
-  /**
-   * Load all room from file to memory.
-   */
-  static load_all() {
-    logger.log("Loading rooms...", 2);
-
-    fs.readdirSync(panoptykSettings.data_dir + '/rooms/').forEach(function(file) {
-      if (file !== 'room_connections.json') {
-        const rawdata = fs.readFileSync(panoptykSettings.data_dir +
-          '/rooms/' + file, 'utf8');
-
-        const data = JSON.parse(rawdata);
-        logger.log("Loading room " + data.name, 2);
-        Room.load(data);
-      }
-    });
-
-    logger.log("Loading Room Connections", 2);
-    try {
-      var connections = JSON.parse(fs.readFileSync(panoptykSettings.data_dir +
-        '/rooms/room_connections.json').toString());
-
-      for (var id in connections) {
-        var room = Room.get_room_by_id(id);
-        for (let adj_id of connections[id]) {
-          var adj = Room.get_room_by_id(adj_id);
-          room.connect_room(adj, false);
-        }
-      }
-    }
-    catch(err) {
-      logger.log(err, 1);
-    }
-
-    logger.log("Rooms loaded.", 2);
-  }
-
 
   /**
    * Allow movement from this room to another room.
-   * @param {Object} other_room - room object to connect
-   * @param {boolean} two_way - allow movement from other room to this room, default true
+   * @param {Object} otherRoom - room object to connect
+   * @param {boolean} twoWay - allow movement from other room to this room, default true
    */
-  connect_room(other_room, two_way=true) {
-    this.adjacents.push(other_room);
-    if (two_way) {
-      other_room.connect_room(this, false);
+  connectRoom(otherRoom, twoWay = true) {
+    this.adjacents.push(otherRoom);
+    if (twoWay) {
+      otherRoom.connectRoom(this, false);
     }
 
-    logger.log('Conected room ' + this.name + ' to room ' + other_room.name + '.', 2);
+    logger.log(
+      "Conected room " + this.name + " to room " + otherRoom.name + ".",
+      2
+    );
   }
-
 
   /**
    * Check if it's possible to move from this room to target room.
    * @param {Object} room2 - target room
    * @return {boolean}
    */
-  is_connected_to(room2) {
+  isConnectedTo(room2) {
     return this.adjacents.indexOf(room2) !== -1;
   }
 
-
   /**
    * Add an agent to this room.
-   * @param {Object} agent - agent object to put in this room.
+   * @param {Agent} agent - agent object to put in this room.
    */
-  add_agent(agent, old_room=null) {
-    this.occupants.push(agent);
+  addAgent(agent: Agent, oldRoom?) {
+    this.occupants.push(agent.id);
   }
-
 
   /**
    * Add an item to this room.
    * @param {Object} item - item to put in room.
    */
-  add_item(item) {
+  addItem(item) {
     logger.log("Adding item " + item.name + " to room " + this.name, 2);
     this.items.push(item);
   }
-
 
   /**
    * Remove an item from this room.
    * @param {Object} item - item to remove.
    */
-  remove_item(item) {
-    logger.log("Removing item " + item.name + " from room object " +
-      this.name + ", index=" + this.items.indexOf(item), 2);
+  removeItem(item) {
+    logger.log(
+      "Removing item " +
+        item.name +
+        " from room object " +
+        this.name +
+        ", index=" +
+        this.items.indexOf(item),
+      2
+    );
 
     this.items.splice(this.items.indexOf(item), 1);
   }
 
-
   /**
    * Removes an agent from this room.
    * @param {Object} agent - agent to remove
-   * @param {Object} new_room - room agent is heading to.
+   * @param {Object} newRoom - room agent is heading to.
    */
-  remove_agent(agent, new_room) {
-    var index = this.occupants.indexOf(agent);
+  removeAgent(agent, newRoom) {
+    const index = this.occupants.indexOf(agent);
 
-    if (index == -1) {
-      logger.log('Agent ' + agent.name + ' not in room ' + this.name + '.', 0);
+    if (index === -1) {
+      logger.log("Agent " + agent.name + " not in room " + this.name + ".", 0);
       return false;
     }
 
     this.occupants.splice(index, 1);
   }
 
-
   /**
    * Get data to send to client.
    * @returns {Object}
    */
-  get_data() {
-    var adj_ids = [];
-    for (let room of this.adjacents) {
-      adj_ids.push({'id':room, 'room_name':Room[room].name});
+  getData() {
+    const adjIds = [];
+    for (const room of this.adjacents) {
+      adjIds.push({ id: room, room_name: Room[room].name });
     }
 
-    var conversation_datas = [];
-    for (let conversation of this.conversations) {
-      conversation_datas.push(Conversation[conversation].get_data());
+    const conversationDatas = [];
+    for (const conversation of this.conversations) {
+      conversationDatas.push(Conversation[conversation].getData());
     }
 
-    var data = {
-      'id': this.id,
-      'room_name': this.name,
-      'adjacent_rooms': adj_ids,
-      'layout': {
-        'conversations': conversation_datas
+    const data = {
+      id: this.id,
+      room_name: this.name,
+      adjacent_rooms: adjIds,
+      layout: {
+        conversations: conversationDatas
       }
-    }
+    };
 
     return data;
   }
-
 
   /**
    * Add a conversation to a room.
    * @param {Object} conversation - conversation to add to room.
    */
-  add_conversation(conversation) {
+  addConversation(conversation) {
     this.conversations.push(conversation);
   }
-
 
   /**
    * Remove a conversation from this room.
    * @param {Object} conversation - conversation object.
    */
-  remove_conversation(conversation) {
-    var index = this.conversations.indexOf(conversation);
+  removeConversation(conversation) {
+    const index = this.conversations.indexOf(conversation);
 
-    if (index == -1) {
-      logger.log("Could not remove conversation " + conversation.conversation_id, 0);
+    if (index === -1) {
+      logger.log(
+        "Could not remove conversation " + conversation.conversationId,
+        0
+      );
       return;
     }
 
     this.conversations.splice(index, 1);
   }
 
-
   /**
    * Get the data for agents in this room.
-   * @returns {Object}
+   * @returns {Agent}
    */
-  get_agents(cur_agent=null) {
-    var agents = [];
-    for (let agent of this.occupants) {
-      if (agent !== cur_agent) {
-        agents.push(Agent[agent].get_public_data());
+  getAgents(curAgent?: Agent) {
+    const agents = [];
+    for (const agent of this.occupants) {
+      if (agent !== curAgent.id) {
+        agents.push(Agent.getByID(agent));
       }
     }
-
     return agents;
   }
-
 
   /**
    * Get the data for items in this room.
    * @returns {Object}
    */
-  get_items() {
-    var items_data = [];
-    for (let item of this.items) {
-      items_data.push(Item[item].get_data());
+  getItems() {
+    const itemsData = [];
+    for (const item of this.items) {
+      itemsData.push(Item[item].getData());
     }
-    return items_data;
-  }
-
-
-  /**
-   * Static function. Get a room by id.
-   * @param id {int} - id of room.
-   * @returns {Object/null}
-   */
-  static get_room_by_id(id) {
-
-    if (Room._objects[id] != undefined){
-      return Room._objects[id];
-    }
-
-    logger.log('Could not find room with id ' + id + '.', 1);
-    return null;
+    return itemsData;
   }
 }

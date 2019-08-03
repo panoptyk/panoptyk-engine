@@ -11,42 +11,50 @@ export abstract class IDObject {
    * This function clears the entire set of objects tracked by ID
    */
   public static purge() {
-    this._objects.set(this.constructor, new Map());
-    this._nextID.set(this.constructor, 1);
+    this._objects.set(this.name, new Map());
+    this._nextID.set(this.name, 1);
   }
 
-  public static getNextID(): number {
+  public static getNextID(name?: string): number {
     let id: number;
+    const key = name ? name : this.name;
 
-    if (!IDObject._nextID.has(this.constructor)) {
-      IDObject._nextID.set(this.constructor, 1);
+    if (!IDObject._nextID.has(key)) {
+      IDObject._nextID.set(key, 1);
     }
-    id = IDObject._nextID.get(this.constructor);
-    IDObject._nextID.set(this.constructor, id + 1);
+    id = IDObject._nextID.get(key);
+    IDObject._nextID.set(key, id + 1);
 
     return id;
   }
 
   public static get nextID() {
-    return IDObject._nextID.get(this.constructor);
+    return IDObject._nextID.get(this.name);
   }
 
   public static get objects(): Map<number, IDObject> {
-    if (!IDObject._objects.has(this.constructor)) {
-      IDObject._objects.set(this.constructor, new Map());
+    if (!IDObject._objects.has(this.name)) {
+      IDObject._objects.set(this.name, new Map());
     }
-    return IDObject._objects.get(this.constructor);
+    return IDObject._objects.get(this.name);
+  }
+
+  private static getObjectByName(name: string): Map<number, IDObject> {
+    if (!IDObject._objects.has(name)) {
+      IDObject._objects.set(name, new Map());
+    }
+    return IDObject._objects.get(name);
   }
 
   public static get fileName() {
-    if (!IDObject._fileName.has(this.constructor)) {
-      IDObject._fileName.set(this.constructor, this.name + ".json");
+    if (!IDObject._fileName.has(this.name)) {
+      IDObject._fileName.set(this.name, this.name + ".json");
     }
-    return IDObject._fileName.get(this.constructor);
+    return IDObject._fileName.get(this.name);
   }
 
   public static set fileName(name: string) {
-    IDObject._fileName.set(this.constructor, name);
+    IDObject._fileName.set(this.name, name);
   }
 
   public static getPath() {
@@ -61,7 +69,7 @@ export abstract class IDObject {
       panoptykSettings.data_dir + "/" + this.fileName,
       JSON.stringify({
         objects: this.objects,
-        nextID: IDObject.nextID
+        nextID: this.nextID
       })
     );
   }
@@ -78,7 +86,7 @@ export abstract class IDObject {
       (this as any).load(json.objects[key]);
     }
 
-    IDObject._nextID.set(this.constructor, json.nextID);
+    IDObject._nextID.set(this.name, json.nextID);
   }
 
   /**
@@ -89,13 +97,13 @@ export abstract class IDObject {
     return this.objects[id];
   }
 
-  id?: number;
+  public id?: number;
 
-  constructor(id?) {
+  constructor(name: string, id?) {
     this.id = id;
     if (!this.id) {
-      this.id = IDObject.getNextID();
+      this.id = IDObject.getNextID(name);
     }
-    IDObject.objects[this.id] = this;
+    IDObject.getObjectByName(name)[this.id] = this;
   }
 }
