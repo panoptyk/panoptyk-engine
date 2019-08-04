@@ -116,7 +116,7 @@ export class Room extends IDObject {
     const index = this.occupants.indexOf(agent);
 
     if (index === -1) {
-      logger.log("Agent " + agent.name + " not in room " + this.name + ".", 0);
+      logger.log("Agent " + agent.agentName + " not in room " + this.name + ".", 0);
       return false;
     }
 

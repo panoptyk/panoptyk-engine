@@ -5,9 +5,14 @@ import { Item } from "./item";
 import { IDObject } from "./idObject";
 
 export class Agent extends IDObject {
-
-  private roomName: string;
-  private room: number;
+  private _agentName: string;
+  public get agentName(): string {
+    return this._agentName;
+  }
+  private _room: number;
+  public get room(): number {
+    return this._room;
+  }
   private socket;
   private inventory: number[];
   private knowledge: number[];
@@ -30,14 +35,14 @@ export class Agent extends IDObject {
     id: number = undefined
   ) {
     super("Agent", id);
-    this.roomName = username;
-    this.room = room;
+    this._agentName = username;
+    this._room = room;
     this.socket = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
     this.conversation = undefined;
 
-    logger.log("Agent " + this.roomName + " initialized.", 2);
+    logger.log("Agent " + this._agentName + " initialized.", 2);
   }
 
   /**
@@ -62,7 +67,7 @@ export class Agent extends IDObject {
 
     for (const id in Agent.objects) {
       const agent = Agent.objects[id];
-      if (agent.name === username) {
+      if (agent.agentName === username) {
         selAgent = agent;
         break;
       }
@@ -85,8 +90,8 @@ export class Agent extends IDObject {
    */
   serialize() {
     const data = {
-      name: this.roomName,
-      room_id: this.room,
+      name: this.agentName,
+      room_id: this._room,
       inventory: this.inventory,
       id: this.id
     };
@@ -131,7 +136,7 @@ export class Agent extends IDObject {
         "Tried to remove invalid item " +
           item.name +
           " from agent " +
-          this.roomName +
+          this.agentName +
           ".",
         0
       );
@@ -162,7 +167,7 @@ export class Agent extends IDObject {
         "Tried to remove invalid information " +
           info.id +
           " from agent " +
-          this.roomName +
+          this.agentName +
           ".",
         0
       );
@@ -178,14 +183,14 @@ export class Agent extends IDObject {
    * @param {Object} new_room - room to move to
    */
   put_in_room(new_room) {
-    this.room = new_room.room_id;
+    this._room = new_room.room_id;
   }
 
   /**
    * Remove agent from room.
    */
   remove_from_room() {
-    this.room = undefined;
+    this._room = undefined;
     this.conversationRequests = new Map();
   }
 
@@ -208,8 +213,8 @@ export class Agent extends IDObject {
   get_public_data() {
     return {
       id: this.id,
-      agent_name: this.roomName,
-      room_id: this.room,
+      agent_name: this.agentName,
+      room_id: this._room,
       inventory: []
     };
   }
@@ -228,7 +233,7 @@ export class Agent extends IDObject {
    * Called on agent logout.
    */
   logout() {
-    logger.log("Agent " + this.roomName + " logged out.", 2);
+    logger.log("Agent " + this.agentName + " logged out.", 2);
 
     //TODO server.control.remove_agent_from_room(this, undefined, false);
   }

@@ -161,7 +161,7 @@ Controller.remove_agent_from_room = function(agent, new_room=null, update_agent_
   var old_room = server.models.Room.objects[agent.room];
 
   if (old_room === null) {
-    server.log("Cannot remove agent " + agent.name + " from room, agent is not in room.", 0);
+    server.log("Cannot remove agent " + agent.agentName + " from room, agent is not in room.", 0);
     return;
   }
 
@@ -249,7 +249,7 @@ Controller.remove_items_from_room = function(items, by_agent=null) {
 Controller.add_agent_to_conversation = function(conversation, agent) {
   Controller.remove_agent_from_conversation_if_in(agent);
 
-  server.log("Adding agent " + agent.name + " to conversation " + conversation.conversation_id, 2);
+  server.log("Adding agent " + agent.agentName + " to conversation " + conversation.conversation_id, 2);
   agent.join_conversation(conversation);
   conversation.add_agent(agent);
 
@@ -263,7 +263,7 @@ Controller.add_agent_to_conversation = function(conversation, agent) {
  * @param {Object} agent - agent object
  */
 Controller.remove_agent_from_conversation = function(conversation, agent) {
-  server.log("Removing agent " + agent.name + " from conversation " + conversation.conversation_id, 2);
+  server.log("Removing agent " + agent.agentName + " from conversation " + conversation.conversation_id, 2);
 
   Controller.end_all_trades_with_agent(agent);
 

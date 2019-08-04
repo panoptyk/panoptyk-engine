@@ -5,7 +5,7 @@ import { Agent } from "./agent";
 import { Item } from "./item";
 import { IDObject } from "./idObject";
 
-export default class Trade extends IDObject {
+export class Trade extends IDObject {
   private static actives: Set<Trade> = new Set();
 
   private agent_ini: number;
