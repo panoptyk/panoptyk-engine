@@ -1,6 +1,13 @@
-const logLevelNames = [" ERROR ", "WARNING", "  INFO "];
-
 class Logger {
+
+  public static logLevels = {
+    "0": " ERROR ",
+    "1": "WARNING",
+    "2": "  INFO ",
+    ERROR: 0,
+    WARNING: 1,
+    INFO: 2,
+  };
 
   constructor(private logLevel = 2, private logLineLen = 99) {
 
@@ -15,7 +22,7 @@ class Logger {
     if (logLevel <= this.logLevel) {
       const prefix = "[" + (new Date()).toISOString()
         .replace(/T/, " ").replace(/\..+/, "") + "]═["
-        + logLevelNames[logLevel] + "]══";
+        + Logger.logLevels[logLevel] + "]══";
 
       msg = prefix + (prefix.length + msg.length >= this.logLineLen ?
         "╦═╡ " : "══╡ ") + msg;
@@ -40,3 +47,4 @@ class Logger {
 
 export let logger = new Logger();
 
+export const LOG = Logger.logLevels;
