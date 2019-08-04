@@ -1,96 +1,103 @@
-import fs = require("fs");
-import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util";
+import { logger, LOG } from "../utilities/logger";
 import { Room } from "./room";
 import { Agent } from "./agent";
 import { IDObject } from "./idObject";
+import { stringify } from "querystring";
 
 export class Item extends IDObject {
 
   private type: number;
-  private name: string;
-  private room: number;
-  private agent: number;
+  private itemName: string;
+  private roomID: number;
+  private agentID: number;
   private inTransaction: boolean;
 
   /**
    * Item model.
-   * @param {string} name - item name
+   * @param {string} itemName - item name
    * @param {string} type - item type
-   * @param {number} room - room object item is in. (Optional).
-   * @param {number} agent - agent that owns item. (Optional).
+   * @param {Room} room - room object item is in. (Optional).
+   * @param {Agent} agent - agent that owns item. (Optional).
    * @param {number} id - id of item. If null, one will be assigned.
    */
-  constructor(name, type, room?, agent?, id?) {
+  constructor(itemName, type, room?: Room, agent?: Agent, id?) {
     super("Item", id);
 
+    this.itemName = itemName;
     this.type = type;
-    this.name = name;
-    this.room = room;
-    this.agent = agent;
+    this.roomID = room ? room.id : undefined;
+    this.agentID = agent ? agent.id : undefined;
 
     this.inTransaction = false;
 
-    if (this.room !== null) {
-      Room[this.room].items.push(this);
+    if (room) {
+      (Room.getByID(this.roomID) as Room).addItem(this);
     }
 
-    if (this.agent !== null) {
-      Agent[this.agent].inventory.push(this);
+    if (agent) {
+      (Agent.getByID(this.agentID) as Agent).add_item_inventory(this);
     }
 
-    logger.log("Item " + this.type + ":" + this.name + " Initialized.", 2);
+    logger.log("Item " + this + " Initialized.", LOG.INFO);
   }
 
   /**
    * Load an item JSON into memory.
-   * @param {JSON} data - serialized item object.
+   * @param {JSON} json - serialized item object.
    */
-  static load(data) {
-    new Item(data.name, data.type, data.room_id, data.agent_id, data.id);
+  static load(json: Item) {
+    const i = new Item(json.itemName, json.type, undefined, undefined, json.id);
+    for (const key in json) {
+      i[key] = json[key];
+    }
+    return i;
+  }
+
+  toString() {
+    return this.itemName + ":" + this.type + " (id#" + this.id + ")";
   }
 
   /**
    * Put item in room.
-   * @param {Object} room - room object to put item in.
+   * @param {Room} room - room object to put item in.
    */
-  put_in_room(room) {
-    this.room = room;
+  putInRoom(room: Room) {
+    this.roomID = room.id;
   }
 
   /**
    * Remove item from its room and send updates.
    */
   remove_from_room() {
-    this.room = undefined;
+    this.roomID = undefined;
   }
 
   /**
    * Give this item to an agent.
-   * @param {Object} agent - agent object to give item to.
+   * @param {Agent} agent - agent object to give item to.
    */
-  give_to_agent(agent) {
-    this.agent = agent;
+  giveToAgent(agent: Agent) {
+    this.agentID = agent.id;
   }
 
   /**
    * Take this item from an agent.
    */
-  take_from_agent() {
-    this.agent = undefined;
+  takeFromAgent() {
+    this.agentID = undefined;
   }
 
-  /**
-   * Get 'ready-to-send' data to send to client.
-   * @returns {Object}
-   */
-  get_data() {
-    return {
-      id: this.id,
-      item_type: this.type,
-      item_name: this.name
-    };
-  }
+  // /**
+  //  * Get 'ready-to-send' data to send to client.
+  //  * @returns {Object}
+  //  */
+  // getData() {
+  //   return {
+  //     id: this.id,
+  //     item_type: this.type,
+  //     item_name: this.itemName
+  //   };
+  // }
 
 //   /**
 //    * Turn list of ids into list of items.

@@ -1,4 +1,3 @@
-import fs = require("fs");
 import { Agent } from "./agent";
 import { IDObject } from "./idObject";
 
@@ -35,49 +34,32 @@ export class Info extends IDObject {
    * @param {bool} reference - whether this is just a copy of info owned by another agent
    * @param {number} infoID - possible predicate pointing to other info needed
    */
-  constructor(owner: Agent | number, time, infoID?, id?) {
+  constructor(owner: Agent, time, infoID?, id?) {
     super("Info", id);
-    this.owner = (owner instanceof Agent) ? owner.id : owner;
+    this.owner = owner ? owner.id : undefined;
     this.time = time;
     this.infoID = infoID;
-
-    // logger.log('Information ' + 'ID#' + this.id + ' Initialized.', 2);
   }
 
   /**
    * Creates a new copy that references old info for recieving Agent to own
    * @param {Agent} owner - Agent who owns this info
-   * @param {int} time - Time information copied
+   * @param {number} time - Time information was copied
    */
-  make_copy(owner: Agent | number, time) {
+  makeCopy(owner: Agent, time) {
     const i = new Info(owner, time, this.reference ? this.infoID : this.id);
     i.reference = true;
     return i;
   }
 
   /**
-   * Give this info to an agent.
-   * @param {Object} owner - agent object to give info to.
-   */
-  give_to_agent(owner) {
-    this.owner = owner.agent_id;
-  }
-
-  /**
-   * Take this info from an agent.
-   */
-  take_from_agent() {
-    this.owner = undefined;
-  }
-
-  /**
    * Pass JSON parsed object to be loaded in as info
-   * @param {Object} info
+   * @param {Object} json
    */
-  static load(info) {
-    const i = new Info(info.id, info.owner, info.time, info.infoId);
-    for (const key in info) {
-      i[key] = info[key];
+  static load(json) {
+    const i = new Info(undefined, json.time, json.infoId, json.id);
+    for (const key in json) {
+      i[key] = json[key];
     }
     return i;
   }
@@ -413,20 +395,8 @@ export class Info extends IDObject {
    * Retrieves action object by its code stored in Info.action
    * @param {int} code - action code
    */
-  static get_ACTION(code) {
+  static getACTION(code) {
     return Info.ACTION[Object.keys(Info.ACTION)[code]];
   }
 
 }
-
-// console.log(Info.ACTION.DROP.create(11, [2, 3, 4, 5]));
-// console.log(Info.ACTION.DROP.create(12, [2, 3, 4, 5]));
-// console.log(Info.ACTION.DROP.create(13, [2, 3, 4, 5]));
-// console.log(Info.getObjects());
-// Info.setFileName("info.json");
-// Info.saveAll();
-// Info.purge();
-// console.log(Info.getObjects());
-
-// Info.loadAll();
-// setTimeout(function() {console.log(Info.getObjects()); }, 1000);

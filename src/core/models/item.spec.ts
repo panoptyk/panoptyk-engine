@@ -1,26 +1,22 @@
 import { assert } from "chai";
 import "mocha";
-import { Info } from "./information";
 import fs = require("fs");
+import { Item } from "./item";
 
-const idObj = Info;
+const idObj = Item;
 
-describe("Info Class", function() {
+describe("Item Class", function() {
     describe("Load Function", function() {
         it("Exists", function() {
-            assert.exists((Info as any).load);
+            assert.exists((Item as any).load);
         });
     });
 
     describe("Test Save/Load", function() {
         it("Save -> Load", function() {
-            const i1 = new Info(undefined, 10);
-            const i2 = new Info(undefined, 10);
-            const i3 = new Info(undefined, 10);
-
-            (i1 as any).owner = 3;
-            (i2 as any).owner = 4;
-            (i3 as any).owner = 5;
+            const i1 = new Item("Item 1", "type 1");
+            const i2 = new Item("Item 2", "type 2");
+            const i3 = new Item("Item 3", "type 3");
 
             assert.exists(i1);
             assert.exists(i2);

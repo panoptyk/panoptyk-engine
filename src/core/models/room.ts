@@ -1,4 +1,3 @@
-import fs = require("fs");
 import { logger } from "../utilities/logger";
 import { Agent } from "./agent";
 import { Item } from "./item";
@@ -7,10 +6,10 @@ import { IDObject } from "./idObject";
 
 export class Room extends IDObject {
   private roomName: string;
-  private adjacents: number[];
+  private adjacent: number[];
   private occupants: number[];
-  private items: number[];
-  private conversations: number[];
+  private itemIDs: number[];
+  private conversationIDs: number[];
   private maxOccupants: number;
 
   /**
@@ -21,10 +20,10 @@ export class Room extends IDObject {
   constructor(roomName, maxOccupants, id?) {
     super("Room", id);
     this.roomName = roomName;
-    this.adjacents = [];
+    this.adjacent = [];
     this.occupants = [];
-    this.items = [];
-    this.conversations = [];
+    this.itemIDs = [];
+    this.conversationIDs = [];
     this.maxOccupants = maxOccupants;
 
     logger.log(
@@ -55,7 +54,7 @@ export class Room extends IDObject {
    * @param {boolean} twoWay - allow movement from other room to this room, default true
    */
   connectRoom(otherRoom: Room, twoWay = true) {
-    this.adjacents.push(otherRoom.id);
+    this.adjacent.push(otherRoom.id);
     if (twoWay) {
       otherRoom.connectRoom(this, false);
     }
@@ -69,7 +68,7 @@ export class Room extends IDObject {
    * @return {boolean}
    */
   isConnectedTo(room: Room) {
-    return this.adjacents.indexOf(room.id) !== -1;
+    return this.adjacent.indexOf(room.id) !== -1;
   }
 
   /**
@@ -107,78 +106,51 @@ export class Room extends IDObject {
    */
   addItem(item: Item) {
     logger.log("Adding item " + item + " to room " + this, 2);
-    this.items.push(item.id);
+    this.itemIDs.push(item.id);
   }
 
   /**
    * Remove an item from this room.
-   * @param {Object} item - item to remove.
+   * @param {Item} item - item to remove.
    */
-  removeItem(item) {
+  removeItem(item: Item) {
     logger.log(
       "Removing item " +
-        item.name +
-        " from room object " +
+        item +
+        " from room " +
         this +
         ", index=" +
-        this.items.indexOf(item),
+        this.itemIDs.indexOf(item.id),
       2
     );
 
-    this.items.splice(this.items.indexOf(item), 1);
-  }
-
-  /**
-   * Get data to send to client.
-   * @returns {Object}
-   */
-  getData() {
-    const adjIds = [];
-    for (const room of this.adjacents) {
-      adjIds.push({ id: room, room_name: Room[room].name });
-    }
-
-    const conversationDatas = [];
-    for (const conversation of this.conversations) {
-      conversationDatas.push(Conversation[conversation].getData());
-    }
-
-    const data = {
-      id: this.id,
-      room_name: this.roomName,
-      adjacent_rooms: adjIds,
-      layout: {
-        conversations: conversationDatas
-      }
-    };
-
-    return data;
+    this.itemIDs.splice(this.itemIDs.indexOf(item.id), 1);
   }
 
   /**
    * Add a conversation to a room.
-   * @param {Object} conversation - conversation to add to room.
+   * @param {Conversation} conversation - conversation to add to room.
    */
-  addConversation(conversation) {
-    this.conversations.push(conversation);
+  addConversation(conversation: Conversation) {
+    this.conversationIDs.push(conversation.id);
   }
 
   /**
    * Remove a conversation from this room.
-   * @param {Object} conversation - conversation object.
+   * @param {Conversation} conversation - conversation object.
    */
-  removeConversation(conversation) {
-    const index = this.conversations.indexOf(conversation);
+  removeConversation(conversation: Conversation) {
+    const index = this.conversationIDs.indexOf(conversation.id);
 
     if (index === -1) {
       logger.log(
-        "Could not remove conversation " + conversation.conversationId,
+        "Could not remove conversation id#" + conversation.id,
         0
       );
       return;
     }
 
-    this.conversations.splice(index, 1);
+    this.conversationIDs.splice(index, 1);
   }
 
   /**
@@ -187,9 +159,9 @@ export class Room extends IDObject {
    */
   getAgents(curAgent?: Agent) {
     const agents = [];
-    for (const agent of this.occupants) {
-      if (agent !== curAgent.id) {
-        agents.push(Agent.getByID(agent));
+    for (const agentID of this.occupants) {
+      if (agentID !== curAgent.id) {
+        agents.push(Agent.getByID(agentID));
       }
     }
     return agents;
@@ -197,13 +169,13 @@ export class Room extends IDObject {
 
   /**
    * Get the data for items in this room.
-   * @returns {Object}
+   * @returns {Item[]}
    */
-  getItems() {
-    const itemsData = [];
-    for (const item of this.items) {
-      itemsData.push(Item[item].getData());
+  getItems(): Item[] {
+    const items = [];
+    for (const itemID of this.itemIDs) {
+      items.push(Item.getByID(itemID));
     }
-    return itemsData;
+    return items;
   }
 }
