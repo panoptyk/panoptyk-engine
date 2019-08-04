@@ -129,6 +129,25 @@ export class Room extends IDObject {
   }
 
   /**
+<<<<<<< HEAD
+=======
+   * Removes an agent from this room.
+   * @param {Object} agent - agent to remove
+   * @param {Object} newRoom - room agent is heading to.
+   */
+  removeAgent(agent, newRoom) {
+    const index = this.occupants.indexOf(agent);
+
+    if (index === -1) {
+      logger.log("Agent " + agent.agentName + " not in room " + this.name + ".", 0);
+      return false;
+    }
+
+    this.occupants.splice(index, 1);
+  }
+
+  /**
+>>>>>>> b51678ed6da2fec7f41d04a106ebec281f096e94
    * Get data to send to client.
    * @returns {Object}
    */

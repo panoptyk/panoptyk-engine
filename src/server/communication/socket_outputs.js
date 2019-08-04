@@ -17,7 +17,7 @@ server.send.event_failed = function(socket, eventName, errorMessage) {
  * @param {Object} agent - agent object associated with client
  */
 server.send.login_complete = function(agent) {
-  server.log('Sent login confirmation to agent ' + agent.name + '.', 2);
+  server.log('Sent login confirmation to agent ' + agent.agentName + '.', 2);
   agent.socket.emit('login-complete', {'agent_data': agent.get_private_data()});
 }
 
@@ -34,7 +34,7 @@ server.send.agent_enter_room = function(agent, old_room=null) {
     old_room = room.adjacents[Math.floor(Math.random() * room.adjacents.length)];
   }
 
-  server.log('Agent ' + agent.name + ' entered room ' + room.name + '.', 2);
+  server.log('Agent ' + agent.agentName + ' entered room ' + room.name + '.', 2);
   agent.socket.to(room.room_id).emit('agent-enter-room',
     {'agent_data': agent.get_public_data(), 'room_id': old_room.room_id});
 }
@@ -52,7 +52,7 @@ server.send.agent_exit_room = function(agent, new_room=null) {
     new_room = room.adjacents[Math.floor(Math.random() * room.adjacents.length)];
   }
 
-  server.log('Agent ' + agent.name + ' left room ' + room.name + '.', 2);
+  server.log('Agent ' + agent.agentName + ' left room ' + room.name + '.', 2);
   agent.socket.to(room.room_id).emit('agent-exit-room',
     {'agent_id': agent.agent_id, 'room_id': new_room.room_id});
 }
@@ -64,7 +64,7 @@ server.send.agent_exit_room = function(agent, new_room=null) {
  * @param {Object} room - room object
  */
 server.send.room_data = function(agent, room, old_room=null) {
-  server.log('Agent ' + agent.name + ' getting room data for room ' + room.name + '.', 2);
+  server.log('Agent ' + agent.agentName + ' getting room data for room ' + room.name + '.', 2);
   var old_room_id = old_room === null ? null : old_room.room_id;
 
   agent.socket.emit('room-data',
@@ -86,7 +86,7 @@ server.send.add_items_inventory = function(agent, items) {
     dat.push(item.get_data());
   }
 
-  server.log('Gave items ' + JSON.stringify(dat) + ' to agent ' + agent.name + '.', 2);
+  server.log('Gave items ' + JSON.stringify(dat) + ' to agent ' + agent.agentName + '.', 2);
   agent.socket.emit('add-items-inventory', {'items_data': dat});
 }
 
@@ -107,7 +107,7 @@ server.send.add_info_inventory = function(agent, info) {
   }
   let msg = server.models.Info.get_ACTION(info.action).name + '(' + info.time + ', ' + server.models.Agent.objects[info.agent].name + ', ' + server.models.Room.objects[info.location].name + ')';
 
-  server.log('Gave info ' + JSON.stringify(dat) + ' to agent ' + agent.name + '.', 2);
+  server.log('Gave info ' + JSON.stringify(dat) + ' to agent ' + agent.agentName + '.', 2);
   agent.socket.emit('add-info-inventory', {'info_data': dat, 'message': [msg]});
 }
 
@@ -122,7 +122,7 @@ server.send.remove_items_inventory = function(agent, items) {
     dat.push(item.item_id);
   }
 
-  server.log('Remove items ' + JSON.stringify(dat) + ' from agent ' + agent.name + '.', 2);
+  server.log('Remove items ' + JSON.stringify(dat) + ' from agent ' + agent.agentName + '.', 2);
   agent.socket.emit('remove-items-inventory', {'item_ids': dat});
 }
 
@@ -170,7 +170,7 @@ server.send.remove_items_room = function(items, room, by_agent=null) {
  * @param {Object} agent - agent to join conversation.
  */
 server.send.agent_join_conversation = function(agent) {
-  server.log('Agent ' + agent.name + ' entered conversation ' + agent.conversation.conversation_id + '.', 2);
+  server.log('Agent ' + agent.agentName + ' entered conversation ' + agent.conversation.conversation_id + '.', 2);
   server.modules.io.in(agent.room).emit('agent-join-conversation',
     {'conversation_id': agent.conversation.conversation_id, 'agent_id': agent.agent_id});
 }
@@ -182,7 +182,7 @@ server.send.agent_join_conversation = function(agent) {
  * @param {Object} conversation - left conversation.
  */
 server.send.agent_leave_conversation = function(agent, conversation) {
-  server.log('Agent ' + agent.name + ' left conversation ' + conversation.conversation_id + '.', 2);
+  server.log('Agent ' + agent.agentName + ' left conversation ' + conversation.conversation_id + '.', 2);
   server.modules.io.in(agent.room.room_id).emit('agent-leave-conversation',
     {'conversation_id': conversation.conversation_id, 'agent_id': agent.agent_id});
 }
@@ -298,7 +298,7 @@ server.send.trade_complete = function(socket, trade) {
 
 
 server.send.conversation_requested = function(agent, to_agent) {
-  server.log("Conversation request from " + agent.name + " to " + to_agent.name);
+  server.log("Conversation request from " + agent.agentName + " to " + to_agent.agentName);
 
   to_agent.socket.emit("conversation-requested", {agent_id:agent.agent_id});
 }
