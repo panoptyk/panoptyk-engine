@@ -35,7 +35,7 @@ export class Item extends IDObject {
     }
 
     if (agent) {
-      (Agent.getByID(this.agentID) as Agent).add_item_inventory(this);
+      (Agent.getByID(this.agentID) as Agent).addItemInventory(this);
     }
 
     logger.log("Item " + this + " Initialized.", LOG.INFO);
