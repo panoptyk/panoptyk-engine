@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Room } from "../room";
 
-export class eventMoveToRoom extends PEvent {
+export class EventMoveToRoom extends PEvent {
   private static _eventName = "move-to-room";
   public static get eventName() {
-    return eventMoveToRoom._eventName;
+    return EventMoveToRoom._eventName;
   }
   private static _formats =  [{
     "room_id": "number"
   }];
   public static get formats() {
-    return eventMoveToRoom._formats;
+    return EventMoveToRoom._formats;
   }
 
   public old_room;
@@ -28,9 +28,9 @@ export class eventMoveToRoom extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = eventMoveToRoom.validate(inputData, this.fromAgent)).status) {
+    if (!(res = EventMoveToRoom.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event moveToRoom data ("+ JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, eventMoveToRoom._eventName, res.message);
+      // TODO server.send.event_failed(socket, EventMoveToRoom._eventName, res.message);
       return;
     }
 
@@ -55,7 +55,7 @@ export class eventMoveToRoom extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventMoveToRoom._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventMoveToRoom._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_room_adjacent(Room.objects[agent.room], Room.getByID(structure.room_id))).status) {

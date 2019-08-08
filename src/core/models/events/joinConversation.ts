@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Conversation } from "../conversation";
 
-export class eventLeaveConversation extends PEvent {
-  private static _eventName = "leave-conversation";
+export class EventJoinConversation extends PEvent {
+  private static _eventName = "join-conversation";
   public static get eventName() {
-    return eventLeaveConversation._eventName;
+    return EventJoinConversation._eventName;
   }
   private static _formats =  [{
     "conversation_id": "number"
   }];
   public static get formats() {
-    return eventLeaveConversation._formats;
+    return EventJoinConversation._formats;
   }
 
   public conversation;
@@ -27,20 +27,19 @@ export class eventLeaveConversation extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = eventLeaveConversation.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event leaveConversation data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, eventLeaveConversation._eventName, res.message);
+    if (!(res = EventJoinConversation.validate(inputData, this.fromAgent)).status) {
+      logger.log("Bad event joinConversation data (" + JSON.stringify(inputData) + ").", 1);
+      // TODO server.send.event_failed(socket, EventJoinConversation._eventName, res.message);
       return;
     }
 
     this.conversation = res.conversation;
 
-    control.remove_agent_from_conversation(this.conversation, this.fromAgent);
+    control.add_agent_to_conversation(this.conversation, this.fromAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event leave-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
+    logger.log("Event join-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
-
 
   /**
    * Event validation.
@@ -53,13 +52,13 @@ export class eventLeaveConversation extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventLeaveConversation._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventJoinConversation._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_conversation_exists(agent.room, Conversation.getByID(structure.conversation_id))).status) {
       return res;
     }
-    if (!(res = Validate.validate_conversation_has_agent(res.conversation, agent)).status) {
+    if (!(res = Validate.validate_conversation_has_space(res.conversation)).status) {
       return res;
     }
     return res;

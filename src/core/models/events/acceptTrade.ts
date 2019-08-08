@@ -2,19 +2,22 @@ import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
+import { Agent } from "../agent";
 
-export class eventCancelTrade extends PEvent {
-  private static _eventName = "cancel-trade";
+export class EventAcceptTrade extends PEvent {
+  private static _eventName = "accept-trade";
   public static get eventName() {
-    return eventCancelTrade._eventName;
+    return EventAcceptTrade._eventName;
   }
-  private static _formats =  [{
+  private static _formats = [{
     "trade_id": "number"
   }];
   public static get formats() {
-    return eventCancelTrade._formats;
+    return EventAcceptTrade._formats;
   }
 
+  public conversation;
+  public toAgent;
   public trade;
 
   /**
@@ -24,20 +27,24 @@ export class eventCancelTrade extends PEvent {
    */
   constructor(socket, inputData) {
     super(socket, inputData);
+
     let res;
-    if (!(res = eventCancelTrade.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event cancelTrade data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_cancelTrade_eventName, res.message);
+    if (!(res = EventAcceptTrade.validate(inputData, this.fromAgent)).status) {
+      logger.log("Bad event acceptTrade data (" + JSON.stringify(inputData) + ").", 1);
+      // TODO server.send.event_failed(socket, Event_acceptTrade_eventName, res.message);
       return;
     }
 
+    this.conversation = res.conversation;
+    this.toAgent = res.trade.agent_ini;
     this.trade = res.trade;
 
-    control.cancel_trade(this.trade);
+    control.accept_trade(this.trade);
 
     (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event cancel-trade (" + this.trade.trade_id + ") for agent " + this.trade.agent_ini.name + "/" + this.trade.agent_res.name + " registered.", 2);
+    logger.log("Event accept-trade (" + this.trade.trade_id + ") for agent " + this.fromAgent.agentName + "/" + this.toAgent.agentName + " registered.", 2);
   }
+
 
   /**
    * Event validation.
@@ -50,13 +57,13 @@ export class eventCancelTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventCancelTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventAcceptTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {
       return res;
     }
-    if (!(res = Validate.validate_trade_status(res.trade, [2, 3])).status) {
+    if (!(res = Validate.validate_trade_status(res.trade, [3])).status) {
       return res;
     }
     const res2 = res;

@@ -3,20 +3,20 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class eventOfferItemsTrade extends PEvent {
-  private static _eventName = "offer-items-trade";
+export class EventReadyTrade extends PEvent {
+  private static _eventName = "ready-trade";
   public static get eventName() {
-    return eventOfferItemsTrade._eventName;
+    return EventReadyTrade._eventName;
   }
   private static _formats =  [{
     "trade_id": "number",
-    "item_ids": "object"
+    "ready_status": "boolean"
   }];
   public static get formats() {
-    return eventOfferItemsTrade._formats;
+    return EventReadyTrade._formats;
   }
 
-  public items;
+  public ready_status;
   public trade;
 
   /**
@@ -27,19 +27,20 @@ export class eventOfferItemsTrade extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = eventOfferItemsTrade.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event offerItemsTrade data ("+ JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, eventOfferItemsTrade._eventName, res.message);
+
+    if (!(res = EventReadyTrade.validate(inputData, this.fromAgent)).status) {
+      logger.log("Bad event readyTrade data (" + JSON.stringify(inputData) + ").", 1);
+      // TODO server.send.event_failed(socket, EventReadyTrade._eventName, res.message);
       return;
     }
 
-    this.items = res.items;
     this.trade = res.trade;
+    this.ready_status = inputData.ready_status;
 
-    control.add_items_to_trade(this.trade, this.items, this.fromAgent);
+    control.set_trade_agent_status(this.trade, this.fromAgent, this.ready_status);
 
     (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event offer-items-trade " + this.trade.trade_id + " registered.", 2);
+    logger.log("Event ready-trade " + this.trade.trade_id + " registered.", 2);
   }
 
   /**
@@ -53,23 +54,16 @@ export class eventOfferItemsTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventOfferItemsTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventReadyTrade._formats, structure)).status) {
       return res;
     }
-    if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_agent_owns_items(agent, structure.item_ids)).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_items_not_in_transaction(res.items)).status) {
-      return res;
-    }
-    const items = res.items;
     if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_status(res.trade, [2])).status) {
+      return res;
+    }
+    if (!(res = Validate.validate_ready_status(res.trade, agent, !structure.ready_status)).status) {
       return res;
     }
     const res2 = res;
@@ -77,6 +71,7 @@ export class eventOfferItemsTrade extends PEvent {
       return res;
     }
 
-    return {status: true, message: "", trade: res2.trade, items};
+    return {status: true, message: "", trade: res2.trade};
   }
+
 }

@@ -4,19 +4,21 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
-export class eventRequestConversation extends PEvent {
-  private static _eventName = "request-conversation";
+export class EventRequestTrade extends PEvent {
+  private static _eventName = "request-trade";
   public static get eventName() {
-    return eventRequestConversation._eventName;
+    return EventRequestTrade._eventName;
   }
   private static _formats =  [{
     "agent_id": "number"
   }];
   public static get formats() {
-    return eventRequestConversation._formats;
+    return EventRequestTrade._formats;
   }
 
-  public toAgent: Agent;
+  public conversation;
+  public toAgent;
+  public trade;
 
   /**
    * Event model.
@@ -26,18 +28,20 @@ export class eventRequestConversation extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = eventRequestConversation.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event requestConversation data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, eventRequestConversation._eventName, res.message);
+
+    if (!(res = EventRequestTrade.validate(inputData, this.fromAgent)).status) {
+      logger.log("Bad event requestTrade data (" + JSON.stringify(inputData) + ").", 1);
+      // TODO server.send.event_failed(socket, EventRequestTrade._eventName, res.message);
       return;
     }
 
-    this.toAgent = Agent.getByID(inputData.agent_id);
+    this.conversation = res.conversation;
+    this.toAgent = res.toAgent;
 
-    control.request_conversation(this.fromAgent, this.toAgent);
+    this.trade = control.create_trade(this.conversation, this.fromAgent, this.toAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event request-conversation from (" + this.fromAgent.agentName + ") to agent " + this.toAgent.agentName + " registered.", 2);
+    logger.log("Event request-trade (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 
   /**
@@ -51,15 +55,16 @@ export class eventRequestConversation extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventRequestConversation._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventRequestTrade._formats, structure)).status) {
       return res;
     }
     const toAgent = Agent.getByID(structure.agent_id);
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;
     }
-    // TODO: validate agents are not already in a conversation
-    // TODO: validate agents are in same room
+    if (!(res = Validate.validate_agents_share_conversation(agent, toAgent)).status) {
+      return res;
+    }
     return res;
   }
 }

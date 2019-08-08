@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
-export class eventAcceptConversation extends PEvent {
+export class EventAcceptConversation extends PEvent {
   private static _eventName = "accept-conversation";
   public static get eventName() {
-    return eventAcceptConversation._eventName;
+    return EventAcceptConversation._eventName;
   }
   private static _formats = [{
     "agent_id": "number"
   }];
   public static get formats() {
-    return eventAcceptConversation._formats;
+    return EventAcceptConversation._formats;
   }
 
   public conversation;
@@ -27,11 +27,11 @@ export class eventAcceptConversation extends PEvent {
    */
   constructor (socket, inputData) {
     super(socket, inputData);
-    const res = eventAcceptConversation.validate(inputData, this.fromAgent);
+    const res = EventAcceptConversation.validate(inputData, this.fromAgent);
 
     if (!(res).status) {
       logger.log("Bad event acceptConversation data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, eventAcceptConversation._eventName, res.message);
+      // TODO server.send.event_failed(socket, EventAcceptConversation._eventName, res.message);
       return;
     }
 
@@ -54,7 +54,7 @@ export class eventAcceptConversation extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(eventAcceptConversation._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(EventAcceptConversation._formats, structure)).status) {
       return res;
     }
     const toAgent = Agent.getByID(structure.agent_id);
