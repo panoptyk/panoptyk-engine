@@ -1,3 +1,4 @@
+export { PEvent } from "./pEvent";
 export { EventAcceptConversation } from "./acceptConversation";
 export { EventAcceptTrade } from "./acceptTrade";
 // export {} from "./agentReadyTrade"; <- empty
@@ -8,7 +9,6 @@ export { EventLeaveConversation } from "./leaveConversation";
 export { EventLogin } from "./login";
 export { EventMoveToRoom } from "./moveToRoom";
 export { EventOfferItemsTrade } from "./offerItemsTrade";
-export { PEvent } from "./pEvent";
 export { EventReadyTrade } from "./readyTrade";
 export { EventRequestConversation } from "./requestConversation";
 export { EventRequestTrade } from "./requestTrade";
