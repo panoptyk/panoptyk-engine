@@ -3,17 +3,17 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_offerItemsTrade extends PEvent {
+export class eventOfferItemsTrade extends PEvent {
   private static _eventName = "offer-items-trade";
   public static get eventName() {
-    return Event_offerItemsTrade._eventName;
+    return eventOfferItemsTrade._eventName;
   }
   private static _formats =  [{
     "trade_id": "number",
     "item_ids": "object"
   }];
   public static get formats() {
-    return Event_offerItemsTrade._formats;
+    return eventOfferItemsTrade._formats;
   }
 
   public items;
@@ -27,9 +27,9 @@ export class Event_offerItemsTrade extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = Event_offerItemsTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventOfferItemsTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event offerItemsTrade data ("+ JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_offerItemsTrade._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventOfferItemsTrade._eventName, res.message);
       return;
     }
 
@@ -53,7 +53,7 @@ export class Event_offerItemsTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_offerItemsTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventOfferItemsTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {

@@ -3,17 +3,17 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_withdrawItemsTrade extends PEvent {
+export class eventWithdrawItemsTrade extends PEvent {
   private static _eventName = "withdraw-items-trade";
   public static get eventName() {
-    return Event_withdrawItemsTrade._eventName;
+    return eventWithdrawItemsTrade._eventName;
   }
   private static _formats =  [{
     "trade_id": "number",
     "item_ids": "object"
   }];
   public static get formats() {
-    return Event_withdrawItemsTrade._formats;
+    return eventWithdrawItemsTrade._formats;
   }
 
   public items;
@@ -28,9 +28,9 @@ export class Event_withdrawItemsTrade extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = Event_withdrawItemsTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventWithdrawItemsTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event withdrawItemsTrade data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_withdrawItemsTrade._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventWithdrawItemsTrade._eventName, res.message);
       return;
     }
 
@@ -54,7 +54,7 @@ export class Event_withdrawItemsTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_withdrawItemsTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventWithdrawItemsTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {

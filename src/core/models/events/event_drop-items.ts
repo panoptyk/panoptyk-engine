@@ -3,16 +3,16 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_dropItems extends PEvent {
+export class eventDropItems extends PEvent {
   private static _eventName = "drop-items";
   public static get eventName() {
-    return Event_dropItems._eventName;
+    return eventDropItems._eventName;
   }
   private static _formats = [{
     "item_ids": "object",
   }];
   public static get formats() {
-    return Event_dropItems._formats;
+    return eventDropItems._formats;
   }
 
   public items;
@@ -26,7 +26,7 @@ export class Event_dropItems extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = Event_dropItems.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventDropItems.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event dropItems data.", 1);
       // TODO server.send.event_failed(socket, Event_dropItems_eventName, res.message);
     }
@@ -57,7 +57,7 @@ export class Event_dropItems extends PEvent {
    */
   static validate(structure, agent) {
     let res;
-    if (!(res = Validate.validate_key_format(Event_dropItems._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventDropItems._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {

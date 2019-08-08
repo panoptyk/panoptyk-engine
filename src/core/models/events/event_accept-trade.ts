@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
-export class Event_acceptTrade extends PEvent {
+export class eventAcceptTrade extends PEvent {
   private static _eventName = "accept-trade";
   public static get eventName() {
-    return Event_acceptTrade._eventName;
+    return eventAcceptTrade._eventName;
   }
   private static _formats = [{
     "trade_id": "number"
   }];
   public static get formats() {
-    return Event_acceptTrade._formats;
+    return eventAcceptTrade._formats;
   }
 
   public conversation;
@@ -29,7 +29,7 @@ export class Event_acceptTrade extends PEvent {
     super(socket, inputData);
 
     let res;
-    if (!(res = Event_acceptTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventAcceptTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event acceptTrade data (" + JSON.stringify(inputData) + ").", 1);
       // TODO server.send.event_failed(socket, Event_acceptTrade_eventName, res.message);
       return;
@@ -57,7 +57,7 @@ export class Event_acceptTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_acceptTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventAcceptTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {

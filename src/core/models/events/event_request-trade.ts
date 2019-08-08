@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
-export class Event_requestTrade extends PEvent {
+export class eventRequestTrade extends PEvent {
   private static _eventName = "request-trade";
   public static get eventName() {
-    return Event_requestTrade._eventName;
+    return eventRequestTrade._eventName;
   }
   private static _formats =  [{
     "agent_id": "number"
   }];
   public static get formats() {
-    return Event_requestTrade._formats;
+    return eventRequestTrade._formats;
   }
 
   public conversation;
@@ -29,9 +29,9 @@ export class Event_requestTrade extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = Event_requestTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventRequestTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event requestTrade data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_requestTrade._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventRequestTrade._eventName, res.message);
       return;
     }
 
@@ -55,7 +55,7 @@ export class Event_requestTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_requestTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventRequestTrade._formats, structure)).status) {
       return res;
     }
     const toAgent = Agent.getByID(structure.agent_id);

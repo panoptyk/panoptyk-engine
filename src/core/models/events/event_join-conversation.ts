@@ -4,16 +4,16 @@ import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 import { Conversation } from "../conversation";
 
-export class Event_joinConversation extends PEvent {
+export class eventJoinConversation extends PEvent {
   private static _eventName = "join-conversation";
   public static get eventName() {
-    return Event_joinConversation._eventName;
+    return eventJoinConversation._eventName;
   }
   private static _formats =  [{
     "conversation_id": "number"
   }];
   public static get formats() {
-    return Event_joinConversation._formats;
+    return eventJoinConversation._formats;
   }
 
   public conversation;
@@ -27,9 +27,9 @@ export class Event_joinConversation extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = Event_joinConversation.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventJoinConversation.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event joinConversation data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_joinConversation._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventJoinConversation._eventName, res.message);
       return;
     }
 
@@ -52,7 +52,7 @@ export class Event_joinConversation extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_joinConversation._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventJoinConversation._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_conversation_exists(agent.room, Conversation.getByID(structure.conversation_id))).status) {

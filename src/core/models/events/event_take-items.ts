@@ -3,16 +3,16 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_takeItems extends PEvent {
+export class eventTakeItems extends PEvent {
   private static _eventName = "take-items";
   public static get eventName() {
-    return Event_takeItems._eventName;
+    return eventTakeItems._eventName;
   }
   private static _formats = [{
     "item_ids": "object"
   }];
   public static get formats() {
-    return Event_takeItems._formats;
+    return eventTakeItems._formats;
   }
 
   public items;
@@ -26,9 +26,9 @@ export class Event_takeItems extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = Event_takeItems.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventTakeItems.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event takeItems data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_takeItems._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventTakeItems._eventName, res.message);
       return;
     }
 
@@ -64,7 +64,7 @@ export class Event_takeItems extends PEvent {
       return res;
     }
 
-    if (!(res = Validate.validate_key_format(Event_takeItems._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventTakeItems._formats, structure)).status) {
       return res;
     }
 

@@ -3,10 +3,10 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Agent } from "../agent";
 
-export class Event_login extends PEvent {
+export class eventLogin extends PEvent {
   private static _eventName = "login";
   public static get eventName() {
-    return Event_login._eventName;
+    return eventLogin._eventName;
   }
   private static _formats =  [{
     "username": "string",
@@ -17,7 +17,7 @@ export class Event_login extends PEvent {
     "token": "string"
   }];
   public static get formats() {
-    return Event_login._formats;
+    return eventLogin._formats;
   }
 
   /**
@@ -29,7 +29,7 @@ export class Event_login extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = Event_login.validate(inputData)).status) {
+    if (!(res = eventLogin.validate(inputData)).status) {
       logger.log("Bad event login data.", 1);
       // TODO server.send.event_failed(socket, Event_login_.eventName, res.message);
       return;
@@ -48,7 +48,7 @@ export class Event_login extends PEvent {
    */
   static validate(structure) {
     let res;
-    if (!(res = Validate.validate_key_format(Event_login._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventLogin._formats, structure)).status) {
       return res;
     }
     return res;

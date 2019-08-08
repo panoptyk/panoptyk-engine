@@ -3,17 +3,17 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_readyTrade extends PEvent {
+export class eventReadyTrade extends PEvent {
   private static _eventName = "ready-trade";
   public static get eventName() {
-    return Event_readyTrade._eventName;
+    return eventReadyTrade._eventName;
   }
   private static _formats =  [{
     "trade_id": "number",
     "ready_status": "boolean"
   }];
   public static get formats() {
-    return Event_readyTrade._formats;
+    return eventReadyTrade._formats;
   }
 
   public ready_status;
@@ -28,9 +28,9 @@ export class Event_readyTrade extends PEvent {
     super(socket, inputData);
     let res;
 
-    if (!(res = Event_readyTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventReadyTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event readyTrade data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, Event_readyTrade._eventName, res.message);
+      // TODO server.send.event_failed(socket, eventReadyTrade._eventName, res.message);
       return;
     }
 
@@ -54,7 +54,7 @@ export class Event_readyTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_readyTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventReadyTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {

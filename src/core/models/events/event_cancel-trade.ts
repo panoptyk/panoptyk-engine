@@ -3,16 +3,16 @@ import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { control } from "../../../server/controllers/controller";
 
-export class Event_cancelTrade extends PEvent {
+export class eventCancelTrade extends PEvent {
   private static _eventName = "cancel-trade";
   public static get eventName() {
-    return Event_cancelTrade._eventName;
+    return eventCancelTrade._eventName;
   }
   private static _formats =  [{
     "trade_id": "number"
   }];
   public static get formats() {
-    return Event_cancelTrade._formats;
+    return eventCancelTrade._formats;
   }
 
   public trade;
@@ -25,7 +25,7 @@ export class Event_cancelTrade extends PEvent {
   constructor(socket, inputData) {
     super(socket, inputData);
     let res;
-    if (!(res = Event_cancelTrade.validate(inputData, this.fromAgent)).status) {
+    if (!(res = eventCancelTrade.validate(inputData, this.fromAgent)).status) {
       logger.log("Bad event cancelTrade data (" + JSON.stringify(inputData) + ").", 1);
       // TODO server.send.event_failed(socket, Event_cancelTrade_eventName, res.message);
       return;
@@ -50,7 +50,7 @@ export class Event_cancelTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(Event_cancelTrade._formats, structure)).status) {
+    if (!(res = Validate.validate_key_format(eventCancelTrade._formats, structure)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {
