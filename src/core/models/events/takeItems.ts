@@ -39,12 +39,12 @@ export class EventTakeItems extends PEvent {
     control.remove_items_from_room(this.items, this.fromAgent);
     control.add_items_toAgent_inventory(this.fromAgent, this.items);
 
-    const item_names = [];
+    const itemNames = [];
     for (const item of this.items) {
-      item_names.push(item.name);
+      itemNames.push(item.name);
     }
     control.give_info_toAgents(this.room.occupants, (this.fromAgent.agentName + " picked up " +
-      item_names.join(", ") + " in room " + this.room.name));
+      itemNames.join(", ") + " in room " + this.room.name));
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event take-items (" + JSON.stringify(inputData.item_ids) + ") for agent "

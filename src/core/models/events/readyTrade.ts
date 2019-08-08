@@ -10,13 +10,13 @@ export class EventReadyTrade extends PEvent {
   }
   private static _formats =  [{
     "trade_id": "number",
-    "ready_status": "boolean"
+    "readyStatus": "boolean"
   }];
   public static get formats() {
     return EventReadyTrade._formats;
   }
 
-  public ready_status;
+  public readyStatus;
   public trade;
 
   /**
@@ -35,9 +35,9 @@ export class EventReadyTrade extends PEvent {
     }
 
     this.trade = res.trade;
-    this.ready_status = inputData.ready_status;
+    this.readyStatus = inputData.readyStatus;
 
-    control.set_trade_agent_status(this.trade, this.fromAgent, this.ready_status);
+    control.set_trade_agent_status(this.trade, this.fromAgent, this.readyStatus);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event ready-trade " + this.trade.trade_id + " registered.", 2);
@@ -63,7 +63,7 @@ export class EventReadyTrade extends PEvent {
     if (!(res = Validate.validate_trade_status(res.trade, [2])).status) {
       return res;
     }
-    if (!(res = Validate.validate_ready_status(res.trade, agent, !structure.ready_status)).status) {
+    if (!(res = Validate.validate_ready_status(res.trade, agent, !structure.readyStatus)).status) {
       return res;
     }
     const res2 = res;

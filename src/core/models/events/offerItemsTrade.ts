@@ -28,7 +28,7 @@ export class EventOfferItemsTrade extends PEvent {
     super(socket, inputData);
     let res;
     if (!(res = EventOfferItemsTrade.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event offerItemsTrade data ("+ JSON.stringify(inputData) + ").", 1);
+      logger.log("Bad event offerItemsTrade data (" + JSON.stringify(inputData) + ").", 1);
       // TODO server.send.event_failed(socket, EventOfferItemsTrade._eventName, res.message);
       return;
     }

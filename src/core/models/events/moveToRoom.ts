@@ -16,8 +16,8 @@ export class EventMoveToRoom extends PEvent {
     return EventMoveToRoom._formats;
   }
 
-  public old_room;
-  public new_room;
+  public oldRoom;
+  public newRoom;
 
   /**
    * Event model.
@@ -29,19 +29,19 @@ export class EventMoveToRoom extends PEvent {
     let res;
 
     if (!(res = EventMoveToRoom.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event moveToRoom data ("+ JSON.stringify(inputData) + ").", 1);
+      logger.log("Bad event moveToRoom data (" + JSON.stringify(inputData) + ").", 1);
       // TODO server.send.event_failed(socket, EventMoveToRoom._eventName, res.message);
       return;
     }
 
-    this.old_room = this.fromAgent.room;
-    this.new_room = Room.getByID(inputData.room_id);
+    this.oldRoom = this.fromAgent.room;
+    this.newRoom = Room.getByID(inputData.room_id);
 
-    control.move_agent_to_room(this.fromAgent, this.new_room);
+    control.move_agent_to_room(this.fromAgent, this.newRoom);
 
     (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event move-to-room (" + this.old_room.name + "->"
-        + this.new_room.name  + ") for agent " + this.fromAgent.agentName + " registered.", 2);
+    logger.log("Event move-to-room (" + this.oldRoom.name + "->"
+        + this.newRoom.name  + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 
   /**
