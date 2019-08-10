@@ -1,70 +1,76 @@
-import fs = require("fs");
-import { logger } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util";
-import { Agent } from "./agent";
+import { logger, LOG } from "../utilities/logger";
 import { Item } from "./item";
 import { IDObject } from "./idObject";
+import { Conversation } from "./conversation";
+import { Agent } from "./agent";
 
 export class Trade extends IDObject {
   private static actives: Set<Trade> = new Set();
+  public static result = {
+    FAILED: 0,
+    SUCCESS: 1,
+    IN_PROGRESS: 2,
+    REQUESTED: 3
+  };
 
-  private agent_ini: number;
-  private agent_res: number;
-  private conversation: number;
-  private result_status: number;
-  private items_ini: number[];
-  private items_res: number[];
-  private status_ini: boolean;
-  private status_res: boolean;
+  private initiatorID: number;
+  private receiverID: number;
+  private conversationID: number;
+  private resultStatus: number;
+  private initiatorItemIDs: number[];
+  private receiverItemIDs: number[];
+  private itiatorStatus: boolean;
+  private receiverStatus: boolean;
 
   /**
    * Trade model.
-   * @param {int} agent_ini - initiating agent id
-   * @param {int} agent_res - responding agent id
-   * @param {int} conversation - id of conversation trade is happening in.
-   * @param {int} id - id of trade. If null, one will be assigned.
-   * @param {int} result_status - result status of trade.
+   * @param {Agent} initiatorID - initiating agent
+   * @param {Agent} receiverID - responding agent
+   * @param {Conversation} conversationID - conversation trade is happening in.
+   * @param {number} id - id of trade. If undefined, one will be assigned.
+   * @param {number} resultStatus - result status of trade.
    *              0=failed, 1=success, 2=in progress, 3=requested
    */
   constructor(
-    agent_ini,
-    agent_res,
-    conversation,
-    id = null,
-    result_status = 3
+    initiator: Agent,
+    receiver: Agent,
+    conversation: Conversation,
+    id?,
+    resultStatus = Trade.result.REQUESTED
   ) {
     super("Trade", id);
-    this.agent_ini = agent_ini;
-    this.agent_res = agent_res;
-    this.conversation = conversation;
-    this.result_status = result_status;
+    this.initiatorID = initiator ? initiator.id : undefined;
+    this.receiverID = receiver ? receiver.id : undefined;
+    this.conversationID = conversation ? conversation.id : undefined;
+    this.resultStatus = resultStatus;
 
-    this.items_ini = [];
-    this.items_res = [];
+    this.initiatorItemIDs = [];
+    this.receiverItemIDs = [];
 
-    this.status_ini = false;
-    this.status_res = false;
+    this.itiatorStatus = false;
+    this.receiverStatus = false;
 
-
-    if (this.result_status == 3) {
+    if (this.resultStatus === 3) {
       Trade.actives.add(this);
     }
 
-    logger.log("Trade " + this.id + " Initialized.", 2);
+    logger.log("Trade " + this + " Initialized.", LOG.INFO);
   }
+
+public toString() {
+  return this.id;
+}
 
   /**
    * Load a trade JSON into memory.
-   * @param {JSON} data - serialized trade object.
+   * @param {JSON} json - serialized trade object.
    */
-  static load(data) {
-    new Trade(
-      data.agent_ini_id,
-      data.agent_res_id,
-      data.conversation_id,
-      data.id,
-      data.result_status
-    );
+  static load(json: Trade) {
+    const t = new Item(undefined, undefined, undefined);
+    for (const key in json) {
+      t[key] = json[key];
+    }
+    return t;
   }
 
   /**
@@ -72,14 +78,14 @@ export class Trade extends IDObject {
    * @param {Object} agent - agent object.
    * @returns [Object] list of item data dictionaries.
    */
-  get_agent_items_data(agent) {
-    let data = [];
+  getAgentItemsData(agent) {
+    const data = [];
 
-    if (agent == this.agent_ini || agent == this.agent_res) {
-      for (let item of agent == this.agent_ini
-        ? this.items_ini
-        : this.items_res) {
-        data.push(Item[item].get_data());
+    if (agent === this.initiatorID || agent === this.receiverID) {
+      for (const item of agent === this.initiatorID
+        ? this.initiatorItemIDs
+        : this.receiverItemIDs) {
+        data.push(Item[item].getData());
       }
     } else {
       logger.log("No matching agent for trade item data.", 0, "trade.js");
@@ -92,58 +98,58 @@ export class Trade extends IDObject {
    * Get 'ready-to-send' data to send to client.
    * @returns {Object}
    */
-  get_data() {
+  getData() {
     return {
       id: this.id,
-      agent_ini_id: this.agent_ini,
-      agent_res_id: this.agent_res,
-      items_ini: this.items_ini,
-      items_res: this.items_res,
-      conversation_id: this.conversation,
-      result_status: this.result_status
+      agent_ini_id: this.initiatorID,
+      agent_res_id: this.receiverID,
+      items_ini: this.initiatorItemIDs,
+      items_res: this.receiverItemIDs,
+      conversation_id: this.conversationID,
+      resultStatus: this.resultStatus
     };
   }
 
   /**
    * Set status of trade.
    * 0=failed, 1=success, 2=in progress, 3=requested
-   * @param {int} stat - status to set.
+   * @param {number} stat - status to set.
    */
-  set_status(stat) {
-    this.result_status = stat;
+  setStatus(stat) {
+    this.resultStatus = stat;
   }
 
   /**
    * Set an agent's ready status.
-   * @param {Object} agent - agent to set status for.
+   * @param {Agent} agent - agent to set status for.
    * @param {boolean} rstatus - status. True = ready, false = not ready.
    */
-  set_agent_ready(agent, rstatus) {
-    if (agent == this.agent_ini) {
-      this.status_ini = rstatus;
-    } else if (agent == this.agent_res) {
-      this.status_res = rstatus;
+  setAgentReady(agent: Agent, rstatus) {
+    if (agent.id === this.initiatorID) {
+      this.itiatorStatus = rstatus;
+    } else if (agent.id === this.receiverID) {
+      this.receiverStatus = rstatus;
     }
 
-    return this.status_ini && this.status_res;
+    return this.itiatorStatus && this.receiverStatus;
   }
 
   /**
    * Add items to one side of the trade.
    * @param {[Object]} items - items to add to trade.
-   * @param {Object} owner - agent object of agent adding the items.
+   * @param {Agent} owner - agent object of agent adding the items.
    */
-  add_items(items, owner) {
-    if (owner == this.agent_ini) {
-      this.items_ini.push(...items);
-    } else if (owner == this.agent_res) {
-      this.items_res.push(...items);
+  addItems(items, owner: Agent) {
+    if (owner.id === this.initiatorID) {
+      this.initiatorItemIDs.push(...items);
+    } else if (owner.id === this.receiverID) {
+      this.receiverItemIDs.push(...items);
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
 
-    for (let item of items) {
+    for (const item of items) {
       item.in_transaction = true;
     }
   }
@@ -153,13 +159,13 @@ export class Trade extends IDObject {
    * @param {[Object]} items - items to remove from trade.
    * @param {Object} owner - agent object of agent removing the items.
    */
-  remove_items(items, owner) {
-    if (owner == this.agent_ini) {
-      this.items_ini = this.items_ini.filter(function(x) {
+  removeItems(items, owner) {
+    if (owner === this.initiatorID) {
+      this.initiatorItemIDs = this.initiatorItemIDs.filter(function(x) {
         return items.indexOf(x) < 0;
       });
-    } else if (owner == this.agent_res) {
-      this.items_res = this.items_res.filter(function(x) {
+    } else if (owner === this.receiverID) {
+      this.receiverItemIDs = this.receiverItemIDs.filter(function(x) {
         return items.indexOf(x) < 0;
       });
     } else {
@@ -167,7 +173,7 @@ export class Trade extends IDObject {
       return;
     }
 
-    for (let item of items) {
+    for (const item of items) {
       item.in_transaction = false;
     }
   }
@@ -177,14 +183,14 @@ export class Trade extends IDObject {
    * Unlocks all the items in the trade and removes it from the active trade list.
    */
   cleanup() {
-    var unlocked = "";
+    let unlocked = "";
 
-    for (let item of this.items_ini) {
+    for (const item of this.initiatorItemIDs) {
       Item[item].in_transaction = false;
       unlocked += Item[item].item_id + " ";
     }
 
-    for (let item of this.items_res) {
+    for (const item of this.receiverItemIDs) {
       Item[item].in_transaction = false;
       unlocked += Item[item].item_id + " ";
     }
@@ -199,11 +205,11 @@ export class Trade extends IDObject {
    * @param {Object} agent - agent to find trades for.
    * @return [trade]
    */
-  static get_active_trades_with_agent(agent) {
-    var trades = [];
+  static getActiveTradesWithAgent(agent) {
+    const trades = [];
 
-    for (let trade of Trade.actives) {
-      if (trade.agent_ini == agent || trade.agent_res == agent) {
+    for (const trade of Trade.actives) {
+      if (trade.initiatorID === agent || trade.receiverID === agent) {
         trades.push(trade);
       }
     }
