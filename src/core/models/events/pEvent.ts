@@ -5,6 +5,6 @@ export abstract class PEvent {
     public fromAgent: Agent;
     constructor(socket, data) {
         this.time = new Date();
-        this.fromAgent = Agent.get_agent_by_socket(socket);
+        this.fromAgent = Agent.getAgentBySocket(socket);
     }
 }
