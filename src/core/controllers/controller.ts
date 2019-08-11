@@ -1,9 +1,9 @@
-import { logger, LOG } from "../../core/utilities/logger";
-import * as util from "../../core/utilities/util";
-import { Room } from "../../core/models/room";
-import { Info } from "../../core/models/information";
-import { Trade } from "../../core/models/trade";
-import { Conversation } from "../../core/models/conversation";
+import { logger, LOG } from "../utilities/logger";
+import * as util from "../utilities/util";
+import { Room } from "../models/room";
+import { Info } from "../models/information";
+import { Trade } from "../models/trade";
+import { Conversation } from "../models/conversation";
 
 
 export class Controller {
@@ -302,7 +302,7 @@ public static removeAgentFromConversationIfIn(agent) {
  * @param {Object} agent - agent object.
  */
 public static endAllTradesWithAgent(agent) {
-  for (const trade of Trade.get_active_trades_with_agent(agent)) {
+  for (const trade of Trade.getActiveTradesWithAgent(agent)) {
     Controller.cancelTrade(trade);
   }
 }

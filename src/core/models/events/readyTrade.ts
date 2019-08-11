@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { Controller } from "../../../server/controllers/controller";
+import { Controller } from "../../controllers/controller";
 
 export class EventReadyTrade extends PEvent {
   private static _eventName = "ready-trade";

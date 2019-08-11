@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { Controller } from "../../../server/controllers/controller";
+import { Controller } from "../../controllers/controller";
 import { Room } from "../room";
 
 export class EventMoveToRoom extends PEvent {
