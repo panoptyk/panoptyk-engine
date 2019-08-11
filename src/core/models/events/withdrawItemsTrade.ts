@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 
 export class EventWithdrawItemsTrade extends PEvent {
   private static _eventName = "withdraw-items-trade";
@@ -37,7 +37,7 @@ export class EventWithdrawItemsTrade extends PEvent {
     this.items = res.items;
     this.trade = res.trade;
 
-    control.remove_items_from_trade(this.trade, this.items, this.fromAgent);
+    Controller.removeItemsFromTrade(this.trade, this.items, this.fromAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event withdraw-items-trade " + this.trade.trade_id + " registered.", 2);

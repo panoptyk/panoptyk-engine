@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 import { Room } from "../room";
 
 export class EventMoveToRoom extends PEvent {
@@ -37,7 +37,7 @@ export class EventMoveToRoom extends PEvent {
     this.oldRoom = this.fromAgent.room;
     this.newRoom = Room.getByID(inputData.room_id);
 
-    control.move_agent_to_room(this.fromAgent, this.newRoom);
+    Controller.moveAgentToRoom(this.fromAgent, this.newRoom);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event move-to-room (" + this.oldRoom.name + "->"

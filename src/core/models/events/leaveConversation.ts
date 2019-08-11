@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 import { Conversation } from "../conversation";
 
 export class EventLeaveConversation extends PEvent {
@@ -35,7 +35,7 @@ export class EventLeaveConversation extends PEvent {
 
     this.conversation = res.conversation;
 
-    control.remove_agent_from_conversation(this.conversation, this.fromAgent);
+    Controller.removeAgentFromConversation(this.conversation, this.fromAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event leave-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);

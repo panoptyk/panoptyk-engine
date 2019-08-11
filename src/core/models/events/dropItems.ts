@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 
 export class EventDropItems extends PEvent {
   private static _eventName = "drop-items";
@@ -34,14 +34,14 @@ export class EventDropItems extends PEvent {
     this.items = res.items;
     this.room = this.fromAgent.room;
 
-    control.remove_items_fromAgent_inventory(this.items);
-    control.add_items_to_room(this.room, this.items, this.fromAgent);
+    Controller.removeItemsFromAgentInventory(this.items);
+    Controller.addItemsToRoom(this.room, this.items, this.fromAgent);
 
     const itemNames = [];
     for (const item of this.items) {
       itemNames.push(item.name);
     }
-    control.give_info_toAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
+    Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
       itemNames.join(", ") + " in room " + this.room.name));
 
     (Validate.objects = Validate.objects || []).push(this);

@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 
 export class EventCancelTrade extends PEvent {
   private static _eventName = "cancel-trade";
@@ -33,7 +33,7 @@ export class EventCancelTrade extends PEvent {
 
     this.trade = res.trade;
 
-    control.cancel_trade(this.trade);
+    Controller.cancelTrade(this.trade);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event cancel-trade (" + this.trade.trade_id + ") for agent " + this.trade.agent_ini.name + "/" + this.trade.agent_res.name + " registered.", 2);

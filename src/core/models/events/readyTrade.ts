@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 
 export class EventReadyTrade extends PEvent {
   private static _eventName = "ready-trade";
@@ -37,7 +37,7 @@ export class EventReadyTrade extends PEvent {
     this.trade = res.trade;
     this.readyStatus = inputData.readyStatus;
 
-    control.set_trade_agent_status(this.trade, this.fromAgent, this.readyStatus);
+    Controller.setTradeAgentStatus(this.trade, this.fromAgent, this.readyStatus);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event ready-trade " + this.trade.trade_id + " registered.", 2);

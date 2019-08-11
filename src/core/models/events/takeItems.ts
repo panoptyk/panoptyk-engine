@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 
 export class EventTakeItems extends PEvent {
   private static _eventName = "take-items";
@@ -35,15 +35,15 @@ export class EventTakeItems extends PEvent {
     this.items = res.items;
     this.room = this.fromAgent.room;
 
-    control.remove_agent_from_conversation_if_in(this.fromAgent);
-    control.remove_items_from_room(this.items, this.fromAgent);
-    control.add_items_toAgent_inventory(this.fromAgent, this.items);
+    Controller.removeAgentFromConversationIfIn(this.fromAgent);
+    Controller.removeItemsFromRoom(this.items, this.fromAgent);
+    Controller.addItemsToAgentInventory(this.fromAgent, this.items);
 
     const itemNames = [];
     for (const item of this.items) {
       itemNames.push(item.name);
     }
-    control.give_info_toAgents(this.room.occupants, (this.fromAgent.agentName + " picked up " +
+    Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " picked up " +
       itemNames.join(", ") + " in room " + this.room.name));
 
     (Validate.objects = Validate.objects || []).push(this);

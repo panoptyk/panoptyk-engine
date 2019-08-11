@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
 export class EventAcceptTrade extends PEvent {
@@ -39,7 +39,7 @@ export class EventAcceptTrade extends PEvent {
     this.toAgent = res.trade.agent_ini;
     this.trade = res.trade;
 
-    control.accept_trade(this.trade);
+    Controller.acceptTrade(this.trade);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event accept-trade (" + this.trade.trade_id + ") for agent " + this.fromAgent.agentName + "/" + this.toAgent.agentName + " registered.", 2);

@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 import { Conversation } from "../conversation";
 
 export class EventJoinConversation extends PEvent {
@@ -35,7 +35,7 @@ export class EventJoinConversation extends PEvent {
 
     this.conversation = res.conversation;
 
-    control.add_agent_to_conversation(this.conversation, this.fromAgent);
+    Controller.addAgentToConversation(this.conversation, this.fromAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event join-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);

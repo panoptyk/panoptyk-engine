@@ -1,7 +1,7 @@
 import { PEvent } from "./pEvent";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
-import { control } from "../../../server/controllers/controller";
+import { Controller } from "../../../server/controllers/controller";
 import { Agent } from "../agent";
 
 export class EventRequestConversation extends PEvent {
@@ -34,7 +34,7 @@ export class EventRequestConversation extends PEvent {
 
     this.toAgent = Agent.getByID(inputData.agent_id);
 
-    control.request_conversation(this.fromAgent, this.toAgent);
+    Controller.requestConversation(this.fromAgent, this.toAgent);
 
     (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event request-conversation from (" + this.fromAgent.agentName + ") to agent " + this.toAgent.agentName + " registered.", 2);
