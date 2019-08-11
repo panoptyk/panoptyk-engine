@@ -1,5 +1,6 @@
 import fs = require("fs");
 import { panoptykSettings } from "../utilities/util";
+import { logger, LOG } from "../utilities/logger";
 
 export abstract class IDObject {
   private static _nextID = new Map<any, number>();
@@ -78,9 +79,14 @@ export abstract class IDObject {
    * Load all info from file into memory.
    */
   static loadAll() {
-    const data = fs.readFileSync(
-      panoptykSettings.data_dir + "/" + this.fileName
-    );
+    const path = panoptykSettings.data_dir + "/" + this.fileName;
+    let data;
+    try {
+      data = fs.readFileSync(path);
+    } catch (err) {
+      logger.log("File " + path + " does not exist to load.", LOG.ERROR);
+      return;
+    }
     const json = JSON.parse(data.toString());
     for (const key in json.objects) {
       (this as any).load(json.objects[key]);
