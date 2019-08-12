@@ -15,7 +15,10 @@ export class Agent extends IDObject {
   public get room(): Room {
     return Room.getByID(this.roomID);
   }
-  private socket;
+  private _socket;
+  public get socket() {
+    return this._socket;
+  }
   private inventory: number[];
   private knowledge: number[];
   private conversationIDs: number[];
@@ -39,7 +42,7 @@ export class Agent extends IDObject {
     super("Agent", id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
-    this.socket = undefined;
+    this._socket = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
     this.conversationIDs = [];
@@ -84,7 +87,7 @@ export class Agent extends IDObject {
       selAgent.roomID = panoptykSettings.default_room_id;
     }
 
-    selAgent.socket = socket;
+    selAgent._socket = socket;
     // TODO server.send.login_complete(selAgent);
     // TODO server.control.add_agent_to_room(selAgent, server.models.Room.objects[selAgent.room]);
 
@@ -100,7 +103,7 @@ export class Agent extends IDObject {
   static getAgentBySocket(socket) {
     for (const id in Agent.objects) {
       const agent = Agent.objects[id];
-      if (agent.socket === socket) {
+      if (agent._socket === socket) {
         return agent;
       }
     }

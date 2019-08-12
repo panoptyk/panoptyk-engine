@@ -7,7 +7,10 @@ import { stringify } from "querystring";
 export class Item extends IDObject {
 
   private type: number;
-  private itemName: string;
+  private _itemName: string;
+  public get itemName(): string {
+    return this._itemName;
+  }
   private roomID: number;
   private agentID: number;
   private inTransaction: boolean;
@@ -23,7 +26,7 @@ export class Item extends IDObject {
   constructor(itemName, type, room?: Room, agent?: Agent, id?) {
     super("Item", id);
 
-    this.itemName = itemName;
+    this._itemName = itemName;
     this.type = type;
     this.roomID = room ? room.id : undefined;
     this.agentID = agent ? agent.id : undefined;
@@ -85,6 +88,14 @@ export class Item extends IDObject {
    */
   takeFromAgent() {
     this.agentID = undefined;
+  }
+
+  get room(): Room {
+    return Room.getByID(this.roomID);
+  }
+
+  get agent(): Agent {
+    return Agent.getByID(this.agentID);
   }
 
   // /**

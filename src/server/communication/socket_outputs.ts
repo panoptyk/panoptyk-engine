@@ -19,7 +19,7 @@ export const event_failed = function(socket, eventName, errorMessage) {
  * Send login success message to client.
  * @param {Object} agent - agent object associated with client
  */
-export const login_compconste = function(agent) {
+export const login_complete = function(agent) {
   logger.log("Sent login confirmation to agent " + agent.agentName + ".", 2);
   agent.socket.emit("login-compconste", {"agent_data": agent.get_private_data()});
 };
