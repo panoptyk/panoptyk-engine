@@ -27,7 +27,7 @@ export class Server {
   private events: PEvent[] = [];
 
   constructor(app?: express.Application) {
-    this.createApp();
+    this.createApp(app);
     this.loadConfig();
     this.createServer();
     this.sockets();
