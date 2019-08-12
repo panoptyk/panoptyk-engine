@@ -1,46 +1,102 @@
 import fs = require("fs");
-import express = require("express");
-import { logger, LOG } from "../core/utilities/logger";
 import * as util from "../core/utilities/util";
-import { Controller } from "../core/controllers/controller";
-import { IDObject } from "../core/models/idObject";
-import { Validate } from "../core/models/validate";
-import * as models from "../core/models/index";
-import * as events from "../core/models/events/index";
+import * as express from "express";
+import * as http from "http";
+import * as socketIO from "socket.io";
+import { logger, LOG } from "../core/utilities/logger";
+import { Agent, Room, Info, Item, Conversation, Trade, IDObject } from "../core/models/index";
+import { PEvent } from "../core/models/events/pEvent";
 
-// Quick list of all models that need to be saved and loaded
-const app: express.Application = express();
-const http = require("http").Server(app);
-const io = require("socket.io")(http);
+export class Server {
+  private app: express.Application;
+  private server: http.Server;
+  private io: socketIO.Server;
+  private port: string | number;
 
-util.makeDir(util.panoptykSettings.data_dir); // <- Should suffice
-for (const model in models) {
-  models[model].loadAll();
-}
-logger.log("Server models loaded", LOG.INFO);
+  /**
+   * List of all models that need to be saved and loaded
+   */
+  private models: any[] = [
+    Agent,
+    Room,
+    Info,
+    Item,
+    Conversation,
+    Trade,
+  ];
+  private events: PEvent[] = [];
 
-// Sets up "ctrl + c" to stop server
-process.on("SIGINT", () => {
-    logger.log("Shutting down", LOG.INFO);
-    for (const model in models) {
-      models[model].saveAll();
+  constructor(app?: express.Application) {
+    this.createApp();
+    this.loadConfig();
+    this.createServer();
+    this.sockets();
+  }
+
+  private createApp(app?: express.Application): void {
+    this.app = app ? app : express();
+  }
+
+  private createServer(): void {
+    this.server = http.createServer(this.app);
+  }
+
+  private loadConfig(): void {
+    // Read settings
+    try {
+      const settings = fs.readFileSync("panoptyk-settings.json");
+      for (const key in settings) {
+        util.panoptykSettings[key] = settings[key];
+      }
+      logger.log("Panoptyk settings loaded", LOG.INFO);
+    } catch (err) {
+      logger.log("No panoptyk settings found... creating one.", LOG.INFO);
+      fs.writeFileSync(
+        "panoptyk-settings.json",
+        JSON.stringify(util.panoptykSettings)
+      );
     }
-    logger.log("Server closed", LOG.INFO);
-    process.exit(0);
-});
 
-app.use("/public/game", express.static(__dirname + "/public/game"));
+    // Assign port
+    this.port = util.panoptykSettings.port;
+  }
 
-app.get("/test", function(req, res) {
-  res.sendFile(__dirname + "/public/test.html");
-});
+  private sockets(): void {
+    this.io = socketIO(this.server);
+  }
 
-app.get("/game", function(req, res) {
-  res.sendFile(__dirname + "/public/game/game.html");
-});
+  private listen(): void {
+    this.server.listen(this.port, () => {
+      logger.log("Starting server on port " + this.port, LOG.INFO);
+    });
+  }
 
-const server = app.listen(process.env.PORT || util.panoptykSettings.port, () => {
-    logger.log("Starting server on port " + util.panoptykSettings.port, 2);
-});
+  private loadModels() {
+    util.makeDir(util.panoptykSettings.data_dir); // <- Should suffice
+    this.models.forEach((model) => {
+      model.loadAll();
+    });
+  }
 
-export { app, io, models, server };
+  private saveModels() {
+    this.models.forEach((model) => {
+      model.saveAll();
+    });
+  }
+
+  public start() {
+    this.loadModels();
+
+    // Sets up "ctrl + c" to stop server
+    process.on("SIGINT", () => {
+      logger.log("Shutting down", LOG.INFO);
+      this.saveModels();
+      logger.log("Server closed", LOG.INFO);
+      process.exit(0);
+    });
+
+    // Start http server
+    this.listen();
+  }
+
+}

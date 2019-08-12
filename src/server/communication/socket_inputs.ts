@@ -1,5 +1,8 @@
 import { logger } from "../../core/utilities/logger";
-import { io, models } from "../server";
+
+const io: any = {};
+const models: any = {};
+
 /**
  * These are client -> server messages.
  * This file should not need to be modified. To add new events, create new

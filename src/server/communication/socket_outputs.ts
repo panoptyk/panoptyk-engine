@@ -1,5 +1,7 @@
 import { logger } from "../../core/utilities/logger";
-import { io, models } from "../server";
+
+const io: any = {};
+const models: any = {};
 
 /**
  * Send an event failure to a client.
