@@ -37,7 +37,7 @@ export class EventLeaveConversation extends PEvent {
 
     Controller.removeAgentFromConversation(this.conversation, this.fromAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event leave-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 

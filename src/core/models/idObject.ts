@@ -103,6 +103,18 @@ export abstract class IDObject {
     return this.objects[id];
   }
 
+  static getByIDs(ids: number[]) {
+    const objects = [];
+    for (const id of ids) {
+      objects.push(this.objects[id]);
+      if (objects[-1] === undefined) {
+        logger.log("Could not find item for id " + id + ".", 0);
+        return undefined;
+      }
+    }
+    return objects;
+  }
+
   public id?: number;
 
   constructor(name: string, id?) {

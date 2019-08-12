@@ -37,7 +37,7 @@ export class EventLogin extends PEvent {
 
     this.fromAgent = Agent.login(inputData.username, socket);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event login for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 

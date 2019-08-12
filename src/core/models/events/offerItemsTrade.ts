@@ -38,7 +38,7 @@ export class EventOfferItemsTrade extends PEvent {
 
     Controller.addItemsToTrade(this.trade, this.items, this.fromAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event offer-items-trade " + this.trade.trade_id + " registered.", 2);
   }
 

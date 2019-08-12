@@ -46,7 +46,7 @@ export class EventTakeItems extends PEvent {
     Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " picked up " +
       itemNames.join(", ") + " in room " + this.room.name));
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event take-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
         + this.fromAgent.agentName + " registered.", 2);
 

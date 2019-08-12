@@ -41,7 +41,7 @@ export class EventAcceptTrade extends PEvent {
 
     Controller.acceptTrade(this.trade);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event accept-trade (" + this.trade.trade_id + ") for agent " + this.fromAgent.agentName + "/" + this.toAgent.agentName + " registered.", 2);
   }
 

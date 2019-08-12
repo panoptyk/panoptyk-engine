@@ -39,7 +39,7 @@ export class EventMoveToRoom extends PEvent {
 
     Controller.moveAgentToRoom(this.fromAgent, this.newRoom);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event move-to-room (" + this.oldRoom.name + "->"
         + this.newRoom.name  + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }

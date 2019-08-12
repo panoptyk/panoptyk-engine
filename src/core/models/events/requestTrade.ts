@@ -40,7 +40,7 @@ export class EventRequestTrade extends PEvent {
 
     this.trade = Controller.createTrade(this.conversation, this.fromAgent, this.toAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event request-trade (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 

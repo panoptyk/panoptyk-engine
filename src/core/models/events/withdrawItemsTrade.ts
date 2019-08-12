@@ -39,7 +39,7 @@ export class EventWithdrawItemsTrade extends PEvent {
 
     Controller.removeItemsFromTrade(this.trade, this.items, this.fromAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event withdraw-items-trade " + this.trade.trade_id + " registered.", 2);
   }
 

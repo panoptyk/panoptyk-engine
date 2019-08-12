@@ -36,7 +36,7 @@ export class EventRequestConversation extends PEvent {
 
     Controller.requestConversation(this.fromAgent, this.toAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event request-conversation from (" + this.fromAgent.agentName + ") to agent " + this.toAgent.agentName + " registered.", 2);
   }
 

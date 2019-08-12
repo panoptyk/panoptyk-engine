@@ -44,7 +44,7 @@ export class EventDropItems extends PEvent {
     Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
       itemNames.join(", ") + " in room " + this.room.name));
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
         + this.fromAgent.agentName + " registered.", 2);
   }

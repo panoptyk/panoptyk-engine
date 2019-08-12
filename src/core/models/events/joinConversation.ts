@@ -37,7 +37,7 @@ export class EventJoinConversation extends PEvent {
 
     Controller.addAgentToConversation(this.conversation, this.fromAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event join-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
   }
 

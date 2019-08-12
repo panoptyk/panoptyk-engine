@@ -39,7 +39,7 @@ export class EventAcceptConversation extends PEvent {
     this.room = this.fromAgent.room;  // TODO: change this when room validation is added
     this.conversation = Controller.createConversation(this.room, this.fromAgent, this.toAgent);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event accept-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + "/" + this.toAgent.agentName + " registered.", 2);
   }
 

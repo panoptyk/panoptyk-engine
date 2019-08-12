@@ -35,7 +35,7 @@ export class EventCancelTrade extends PEvent {
 
     Controller.cancelTrade(this.trade);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event cancel-trade (" + this.trade.trade_id + ") for agent " + this.trade.agent_ini.name + "/" + this.trade.agent_res.name + " registered.", 2);
   }
 

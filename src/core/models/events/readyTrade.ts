@@ -39,7 +39,7 @@ export class EventReadyTrade extends PEvent {
 
     Controller.setTradeAgentStatus(this.trade, this.fromAgent, this.readyStatus);
 
-    (Validate.objects = Validate.objects || []).push(this);
+    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event ready-trade " + this.trade.trade_id + " registered.", 2);
   }
 
