@@ -1,70 +1,36 @@
-import { PEvent } from "./pEvent";
+import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
+import { Agent } from "../agent";
 
-export class EventWithdrawItemsTrade extends PEvent {
-  private static _eventName = "withdraw-items-trade";
-  public static get eventName() {
-    return EventWithdrawItemsTrade._eventName;
-  }
-  private static _formats =  [{
-    "trade_id": "number",
-    "item_ids": "object"
-  }];
-  public static get formats() {
-    return EventWithdrawItemsTrade._formats;
-  }
+export const ActionWithdrawItemsTrade: Action = {
+  name: "withdraw-items-trade",
+  formats: [
+    {
+      tradeID: "number",
+      itemIDs: "object"
+    }
+  ],
+  enact: (agent: Agent, inputData: any) => {
+    // TODO: fix event functionality
+    // this.items = res.items;
+    // this.trade = res.trade;
 
-  public items;
-  public trade;
+    // Controller.removeItemsFromTrade(this.trade, this.items, this.fromAgent);
 
-  /**
-   * Event model.
-   * @param {Object} socket - socket.io client socket object.
-   * @param {Object} inputData - raw input recieved.
-   */
-  constructor(socket, inputData) {
-    super(socket, inputData);
+    // logger.log("Event withdraw-items-trade " + this.trade.trade_id + " registered.", 2);
+  },
+  validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-
-    if (!(res = EventWithdrawItemsTrade.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event withdrawItemsTrade data (" + JSON.stringify(inputData) + ").", 1);
-      // TODO server.send.event_failed(socket, EventWithdrawItemsTrade._eventName, res.message);
-      return;
-    }
-
-    this.items = res.items;
-    this.trade = res.trade;
-
-    Controller.removeItemsFromTrade(this.trade, this.items, this.fromAgent);
-
-    // (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event withdraw-items-trade " + this.trade.trade_id + " registered.", 2);
-  }
-
-  /**
-   * Event validation.
-   * @param {Object} structure - raw input recieved.
-   * @param {Object} agent - agent associated with this event.
-   * @return {Object}
-   */
-  static validate(structure, agent) {
-    let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.validate_array_types(inputData.item_ids, "number")).status) {
       return res;
     }
-    if (!(res = Validate.validate_key_format(EventWithdrawItemsTrade._formats, structure)).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_agent_owns_items(agent, structure.item_ids)).status) {
+    if (!(res = Validate.validate_agent_owns_items(agent, inputData.item_ids)).status) {
       return res;
     }
     const items = res.items;
-    if (!(res = Validate.validate_trade_exists(structure.trade_id)).status) {
+    if (!(res = Validate.validate_trade_exists(inputData.trade_id)).status) {
       return res;
     }
     if (!(res = Validate.validate_trade_status(res.trade, [2])).status) {
@@ -77,7 +43,6 @@ export class EventWithdrawItemsTrade extends PEvent {
     if (!(res = Validate.validate_agent_logged_in(res.trade.agent_ini)).status) {
       return res;
     }
-
-    return {status: true, message: "", trade: res2.trade, items};
+    return Validate.successMsg;
   }
-}
+};

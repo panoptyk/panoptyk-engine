@@ -1,74 +1,45 @@
-import { PEvent } from "./pEvent";
+import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
+import { Agent } from "../agent";
 
-export class EventDropItems extends PEvent {
-  private static _eventName = "drop-items";
-  public static get eventName() {
-    return EventDropItems._eventName;
-  }
-  private static _formats = [{
-    "item_ids": "object",
-  }];
-  public static get formats() {
-    return EventDropItems._formats;
-  }
-
-  public items;
-  public room;
-
-  /**
-   * Event model.
-   * @param {Object} socket - socket.io client socket object.
-   * @param {Object} inputData - raw input recieved.
-   */
-  constructor(socket, inputData) {
-    super(socket, inputData);
-    let res;
-    if (!(res = EventDropItems.validate(inputData, this.fromAgent)).status) {
-      logger.log("Bad event dropItems data.", 1);
-      // TODO server.send.event_failed(socket, Event_dropItems_eventName, res.message);
+export const ActionDropItems: Action = {
+  name: "drop-items",
+  formats: [
+    {
+      itemIDs: "object"
     }
+  ],
+  enact: (agent: Agent, inputData: any) => {
+    // TODO: fix event functionality
+    // this.items = res.items;
+    // this.room = this.fromAgent.room;
 
-    this.items = res.items;
-    this.room = this.fromAgent.room;
+    // Controller.removeItemsFromAgentInventory(this.items);
+    // Controller.addItemsToRoom(this.room, this.items, this.fromAgent);
 
-    Controller.removeItemsFromAgentInventory(this.items);
-    Controller.addItemsToRoom(this.room, this.items, this.fromAgent);
+    // const itemNames = [];
+    // for (const item of this.items) {
+    //   itemNames.push(item.name);
+    // }
+    // Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
+    //   itemNames.join(", ") + " in room " + this.room.name));
 
-    const itemNames = [];
-    for (const item of this.items) {
-      itemNames.push(item.name);
-    }
-    Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
-      itemNames.join(", ") + " in room " + this.room.name));
-
-    // (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
-        + this.fromAgent.agentName + " registered.", 2);
-  }
-
-  /**
-   * Event validation.
-   * @param {Object} structure - raw input recieved.
-   * @param {Object} agent - agent associated with this event.
-   * @return {Object}
-   */
-  static validate(structure, agent) {
+    // logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
+    //     + this.fromAgent.agentName + " registered.", 2);
+  },
+  validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_key_format(EventDropItems._formats, structure)).status) {
+    if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }
-    if (!(res = Validate.validate_array_types(structure.item_ids, "number")).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_agent_owns_items(agent, structure.item_ids)).status) {
+    if (!(res = Validate.validate_agent_owns_items(agent, inputData.itemIDs)).status) {
       return res;
     }
     if (!(res = Validate.validate_items_not_in_transaction(res.items)).status) {
       return res;
     }
-    return res;
+    return Validate.successMsg;
   }
-}
+};

@@ -1,5 +1,4 @@
 import { Trade, Item } from "../models/index";
-import { PEvent } from "../models/events/index";
 
 export interface ValidationResult {
   status: boolean;
