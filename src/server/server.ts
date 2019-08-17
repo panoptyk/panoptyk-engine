@@ -4,8 +4,21 @@ import * as express from "express";
 import * as http from "http";
 import * as socketIO from "socket.io";
 import { logger, LOG } from "../core/utilities/logger";
-import { Agent, Room, Info, Item, Conversation, Trade, IDObject } from "../core/models/index";
-import { PEvent } from "../core/models/events/pEvent";
+import {
+  Agent,
+  Room,
+  Info,
+  Item,
+  Conversation,
+  Trade,
+  IDObject
+} from "../core/models/index";
+import {
+  Action,
+  ActionLogin,
+  ActionMoveToRoom
+} from "../core/models/action/index";
+import { ValidationResult } from "../core/models/validate";
 
 export class Server {
   private app: express.Application;
@@ -16,15 +29,8 @@ export class Server {
   /**
    * List of all models that need to be saved and loaded
    */
-  private models: any[] = [
-    Agent,
-    Room,
-    Info,
-    Item,
-    Conversation,
-    Trade,
-  ];
-  private events: PEvent[] = [];
+  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
+  private actions: Action[] = [ActionLogin, ActionMoveToRoom];
 
   constructor(app?: express.Application) {
     this.createApp(app);
@@ -65,21 +71,50 @@ export class Server {
     this.io = socketIO(this.server);
   }
 
+  /**
+   * These are client -> server messages.
+   * This file should not need to be modified. To add new events, create new
+   * event files in models/events
+   */
   private listen(): void {
     this.server.listen(this.port, () => {
       logger.log("Starting server on port " + this.port, LOG.INFO);
+    });
+
+    // Adds hook to set up all action hooks for each client
+    this.io.on("connection", socket => {
+      logger.log("Client Connected", LOG.INFO);
+
+      for (const action of this.actions) {
+        socket.on(action.name, data => {
+          logger.log("Action recieved.", 2);
+          const agent = Agent.getAgentBySocket(socket);
+          const res: ValidationResult = action.validate(agent, socket, data);
+          if (true || res.status) {
+            action.enact(agent, data);
+          }
+        });
+      }
+
+      socket.on("disconnect", socket => {
+        logger.log("Client disconnected", LOG.INFO);
+        const agent: Agent = Agent.getAgentBySocket(socket);
+        if (agent !== undefined) {
+          agent.logout();
+        }
+      });
     });
   }
 
   private loadModels() {
     util.makeDir(util.panoptykSettings.data_dir); // <- Should suffice
-    this.models.forEach((model) => {
+    this.models.forEach(model => {
       model.loadAll();
     });
   }
 
   private saveModels() {
-    this.models.forEach((model) => {
+    this.models.forEach(model => {
       model.saveAll();
     });
   }
@@ -98,5 +133,4 @@ export class Server {
     // Start http server
     this.listen();
   }
-
 }

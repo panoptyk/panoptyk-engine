@@ -228,7 +228,7 @@ export class Agent extends IDObject {
    * Called on agent logout.
    */
   logout() {
-    logger.log("Agent " + this.agentName + " logged out.", 2);
+    logger.log("Agent " + this + " logged out.", 2);
 
     // TODO server.control.remove_agent_from_room(this, undefined, false);
   }
