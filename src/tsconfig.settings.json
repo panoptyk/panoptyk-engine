@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "allowSyntheticDefaultImports": true,
+    "target": "es5",
     "module": "commonjs",
     "declaration": true,
     "declarationMap": true,
@@ -9,6 +10,7 @@
     "composite": true,
     "typeRoots": [
       "../node_modules/@types",
+      "../node_modules/phaser-ce/typescript/",
       "types"
     ],
   },

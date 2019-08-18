@@ -9,7 +9,8 @@
     "build:all": "tsc -b src/tsproject.json",
     "build:core": "tsc -b ./src/core",
     "build:server": "tsc -b ./src/server",
-    "build:client-api": "tsc -b ./src/client-api",
+    "build:client": "tsc -b ./src/client",
+    "webpack:client": "webpack --config client.webpack.js -p --progress --mode production",
     "test:all": "mocha -r ts-node/register src/**/*.spec.ts",
     "test:core": "mocha -r ts-node/register src/core/**/*.spec.ts",
     "test:server": "mocha -r ts-node/register src/server/**/*.spec.ts",
@@ -33,14 +34,25 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.6.2",
     "@types/socket.io": "^2.1.2",
+    "@types/socket.io-client": "^1.4.32",
     "chai": "^4.2.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "expose-loader": "^0.7.5",
+    "html-webpack-plugin": "^3.2.0",
     "mocha": "^6.1.4",
+    "ts-loader": "^6.0.4",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.6",
+    "webpack-obfuscator": "^0.18.3"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.2.0"
+    "phaser-ce": "^2.13.2",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
   }
 }
