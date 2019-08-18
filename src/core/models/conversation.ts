@@ -5,7 +5,7 @@ import { Agent } from "./agent";
 
 export class Conversation extends IDObject {
 
-  private room: number;
+  private roomID: number;
   private maxAgents: number;
   private agents: number[];
   /**
@@ -19,7 +19,7 @@ export class Conversation extends IDObject {
 
     this.maxAgents = maxAgents;
     this.agents = [];
-    this.room = room.id;
+    this.roomID = room.id;
     room.addConversation(this);
 
     logger.log("Conversation intialized in room " + room.id, 2);
@@ -71,7 +71,6 @@ export class Conversation extends IDObject {
         ids.push(agent);
       }
     }
-
     return ids;
   }
 
@@ -86,6 +85,10 @@ export class Conversation extends IDObject {
       maxAgents: this.maxAgents,
       agent_ids: this.get_agent_ids()
     };
+  }
+
+  get room(): Room {
+    return Room.getByID(this.roomID);
   }
 
 }

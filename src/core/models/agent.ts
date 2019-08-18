@@ -21,8 +21,8 @@ export class Agent extends IDObject {
   }
   private inventory: number[];
   private knowledge: number[];
-  private conversationIDs: number[];
-  private conversationRequests = new Map();
+  private conversationID: number;
+  private conversationRequests: Set<number>;
 
   /**
    * Agent model.
@@ -45,7 +45,7 @@ export class Agent extends IDObject {
     this._socket = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
-    this.conversationIDs = [];
+    this.conversationRequests = new Set<number>();
 
     logger.log("Agent " + this + " initialized.", 2);
   }
@@ -186,7 +186,7 @@ export class Agent extends IDObject {
    */
   removeFromRoom() {
     this.roomID = undefined;
-    this.conversationRequests = new Map();
+    this.conversationRequests.clear();
   }
 
   /**
@@ -238,14 +238,25 @@ export class Agent extends IDObject {
    * @param {Object} conversation - conversation object.
    */
   joinConversation(conversation: Conversation) {
-    this.conversationRequests = new Map();
-    this.conversationIDs.push(conversation.id);
+    // remove requests of people current in conversation
+    for (const ID of conversation.get_agent_ids()) {
+      this.conversationRequests.delete(ID);
+    }
+    this.conversationID = conversation.id;
+  }
+
+  conversationRequest(agentID: number) {
+    this.conversationRequests.add(agentID);
   }
 
   /**
    * Remove an agent from its' conversation.
    */
   leaveConversation() {
-    this.conversationIDs = [];
+    this.conversationID = undefined;
+  }
+
+  get conversation(): Conversation {
+    return Conversation.getByID(this.conversationID);
   }
 }

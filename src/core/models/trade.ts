@@ -19,7 +19,7 @@ export class Trade extends IDObject {
   private resultStatus: number;
   private initiatorItemIDs: number[];
   private receiverItemIDs: number[];
-  private itiatorStatus: boolean;
+  private initiatorStatus: boolean;
   private receiverStatus: boolean;
 
   /**
@@ -47,7 +47,7 @@ export class Trade extends IDObject {
     this.initiatorItemIDs = [];
     this.receiverItemIDs = [];
 
-    this.itiatorStatus = false;
+    this.initiatorStatus = false;
     this.receiverStatus = false;
 
     if (this.resultStatus === 3) {
@@ -126,12 +126,12 @@ public toString() {
    */
   setAgentReady(agent: Agent, rstatus) {
     if (agent.id === this.initiatorID) {
-      this.itiatorStatus = rstatus;
+      this.initiatorStatus = rstatus;
     } else if (agent.id === this.receiverID) {
       this.receiverStatus = rstatus;
     }
 
-    return this.itiatorStatus && this.receiverStatus;
+    return this.initiatorStatus && this.receiverStatus;
   }
 
   /**
@@ -159,14 +159,18 @@ public toString() {
    * @param {[Object]} items - items to remove from trade.
    * @param {Object} owner - agent object of agent removing the items.
    */
-  removeItems(items, owner) {
-    if (owner === this.initiatorID) {
+  removeItems(items: Item[], owner: Agent) {
+    const itemIDs = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    if (owner.id === this.initiatorID) {
       this.initiatorItemIDs = this.initiatorItemIDs.filter(function(x) {
-        return items.indexOf(x) < 0;
+        return itemIDs.indexOf(x) < 0;
       });
-    } else if (owner === this.receiverID) {
+    } else if (owner.id === this.receiverID) {
       this.receiverItemIDs = this.receiverItemIDs.filter(function(x) {
-        return items.indexOf(x) < 0;
+        return itemIDs.indexOf(x) < 0;
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
@@ -174,7 +178,7 @@ public toString() {
     }
 
     for (const item of items) {
-      item.in_transaction = false;
+      item.inTransaction = false;
     }
   }
 
@@ -215,5 +219,33 @@ public toString() {
     }
 
     return trades;
+  }
+
+  get agentIni(): Agent {
+    return Agent.getByID(this.initiatorID);
+  }
+
+  get agentRec(): Agent {
+    return Agent.getByID(this.receiverID);
+  }
+
+  get itemsIni(): Item[] {
+    return Item.getByIDs(this.initiatorItemIDs);
+  }
+
+  get itemsRec(): Item[] {
+    return Item.getByIDs(this.receiverItemIDs);
+  }
+
+  get conversation(): Conversation {
+    return Conversation.getByID(this.conversationID);
+  }
+
+  get statusIni(): boolean {
+    return this.initiatorStatus;
+  }
+
+  get statusRec(): boolean {
+    return this.receiverStatus;
   }
 }

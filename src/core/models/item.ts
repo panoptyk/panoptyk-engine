@@ -13,7 +13,7 @@ export class Item extends IDObject {
   }
   private roomID: number;
   private agentID: number;
-  private inTransaction: boolean;
+  public inTransaction: boolean;
 
   /**
    * Item model.

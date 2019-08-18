@@ -16,14 +16,21 @@ export class Controller {
   }
 
 
-  private updateChanges(agent: Agent, models: IDObject[]) {
+  private updateChanges(agent: Agent, models: any[]) {
     let updates = new Set<IDObject>();
     if (this._updates.has(agent)) {
       updates = this._updates.get(agent);
     }
-    // typescript does not have great set support
     for (const change of models) {
-      updates.add(change);
+      if (!Array.isArray(change)) {
+        updates.add(change);
+      }
+      // sometimes we will have arrays of changes in models
+      else {
+        for (const item of change) {
+          updates.add(item);
+        }
+      }
     }
     this._updates.set(agent, updates);
   }
@@ -61,7 +68,7 @@ export class Controller {
       addedItems[addedItems.length - 1].giveToAgent(agent);
     }
 
-    this.updateChanges(agent, addedItems);
+    this.updateChanges(agent, [addedItems, agent]);
   }
 
   /**
@@ -90,7 +97,7 @@ export class Controller {
       // addedInfo[addedInfo.length - 1].give_to_agent(agent);
     }
 
-    this.updateChanges(agent, addedInfo);
+    this.updateChanges(agent, [addedInfo, agent]);
   }
 
 
@@ -121,7 +128,7 @@ export class Controller {
       removedItems.push(item);
     }
 
-    this.updateChanges(agent, removedItems);
+    this.updateChanges(agent, [removedItems, agent]);
   }
 
 
@@ -165,12 +172,12 @@ export class Controller {
 
     agent.socket.join(newRoom.id);
 
-    this.updateChanges(agent, [newRoom, oldRoom]);
+    this.updateChanges(agent, [newRoom, oldRoom, agent]);
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.ENTER.create(agent, {0: time, 1: agent.id, 2: newRoom.id});
 
-    this.giveInfoToAgents(newRoom.occupants, info);
+    this.giveInfoToAgents(newRoom.getAgents(), info);
   }
 
 
@@ -196,7 +203,7 @@ export class Controller {
 
     agent.socket.leave(oldRoom.id);
 
-    this.updateChanges(agent, [newRoom]);
+    this.updateChanges(agent, [newRoom, agent]);
 
     if (updateAgentModel) {
       agent.removeFromRoom();
@@ -205,7 +212,7 @@ export class Controller {
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.DEPART.create(agent, {0: time, 1: agent.id, 2: oldRoom.id});
 
-    this.giveInfoToAgents(oldRoom.occupants, info);
+    this.giveInfoToAgents(oldRoom.getAgents(), info);
 
     oldRoom.removeAgent(agent);
   }
@@ -235,8 +242,7 @@ export class Controller {
       item.putInRoom(room);
     }
 
-    this.updateChanges(byAgent, items);
-    this.updateChanges(byAgent, [room]);
+    this.updateChanges(byAgent, [room, items]);
   }
 
 
@@ -245,13 +251,13 @@ export class Controller {
    * @param {[Object]} items - list of items to remove from room.
    * @param {Object} byAgent - agent taking the items from room. (Optional).
    */
-  public removeItemsFromRoom(items, byAgent= undefined) {
+  public removeItemsFromRoom(items: Item[], byAgent: Agent = undefined) {
     if (items === undefined || items.length === 0) {
       logger.log("Cannot remove no items from agent", 0);
       return;
     }
 
-    const room = items[0].room;
+    const room: Room = items[0].room;
 
     for (const item of items) {
       if (item.room !== room) {
@@ -261,11 +267,11 @@ export class Controller {
     }
 
     for (const item of items) {
-      room.remove_item(item);
+      room.removeItem(item);
       item.remove_from_room();
     }
 
-    // TODO: server.send.remove_items_room(items, room, byAgent);
+    this.updateChanges(byAgent, [items, room]);
   }
 
 
@@ -274,14 +280,14 @@ export class Controller {
    * @param {Object} conversation - conversation agent wants to join.
    * @param {Object} agent - agent object
    */
-  public addAgentToConversation(conversation, agent) {
+  public addAgentToConversation(conversation: Conversation, agent: Agent) {
     this.removeAgentFromConversationIfIn(agent);
 
-    logger.log("Adding agent " + agent.agentName + " to conversation " + conversation.conversation_id, 2);
-    agent.join_conversation(conversation);
+    logger.log("Adding agent " + agent.agentName + " to conversation " + conversation.id, 2);
+    agent.joinConversation(conversation);
     conversation.add_agent(agent);
 
-    // TODO: server.send.agent_join_conversation(agent);
+    this.updateChanges(agent, [conversation, agent]);
   }
 
 
@@ -290,18 +296,18 @@ export class Controller {
    * @param {Object} conversation - conversation agent wants to leave.
    * @param {Object} agent - agent object
    */
-  public removeAgentFromConversation(conversation, agent) {
-    logger.log("Removing agent " + agent.agentName + " from conversation " + conversation.conversation_id, 2);
+  public removeAgentFromConversation(conversation: Conversation, agent: Agent) {
+    logger.log("Removing agent " + agent.agentName + " from conversation " + conversation.id, 2);
 
     this.endAllTradesWithAgent(agent);
 
-    agent.leave_conversation();
+    agent.leaveConversation();
     conversation.remove_agent(agent);
 
-    // TODO: server.send.agent_leave_conversation(agent: Agent, conversation);
+    this.updateChanges(agent, [conversation, agent]);
 
-    if (conversation.agents.length === 0) {
-      conversation.room.remove_conversation(conversation);
+    if (conversation.get_agent_ids.length === 0) {
+      conversation.room.removeConversation(conversation);
     }
   }
 
@@ -310,7 +316,7 @@ export class Controller {
    * Remove agent from their conversation if they are in one. Otherwise do nothing.
    * @param {Object} agent - agent object
    */
-  public removeAgentFromConversationIfIn(agent) {
+  public removeAgentFromConversationIfIn(agent: Agent) {
     if (agent.conversation !== undefined) {
       this.removeAgentFromConversation(agent.conversation, agent);
     }
@@ -321,7 +327,7 @@ export class Controller {
    * Cancel all trades containing an agent.
    * @param {Object} agent - agent object.
    */
-  public endAllTradesWithAgent(agent) {
+  public endAllTradesWithAgent(agent: Agent) {
     for (const trade of Trade.getActiveTradesWithAgent(agent)) {
       this.cancelTrade(trade);
     }
@@ -335,10 +341,11 @@ export class Controller {
    * @param {Object} toAgent - agent object getting request.
    * @returns {Object} new trade object.
    */
-  public createTrade(conversation, fromAgent, toAgent) {
+  public createTrade(conversation: Conversation, fromAgent: Agent, toAgent: Agent) {
     const trade = new Trade(fromAgent, toAgent, conversation);
 
-    // TODO: server.send.trade_requested(toAgent.socket, trade);
+    this.updateChanges(toAgent, [trade]);
+    this.updateChanges(fromAgent, [trade]);
 
     return trade;
   }
@@ -349,10 +356,10 @@ export class Controller {
    * Trade is now ready to accept items.
    * @param {Object} trade - trade object.
    */
-  public acceptTrade(trade) {
-    // TODO: server.send.trade_accepted(trade.agent_ini.socket, trade, trade.agent_res);
-    // TODO: server.send.trade_accepted(trade.agent_res.socket, trade, trade.agent_ini);
-    trade.set_status(2);
+  public acceptTrade(trade: Trade) {
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+    trade.setStatus(2);
   }
 
 
@@ -360,10 +367,10 @@ export class Controller {
    * Cancel a trade, send updates to agents, and close out trade.
    * @param {Object} trade - trade object.
    */
-  public cancelTrade(trade) {
-    // TODO: server.send.trade_declined(trade.agent_ini.socket, trade);
-    // TODO: server.send.trade_declined(trade.agent_res.socket, trade);
-    trade.set_status(0);
+  public cancelTrade(trade: Trade) {
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+    trade.setStatus(0);
     trade.cleanup();
   }
 
@@ -373,38 +380,38 @@ export class Controller {
    *    info to all agents in room.
    * @param {Object} trade - trade object.
    */
-  public performTrade(trade) {
-    logger.log("Ending trade " + trade.trade_id, 2);
+  public performTrade(trade: Trade) {
+    logger.log("Ending trade " + trade.id, 2);
 
-    // TODO: server.send.trade_complete(trade.agent_ini.socket, trade);
-    // TODO: server.send.trade_complete(trade.agent_res.socket, trade);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
 
-    this.removeItemsFromAgentInventory(trade.items_ini);
-    this.removeItemsFromAgentInventory(trade.items_res);
+    this.removeItemsFromAgentInventory(trade.itemsIni);
+    this.removeItemsFromAgentInventory(trade.itemsRec);
 
-    this.addItemsToAgentInventory(trade.agent_ini, trade.items_res);
-    this.addItemsToAgentInventory(trade.agent_res, trade.items_ini);
+    this.addItemsToAgentInventory(trade.agentIni, trade.itemsRec);
+    this.addItemsToAgentInventory(trade.agentRec, trade.itemsIni);
 
-    trade.set_status(1);
+    trade.setStatus(1);
     trade.cleanup();
 
     // Info object prep
     const itemsIniStr = [];
     const itemsResStr = [];
 
-    for (const item of trade.items_ini) {
-      itemsIniStr.push(item.name);
+    for (const item of trade.itemsIni) {
+      itemsIniStr.push(item.itemName);
     }
-    for (const item of trade.items_res) {
-      itemsResStr.push(item.name);
+    for (const item of trade.itemsRec) {
+      itemsResStr.push(item.itemName);
     }
 
     const time = util.getPanoptykDatetime();
-    // TODO: var info = Info.ACTION.CONVERSE.create(agent: Agent, {0: time, 1: trade.agent_ini.agent_id, 2: trade.agent_ini.agent_id, 3: trade.conversation.room.room_id});
+    const info = Info.ACTION.CONVERSE.create(trade.agentIni, {0: time, 1: trade.agentIni.id, 2: trade.agentIni.id, 3: trade.conversation.room.id});
 
-    // TODO: this.giveInfoToAgents(trade.conversation.room.occupants, info);
+    this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
 
-    logger.log("Successfully completed trade " + trade.trade_id, 2);
+    logger.log("Successfully completed trade " + trade.id, 2);
   }
 
 
@@ -414,18 +421,18 @@ export class Controller {
    * @param {[Object]} items - array of items to add.
    * @param {Object} ownerAgent - agent adding the items.
    */
-  public addItemsToTrade(trade, items, ownerAgent) {
-    logger.log("Adding items to trade " + trade.trade_id  + "...", 2);
+  public addItemsToTrade(trade: Trade, items: Item[], ownerAgent: Agent) {
+    logger.log("Adding items to trade " + trade.id  + "...", 2);
 
-    this.setTradeUnreadyIfReady(trade, trade.agent_ini);
-    this.setTradeUnreadyIfReady(trade, trade.agent_res);
+    this.setTradeUnreadyIfReady(trade, trade.agentIni);
+    this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
-    trade.add_items(items, ownerAgent);
+    trade.addItems(items, ownerAgent);
 
-    // TODO: server.send.add_items_trade(trade.agent_ini.socket, trade, items, ownerAgent);
-    // TODO: server.send.add_items_trade(trade.agent_res.socket, trade, items, ownerAgent);
+    this.updateChanges(trade.agentIni, [trade, items]);
+    this.updateChanges(trade.agentRec, [trade, items]);
 
-    logger.log("Successfully added items to trade " + trade.trade_id, 2);
+    logger.log("Successfully added items to trade " + trade.id, 2);
   }
 
 
@@ -435,18 +442,18 @@ export class Controller {
    * @param {[Object]} items - array of items to remove.
    * @param {Object} ownerAgent - agent removing the items.
    */
-  public removeItemsFromTrade(trade, items, ownerAgent) {
-    logger.log("Removing items from trade " + trade.trade_id  + "...", 2);
+  public removeItemsFromTrade(trade: Trade, items: Item[], ownerAgent: Agent) {
+    logger.log("Removing items from trade " + trade.id  + "...", 2);
 
-    this.setTradeUnreadyIfReady(trade, trade.agent_ini);
-    this.setTradeUnreadyIfReady(trade, trade.agent_res);
+    this.setTradeUnreadyIfReady(trade, trade.agentIni);
+    this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
-    trade.remove_items(items, ownerAgent);
+    trade.removeItems(items, ownerAgent);
 
-    // TODO: server.send.remove_items_trade(trade.agent_ini.socket, trade, items, ownerAgent);
-    // TODO: server.send.remove_items_trade(trade.agent_res.socket, trade, items, ownerAgent);
+    this.updateChanges(trade.agentIni, [trade, items]);
+    this.updateChanges(trade.agentRec, [trade, items]);
 
-    logger.log("Successfully removed items from trade " + trade.trade_id, 2);
+    logger.log("Successfully removed items from trade " + trade.id, 2);
   }
 
 
@@ -456,12 +463,10 @@ export class Controller {
    * @param {Object} agent - agent object.
    * @param {boolean} rstatus - true if ready, false if not ready.
    */
-  public setTradeAgentStatus(trade, agent: Agent, rstatus) {
-    const endTrade = trade.set_agent_ready(agent, rstatus);
+  public setTradeAgentStatus(trade: Trade, agent: Agent, rstatus: boolean) {
+    const endTrade = trade.setAgentReady(agent, rstatus);
 
-    // TODO: server.send.agent_ready_trade(
-    //  agent === trade.agent_ini ? trade.agent_ini.socket : trade.agent_res.socket,
-    //  trade, agent: Agent, rstatus);
+    this.updateChanges(agent, [trade]);
 
     if (endTrade) {
       this.performTrade(trade);
@@ -474,11 +479,11 @@ export class Controller {
    * @param {Object} trade - trade object.
    * @param {Object} agent - agent object.
    */
-  public setTradeUnreadyIfReady(trade, agent) {
-    if (trade.agent_ini === agent && trade.status_ini) {
+  public setTradeUnreadyIfReady(trade: Trade, agent: Agent) {
+    if (trade.agentIni === agent && trade.statusIni) {
       this.setTradeAgentStatus(trade, agent, false);
     }
-    else if (trade.agent_res === agent && trade.status_res) {
+    else if (trade.agentRec === agent && trade.statusRec) {
       this.setTradeAgentStatus(trade, agent, false);
     }
   }
@@ -486,26 +491,26 @@ export class Controller {
   /**
    * Give a piece of info to an array of agents.
    * @param {[Object]} agents - agents to give info to.
-   * @param {string} info - info string.
+   * @param {Info} info - info Object.
    */
-  public giveInfoToAgents(agents, info) {
+  public giveInfoToAgents(agents: Agent[], info: Info) {
 
     const time = util.getPanoptykDatetime();
 
     for (const agent of agents) {
-      const cpy = info.make_copy(agent, time);
+      const cpy = info.makeCopy(agent, time);
       this.addInfoToAgentInventory(agent, [cpy]);
     }
   }
 
 
-  public requestConversation(agent: Agent, toAgent) {
-    toAgent.conversation_requests[agent.id] = agent.id;
-    // TODO: server.send.conversation_requested(agent: Agent, toAgent);
+  public requestConversation(agent: Agent, toAgent: Agent) {
+    toAgent.conversationRequest(agent.id);
+    this.updateChanges(toAgent, [toAgent]);
   }
 
 
-  public createConversation(room, agent: Agent, toAgent) {
+  public createConversation(room: Room, agent: Agent, toAgent: Agent) {
     const conversation = new Conversation(room);
     conversation.add_agent(agent);
     conversation.add_agent(toAgent);
@@ -514,5 +519,4 @@ export class Controller {
     this.addAgentToConversation(conversation, toAgent);
     return conversation;
   }
-
 }
