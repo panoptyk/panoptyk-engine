@@ -9,7 +9,7 @@ import { Config } from "./config";
 import { Boot } from "./states/boot";
 import { Preload } from "./states/preload";
 import { Game } from "./states/game";
-import { isObject } from "util";
+import { ClientAPI } from "../core/panoptykClientAPI";
 
 class Template extends Phaser.Game {
   constructor() {
@@ -31,8 +31,7 @@ class Template extends Phaser.Game {
 
 window.onload = () => {
 
-
-  const socket = io.connect();
+  ClientAPI.login("bot1", "nill");
 
   new Template();
 };

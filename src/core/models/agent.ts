@@ -94,6 +94,12 @@ export class Agent extends IDObject {
     return selAgent;
   }
 
+  public static logoutAll() {
+    for (const key in Agent.objects) {
+      Agent.objects[key].logout();
+    }
+  }
+
   /**
    * TODO: Look at this function
    * Static function. Find agent associated with a socket.
@@ -229,6 +235,7 @@ export class Agent extends IDObject {
    */
   logout() {
     logger.log("Agent " + this + " logged out.", 2);
+    this._socket = undefined;
 
     // TODO server.control.remove_agent_from_room(this, undefined, false);
   }

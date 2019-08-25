@@ -19,7 +19,7 @@ export const ActionLogin: Action = {
     const newAgent = Agent.login(inputData.username, inputData.socket);
 
     logger.log(
-      "Event login for agent " + this.fromAgent.agentName + " registered.",
+      "Event login for agent " + newAgent + " registered.",
       2
     );
   },

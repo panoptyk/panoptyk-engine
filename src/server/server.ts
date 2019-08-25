@@ -114,6 +114,7 @@ export class Server {
   }
 
   private saveModels() {
+    Agent.logoutAll();
     this.models.forEach(model => {
       model.saveAll();
     });
