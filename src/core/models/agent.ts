@@ -15,10 +15,7 @@ export class Agent extends IDObject {
   public get room(): Room {
     return Room.getByID(this.roomID);
   }
-  private _socket;
-  public get socket() {
-    return this._socket;
-  }
+  private socketID: string;
   private inventory: number[];
   private knowledge: number[];
   private conversationID: number;
@@ -42,7 +39,7 @@ export class Agent extends IDObject {
     super("Agent", id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
-    this._socket = undefined;
+    this.socketID = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
     this.conversationRequests = new Set<number>();
@@ -71,8 +68,8 @@ export class Agent extends IDObject {
    * @param {string} username - username of agent.
    * @param {Object} socket - socket.io client socket object.
    */
-  static login(username, socket) {
-    let selAgent = undefined;
+  static login(username, socket: SocketIO.Socket) {
+    let selAgent: Agent = undefined;
 
     for (const id in Agent.objects) {
       const agent = Agent.objects[id];
@@ -87,7 +84,7 @@ export class Agent extends IDObject {
       selAgent.roomID = panoptykSettings.default_room_id;
     }
 
-    selAgent._socket = socket;
+    selAgent.socketID = socket ? socket.id : undefined;
     // TODO server.send.login_complete(selAgent);
     // TODO server.control.add_agent_to_room(selAgent, server.models.Room.objects[selAgent.room]);
 
@@ -106,10 +103,10 @@ export class Agent extends IDObject {
    * @param {Object} socket - Socket.io object
    * @returns {Object/undefined}
    */
-  static getAgentBySocket(socket) {
+  static getAgentBySocket(socket: SocketIO.Socket) {
     for (const id in Agent.objects) {
-      const agent = Agent.objects[id];
-      if (agent._socket === socket) {
+      const agent: Agent = Agent.objects[id];
+      if (agent.socketID === socket.id) {
         return agent;
       }
     }
@@ -235,7 +232,7 @@ export class Agent extends IDObject {
    */
   logout() {
     logger.log("Agent " + this + " logged out.", 2);
-    this._socket = undefined;
+    this.socketID = undefined;
 
     // TODO server.control.remove_agent_from_room(this, undefined, false);
   }

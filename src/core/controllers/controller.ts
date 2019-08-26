@@ -170,7 +170,7 @@ export class Controller {
     agent.putInRoom(newRoom);
     newRoom.addAgent(agent);
 
-    agent.socket.join(newRoom.id);
+    // agent.socket.join(newRoom.id); <- should we use this functionality?
 
     this.updateChanges(agent, [newRoom, oldRoom, agent]);
 
@@ -201,7 +201,7 @@ export class Controller {
 
     this.removeAgentFromConversationIfIn(agent);
 
-    agent.socket.leave(oldRoom.id);
+    // agent.socket.leave(oldRoom.id);
 
     this.updateChanges(agent, [newRoom, agent]);
 
