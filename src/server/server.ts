@@ -18,7 +18,7 @@ import {
   ActionLogin,
   ActionMoveToRoom
 } from "../core/models/action/index";
-import { ValidationResult } from "../core/models/validate";
+import { ValidationResult, Validate } from "../core/models/validate";
 
 export class Server {
   private app: express.Application;
@@ -86,13 +86,18 @@ export class Server {
       logger.log("Client Connected", LOG.INFO);
 
       for (const action of this.actions) {
-        socket.on(action.name, data => {
+        socket.on(action.name, (data, callback) => {
           logger.log("Action recieved.", 2);
           const agent = Agent.getAgentBySocket(socket);
-          const res: ValidationResult = action.validate(agent, socket, data);
-          if (true || res.status) {
-            action.enact(agent, data);
+          let res: ValidationResult;
+          if ((res = Validate.validate_key_format(action.formats, data)).status) {
+            res = action.validate(agent, socket, data);
+            if (true || res.status) {
+              res.status = true;
+              action.enact(agent, data);
+            }
           }
+          callback(res);
         });
       }
 

@@ -31,7 +31,7 @@ class Template extends Phaser.Game {
 
 window.onload = () => {
 
-  ClientAPI.login("bot1", "nill");
+  ClientAPI.login("bot1", "nill").then(res => console.log("Success!")).catch(err => console.log("fail!"));
 
   new Template();
 };
