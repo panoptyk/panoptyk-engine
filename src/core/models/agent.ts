@@ -15,7 +15,7 @@ export class Agent extends IDObject {
   public get room(): Room {
     return Room.getByID(this.roomID);
   }
-  private socketID: string;
+  public socket: SocketIO.Socket;
   private inventory: number[];
   private knowledge: number[];
   private conversationID: number;
@@ -39,7 +39,7 @@ export class Agent extends IDObject {
     super("Agent", id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
-    this.socketID = undefined;
+    this.socket = undefined;
     this.inventory = inventory;
     this.knowledge = knowledge;
     this.conversationRequests = new Set<number>();
@@ -84,7 +84,7 @@ export class Agent extends IDObject {
       selAgent.roomID = panoptykSettings.default_room_id;
     }
 
-    selAgent.socketID = socket ? socket.id : undefined;
+    selAgent.socket = socket;
     // TODO server.send.login_complete(selAgent);
     // TODO server.control.add_agent_to_room(selAgent, server.models.Room.objects[selAgent.room]);
 
@@ -94,7 +94,7 @@ export class Agent extends IDObject {
   public static logoutAll() {
     for (const key in Agent.objects) {
       const agent: Agent = Agent.objects[key];
-      if (agent.socketID) {
+      if (agent.socket) {
         agent.logout();
       }
     }
@@ -109,7 +109,7 @@ export class Agent extends IDObject {
   static getAgentBySocket(socket: SocketIO.Socket) {
     for (const id in Agent.objects) {
       const agent: Agent = Agent.objects[id];
-      if (agent.socketID === socket.id) {
+      if (agent && agent.socket && agent.socket.id === socket.id) {
         return agent;
       }
     }
@@ -235,7 +235,7 @@ export class Agent extends IDObject {
    */
   logout() {
     logger.log("Agent " + this + " logged out.", 2);
-    this.socketID = undefined;
+    this.socket = undefined;
 
     // TODO server.control.remove_agent_from_room(this, undefined, false);
   }
