@@ -101,7 +101,7 @@ export class Server {
         });
       }
 
-      socket.on("disconnect", s => {
+      socket.on("disconnect", data => {
         logger.log("Client disconnected", LOG.INFO);
         const agent: Agent = Agent.getAgentBySocket(socket);
         if (agent !== undefined) {
