@@ -93,7 +93,10 @@ export class Agent extends IDObject {
 
   public static logoutAll() {
     for (const key in Agent.objects) {
-      Agent.objects[key].logout();
+      const agent: Agent = Agent.objects[key];
+      if (agent.socketID) {
+        agent.logout();
+      }
     }
   }
 
