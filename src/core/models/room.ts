@@ -5,10 +5,7 @@ import { Conversation } from "./conversation";
 import { IDObject } from "./idObject";
 
 export class Room extends IDObject {
-  private _roomName: string;
-  public get roomName(): string {
-    return this._roomName;
-  }
+  readonly roomName: string;
   private adjacent: number[];
   private occupants: number[];
   private itemIDs: number[];
@@ -22,7 +19,7 @@ export class Room extends IDObject {
    */
   constructor(roomName, maxOccupants, id?) {
     super("Room", id);
-    this._roomName = roomName;
+    this.roomName = roomName;
     this.adjacent = [];
     this.occupants = [];
     this.itemIDs = [];
