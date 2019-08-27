@@ -3,16 +3,16 @@ import { panoptykSettings } from "../utilities/util";
 import { logger, LOG } from "../utilities/logger";
 
 export abstract class IDObject {
-  private static _nextID = new Map<any, number>();
-  private static _objects = new Map<any, Map<number, IDObject>>();
-  private static _fileName = new Map<any, string>();
+  private static _nextID = new Map<string, number>();
+  private static _objects = new Map<string, { [index: number]: any }>();
+  private static _fileName = new Map<string, string>();
 
   /**
    * Be very CAREFUL!
    * This function clears the entire set of objects tracked by ID
    */
   public static purge() {
-    this._objects.set(this.name, new Map());
+    this._objects.set(this.name, {});
     this._nextID.set(this.name, 1);
   }
 
@@ -33,16 +33,16 @@ export abstract class IDObject {
     return IDObject._nextID.get(this.name);
   }
 
-  public static get objects(): Map<number, IDObject> {
+  public static get objects(): { [index: number]: any } {
     if (!IDObject._objects.has(this.name)) {
-      IDObject._objects.set(this.name, new Map());
+      IDObject._objects.set(this.name, {});
     }
     return IDObject._objects.get(this.name);
   }
 
-  private static getObjectByName(name: string): Map<number, IDObject> {
+  private static getObjectByName(name: string): { [index: number]: any } {
     if (!IDObject._objects.has(name)) {
-      IDObject._objects.set(name, new Map());
+      IDObject._objects.set(name, {});
     }
     return IDObject._objects.get(name);
   }
@@ -66,10 +66,14 @@ export abstract class IDObject {
    * Serialize all info and save them to files.
    */
   static saveAll() {
+    const data = {};
+    for (const key in this.objects) {
+      data[key] = this.objects[key].serialize();
+    }
     fs.writeFileSync(
       panoptykSettings.data_dir + "/" + this.fileName,
       JSON.stringify({
-        objects: this.objects,
+        objects: data,
         nextID: this.nextID
       })
     );
@@ -99,14 +103,14 @@ export abstract class IDObject {
    * Retrieve object by id
    * @param {number} id - object's id
    */
-  static getByID(id: number) {
+  static getByID(id: number): any {
     return this.objects[id];
   }
 
   static getByIDs(ids: number[]) {
     const objects = [];
     for (const id of ids) {
-      objects.push(this.objects[id]);
+      objects.push(IDObject.getByID(id));
       if (objects[-1] === undefined) {
         logger.log("Could not find item for id " + id + ".", 0);
         return undefined;
@@ -123,5 +127,9 @@ export abstract class IDObject {
       this.id = IDObject.getNextID(name);
     }
     IDObject.getObjectByName(name)[this.id] = this;
+  }
+
+  public serialize() {
+    return this;
   }
 }

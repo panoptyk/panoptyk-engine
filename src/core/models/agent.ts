@@ -207,6 +207,12 @@ export class Agent extends IDObject {
     return dat;
   }
 
+  public serialize() {
+    const safeAgent = Object.assign({}, this);
+    safeAgent.socket = undefined;
+    return safeAgent;
+  }
+
   /**
    * Get the data object for this agent that other agent's can see.
    * @returns {Object}
