@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Trade } from "../index";
 
 export const ActionCancelTrade: Action = {
   name: "cancel-trade",
@@ -12,12 +12,13 @@ export const ActionCancelTrade: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.trade = res.trade;
+    const controller = new Controller();
+    const trade = Trade.getByID(inputData.tradeID);
 
-    // Controller.cancelTrade(this.trade);
+    controller.cancelTrade(trade);
 
-    // logger.log("Event cancel-trade (" + this.trade.trade_id + ") for agent " + this.trade.agent_ini.name + "/" + this.trade.agent_res.name + " registered.", 2);
+    logger.log("Event cancel-trade (" + trade.trade_id + ") for agent " + trade.agent_ini.name + "/" + trade.agent_res.name + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

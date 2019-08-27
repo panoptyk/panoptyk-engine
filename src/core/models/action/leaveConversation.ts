@@ -13,12 +13,13 @@ export const ActionLeaveConversation: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.conversation = res.conversation;
+    const controller = new Controller();
+    const conversation: Conversation = Conversation.getByID(inputData.conversationID);
 
-    // Controller.removeAgentFromConversation(this.conversation, this.fromAgent);
+    controller.removeAgentFromConversation(conversation, agent);
 
-    // logger.log("Event leave-conversation (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
+    logger.log("Event leave-conversation (" + conversation.id + ") for agent " + agent.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

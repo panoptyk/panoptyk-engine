@@ -13,6 +13,7 @@ export const ActionOfferItemsTrade: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
+    const controller = new Controller();
     // TODO: fix event functionality
     // this.items = res.items;
     // this.trade = res.trade;

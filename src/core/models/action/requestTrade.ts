@@ -2,23 +2,25 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Trade, Conversation } from "../index";
 
 export const ActionRequestTrade: Action = {
   name: "request-trade",
   formats: [
     {
-      agentID: "number"
+      agentID: "number",
+      conversationID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.conversation = res.conversation;
-    // this.toAgent = res.toAgent;
+    const controller = new Controller();
+    const conversation = Conversation.getByID(inputData.conversationID);
+    const toAgent = Agent.getByID(inputData.agentID);
 
-    // this.trade = Controller.createTrade(this.conversation, this.fromAgent, this.toAgent);
+    const trade = controller.createTrade(conversation, agent, toAgent);
 
-    // logger.log("Event request-trade (" + this.conversation.conversation_id + ") for agent " + this.fromAgent.agentName + " registered.", 2);
+    logger.log("Event request-trade (" + conversation.conversation_id + ") for agent " + agent.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

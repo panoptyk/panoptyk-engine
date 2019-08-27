@@ -12,12 +12,13 @@ export const ActionRequestConversation: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.toAgent = Agent.getByID(inputData.agent_id);
+    const controller = new Controller();
+    const toAgent = Agent.getByID(inputData.agent_id);
 
-    // Controller.requestConversation(this.fromAgent, this.toAgent);
+    controller.requestConversation(agent, toAgent);
 
-    // logger.log("Event request-conversation from (" + this.fromAgent.agentName + ") to agent " + this.toAgent.agentName + " registered.", 2);
+    logger.log("Event request-conversation from (" + agent.agentName + ") to agent " + toAgent.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

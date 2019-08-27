@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Item, Trade } from "../index";
 
 export const ActionWithdrawItemsTrade: Action = {
   name: "withdraw-items-trade",
@@ -13,13 +13,15 @@ export const ActionWithdrawItemsTrade: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
+    const controller = new Controller();
     // TODO: fix event functionality
-    // this.items = res.items;
-    // this.trade = res.trade;
+    const items = Item.getByIDs(inputData.itemIDs);
+    const trade = Trade.getByID(inputData.tradeID);
 
-    // Controller.removeItemsFromTrade(this.trade, this.items, this.fromAgent);
+    controller.removeItemsFromTrade(trade, items, agent);
 
-    // logger.log("Event withdraw-items-trade " + this.trade.trade_id + " registered.", 2);
+    logger.log("Event withdraw-items-trade " + trade.trade_id + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

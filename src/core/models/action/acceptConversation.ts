@@ -12,24 +12,27 @@ export const ActionAcceptConversation: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.room = this.fromAgent.room; // TODO: change this when room validation is added
-    // this.conversation = Controller.createConversation(
-    //   this.room,
-    //   this.fromAgent,
-    //   this.toAgent
-    // );
+    const controller = new Controller();
+    const room = agent.room; // TODO: change this when room validation is added
+    const toAgent = Agent.getByID(inputData.agentID);
+    const conversation = controller.createConversation(
+      room,
+      agent,
+      toAgent
+    );
 
     logger.log(
       "Event accept-conversation (" +
-        this.conversation.conversation_id +
+        conversation.id +
         ") for agent " +
-        this.fromAgent.agentName +
+        agent.agentName +
         "/" +
-        this.toAgent.agentName +
+        toAgent.agentName +
         " registered.",
       2
     );
+
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

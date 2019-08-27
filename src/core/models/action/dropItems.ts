@@ -12,6 +12,7 @@ export const ActionDropItems: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
+    const controller = new Controller();
     // TODO: fix event functionality
     // this.items = res.items;
     // this.room = this.fromAgent.room;

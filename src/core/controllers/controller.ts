@@ -36,6 +36,25 @@ export class Controller {
   }
 
   /**
+   * sends update payload to all changed models
+   * @param updates Map of updates to send to an agent
+   */
+  public sendUpdates() {
+    for (const [agent, models] of this._updates) {
+      const payload = {};
+      for (const model of models) {
+        const name = model.constructor.name;
+        if (!payload[name]) {
+          payload[name] = [];
+        }
+        payload[name].push(JSON.stringify(model.serialize()));
+      }
+      console.log(payload);
+      agent.socket.emit("updateModels", payload);
+    }
+  }
+
+  /**
    * Add items to agent's inventory. Does validation.
    * @param {Object} agent - agent to give items to.
    * @param {[Object]} items - list of items to give to agent.

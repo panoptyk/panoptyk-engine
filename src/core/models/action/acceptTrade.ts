@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Trade } from "../index";
 
 export const ActionAcceptTrade: Action = {
   name: "accept-trade",
@@ -12,12 +12,11 @@ export const ActionAcceptTrade: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.conversation = res.conversation;
-    // this.toAgent = res.trade.agent_ini;
-    // this.trade = res.trade;
-    // Controller.acceptTrade(this.trade);
-    // logger.log("Event accept-trade (" + trade + ") for agent " + this.fromAgent.agentName + "/" + this.toAgent.agentName + " registered.", 2);
+    const controller = new Controller();
+    const trade: Trade = Trade.getByID(inputData.tradeID);
+    controller.acceptTrade(trade);
+    logger.log("Event accept-trade (" + trade.id + ") for agent " + trade.agentIni.agentName + "/" + trade.agentRec.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Trade } from "../index";
 
 export const ActionReadyTrade: Action = {
   name: "ready-trade",
@@ -13,17 +13,18 @@ export const ActionReadyTrade: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    // TODO: fix event functionality
-    // this.trade = res.trade;
-    // this.readyStatus = inputData.readyStatus;
+    const controller = new Controller();
+    const trade = Trade.getByID(inputData.tradeID);
+    const readyStatus = inputData.readyStatus;
 
-    // Controller.setTradeAgentStatus(
-    //   this.trade,
-    //   this.fromAgent,
-    //   this.readyStatus
-    // );
+    controller.setTradeAgentStatus(
+      trade,
+      agent,
+      readyStatus
+    );
 
-    // logger.log("Event ready-trade " + this.trade.trade_id + " registered.", 2);
+    logger.log("Event ready-trade " + trade.trade_id + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
