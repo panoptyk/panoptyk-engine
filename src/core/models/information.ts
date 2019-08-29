@@ -35,7 +35,7 @@ export class Info extends IDObject {
    * @param {number} infoID - possible predicate pointing to other info needed
    */
   constructor(owner: Agent, time, infoID?, id?) {
-    super("Info", id);
+    super(Info.name, id);
     this.owner = owner ? owner.id : undefined;
     this.time = time;
     this.infoID = infoID;

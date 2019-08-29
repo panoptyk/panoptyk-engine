@@ -21,7 +21,7 @@ export class Room extends IDObject {
    * @param {int} id - Room id, if null one will be assigned.
    */
   constructor(roomName, maxOccupants, id?) {
-    super("Room", id);
+    super(Room.name, id);
     this.roomName = roomName;
     this.adjacent = [];
     this._occupants = [];
@@ -42,7 +42,11 @@ export class Room extends IDObject {
   static load(json: Room) {
     const r = new Room(json.roomName, json.maxOccupants, json.id);
     for (const key in json) {
-      r[key] = json[key];
+      try {
+        r[key] = json[key];
+      } catch (err) {
+
+      }
     }
     return r;
   }
@@ -80,7 +84,7 @@ export class Room extends IDObject {
    */
   addAgent(agent: Agent, oldRoom?: Room) {
     this._occupants.push(agent.id);
-    if (oldRoom.removeAgent) {
+    if (oldRoom) {
       oldRoom.removeAgent(agent);
     }
   }

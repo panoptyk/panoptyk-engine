@@ -24,7 +24,7 @@ export class Item extends IDObject {
    * @param {number} id - id of item. If null, one will be assigned.
    */
   constructor(itemName, type, room?: Room, agent?: Agent, id?) {
-    super("Item", id);
+    super(Item.name, id);
 
     this._itemName = itemName;
     this.type = type;

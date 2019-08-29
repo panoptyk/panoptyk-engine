@@ -38,7 +38,7 @@ export class Trade extends IDObject {
     id?,
     resultStatus = Trade.result.REQUESTED
   ) {
-    super("Trade", id);
+    super(Trade.name, id);
     this.initiatorID = initiator ? initiator.id : undefined;
     this.receiverID = receiver ? receiver.id : undefined;
     this.conversationID = conversation ? conversation.id : undefined;

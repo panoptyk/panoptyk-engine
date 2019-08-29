@@ -63,5 +63,8 @@ module.exports = {
             'pixi': pixi,
             'p2': p2
         }
+    },
+    node: {
+        fs: "empty"
     }
 };

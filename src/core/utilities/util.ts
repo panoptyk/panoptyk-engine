@@ -18,7 +18,7 @@ export let getPanoptykDatetime = function() {
 };
 
 export let panoptykSettings = {
-  "default_room_id": 0,
+  "default_room_id": 1,
   "data_dir": "data",
   "port": 8080,
   "log_level": 2,

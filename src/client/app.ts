@@ -29,9 +29,11 @@ class Template extends Phaser.Game {
   }
 }
 
+(window as any).cAPI = ClientAPI;
+
 window.onload = () => {
 
-  ClientAPI.login("phaser_man1", "nill").then(res => console.log("Success!")).catch(err => console.log("fail!"));
+  ClientAPI.login("phaser_man1", "nill").then(res => console.log("Success! " + ClientAPI.playerAgent)).catch(err => console.log("fail!"));
 
   new Template();
 };

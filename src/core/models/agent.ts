@@ -36,7 +36,7 @@ export class Agent extends IDObject {
     knowledge: number[] = [],
     id?: number
   ) {
-    super("Agent", id);
+    super(Agent.name, id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
     this.socket = undefined;
@@ -82,6 +82,7 @@ export class Agent extends IDObject {
     if (selAgent === undefined) {
       selAgent = new Agent(username);
       selAgent.roomID = panoptykSettings.default_room_id;
+      selAgent.room.addAgent(selAgent);
     }
 
     selAgent.socket = socket;
@@ -101,7 +102,6 @@ export class Agent extends IDObject {
   }
 
   /**
-   * TODO: Look at this function
    * Static function. Find agent associated with a socket.
    * @param {Object} socket - Socket.io object
    * @returns {Object/undefined}
@@ -114,6 +114,22 @@ export class Agent extends IDObject {
       }
     }
 
+    return undefined;
+  }
+
+  /**
+   * Static function. Find agent by name.
+   * @param {string} name - Agent name
+   * @returns {Agent/undefined}
+   */
+  static getAgentByName(name: string) {
+    for (const id in Agent.objects) {
+      const agent: Agent = Agent.objects[id];
+      console.log(agent);
+      if (agent && agent._agentName === name) {
+        return agent;
+      }
+    }
     return undefined;
   }
 

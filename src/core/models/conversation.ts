@@ -15,7 +15,7 @@ export class Conversation extends IDObject {
    * @param {int} id - conversation id, if undefined one will be assigned.
    */
   constructor(room: Room, maxAgents = 4, id?) {
-    super("Conversation", id);
+    super(Conversation.name, id);
 
     this.maxAgents = maxAgents;
     this.agents = [];

@@ -47,11 +47,27 @@ export class Controller {
         if (!payload[name]) {
           payload[name] = [];
         }
-        payload[name].push(JSON.stringify(model.serialize()));
+        payload[name].push(model.serialize());
       }
-      console.log(payload);
-      agent.socket.emit("updateModels", payload);
+      // console.log(payload);
+      if (agent.socket) {
+        agent.socket.emit("updateModels", payload);
+      }
     }
+  }
+
+  /**
+   * builds update map for a specific agent related to all he has
+   * @param agent agent to build updates for
+   */
+  public buildUpdate(agent: Agent) {
+    if (!agent) {
+      return;
+    }
+    const models = [];
+    models.push(agent);
+    models.push(agent.room);
+    this.updateChanges(agent, models);
   }
 
   /**
