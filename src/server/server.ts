@@ -72,24 +72,6 @@ export class Server {
   }
 
   /**
-   * sends update payload to all changed models
-   * @param updates Map of updates to send to an agent
-   */
-  // moved to controller
-  // private updateModels(agent: Agent, updates: Set<IDObject>) {
-  //   const payload = {};
-  //   updates.forEach(model => {
-  //     const name = model.constructor.name;
-  //     if (!payload[name]) {
-  //       payload[name] = [];
-  //     }
-  //     payload[name].push(JSON.stringify(model.serialize()));
-  //   });
-  //   console.log(payload);
-  //   agent.socket.emit("updateModels", payload);
-  // }
-
-  /**
    * These are client -> server messages.
    * This file should not need to be modified. To add new events, create new
    * event files in models/events
