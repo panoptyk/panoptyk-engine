@@ -7,7 +7,10 @@ import { IDObject } from "./idObject";
 export class Room extends IDObject {
   readonly roomName: string;
   private adjacent: number[];
-  private occupants: number[];
+  private _occupants: number[];
+  public get occupants(): number[] {
+    return this._occupants;
+  }
   private itemIDs: number[];
   private conversationIDs: number[];
   private maxOccupants: number;
@@ -21,7 +24,7 @@ export class Room extends IDObject {
     super("Room", id);
     this.roomName = roomName;
     this.adjacent = [];
-    this.occupants = [];
+    this._occupants = [];
     this.itemIDs = [];
     this.conversationIDs = [];
     this.maxOccupants = maxOccupants;
@@ -76,7 +79,7 @@ export class Room extends IDObject {
    * @param {Agent} agent - agent object to put in this room.
    */
   addAgent(agent: Agent, oldRoom?: Room) {
-    this.occupants.push(agent.id);
+    this._occupants.push(agent.id);
     if (oldRoom.removeAgent) {
       oldRoom.removeAgent(agent);
     }
@@ -88,13 +91,13 @@ export class Room extends IDObject {
    * @param {Room} newRoom - room agent is heading to.
    */
   removeAgent(agent: Agent, newRoom?: Room) {
-    const index = this.occupants.indexOf(agent.id);
+    const index = this._occupants.indexOf(agent.id);
 
     if (index === -1) {
       logger.log("Agent " + agent + " not in room " + this + ".", 0);
       return false;
     }
-    this.occupants.splice(index, 1);
+    this._occupants.splice(index, 1);
     if (newRoom.addAgent) {
       newRoom.addAgent(agent);
     }
@@ -159,7 +162,7 @@ export class Room extends IDObject {
    */
   getAgents(curAgent?: Agent) {
     const agents = [];
-    for (const agentID of this.occupants) {
+    for (const agentID of this._occupants) {
       if (agentID !== curAgent.id) {
         agents.push(Agent.getByID(agentID));
       }

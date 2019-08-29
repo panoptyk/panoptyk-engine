@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../agent";
+import { Agent, Item, Room } from "../index";
 
 export const ActionDropItems: Action = {
   name: "drop-items",
@@ -13,22 +13,23 @@ export const ActionDropItems: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    // TODO: fix event functionality
-    // this.items = res.items;
-    // this.room = this.fromAgent.room;
+    const items = Item.getByIDs(inputData.itemIDs);
+    const room: Room = agent.room;
 
-    // Controller.removeItemsFromAgentInventory(this.items);
-    // Controller.addItemsToRoom(this.room, this.items, this.fromAgent);
+    controller.removeItemsFromAgentInventory(items);
+    controller.addItemsToRoom(room, items, agent);
 
-    // const itemNames = [];
-    // for (const item of this.items) {
-    //   itemNames.push(item.name);
-    // }
-    // Controller.giveInfoToAgents(this.room.occupants, (this.fromAgent.agentName + " dropped " +
-    //   itemNames.join(", ") + " in room " + this.room.name));
+    const itemNames = [];
+    for (const item of items) {
+      itemNames.push(item.name);
+    }
+    // TODO: make sure the next part is already done in controller
+    // controller.giveInfoToAgents(room.occupants, (agent.agentName + " dropped " +
+    //   itemNames.join(", ") + " in room " + room.name));
 
-    // logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
-    //     + this.fromAgent.agentName + " registered.", 2);
+    logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
+      + agent.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

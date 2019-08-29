@@ -16,19 +16,21 @@ export const ActionTakeItems: Action = {
     const items = Item.getByIDs(inputData.itemIDs);
     const room = agent.room;
 
-    // controller.removeAgentFromConversationIfIn(agent);
-    // controller.removeItemsFromRoom(items, agent);
-    // controller.addItemsToAgentInventory(agent, items);
+    controller.removeAgentFromConversationIfIn(agent);
+    controller.removeItemsFromRoom(items, agent);
+    controller.addItemsToAgentInventory(agent, items);
 
-    // const itemNames = [];
-    // for (const item of items) {
-    //   itemNames.push(item.name);
-    // }
+    const itemNames = [];
+    for (const item of items) {
+      itemNames.push(item.name);
+    }
+    // TODO: make sure the next part is already done in controller
     // controller.giveInfoToAgents(room.occupants, (agent.agentName + " picked up " +
     //   itemNames.join(", ") + " in room " + room.name));
 
-    // logger.log("Event take-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
-    //     + agent.agentName + " registered.", 2);
+    logger.log("Event take-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
+      + agent.agentName + " registered.", 2);
+    controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
