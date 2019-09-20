@@ -74,7 +74,7 @@ export abstract class IDObject {
       panoptykSettings.data_dir + "/" + this.fileName,
       JSON.stringify({
         objects: data,
-        nextID: this.nextID
+        nextID: this.nextID ? this.nextID : 1
       })
     );
   }
@@ -96,7 +96,7 @@ export abstract class IDObject {
       (this as any).load(json.objects[key]);
     }
 
-    IDObject._nextID.set(this.name, json.nextID);
+    IDObject._nextID.set(this.name, json.nextID ? json.nextID : 1);
   }
 
   /**
