@@ -44,12 +44,12 @@ export class Validate {
 
   /**
    * Validate one room is adjacent to another.
-   * @param {Object} old_room - starting room.
-   * @param {Object} new_room - target room.
+   * @param {Object} oldRoom - starting room.
+   * @param {Object} newRoom - target room.
    * @return {Object} {status: boolean, message: string}
    */
-  public static validate_room_adjacent(old_room: Room, new_room: Room) {
-    if (old_room.isConnectedTo(new_room)) {
+  public static validate_room_adjacent(oldRoom: Room, newRoom: Room) {
+    if (oldRoom.isConnectedTo(newRoom)) {
       return Validate.successMsg;
     }
 
@@ -78,15 +78,15 @@ export class Validate {
   /**
    * Validate agent owns list of items.
    * @param {Object} agent - agent that might own items.
-   * @param {[int]} item_ids - ids of items agent is supposed to own.
+   * @param {[int]} itemIds - ids of items agent is supposed to own.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_agent_owns_items(agent: Agent, item_ids: number[]) {
-    const items: Item[] = Item.getByIDs(item_ids);
+  public static validate_agent_owns_items(agent: Agent, itemIds: number[]) {
+    const items: Item[] = Item.getByIDs(itemIds);
     if (items === null) {
       return {
         status: false,
-        message: "No item for id " + JSON.stringify(item_ids)
+        message: "No item for id " + JSON.stringify(itemIds)
       };
     }
 
@@ -118,15 +118,15 @@ export class Validate {
   /**
    * Validate items are in room.
    * @param {Object} room - room items are supposed to be in.
-   * @param {[int]} item_ids - ids of items room is supposed to have.
+   * @param {[int]} itemIds - ids of items room is supposed to have.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_items_in_room(room: Room, item_ids: number[]) {
-    const items: Item[] = Item.getByIDs(item_ids);
+  public static validate_items_in_room(room: Room, itemIds: number[]) {
+    const items: Item[] = Item.getByIDs(itemIds);
     if (items === null) {
       return {
         status: false,
-        message: "No item for id " + JSON.stringify(item_ids)
+        message: "No item for id " + JSON.stringify(itemIds)
       };
     }
 
@@ -262,14 +262,14 @@ export class Validate {
 
   /**
    * Check if two agents are in the same conversation.
-   * @param {Object} agent1 - agent object.
-   * @param {Object} agent2 - agent object.
+   * @param {Agent} agent1 - agent object.
+   * @param {Agent} agent2 - agent object.
    * @returns {Object} {status: boolean, message: string, conversation: Object, to_agent: Object}
    */
   public static validate_agents_share_conversation(agent1: Agent, agent2: Agent) {
-    // if (agent1.conversation !== agent2.conversation || !agent1.conversation) {
-    //   return {status:false, message: 'Agents not in same conversation'}
-    // }
+    if (!agent1.conversation || agent1.conversation !== agent2.conversation) {
+      return {status: false, message: "Agents not in same conversation"};
+    }
 
     return {
       status: true,
@@ -281,24 +281,29 @@ export class Validate {
 
   /**
    * Check if two agents are already engaged in a trade together.
-   * @param {Object} agent1 - agent object.
-   * @param {Object} agent2 - agent object.
-   * @returns {Object} {}
+   * @param {Agent} agent1 - agent object.
+   * @param {Agent} agent2 - agent object.
+   * @returns {Object} {status: boolean, message: string}
    */
-  public static validate_agents_not_already_trading(agent1, agent2) {}
+  public static validate_agents_not_already_trading(agent1: Agent, agent2: Agent) {
+    if (Trade.getActiveTradesBetweenAgents(agent1, agent2).length > 0) {
+      return {status: false, message: "Agents are sharing an active trade"};
+    }
+    return {status: true, message: "Agents are not sharing an active trade"};
+  }
 
   /**
    * Check if a trade exists.
-   * @param {int} trade_id - id of trade.
+   * @param {int} tradeId - id of trade.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_trade_exists(trade_id) {
-    const trade = Trade.getByID(trade_id);
+  public static validate_trade_exists(tradeId: number) {
+    const trade = Trade.getByID(tradeId);
 
     if (!trade) {
       return {
         status: false,
-        message: "Could not find trade with id " + trade_id
+        message: "Could not find trade with id " + tradeId
       };
     }
 
@@ -307,12 +312,12 @@ export class Validate {
 
   /**
    * Check if a trade has a given status.
-   * @param {Object} trade - trade object.
-   * @param {[int]} status_options - array of possible statuses.
+   * @param {Trade} trade - trade object.
+   * @param {[int]} statusOptions - array of possible statuses.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_trade_status(trade, status_options) {
-    if (!trade || status_options.indexOf(trade.result_status) === -1) {
+  public static validate_trade_status(trade: Trade, statusOptions: number[]) {
+    if (!trade || statusOptions.indexOf(trade.resultStatus) === -1) {
       return { status: false, message: "Trade not in correct state", trade };
     }
 

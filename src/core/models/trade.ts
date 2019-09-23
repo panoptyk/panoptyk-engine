@@ -16,7 +16,10 @@ export class Trade extends IDObject {
   private initiatorID: number;
   private receiverID: number;
   private conversationID: number;
-  private resultStatus: number;
+  private _resultStatus: number;
+  public get resultStatus(): number {
+    return this._resultStatus;
+  }
   private initiatorItemIDs: number[];
   private receiverItemIDs: number[];
   private initiatorStatus: boolean;
@@ -42,7 +45,7 @@ export class Trade extends IDObject {
     this.initiatorID = initiator ? initiator.id : undefined;
     this.receiverID = receiver ? receiver.id : undefined;
     this.conversationID = conversation ? conversation.id : undefined;
-    this.resultStatus = resultStatus;
+    this._resultStatus = resultStatus;
 
     this.initiatorItemIDs = [];
     this.receiverItemIDs = [];
@@ -116,7 +119,7 @@ public toString() {
    * @param {number} stat - status to set.
    */
   setStatus(stat) {
-    this.resultStatus = stat;
+    this._resultStatus = stat;
   }
 
   /**
@@ -206,14 +209,32 @@ public toString() {
 
   /**
    * Get all the trade objects with this agent.
-   * @param {Object} agent - agent to find trades for.
+   * @param {Agent} agent - agent to find trades for.
    * @return [trade]
    */
-  static getActiveTradesWithAgent(agent) {
+  static getActiveTradesWithAgent(agent: Agent) {
     const trades = [];
 
     for (const trade of Trade.actives) {
-      if (trade.initiatorID === agent || trade.receiverID === agent) {
+      if (trade.initiatorID === agent.id || trade.receiverID === agent.id) {
+        trades.push(trade);
+      }
+    }
+
+    return trades;
+  }
+
+  /**
+   * Get all active trades between the 2 given agents
+   * @param {Agent} agent1
+   * @param {Agent} agent2
+   */
+  static getActiveTradesBetweenAgents(agent1: Agent, agent2: Agent) {
+    const trades = [];
+
+    for (const trade of Trade.actives) {
+      if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
+        trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
         trades.push(trade);
       }
     }
