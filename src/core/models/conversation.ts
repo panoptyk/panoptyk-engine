@@ -6,7 +6,10 @@ import { Agent } from "./agent";
 export class Conversation extends IDObject {
 
   private roomID: number;
-  private maxAgents: number;
+  private _maxAgents: number;
+  public get maxAgents(): number {
+    return this._maxAgents;
+  }
   private agents: number[];
   /**
    * Conversation constructor.
@@ -17,7 +20,7 @@ export class Conversation extends IDObject {
   constructor(room: Room, maxAgents = 4, id?) {
     super(Conversation.name, id);
 
-    this.maxAgents = maxAgents;
+    this._maxAgents = maxAgents;
     this.agents = [];
     this.roomID = room.id;
     room.addConversation(this);
@@ -38,8 +41,8 @@ export class Conversation extends IDObject {
    * Add an agent to this conversation.
    * @param {Object} agent - agent object
    */
-  add_agent(agent) {
-    this.agents.push(agent);
+  add_agent(agent: Agent) {
+    this.agents.push(agent.id);
   }
 
 
@@ -47,8 +50,8 @@ export class Conversation extends IDObject {
    * Remove an agent from this conversation.
    * @param {Object} agent - agent object.
    */
-  remove_agent(agent) {
-    const index = this.agents.indexOf(agent);
+  remove_agent(agent: Agent) {
+    const index = this.agents.indexOf(agent.id);
 
     if (index === -1) {
       logger.log("Tried to remove agent not in conversation " + this.id, 0);
@@ -89,6 +92,10 @@ export class Conversation extends IDObject {
 
   get room(): Room {
     return Room.getByID(this.roomID);
+  }
+
+  contains_agent(agent: Agent): boolean {
+    return this.agents.indexOf(agent.id) !== -1;
   }
 
 }

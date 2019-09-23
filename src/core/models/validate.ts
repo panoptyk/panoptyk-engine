@@ -1,4 +1,4 @@
-import { Trade, Item } from "../models/index";
+import { Trade, Item, Room, Agent, Conversation } from "../models/index";
 
 export interface ValidationResult {
   status: boolean;
@@ -48,8 +48,8 @@ export class Validate {
    * @param {Object} new_room - target room.
    * @return {Object} {status: boolean, message: string}
    */
-  public static validate_room_adjacent(old_room, new_room) {
-    if (old_room.adjacents.indexOf(new_room) !== -1) {
+  public static validate_room_adjacent(old_room: Room, new_room: Room) {
+    if (old_room.isConnectedTo(new_room)) {
       return Validate.successMsg;
     }
 
@@ -62,7 +62,7 @@ export class Validate {
    * @param {string} atype - type
    * @return {Object} {status: boolean, message: string}
    */
-  public static validate_array_types(arr, atype) {
+  public static validate_array_types(arr: any[], atype: string) {
     for (const item of arr) {
       if (typeof item !== atype) {
         return {
@@ -81,8 +81,8 @@ export class Validate {
    * @param {[int]} item_ids - ids of items agent is supposed to own.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_agent_owns_items(agent, item_ids) {
-    const items = Item.getByIDs(item_ids);
+  public static validate_agent_owns_items(agent: Agent, item_ids: number[]) {
+    const items: Item[] = Item.getByIDs(item_ids);
     if (items === null) {
       return {
         status: false,
@@ -91,10 +91,10 @@ export class Validate {
     }
 
     for (const item of items) {
-      if (agent.inventory.indexOf(item) === -1) {
+      if (item.agent === agent) {
         return {
           status: false,
-          message: "Agent does not have item " + item.name
+          message: "Agent does not have item " + item.itemName
         };
       }
     }
@@ -107,7 +107,7 @@ export class Validate {
    * @param {Object} agent - agent object.
    * @return {Object} {status: boolean, message: string}
    */
-  public static validate_agent_logged_in(agent) {
+  public static validate_agent_logged_in(agent: Agent) {
     if (agent !== null) {
       return Validate.successMsg;
     }
@@ -121,8 +121,8 @@ export class Validate {
    * @param {[int]} item_ids - ids of items room is supposed to have.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_items_in_room(room, item_ids) {
-    const items = Item.getByIDs(item_ids);
+  public static validate_items_in_room(room: Room, item_ids: number[]) {
+    const items: Item[] = Item.getByIDs(item_ids);
     if (items === null) {
       return {
         status: false,
@@ -132,15 +132,15 @@ export class Validate {
 
     for (const item of items) {
       if (item.room !== room) {
-        return { status: false, message: "Item not in room " + room.name };
+        return { status: false, message: "Item not in room " + room.roomName };
       }
     }
 
     return { status: true, message: "", items };
   }
 
-  public static validate_room_has_space(room) {
-    if (room.occupants.length >= room.max_occupants) {
+  public static validate_room_has_space(room: Room) {
+    if (room.occupants.length >= room.maxOccupants) {
       return { status: false, message: "Room is full", room };
     }
 
@@ -152,9 +152,9 @@ export class Validate {
    * @param {[Object]} items - items to check.
    * @returns {Object} {status: boolean, message: string, items: [Object]}
    */
-  public static validate_items_not_in_transaction(items) {
+  public static validate_items_not_in_transaction(items: Item[]) {
     for (const item of items) {
-      if (item.in_transaction) {
+      if (item.inTransaction) {
         return { status: false, message: "Item is currently in transaction" };
       }
     }
@@ -169,16 +169,16 @@ export class Validate {
    * @param {Object} owner - agent object.
    * @returns {Object} {status: boolean, message: string, trade: [Object]}
    */
-  public static validate_items_in_trade(items, trade, owner) {
-    if (owner === trade.agent_ini) {
+  public static validate_items_in_trade(items: Item[], trade: Trade, owner: Agent) {
+    if (owner === trade.agentIni) {
       for (const item of items) {
-        if (trade.items_ini.indexOf(item) < 0) {
+        if (trade.itemsIni.indexOf(item) < 0) {
           return { status: false, message: "Item not in trade" };
         }
       }
-    } else if (owner === trade.agent_res) {
+    } else if (owner === trade.agentRec) {
       for (const item of items) {
-        if (trade.items_res.indexOf(item) < 0) {
+        if (trade.itemsRec.indexOf(item) < 0) {
           return { status: false, message: "Item not in trade" };
         }
       }
@@ -196,13 +196,13 @@ export class Validate {
    * @param {boolean} rstatus - ready status.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_ready_status(trade, agent, rstatus) {
-    if (agent === trade.agent_ini) {
-      if (trade.status_ini !== rstatus) {
+  public static validate_ready_status(trade: Trade, agent: Agent, rstatus: boolean) {
+    if (agent === trade.agentIni) {
+      if (trade.statusIni !== rstatus) {
         return { status: false, message: "Trade ready status already set" };
       }
-    } else if (agent === trade.agent_res) {
-      if (trade.status_res !== rstatus) {
+    } else if (agent === trade.agentRec) {
+      if (trade.statusRec !== rstatus) {
         return { status: false, message: "Trade ready status already set" };
       }
     } else {
@@ -218,11 +218,11 @@ export class Validate {
    * @param {Object} conversation - conversation object.
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
-  public static validate_conversation_exists(room, conversation) {
+  public static validate_conversation_exists(room: Room, conversation: Conversation) {
     if (conversation === undefined) {
       return { status: false, message: "Conversation does not exist" };
     }
-    if (conversation.room.room_id !== room) {
+    if (conversation.room !== room) {
       return { status: false, message: "Conversation not in agents room" };
     }
 
@@ -234,8 +234,8 @@ export class Validate {
    * @param {Object} conversation - conversation object.
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
-  public static validate_conversation_has_space(conversation) {
-    if (conversation.agents.length >= conversation.max_agents) {
+  public static validate_conversation_has_space(conversation: Conversation) {
+    if (conversation.get_agent_ids().length >= conversation.maxAgents) {
       return { status: false, message: "Conversation is full", conversation };
     }
 
@@ -248,8 +248,8 @@ export class Validate {
    * @param {Object} agent - agent object.
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
-  public static validate_conversation_has_agent(conversation, agent) {
-    if (conversation.get_agent_by_id(agent.agent_id) === undefined) {
+  public static validate_conversation_has_agent(conversation: Conversation, agent: Agent) {
+    if (conversation.contains_agent(agent) === undefined) {
       return {
         status: false,
         message: "Agent does not belong to conversation",
@@ -266,7 +266,7 @@ export class Validate {
    * @param {Object} agent2 - agent object.
    * @returns {Object} {status: boolean, message: string, conversation: Object, to_agent: Object}
    */
-  public static validate_agents_share_conversation(agent1, agent2) {
+  public static validate_agents_share_conversation(agent1: Agent, agent2: Agent) {
     // if (agent1.conversation !== agent2.conversation || !agent1.conversation) {
     //   return {status:false, message: 'Agents not in same conversation'}
     // }

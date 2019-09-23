@@ -13,7 +13,10 @@ export class Room extends IDObject {
   }
   private itemIDs: number[];
   private conversationIDs: number[];
-  private maxOccupants: number;
+  private _maxOccupants: number;
+  public get maxOccupants(): number {
+    return this._maxOccupants;
+  }
 
   /**
    * Room model.
@@ -27,7 +30,7 @@ export class Room extends IDObject {
     this._occupants = [];
     this.itemIDs = [];
     this.conversationIDs = [];
-    this.maxOccupants = maxOccupants;
+    this._maxOccupants = maxOccupants;
 
     logger.log(
       "Room " + this + " Initialized.",
