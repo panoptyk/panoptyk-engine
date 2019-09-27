@@ -6,6 +6,7 @@
   "scripts": {
     "prestart": "tsc -b src/tsproject.json",
     "start": "node build/server/exampleServer.js",
+    "server": "ts-node --project src/tsconfig.settings.json src/server/exampleServer.ts",
     "build:all": "tsc -b src/tsproject.json",
     "build:core": "tsc -b ./src/core",
     "build:server": "tsc -b ./src/server",
