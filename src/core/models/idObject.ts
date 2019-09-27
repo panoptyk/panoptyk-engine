@@ -110,10 +110,12 @@ export abstract class IDObject {
   static getByIDs(ids: number[]) {
     const objects = [];
     for (const id of ids) {
-      objects.push(IDObject.getByID(id));
-      if (objects[-1] === undefined) {
-        logger.log("Could not find item for id " + id + ".", 0);
-        return undefined;
+      const object = this.objects[id];
+      if (object === undefined) {
+        logger.log("Could not find " + this.name + " for id " + id + ".", 0);
+      }
+      else {
+        objects.push(object);
       }
     }
     return objects;
