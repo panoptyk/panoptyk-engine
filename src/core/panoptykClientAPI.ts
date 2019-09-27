@@ -10,7 +10,6 @@ const MODELS: any = {
   Trade,
   Conversation,
 };
-(window as any).MODELS = MODELS;
 
 const socket = io.connect();
 
@@ -74,6 +73,17 @@ export class ClientAPI {
   public static async login(name: string, password: string) {
     const res = await ClientAPI.sendWrapper("login", { username: name, password });
     ClientAPI.playerAgentName = name;
+    return res;
+  }
+
+  /**
+   * Assumes agent has logged into server
+   * @param room room to move to
+   * @param agent for admins move other agents around
+   */
+  public static async moveToRoom(room: number | Room, agent?: Agent) {
+    agent = agent ? agent : ClientAPI._playerAgent;
+    const res = await ClientAPI.sendWrapper("move-to-room", {roomID: typeof room === "number" ? room : room.id});
     return res;
   }
 }
