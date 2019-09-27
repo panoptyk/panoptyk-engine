@@ -71,6 +71,19 @@ export class Controller {
   }
 
   /**
+   * This adds all the models that need to be updated for an agent who just logged in
+   * @param agent agent to build update for agent that logged in
+   */
+  public login(agent: Agent) {
+    this.buildUpdate(agent);
+    const models = [];
+    for (const rm of agent.room.getAdjacentRooms()) {
+      models.push(rm);
+    }
+    this.updateChanges(agent, models);
+  }
+
+  /**
    * Add items to agent's inventory. Does validation.
    * @param {Object} agent - agent to give items to.
    * @param {[Object]} items - list of items to give to agent.
