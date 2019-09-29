@@ -11,6 +11,9 @@ export class Preload extends Phaser.State {
         // Initialize Howler
         // Sound.load();
 
+        // Plugin Script loader
+        this.game.load.script("phaser-input", "assets/scripts/phaser-input/phaser-input.min.js");
+
         this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
     }
 
@@ -20,7 +23,7 @@ export class Preload extends Phaser.State {
 
     public update(): void {
         if (this.ready === true) {
-            this.game.state.start("Game");
+            this.game.state.start("Login");
         }
     }
 
