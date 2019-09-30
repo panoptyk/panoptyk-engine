@@ -105,7 +105,7 @@ export class Room extends IDObject {
       return false;
     }
     this._occupants.splice(index, 1);
-    if (newRoom.addAgent) {
+    if (newRoom) {
       newRoom.addAgent(agent);
     }
   }
@@ -167,10 +167,10 @@ export class Room extends IDObject {
    * Get the data for agents in this room.
    * @returns {Agent}
    */
-  getAgents(curAgent?: Agent) {
+  public getAgents(curAgent?: Agent) {
     const agents = [];
     for (const agentID of this._occupants) {
-      if (agentID !== curAgent.id) {
+      if (!curAgent || agentID !== curAgent.id) {
         agents.push(Agent.getByID(agentID));
       }
     }
@@ -178,10 +178,18 @@ export class Room extends IDObject {
   }
 
   /**
+   * Get array of adjacent rooms
+   * @return {Room[]}
+   */
+  public getAdjacentRooms(): Room[] {
+    return Room.getByIDs(this.adjacent);
+  }
+
+  /**
    * Get the data for items in this room.
    * @returns {Item[]}
    */
-  getItems(): Item[] {
+  public getItems(): Item[] {
     const items = [];
     for (const itemID of this.itemIDs) {
       items.push(Item.getByID(itemID));

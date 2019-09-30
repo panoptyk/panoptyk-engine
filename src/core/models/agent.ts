@@ -49,15 +49,51 @@ export class Agent extends IDObject {
 
   /**
    * Load and initialize agent object from JSON.
-   * @param {Agent} json - serialized agent JSON.
+   * @param {Agent} json - serialized agent JSON from file.
    */
   static load(json: Agent) {
     const a = new Agent(json._agentName, undefined, [], [], json.id);
     for (const key in json) {
       a[key] = json[key];
     }
+    a.conversationRequests = new Set<number>(a.conversationRequests);
     return a;
   }
+
+  /**
+   * Sanatizes data to be serialized
+   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   *  may not be privy to.
+   */
+  public serialize(removePrivateData = false) {
+    const safeAgent = Object.assign({}, this);
+    safeAgent.socket = undefined;
+    (safeAgent.conversationRequests as any) = Array.from(safeAgent.conversationRequests);
+    return safeAgent;
+  }
+
+  // /**
+  //  * Get the data object for this agent that other agent's can see.
+  //  * @returns {Object}
+  //  */
+  // public getPublicData() {
+  //   return {
+  //     id: this.id,
+  //     agentName: this.agentName,
+  //     roomID: this.roomID,
+  //     inventory: []
+  //   };
+  // }
+
+  // /**
+  //  * Get the data object for this agent that the owner agent can see.
+  //  * @returns {Object}
+  //  */
+  // public getPrivateData() {
+  //   const dat = this.getPublicData();
+  //   dat.inventory = this.getInventoryData();
+  //   return dat;
+  // }
 
   toString() {
     return this.agentName + "(id#" + this.id + ")";
@@ -125,7 +161,6 @@ export class Agent extends IDObject {
   static getAgentByName(name: string) {
     for (const id in Agent.objects) {
       const agent: Agent = Agent.objects[id];
-      console.log(agent);
       if (agent && agent._agentName === name) {
         return agent;
       }
@@ -169,7 +204,7 @@ export class Agent extends IDObject {
    * @param {Info} info - information on event
    */
   addInfoKnowledge(info) {
-    this.inventory.push(info.id);
+    this.knowledge.push(info.id);
   }
 
   /**
@@ -206,7 +241,7 @@ export class Agent extends IDObject {
   /**
    * Remove agent from room.
    */
-  removeFromRoom() {
+  public removeFromRoom() {
     this.roomID = undefined;
     this.conversationRequests.clear();
   }
@@ -215,40 +250,11 @@ export class Agent extends IDObject {
    * Get the data object for this agent's inventory.
    * @returns {Object}
    */
-  getInventoryData() {
+  public getInventoryData() {
     const dat = [];
     for (const item of this.inventory) {
       dat.push(Item[item]);
     }
-    return dat;
-  }
-
-  public serialize() {
-    const safeAgent = Object.assign({}, this);
-    safeAgent.socket = undefined;
-    return safeAgent;
-  }
-
-  /**
-   * Get the data object for this agent that other agent's can see.
-   * @returns {Object}
-   */
-  getPublicData() {
-    return {
-      id: this.id,
-      agent_name: this.agentName,
-      room_id: this.roomID,
-      inventory: []
-    };
-  }
-
-  /**
-   * Get the data object for this agent that the owner agent can see.
-   * @returns {Object}
-   */
-  getPrivateData() {
-    const dat = this.getPublicData();
-    dat.inventory = this.getInventoryData();
     return dat;
   }
 

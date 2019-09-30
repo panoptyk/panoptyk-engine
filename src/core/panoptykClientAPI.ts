@@ -45,6 +45,7 @@ export class ClientAPI {
     }
     // Skip searching for player agent if already found
     if (ClientAPI._playerAgent && ClientAPI._playerAgent.agentName === ClientAPI.playerAgentName) {
+      console.log("player updated!");
       return ClientAPI._playerAgent;
     }
     // Search for player agent

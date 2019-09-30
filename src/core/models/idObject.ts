@@ -2,7 +2,12 @@ import fs = require("fs");
 import { panoptykSettings } from "../utilities/util";
 import { logger, LOG } from "../utilities/logger";
 
-export abstract class IDObject {
+interface ModelInterface {
+  id?: number;
+  serialize(removePrivateData?: boolean): any;
+}
+
+export abstract class IDObject implements ModelInterface {
   private static _nextID = new Map<string, number>();
   private static _objects = new Map<string, { [index: number]: any }>();
   private static _fileName = new Map<string, string>();
