@@ -7,12 +7,12 @@ import { IDObject } from "./idObject";
 export class Room extends IDObject {
   readonly roomName: string;
   private adjacent: number[];
-  private _occupants: number[];
-  public get occupants(): number[] {
+  private _occupants: Set<number>;
+  public get occupants(): Set<number> {
     return this._occupants;
   }
-  private itemIDs: number[];
-  private conversationIDs: number[];
+  private itemIDs: Set<number>;
+  private conversationIDs: Set<number>;
   private _maxOccupants: number;
   public get maxOccupants(): number {
     return this._maxOccupants;
@@ -27,9 +27,9 @@ export class Room extends IDObject {
     super(Room.name, id);
     this.roomName = roomName;
     this.adjacent = [];
-    this._occupants = [];
-    this.itemIDs = [];
-    this.conversationIDs = [];
+    this._occupants = new Set<number>();
+    this.itemIDs = new Set<number>();
+    this.conversationIDs = new Set<number>();
     this._maxOccupants = maxOccupants;
 
     logger.log(
@@ -51,7 +51,23 @@ export class Room extends IDObject {
 
       }
     }
+    r._occupants = new Set<number>(r._occupants);
+    r.itemIDs = new Set<number>(r.itemIDs);
+    r.conversationIDs = new Set<number>(r.conversationIDs);
     return r;
+  }
+
+  /**
+   * Sanatizes data to be serialized
+   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   *  may not be privy to.
+   */
+  public serialize(removePrivateData = false) {
+    const safeRoom = Object.assign({}, this);
+    (safeRoom._occupants as any) = Array.from(safeRoom._occupants);
+    (safeRoom.itemIDs as any) = Array.from(safeRoom.itemIDs);
+    (safeRoom.conversationIDs as any) = Array.from(safeRoom.conversationIDs);
+    return safeRoom;
   }
 
   toString() {
@@ -86,7 +102,7 @@ export class Room extends IDObject {
    * @param {Agent} agent - agent object to put in this room.
    */
   addAgent(agent: Agent, oldRoom?: Room) {
-    this._occupants.push(agent.id);
+    this._occupants.add(agent.id);
     if (oldRoom) {
       oldRoom.removeAgent(agent);
     }
@@ -98,13 +114,13 @@ export class Room extends IDObject {
    * @param {Room} newRoom - room agent is heading to.
    */
   removeAgent(agent: Agent, newRoom?: Room) {
-    const index = this._occupants.indexOf(agent.id);
+    const index = this._occupants.has(agent.id);
 
-    if (index === -1) {
+    if (index) {
       logger.log("Agent " + agent + " not in room " + this + ".", 0);
       return false;
     }
-    this._occupants.splice(index, 1);
+    this._occupants.delete(agent.id);
     if (newRoom) {
       newRoom.addAgent(agent);
     }
@@ -116,7 +132,7 @@ export class Room extends IDObject {
    */
   addItem(item: Item) {
     logger.log("Adding item " + item + " to room " + this, 2);
-    this.itemIDs.push(item.id);
+    this.itemIDs.add(item.id);
   }
 
   /**
@@ -128,13 +144,11 @@ export class Room extends IDObject {
       "Removing item " +
         item +
         " from room " +
-        this +
-        ", index=" +
-        this.itemIDs.indexOf(item.id),
+        this,
       2
     );
 
-    this.itemIDs.splice(this.itemIDs.indexOf(item.id), 1);
+    this.itemIDs.delete(item.id);
   }
 
   /**
@@ -142,7 +156,7 @@ export class Room extends IDObject {
    * @param {Conversation} conversation - conversation to add to room.
    */
   addConversation(conversation: Conversation) {
-    this.conversationIDs.push(conversation.id);
+    this.conversationIDs.add(conversation.id);
   }
 
   /**
@@ -150,9 +164,9 @@ export class Room extends IDObject {
    * @param {Conversation} conversation - conversation object.
    */
   removeConversation(conversation: Conversation) {
-    const index = this.conversationIDs.indexOf(conversation.id);
+    const index = this.conversationIDs.has(conversation.id);
 
-    if (index === -1) {
+    if (index) {
       logger.log(
         "Could not remove conversation id#" + conversation.id,
         0
@@ -160,7 +174,7 @@ export class Room extends IDObject {
       return;
     }
 
-    this.conversationIDs.splice(index, 1);
+    this.conversationIDs.delete(conversation.id);
   }
 
   /**

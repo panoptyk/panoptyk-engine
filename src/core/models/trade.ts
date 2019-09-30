@@ -20,8 +20,8 @@ export class Trade extends IDObject {
   public get resultStatus(): number {
     return this._resultStatus;
   }
-  private initiatorItemIDs: number[];
-  private receiverItemIDs: number[];
+  private initiatorItemIDs: Set<number>;
+  private receiverItemIDs: Set<number>;
   private initiatorStatus: boolean;
   private receiverStatus: boolean;
 
@@ -47,8 +47,8 @@ export class Trade extends IDObject {
     this.conversationID = conversation ? conversation.id : undefined;
     this._resultStatus = resultStatus;
 
-    this.initiatorItemIDs = [];
-    this.receiverItemIDs = [];
+    this.initiatorItemIDs = new Set<number>();
+    this.receiverItemIDs = new Set<number>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -69,11 +69,25 @@ public toString() {
    * @param {JSON} json - serialized trade object.
    */
   static load(json: Trade) {
-    const t = new Item(undefined, undefined, undefined);
+    const t = new Trade(undefined, undefined, undefined);
     for (const key in json) {
       t[key] = json[key];
     }
+    t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
+    t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
     return t;
+  }
+
+  /**
+   * Sanatizes data to be serialized
+   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   *  may not be privy to.
+   */
+  public serialize(removePrivateData = false) {
+    const safeTrade = Object.assign({}, this);
+    (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
+    (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
+    return safeTrade;
   }
 
   /**
@@ -142,18 +156,18 @@ public toString() {
    * @param {[Object]} items - items to add to trade.
    * @param {Agent} owner - agent object of agent adding the items.
    */
-  addItems(items, owner: Agent) {
+  addItems(items: Item[], owner: Agent) {
     if (owner.id === this.initiatorID) {
-      this.initiatorItemIDs.push(...items);
+      items.forEach(item => this.initiatorItemIDs.add(item.id));
     } else if (owner.id === this.receiverID) {
-      this.receiverItemIDs.push(...items);
+      items.forEach(item => this.receiverItemIDs.add(item.id));
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
 
     for (const item of items) {
-      item.in_transaction = true;
+      item.inTransaction = true;
     }
   }
 
@@ -163,25 +177,19 @@ public toString() {
    * @param {Object} owner - agent object of agent removing the items.
    */
   removeItems(items: Item[], owner: Agent) {
-    const itemIDs = [];
-    for (const item of items) {
-      itemIDs.push(item.id);
-    }
     if (owner.id === this.initiatorID) {
-      this.initiatorItemIDs = this.initiatorItemIDs.filter(function(x) {
-        return itemIDs.indexOf(x) < 0;
+      items.forEach(item => {
+        this.initiatorItemIDs.delete(item.id);
+        item.inTransaction = false;
       });
     } else if (owner.id === this.receiverID) {
-      this.receiverItemIDs = this.receiverItemIDs.filter(function(x) {
-        return itemIDs.indexOf(x) < 0;
+      items.forEach(item => {
+        this.receiverItemIDs.delete(item.id);
+        item.inTransaction = false;
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
-    }
-
-    for (const item of items) {
-      item.inTransaction = false;
     }
   }
 
@@ -251,11 +259,11 @@ public toString() {
   }
 
   get itemsIni(): Item[] {
-    return Item.getByIDs(this.initiatorItemIDs);
+    return Item.getByIDs(Array.from(this.initiatorItemIDs));
   }
 
   get itemsRec(): Item[] {
-    return Item.getByIDs(this.receiverItemIDs);
+    return Item.getByIDs(Array.from(this.receiverItemIDs));
   }
 
   get conversation(): Conversation {

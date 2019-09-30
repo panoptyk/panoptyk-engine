@@ -140,7 +140,7 @@ export class Validate {
   }
 
   public static validate_room_has_space(room: Room) {
-    if (room.occupants.length >= room.maxOccupants) {
+    if (room.occupants.size >= room.maxOccupants) {
       return { status: false, message: "Room is full", room };
     }
 

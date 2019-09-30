@@ -16,8 +16,8 @@ export class Agent extends IDObject {
     return Room.getByID(this.roomID);
   }
   public socket: SocketIO.Socket;
-  private inventory: number[];
-  private knowledge: number[];
+  private inventory: Set<number>;
+  private knowledge: Set<number>;
   private conversationID: number;
   private conversationRequests: Set<number>;
 
@@ -25,23 +25,19 @@ export class Agent extends IDObject {
    * Agent model.
    * @param {string} username - username of agent
    * @param {Room} room - room id of agent. Does not put agent in room, simply saves it.
-   * @param {number[]} inventory - list of items that agent owns.
-   * @param {number[]} knowledge - list of items that agent owns.
    * @param {int} id - id of agent. If undefined, one will be assigned.
    */
   constructor(
     username: string,
     room?: Room,
-    inventory: number[] = [],
-    knowledge: number[] = [],
     id?: number
   ) {
     super(Agent.name, id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
     this.socket = undefined;
-    this.inventory = inventory;
-    this.knowledge = knowledge;
+    this.inventory = new Set<number>();
+    this.knowledge = new Set<number>();
     this.conversationRequests = new Set<number>();
 
     logger.log("Agent " + this + " initialized.", 2);
@@ -52,10 +48,12 @@ export class Agent extends IDObject {
    * @param {Agent} json - serialized agent JSON from file.
    */
   static load(json: Agent) {
-    const a = new Agent(json._agentName, undefined, [], [], json.id);
+    const a = new Agent(json._agentName, undefined, json.id);
     for (const key in json) {
       a[key] = json[key];
     }
+    a.inventory = new Set<number>(a.inventory);
+    a.knowledge = new Set<number>(a.knowledge);
     a.conversationRequests = new Set<number>(a.conversationRequests);
     return a;
   }
@@ -68,6 +66,8 @@ export class Agent extends IDObject {
   public serialize(removePrivateData = false) {
     const safeAgent = Object.assign({}, this);
     safeAgent.socket = undefined;
+    (safeAgent.inventory as any) = Array.from(safeAgent.inventory);
+    (safeAgent.knowledge as any) = Array.from(safeAgent.knowledge);
     (safeAgent.conversationRequests as any) = Array.from(safeAgent.conversationRequests);
     return safeAgent;
   }
@@ -173,7 +173,7 @@ export class Agent extends IDObject {
    * @param {Item} item - item object
    */
   addItemInventory(item: Item) {
-    this.inventory.push(item.id);
+    this.inventory.add(item.id);
   }
 
   /**
@@ -181,9 +181,9 @@ export class Agent extends IDObject {
    * @param {Item} item - item object
    */
   removeItemInventory(item: Item) {
-    const index = this.inventory.indexOf(item.id);
+    const hasItem = this.inventory.has(item.id);
 
-    if (index === -1) {
+    if (hasItem) {
       logger.log(
         "Tried to remove invalid item " +
           item +
@@ -195,7 +195,7 @@ export class Agent extends IDObject {
       return false;
     }
 
-    this.inventory.splice(index, 1);
+    this.inventory.delete(item.id);
     return true;
   }
 
@@ -204,17 +204,17 @@ export class Agent extends IDObject {
    * @param {Info} info - information on event
    */
   addInfoKnowledge(info) {
-    this.knowledge.push(info.id);
+    this.knowledge.add(info.id);
   }
 
   /**
-   * Remove an item from agent inventory.
+   * Remove an item from agent memory.
    * @param {Info} info - item object
    */
   removeInfoKnowledge(info: Info) {
-    const index = this.inventory.indexOf(info.id);
+    const index = this.knowledge.has(info.id);
 
-    if (index === -1) {
+    if (index) {
       logger.log(
         "Tried to remove invalid information " +
           info +
@@ -226,7 +226,7 @@ export class Agent extends IDObject {
       return false;
     }
 
-    this.inventory.splice(index, 1);
+    this.knowledge.delete(info.id);
     return true;
   }
 

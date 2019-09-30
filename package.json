@@ -12,6 +12,7 @@
     "build:server": "tsc -b ./src/server",
     "build:client": "tsc -b ./src/client",
     "webpack:client": "webpack --config client.webpack.js -p --progress --mode production",
+    "bot:dummy": "ts-node --project src/tsconfig.settings.json example_bots/dummy.ts",
     "test:all": "mocha -r ts-node/register src/**/*.spec.ts",
     "test:core": "mocha -r ts-node/register src/core/**/*.spec.ts",
     "test:server": "mocha -r ts-node/register src/server/**/*.spec.ts",
