@@ -15,13 +15,13 @@ export const ActionMoveToRoom: Action = {
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const oldRoom = agent.room;
-    const newRoom = Room.getByID(inputData.room_id);
+    const newRoom = Room.getByID(inputData.roomID);
 
     controller.moveAgentToRoom(agent, newRoom);
 
     // (Validate.objects = Validate.objects || []).push(this);
-    logger.log("Event move-to-room (" + oldRoom.roomName + "->"
-      + newRoom.name  + ") for agent " + agent.agentName + " registered.", 2);
+    logger.log("Event move-to-room (" + oldRoom + "->"
+      + newRoom  + ") for agent " + agent + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
