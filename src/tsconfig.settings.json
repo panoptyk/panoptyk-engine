@@ -13,10 +13,10 @@
       "../node_modules/@types",
       "../node_modules/phaser-ce/typescript/",
       "types"
-    ],
+    ]
   },
   "exclude": [
     "**/*.spec.ts",
     "**/*.ignore.ts"
-  ],
+  ]
 }
