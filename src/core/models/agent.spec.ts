@@ -20,11 +20,11 @@ describe("Room Class", function() {
             a1.roomID = 3;
             a2.roomID = 4;
 
-            a1.knowledge = [11, 12, 13];
-            a2.knowledge = [21, 22, 23];
+            a1.knowledge = new Set([11, 12, 13]);
+            a2.knowledge = new Set([21, 22, 23]);
 
-            a1.inventory = [3, 2, 1];
-            a2.inventory = [5, 6, 7];
+            a1.inventory = new Set([3, 2, 1]);
+            a2.inventory = new Set([5, 6, 7]);
 
             assert.exists(a1);
             assert.exists(a2);

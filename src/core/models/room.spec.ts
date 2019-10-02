@@ -20,14 +20,14 @@ describe("Room Class", function() {
             r1.adjacents = [2];
             r2.adjacents = [1];
 
-            r1.occupants = [1, 2, 3];
-            r2.occupants = [4, 5, 6];
+            r1._occupants = new Set([1, 2, 3]);
+            r2._occupants = new Set([4, 5, 6]);
 
-            r1.items = [11, 12, 13];
-            r2.items = [21, 22, 23];
+            r1.itemIDs = new Set([11, 12, 13]);
+            r2.itemIDs = new Set([21, 22, 23]);
 
-            r1.conversations = [71, 72, 73];
-            r2.conversations = [81, 82, 83];
+            r1.conversationIDs = new Set([71, 72, 73]);
+            r2.conversationIDs = new Set([81, 82, 83]);
             assert.exists(r1);
             assert.exists(r2);
 
