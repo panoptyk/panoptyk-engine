@@ -3,6 +3,7 @@ import * as util from "../core/utilities/util";
 import * as express from "express";
 import * as http from "http";
 import * as socketIO from "socket.io";
+import { Controller } from "../core/controllers/controller";
 import { logger, LOG } from "../core/utilities/logger";
 import {
   Agent,
@@ -92,8 +93,7 @@ export class Server {
           let res: ValidationResult;
           if ((res = Validate.validate_key_format(action.formats, data)).status) {
             res = action.validate(agent, socket, data);
-            if (true || res.status) {
-              res.status = true;
+            if (res.status) {
               action.enact(agent, data);
             }
           }
@@ -105,7 +105,13 @@ export class Server {
         logger.log("Client disconnected", LOG.INFO);
         const agent: Agent = Agent.getAgentBySocket(socket);
         if (agent !== undefined) {
-          agent.logout();
+          const controller = new Controller();
+          controller.removeAgentFromRoom(agent, true);
+          logger.log(
+            "Removing agent " + agent + ".",
+            2
+          );
+          controller.sendUpdates();
         }
       });
     });

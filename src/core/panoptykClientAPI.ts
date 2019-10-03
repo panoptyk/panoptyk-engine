@@ -11,7 +11,8 @@ const MODELS: any = {
   Conversation,
 };
 
-const socket = io.connect();
+// This should point to the url of the game server
+const socket = io.connect("http://localhost:8080");
 
 // Sets up the hook to recieve updates on relevant models
 socket.on("updateModels", data => {
@@ -45,8 +46,8 @@ export class ClientAPI {
     }
     // Skip searching for player agent if already found
     if (ClientAPI._playerAgent && ClientAPI._playerAgent.agentName === ClientAPI.playerAgentName) {
-      console.log("player updated!");
-      return ClientAPI._playerAgent;
+      // Get latest verison of player
+      return (ClientAPI._playerAgent = Agent.getByID(ClientAPI._playerAgent.id));
     }
     // Search for player agent
     return (ClientAPI._playerAgent = Agent.getAgentByName(ClientAPI.playerAgentName));
@@ -67,7 +68,7 @@ export class ClientAPI {
         return res;
     }
     else {
-        throw res;
+        throw res.message;
     }
   }
 

@@ -1,1 +1,13 @@
-{"objects":{"1":{"id":1,"_agentName":"phaser_man1","roomID":3,"inventory":[2,4],"knowledge":[],"conversationRequests":[]}},"nextID":2}
+{
+  "objects": {
+    "1": {
+      "id": 1,
+      "_agentName": "phaser_man1",
+      "roomID": 3,
+      "inventory": [2, 4],
+      "knowledge": [],
+      "conversationRequests": []
+    }
+  },
+  "nextID": 2
+}

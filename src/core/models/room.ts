@@ -101,29 +101,21 @@ export class Room extends IDObject {
    * Add an agent to this room.
    * @param {Agent} agent - agent object to put in this room.
    */
-  addAgent(agent: Agent, oldRoom?: Room) {
+  addAgent(agent: Agent) {
     this._occupants.add(agent.id);
-    if (oldRoom) {
-      oldRoom.removeAgent(agent);
-    }
   }
 
   /**
    * Removes an agent from this room.
    * @param {Agent} agent - agent to remove
-   * @param {Room} newRoom - room agent is heading to.
    */
-  removeAgent(agent: Agent, newRoom?: Room) {
+  removeAgent(agent: Agent) {
     const index = this._occupants.has(agent.id);
-
-    if (index) {
+    if (!index) {
       logger.log("Agent " + agent + " not in room " + this + ".", 0);
       return false;
     }
     this._occupants.delete(agent.id);
-    if (newRoom) {
-      newRoom.addAgent(agent);
-    }
   }
 
   /**
@@ -192,11 +184,10 @@ export class Room extends IDObject {
   }
 
   /**
-   * Get array of adjacent rooms
-   * @return {Room[]}
+   * Get array of ids of adjacent rooms
    */
-  public getAdjacentRooms(): Room[] {
-    return Room.getByIDs(this.adjacent);
+  public getAdjacentRooms(): number[] {
+    return this.adjacent;
   }
 
   /**

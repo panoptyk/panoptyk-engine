@@ -57,33 +57,6 @@ export class Controller {
   }
 
   /**
-   * builds update map for a specific agent related to all he has
-   * @param agent agent to build updates for
-   */
-  public buildUpdate(agent: Agent) {
-    if (!agent) {
-      return;
-    }
-    const models = [];
-    models.push(agent);
-    models.push(agent.room);
-    this.updateChanges(agent, models);
-  }
-
-  /**
-   * This adds all the models that need to be updated for an agent who just logged in
-   * @param agent agent to build update for agent that logged in
-   */
-  public login(agent: Agent) {
-    this.buildUpdate(agent);
-    const models = [];
-    for (const rm of agent.room.getAdjacentRooms()) {
-      models.push(rm);
-    }
-    this.updateChanges(agent, models);
-  }
-
-  /**
    * Add items to agent's inventory. Does validation.
    * @param {Object} agent - agent to give items to.
    * @param {[Object]} items - list of items to give to agent.
@@ -198,8 +171,8 @@ export class Controller {
       return;
     }
 
-    this.removeAgentFromRoom(agent, newRoom);
-    this.addAgentToRoom(agent, newRoom, oldRoom);
+    this.removeAgentFromRoom(agent);
+    this.addAgentToRoom(agent, newRoom);
   }
 
 
@@ -207,9 +180,8 @@ export class Controller {
    * Add agent to a room. Does validation.
    * @param {Object} agent - agent to add to room.
    * @param {Object} newRoom - room to move agent to.
-   * @param {Object} oldRoom - room agent is coming from. (Optional).
    */
-  public addAgentToRoom(agent: Agent, newRoom: Room, oldRoom: Room = undefined) {
+  public addAgentToRoom(agent: Agent, newRoom: Room) {
     if (newRoom === undefined || agent === undefined) {
       logger.log("Cannot add agent to room", 0, "controller.js");
       return;
@@ -220,7 +192,7 @@ export class Controller {
 
     // agent.socket.join(newRoom.id); <- should we use this functionality?
 
-    this.updateChanges(agent, [newRoom, oldRoom, agent]);
+    this.updateChanges(agent, [newRoom, agent]);
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.ENTER.create(agent, {0: time, 1: agent.id, 2: newRoom.id});
@@ -232,9 +204,9 @@ export class Controller {
   /**
    * Remove agent from a room. Does validation.
    * @param {Object} agent - agent to remove from room.
-   * @param {Object} newRoom - room agent is moving to. (Optional).
+   * @param {boolean} logout - lets agent remember room if true
    */
-  public removeAgentFromRoom(agent: Agent, newRoom: Room = undefined, updateAgentModel= true) {
+  public removeAgentFromRoom(agent: Agent, logout = false) {
     if (agent === undefined) {
       logger.log("Cannot remove undefined agent from room", 0);
       return;
@@ -249,20 +221,19 @@ export class Controller {
 
     this.removeAgentFromConversationIfIn(agent);
 
-    // agent.socket.leave(oldRoom.id);
-
-    this.updateChanges(agent, [newRoom, agent]);
-
-    if (updateAgentModel) {
+    if (logout) {
+      agent.logout();
+    }
+    else {
       agent.removeFromRoom();
     }
+    oldRoom.removeAgent(agent);
+    this.updateChanges(agent, [agent, oldRoom]);
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.DEPART.create(agent, {0: time, 1: agent.id, 2: oldRoom.id});
 
     this.giveInfoToAgents(oldRoom.getAgents(), info);
-
-    oldRoom.removeAgent(agent);
   }
 
 

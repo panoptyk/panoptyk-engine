@@ -2,6 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import fs = require("fs");
 import { Room } from "./room";
+import { Item } from "./item";
 
 const idObj = Room;
 
@@ -53,4 +54,13 @@ describe("Room Class", function() {
             fs.unlinkSync(idObj.getPath());
         });
     });
+
+    // describe("Stress", function() {
+    //     it("Item Load", function() {
+    //         const r1: any = new Room("Room 1", 5);
+    //         for (let i = 0; i < 10000; i++) {
+    //             r1.addItem(new Item("coin", "currency"));
+    //         }
+    //     });
+    // });
 });

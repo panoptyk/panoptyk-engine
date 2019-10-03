@@ -264,8 +264,6 @@ export class Agent extends IDObject {
   logout() {
     logger.log("Agent " + this + " logged out.", 2);
     this.socket = undefined;
-
-    // TODO server.control.remove_agent_from_room(this, undefined, false);
   }
 
   /**
