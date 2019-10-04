@@ -1,6 +1,7 @@
 import * as io from "socket.io-client";
 import { ValidationResult } from "./models/validate";
 import { Agent, Room, Info, Trade, Item, Conversation } from "./models";
+import { TcpSocketConnectOpts } from "net";
 
 const MODELS: any = {
   Agent,
@@ -20,6 +21,8 @@ const emit = function(socket: SocketIOClient.Socket, event: string, payload: any
 };
 
 export class ClientAPI {
+  // set of functions with signature function(): void
+  private static modelListeners: Set<() => void> = new Set<() => void>();
   private static socket: SocketIOClient.Socket = undefined;
   private static initialized = false;
   private static actionSent = false;
@@ -76,8 +79,31 @@ export class ClientAPI {
         }
       }
       ClientAPI.updating.pop();
+
+      // alert listeners if there are no more incoming updates
+      if (ClientAPI.updating.length === 0) {
+        for (const callback of this.modelListeners) {
+          callback();
+        }
+      }
     });
     ClientAPI.initialized = true;
+  }
+
+  /**
+   * Adds function to be called when model is updated
+   * @param func function with signature function(): void
+   */
+  public static addUpdateListener(func: () => void) {
+    this.modelListeners.add(func);
+  }
+
+  /**
+   * Removes callback function from listeners
+   * @param func function with signature function(): void
+   */
+  public static removeUpdateListener(func: () => void) {
+    this.modelListeners.delete(func);
   }
 
   /**
@@ -106,6 +132,15 @@ export class ClientAPI {
   public static async moveToRoom(room: Room, agent?: Agent) {
     agent = agent ? agent : ClientAPI._playerAgent;
     const res = await ClientAPI.sendWrapper("move-to-room", {roomID: room.id});
+    return res;
+  }
+
+  /**
+   * Request conversation between 2 logged-in agents
+   * @param targetAgent agent to request conversation with
+   */
+  public static async requestConversation(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("request-conversation", {agentID: targetAgent.id});
     return res;
   }
 }

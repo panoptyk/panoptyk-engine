@@ -323,4 +323,30 @@ export class Validate {
 
     return { status: true, message: "", trade };
   }
+
+  /**
+   * Checks if agents are in the same room
+   * @param {Agent} fromAgent - sender
+   * @param {Agent} toAgent - receiver
+   */
+  public static validate_agents_in_same_room(fromAgent: Agent, toAgent: Agent) {
+    if (fromAgent.room !== toAgent.room) {
+      return { status: false, message: "Agent " + fromAgent.id + " is not in same room as Agent " + toAgent.id };
+    }
+
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if agents are already in conversations
+   * @param {[Agent]} agents
+   */
+  public static validate_agents_not_conversing(agents: Agent[]) {
+    for (const agent of agents) {
+      if (agent.conversation !== undefined) {
+        return { status: false, message: "Agent " + agent.id + " is already in a conversation!"};
+      }
+    }
+    return { status: true, message: "" };
+  }
 }

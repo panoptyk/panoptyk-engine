@@ -13,7 +13,7 @@ export const ActionRequestConversation: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const toAgent = Agent.getByID(inputData.agent_id);
+    const toAgent = Agent.getByID(inputData.agentID);
 
     controller.requestConversation(agent, toAgent);
 
@@ -22,12 +22,16 @@ export const ActionRequestConversation: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    const toAgent = Agent.getByID(inputData.agent_id);
+    const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;
     }
-    // TODO: validate agents are not already in a conversation
-    // TODO: validate agents are in same room
+    if (!(res = Validate.validate_agents_in_same_room(agent, toAgent)).status) {
+      return res;
+    }
+    if (!(res = Validate.validate_agents_not_conversing([agent, toAgent])).status) {
+      return res;
+    }
     return Validate.successMsg;
   }
 };
