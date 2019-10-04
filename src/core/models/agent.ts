@@ -16,10 +16,16 @@ export class Agent extends IDObject {
     return Room.getByID(this.roomID);
   }
   public socket: SocketIO.Socket;
-  private inventory: Set<number>;
-  private knowledge: Set<number>;
-  private conversationID: number;
-  private conversationRequests: Set<number>;
+  private _inventory: Set<number>;
+  public get inventory(): Item[] {
+    return Item.getByIDs(Array.from(this._inventory));
+  }
+  private _knowledge: Set<number>;
+  public get knowledge(): Info[] {
+    return Info.getByIDs(Array.from(this._knowledge));
+  }
+  private _conversationID: number;
+  private _conversationRequests: Set<number>;
 
   /**
    * Agent model.
@@ -27,18 +33,14 @@ export class Agent extends IDObject {
    * @param {Room} room - room id of agent. Does not put agent in room, simply saves it.
    * @param {int} id - id of agent. If undefined, one will be assigned.
    */
-  constructor(
-    username: string,
-    room?: Room,
-    id?: number
-  ) {
+  constructor(username: string, room?: Room, id?: number) {
     super(Agent.name, id);
     this._agentName = username;
     this.roomID = room ? room.id : undefined;
     this.socket = undefined;
-    this.inventory = new Set<number>();
-    this.knowledge = new Set<number>();
-    this.conversationRequests = new Set<number>();
+    this._inventory = new Set<number>();
+    this._knowledge = new Set<number>();
+    this._conversationRequests = new Set<number>();
 
     logger.log("Agent " + this + " initialized.", 2);
   }
@@ -53,9 +55,9 @@ export class Agent extends IDObject {
     for (const key in json) {
       a[key] = json[key];
     }
-    a.inventory = new Set<number>(a.inventory);
-    a.knowledge = new Set<number>(a.knowledge);
-    a.conversationRequests = new Set<number>(a.conversationRequests);
+    a._inventory = new Set<number>(a._inventory);
+    a._knowledge = new Set<number>(a._knowledge);
+    a._conversationRequests = new Set<number>(a._conversationRequests);
     return a;
   }
 
@@ -67,9 +69,11 @@ export class Agent extends IDObject {
   public serialize(removePrivateData = false) {
     const safeAgent = Object.assign({}, this);
     safeAgent.socket = undefined;
-    (safeAgent.inventory as any) = Array.from(safeAgent.inventory);
-    (safeAgent.knowledge as any) = Array.from(safeAgent.knowledge);
-    (safeAgent.conversationRequests as any) = Array.from(safeAgent.conversationRequests);
+    (safeAgent._inventory as any) = Array.from(safeAgent._inventory);
+    (safeAgent._knowledge as any) = Array.from(safeAgent._knowledge);
+    (safeAgent._conversationRequests as any) = Array.from(
+      safeAgent._conversationRequests
+    );
     return safeAgent;
   }
 
@@ -129,6 +133,14 @@ export class Agent extends IDObject {
     return selAgent;
   }
 
+  /**
+   * Called on agent logout.
+   */
+  logout() {
+    logger.log("Agent " + this + " logged out.", 2);
+    this.socket = undefined;
+  }
+
   public static logoutAll() {
     for (const key in Agent.objects) {
       const agent: Agent = Agent.objects[key];
@@ -174,7 +186,7 @@ export class Agent extends IDObject {
    * @param {Item} item - item object
    */
   addItemInventory(item: Item) {
-    this.inventory.add(item.id);
+    this._inventory.add(item.id);
   }
 
   /**
@@ -182,21 +194,17 @@ export class Agent extends IDObject {
    * @param {Item} item - item object
    */
   removeItemInventory(item: Item) {
-    const hasItem = this.inventory.has(item.id);
+    const hasItem = this._inventory.has(item.id);
 
     if (hasItem) {
       logger.log(
-        "Tried to remove invalid item " +
-          item +
-          " from agent " +
-          this +
-          ".",
+        "Tried to remove invalid item " + item + " from agent " + this + ".",
         0
       );
       return false;
     }
 
-    this.inventory.delete(item.id);
+    this._inventory.delete(item.id);
     return true;
   }
 
@@ -205,17 +213,17 @@ export class Agent extends IDObject {
    * @param {Info} info - information on event
    */
   addInfoKnowledge(info) {
-    this.knowledge.add(info.id);
+    this._knowledge.add(info.id);
   }
 
   /**
    * Remove an item from agent memory.
    * @param {Info} info - item object
    */
-  removeInfoKnowledge(info: Info) {
-    const index = this.knowledge.has(info.id);
+  public removeInfoKnowledge(info: Info) {
+    const has = this._knowledge.has(info.id);
 
-    if (index) {
+    if (has) {
       logger.log(
         "Tried to remove invalid information " +
           info +
@@ -227,7 +235,7 @@ export class Agent extends IDObject {
       return false;
     }
 
-    this.knowledge.delete(info.id);
+    this._knowledge.delete(info.id);
     return true;
   }
 
@@ -235,7 +243,7 @@ export class Agent extends IDObject {
    * Put agent in room.
    * @param {Room} newRoom - room to move to
    */
-  putInRoom(newRoom: Room) {
+  public putInRoom(newRoom: Room) {
     this.roomID = newRoom.id;
   }
 
@@ -244,53 +252,51 @@ export class Agent extends IDObject {
    */
   public removeFromRoom() {
     this.roomID = undefined;
-    this.conversationRequests.clear();
+    this._conversationRequests.clear();
   }
 
   /**
-   * Get the data object for this agent's inventory.
-   * @returns {Object}
+   * adds agent requesting a conversation with this agent
+   * @param agent Requesting agent
    */
-  public getInventoryData() {
-    const dat = [];
-    for (const item of this.inventory) {
-      dat.push(Item[item]);
-    }
-    return dat;
+  public conversationRequest(agent: number) {
+    this._conversationRequests.add(agent);
   }
 
   /**
-   * Called on agent logout.
+   * All agent's requesting conversations with this agent
    */
-  logout() {
-    logger.log("Agent " + this + " logged out.", 2);
-    this.socket = undefined;
+  public get conversationRequesters(): Agent[] {
+    return Agent.getByIDs(Array.from(this._conversationRequests));
+  }
+
+  /**
+   * Returns true if agent is in a conversation
+   */
+  public inConversation() {
+    return this._conversationID !== undefined;
+  }
+
+  public get conversation(): Conversation {
+    return this._conversationID ? Conversation.getByID(this._conversationID) : undefined;
   }
 
   /**
    * Add agent to conversation.
    * @param {Object} conversation - conversation object.
    */
-  joinConversation(conversation: Conversation) {
+  public joinConversation(conversation: Conversation) {
     // remove requests of people current in conversation
-    for (const ID of conversation.get_agent_ids()) {
-      this.conversationRequests.delete(ID);
+    for (const id of conversation.get_agent_ids()) {
+      this._conversationRequests.delete(id);
     }
-    this.conversationID = conversation.id;
-  }
-
-  conversationRequest(agentID: number) {
-    this.conversationRequests.add(agentID);
+    this._conversationID = conversation.id;
   }
 
   /**
-   * Remove an agent from its' conversation.
+   * Remove an agent from the conversation.
    */
-  leaveConversation() {
-    this.conversationID = undefined;
-  }
-
-  get conversation(): Conversation {
-    return Conversation.getByID(this.conversationID);
+  public leaveConversation() {
+    this._conversationID = undefined;
   }
 }
