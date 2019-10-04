@@ -5,24 +5,39 @@ export class Login extends Phaser.State {
   private spaceKey: Phaser.Key;
 
   public create(): void {
+    const inputFieldHeight = 20;
+    const inputFieldWidth = 200;
+
+
     this.game.add.plugin(new PhaserInput.Plugin(this.game, this.game.plugins));
-    const user = this.game.add.inputField(90, 10);
-    user.setText("phaser_man1");
-    const pass = this.game.add.inputField(90, 30, {
-        type: PhaserInput.InputType.password
+    const userField = this.game.add.inputField(this.game.world.centerX - 100, this.game.world.height / 4 - 16, {
+      type: PhaserInput.InputType.text,
+      placeHolder: "username",
+      font: "18px Space Mono",
+      width: inputFieldWidth,
+      height: inputFieldHeight
     });
 
-    this.spaceKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    this.spaceKey.onDown.add(() => {
-      ClientAPI.login(user.value, pass.value)
-        .then(res => {
-            console.log("Success! " + ClientAPI.playerAgent);
-            user.destroy();
-            pass.destroy();
-            this.ready = true;
-        })
-        .catch(err => console.log("fail!"));
+    const passwordField = this.game.add.inputField(this.game.world.centerX - 100, this.game.world.height / 4 + 16, {
+        type: PhaserInput.InputType.password,
+        placeHolder: "password",
+        font: "18px Space Mono",
+        width: inputFieldWidth,
+        height: inputFieldHeight
     });
+
+    const login = () => {ClientAPI.login(userField.value, passwordField.value)
+      .then(res => {
+          console.log("Success! " + ClientAPI.playerAgent);
+          userField.destroy();
+          passwordField.destroy();
+          button.destroy();
+          this.ready = true;
+      })
+      .catch(err => console.log("fail!"));
+    };
+
+    const button = this.game.add.button(this.game.world.centerX - 95, this.game.world.height / 4 + 52, "button", login, this, 2, 1, 0);
   }
 
   public update(): void {

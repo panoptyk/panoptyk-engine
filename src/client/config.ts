@@ -1,4 +1,4 @@
 export class Config {
-    static gameWidth = 800;
-    static gameHeight = 480;
+    static gameWidth = 1280;
+    static gameHeight = 800;
 }
