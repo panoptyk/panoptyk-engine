@@ -43,13 +43,10 @@ export class Room extends IDObject {
    * @param {JSON} json - serialized room JSON.
    */
   static load(json: Room) {
-    const r = new Room(json.roomName, json.maxOccupants, json.id);
+    let r = Room.objects[json.id];
+    r = r ? r : new Room(json.roomName, json.maxOccupants, json.id);
     for (const key in json) {
-      try {
-        r[key] = json[key];
-      } catch (err) {
-
-      }
+      r[key] = json[key];
     }
     r._occupants = new Set<number>(r._occupants);
     r.itemIDs = new Set<number>(r.itemIDs);

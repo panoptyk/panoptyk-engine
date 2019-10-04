@@ -69,7 +69,9 @@ public toString() {
    * @param {JSON} json - serialized trade object.
    */
   static load(json: Trade) {
-    const t = new Trade(undefined, undefined, undefined);
+    // Should probably never have active trades on startup
+    let t = Trade.objects[json.id];
+    t = t ? t : new Trade(undefined, undefined, undefined);;
     for (const key in json) {
       t[key] = json[key];
     }
