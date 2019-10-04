@@ -8,8 +8,8 @@ export class Room extends IDObject {
   readonly roomName: string;
   private adjacent: number[];
   private _occupants: Set<number>;
-  public get occupants(): Set<number> {
-    return this._occupants;
+  public get occupants(): Agent[] {
+    return Agent.getByIDs(Array.from(this._occupants));
   }
   private itemIDs: Set<number>;
   private conversationIDs: Set<number>;
@@ -186,8 +186,8 @@ export class Room extends IDObject {
   /**
    * Get array of ids of adjacent rooms
    */
-  public getAdjacentRooms(): number[] {
-    return this.adjacent;
+  public getAdjacentRooms(): Room[] {
+    return Room.getByIDs(this.adjacent);
   }
 
   /**
@@ -195,10 +195,6 @@ export class Room extends IDObject {
    * @returns {Item[]}
    */
   public getItems(): Item[] {
-    const items = [];
-    for (const itemID of this.itemIDs) {
-      items.push(Item.getByID(itemID));
-    }
-    return items;
+    return Item.getByIDs(Array.from(this.itemIDs));
   }
 }

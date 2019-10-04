@@ -107,10 +107,6 @@ export class Server {
         if (agent !== undefined) {
           const controller = new Controller();
           controller.removeAgentFromRoom(agent, true);
-          logger.log(
-            "Removing agent " + agent + ".",
-            2
-          );
           controller.sendUpdates();
         }
       });

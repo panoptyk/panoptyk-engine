@@ -8,7 +8,7 @@ const password = process.argv.length > 3 ? process.argv[3] : "password";
 function pickRoom(): number {
     const adjacents = ClientAPI.playerAgent.room.getAdjacentRooms();
     const next = Math.floor(Math.random() * Math.floor(adjacents.length));
-    return adjacents[next];
+    return adjacents[next].id;
 }
 
 async function main() {
