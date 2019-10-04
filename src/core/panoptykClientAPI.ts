@@ -1,7 +1,6 @@
 import * as io from "socket.io-client";
 import { ValidationResult } from "./models/validate";
 import { Agent, Room, Info, Trade, Item, Conversation } from "./models";
-import { TcpSocketConnectOpts } from "net";
 
 const MODELS: any = {
   Agent,
