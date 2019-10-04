@@ -136,7 +136,7 @@ export abstract class IDObject implements ModelInterface {
     IDObject.getObjectByName(name)[this.id] = this;
   }
 
-  public serialize() {
+  public serialize(removePrivateData?: boolean): any {
     return this;
   }
 }

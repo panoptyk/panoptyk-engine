@@ -10,7 +10,9 @@ export class Conversation extends IDObject {
   public get maxAgents(): number {
     return this._maxAgents;
   }
-  private agents: number[];
+  private agentIDs: number[];
+
+
   /**
    * Conversation constructor.
    * @param {Room} room - room object conversation is in
@@ -21,20 +23,33 @@ export class Conversation extends IDObject {
     super(Conversation.name, id);
 
     this._maxAgents = maxAgents;
-    this.agents = [];
+    this.agentIDs = [];
     this.roomID = room.id;
     room.addConversation(this);
 
     logger.log("Conversation intialized in room " + room.id, 2);
   }
 
-
   /**
    * Create a conversation instance from JSON.
-   * @param {JSON} data - serialized conversation json.
+   * @param {Conversation} json - serialized conversation json.
    */
-  static load(data) {
-    new Conversation(data.room, data.maxAgents, data.id);
+  static load(json: Conversation) {
+    let c: Conversation = Conversation.objects[json.id];
+    c = c ? c : new Conversation(Room.getByID(json.roomID), json._maxAgents, json.id);
+    for (const key in json) {
+      c[key] = json[key];
+    }
+  }
+
+  /**
+   * Sanatizes data to be serialized
+   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   *  may not be privy to.
+   */
+  public serialize(removePrivateData = false): Conversation {
+    const safeAgent = Object.assign({}, this);
+    return safeAgent;
   }
 
   /**
@@ -42,7 +57,7 @@ export class Conversation extends IDObject {
    * @param {Object} agent - agent object
    */
   add_agent(agent: Agent) {
-    this.agents.push(agent.id);
+    this.agentIDs.push(agent.id);
   }
 
 
@@ -51,16 +66,15 @@ export class Conversation extends IDObject {
    * @param {Object} agent - agent object.
    */
   remove_agent(agent: Agent) {
-    const index = this.agents.indexOf(agent.id);
+    const index = this.agentIDs.indexOf(agent.id);
 
     if (index === -1) {
       logger.log("Tried to remove agent not in conversation " + this.id, 0);
       return;
     }
 
-    this.agents.splice(index);
+    this.agentIDs.splice(index);
   }
-
 
   /**
    * Get a list of agent ids for this conversation.
@@ -69,7 +83,7 @@ export class Conversation extends IDObject {
    */
   get_agent_ids(ignoreAgent?: Agent) {
     const ids = [];
-    for (const agent of this.agents) {
+    for (const agent of this.agentIDs) {
       if (agent !== ignoreAgent.id) {
         ids.push(agent);
       }
@@ -77,25 +91,12 @@ export class Conversation extends IDObject {
     return ids;
   }
 
-
-  /**
-   * Data to send to client for this conversation.
-   * @return {Object}
-   */
-  get_data() {
-    return {
-      id: this.id,
-      maxAgents: this.maxAgents,
-      agent_ids: this.get_agent_ids()
-    };
-  }
-
   get room(): Room {
     return Room.getByID(this.roomID);
   }
 
   contains_agent(agent: Agent): boolean {
-    return this.agents.indexOf(agent.id) !== -1;
+    return this.agentIDs.indexOf(agent.id) !== -1;
   }
 
 }
