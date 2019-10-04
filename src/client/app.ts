@@ -2,8 +2,6 @@ import "pixi";
 import "p2";
 import "phaser-ce";
 
-import * as io from "socket.io-client";
-
 import { Config } from "./config";
 
 import { Boot } from "./states/boot";
@@ -34,5 +32,6 @@ class Template extends Phaser.Game {
 (window as any).cAPI = ClientAPI;
 
 window.onload = () => {
+  ClientAPI.init();
   new Template();
 };

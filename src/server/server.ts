@@ -88,13 +88,16 @@ export class Server {
 
       for (const action of this.actions) {
         socket.on(action.name, (data, callback) => {
-          logger.log("Action recieved.", 2);
+          logger.log("Action recieved: " + action.name, LOG.INFO);
           const agent = Agent.getAgentBySocket(socket);
           let res: ValidationResult;
           if ((res = Validate.validate_key_format(action.formats, data)).status) {
             res = action.validate(agent, socket, data);
             if (res.status) {
               action.enact(agent, data);
+            }
+            else {
+              logger.log("Action failed to validate: " + res.message, LOG.INFO);
             }
           }
           callback(res);

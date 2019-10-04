@@ -29,16 +29,15 @@ export class Game extends Phaser.State {
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     this.spaceKey.onDown.add(() => {
-      if (!ClientAPI.actionSent) {
+      if (ClientAPI.canAct()) {
         const rooms = ClientAPI.playerAgent.room.getAdjacentRooms();
-        console.log(rooms);
         const room = rooms[Math.floor(Math.random() * rooms.length)];
         ClientAPI.moveToRoom(room)
           .then(res => {
             console.log("Moved agent to room: " + room);
           })
           .catch(err => {
-            console.log("Failed to move to room!");
+            console.log("Failed to move to room!: " + err.message);
           });
       }
     }, this);

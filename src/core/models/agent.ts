@@ -48,7 +48,8 @@ export class Agent extends IDObject {
    * @param {Agent} json - serialized agent JSON from file.
    */
   static load(json: Agent) {
-    const a = new Agent(json._agentName, undefined, json.id);
+    let a: Agent = Agent.objects[json.id];
+    a = a ? a : new Agent(json._agentName, undefined, json.id);
     for (const key in json) {
       a[key] = json[key];
     }

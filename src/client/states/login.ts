@@ -2,14 +2,13 @@ import { ClientAPI } from "../../core/panoptykClientAPI";
 
 export class Login extends Phaser.State {
   private ready: boolean;
-  private spaceKey: Phaser.Key;
 
   public create(): void {
     const inputFieldHeight = 20;
     const inputFieldWidth = 200;
 
-
     this.game.add.plugin(new PhaserInput.Plugin(this.game, this.game.plugins));
+
     const userField = this.game.add.inputField(this.game.world.centerX - 100, this.game.world.height / 4 - 16, {
       type: PhaserInput.InputType.text,
       placeHolder: "username",
