@@ -5,7 +5,10 @@ import { Conversation } from "./conversation";
 import { IDObject } from "./idObject";
 
 export class Room extends IDObject {
-  readonly roomName: string;
+  private _roomName: string;
+  public get roomName(): string {
+    return this._roomName;
+  }
   private adjacent: number[];
   private _occupants: Set<number>;
   public get occupants(): Agent[] {
@@ -25,7 +28,7 @@ export class Room extends IDObject {
    */
   constructor(roomName, maxOccupants, id?) {
     super(Room.name, id);
-    this.roomName = roomName;
+    this._roomName = roomName;
     this.adjacent = [];
     this._occupants = new Set<number>();
     this.itemIDs = new Set<number>();
@@ -44,7 +47,7 @@ export class Room extends IDObject {
    */
   static load(json: Room) {
     let r = Room.objects[json.id];
-    r = r ? r : new Room(json.roomName, json.maxOccupants, json.id);
+    r = r ? r : new Room(json._roomName, json._maxOccupants, json.id);
     for (const key in json) {
       r[key] = json[key];
     }
@@ -67,8 +70,8 @@ export class Room extends IDObject {
     return safeRoom;
   }
 
-  toString() {
-    return this.roomName + " (id#" + this.id + ")";
+  public toString() {
+    return this._roomName + " (id#" + this.id + ")";
   }
 
   /**

@@ -2,39 +2,39 @@
   "objects": {
     "1": {
       "id": 1,
-      "roomName": "room1",
+      "_roomName": "room1",
       "adjacent": [2, 3],
-      "occupants": [],
+      "_occupants": [],
       "itemIDs": [],
       "conversationIDs": [],
-      "maxOccupants": 15
+      "_maxOccupants": 15
     },
     "2": {
       "id": 2,
-      "roomName": "room2",
+      "_roomName": "room2",
       "adjacent": [1],
-      "occupants": [],
+      "_occupants": [],
       "itemIDs": [],
       "conversationIDs": [],
-      "maxOccupants": 15
+      "_maxOccupants": 15
     },
     "3": {
       "id": 3,
-      "roomName": "room3",
+      "_roomName": "room3",
       "adjacent": [1],
-      "occupants": [],
+      "_occupants": [],
       "itemIDs": [],
       "conversationIDs": [],
-      "maxOccupants": 15
+      "_maxOccupants": 15
     },
     "4": {
       "id": 4,
-      "roomName": "room4",
+      "_roomName": "room4",
       "adjacent": [3],
-      "occupants": [],
+      "_occupants": [],
       "itemIDs": [],
       "conversationIDs": [],
-      "maxOccupants": 15
+      "_maxOccupants": 15
     }
   },
   "nextID": 5
