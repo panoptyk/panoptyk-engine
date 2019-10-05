@@ -57,7 +57,7 @@ export class ClientAPI {
         return res;
     }
     else {
-        throw res.message;
+        throw res;
     }
   }
 
@@ -69,8 +69,7 @@ export class ClientAPI {
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
-      console.log("Model updates recieved");
-      console.log(data);
+      console.log("--Model updates recieved--");
       ClientAPI.updating.push(true);
       for (const key in data) {
         for (const model of data[key]) {
@@ -106,10 +105,17 @@ export class ClientAPI {
   }
 
   /**
-   * Determins if a new action can be attempted at this time
+   * Determines if a new action can be attempted at this time
    */
   public static canAct(): boolean {
     return !ClientAPI.actionSent && ClientAPI.updating.length === 0;
+  }
+
+  /**
+   * Informs if the client is processing a server model update at this time
+   */
+  public static isUpdating() {
+    return ClientAPI.updating.length > 0;
   }
 
   /**
@@ -129,7 +135,6 @@ export class ClientAPI {
    * @param agent for admins move other agents around
    */
   public static async moveToRoom(room: Room, agent?: Agent) {
-    agent = agent ? agent : ClientAPI._playerAgent;
     const res = await ClientAPI.sendWrapper("move-to-room", {roomID: room.id});
     return res;
   }

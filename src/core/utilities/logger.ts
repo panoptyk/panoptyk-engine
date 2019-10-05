@@ -9,7 +9,7 @@ class Logger {
     INFO: 2,
   };
 
-  constructor(private logLevel = 2, private logLineLen = 99) {
+  constructor(public logLevel = 2, private logLineLen = 99) {
 
   }
 
@@ -42,7 +42,9 @@ class Logger {
     }
   }
   // TODO: add ability to change settings & load from settings.json file
-
+  public silence() {
+    this.logLevel = -1;
+  }
 }
 
 export let logger = new Logger();
