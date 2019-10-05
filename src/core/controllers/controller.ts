@@ -193,6 +193,9 @@ export class Controller {
     // agent.socket.join(newRoom.id); <- should we use this functionality?
 
     this.updateChanges(agent, [newRoom, agent, newRoom.getAdjacentRooms(), newRoom.getAgents(), newRoom.getItems()]);
+    newRoom.occupants.forEach(occupant => {
+      this.updateChanges(occupant, [newRoom, agent]);
+    });
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.ENTER.create(agent, {0: time, 1: agent.id, 2: newRoom.id});
@@ -229,6 +232,9 @@ export class Controller {
     }
     oldRoom.removeAgent(agent);
     this.updateChanges(agent, [agent, oldRoom]);
+    oldRoom.occupants.forEach(occupant => {
+      this.updateChanges(occupant, [oldRoom]);
+    });
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.DEPART.create(agent, {0: time, 1: agent.id, 2: oldRoom.id});
