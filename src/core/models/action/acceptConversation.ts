@@ -36,10 +36,17 @@ export const ActionAcceptConversation: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
+    if (!(res = Validate.validate_agents_in_same_room(agent, toAgent)).status) {
+      return res;
+    }
+    if (!(res = Validate.validate_agents_not_conversing([agent, toAgent])).status) {
       return res;
     }
     return Validate.successMsg;

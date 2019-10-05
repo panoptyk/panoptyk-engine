@@ -84,7 +84,7 @@ export class Conversation extends IDObject {
   get_agent_ids(ignoreAgent?: Agent) {
     const ids = [];
     for (const agent of this.agentIDs) {
-      if (agent !== ignoreAgent.id) {
+      if (Agent.getByID(agent) !== ignoreAgent) {
         ids.push(agent);
       }
     }

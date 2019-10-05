@@ -192,10 +192,7 @@ export class Controller {
 
     // agent.socket.join(newRoom.id); <- should we use this functionality?
 
-    this.updateChanges(agent, [newRoom, agent]);
-    newRoom.getAdjacentRooms().forEach(rm => {
-      this.updateChanges(agent, [rm]);
-    });
+    this.updateChanges(agent, [newRoom, agent, newRoom.getAdjacentRooms(), newRoom.getAgents(), newRoom.getItems()]);
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTION.ENTER.create(agent, {0: time, 1: agent.id, 2: newRoom.id});
