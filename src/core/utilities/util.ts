@@ -13,8 +13,7 @@ export let makeDir = function(dir) {
 // In the future you will want to change this to fake "Panoptyk" time.
 // TODO: use a better date time function
 export let getPanoptykDatetime = function() {
-  const today = new Date();
-  return today.getUTCSeconds();
+  return Date.now();
 };
 
 export let panoptykSettings = {
