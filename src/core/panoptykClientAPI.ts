@@ -156,4 +156,13 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("accept-conversation", {agentID: targetAgent.id});
     return res;
   }
+
+  /**
+   * Leave current conversation
+   * @param targetConversation conversation to leave
+   */
+  public static async leaveConversation(targetConversation: Conversation) {
+    const res = await ClientAPI.sendWrapper("leave-conversation", {conversationID: targetConversation.id});
+    return res;
+  }
 }

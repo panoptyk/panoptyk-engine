@@ -19,7 +19,8 @@ import {
   ActionLogin,
   ActionMoveToRoom,
   ActionRequestConversation,
-  ActionAcceptConversation
+  ActionAcceptConversation,
+  ActionLeaveConversation
 } from "../core/models/action/index";
 import { ValidationResult, Validate } from "../core/models/validate";
 
@@ -33,7 +34,7 @@ export class Server {
    * List of all models that need to be saved and loaded
    */
   private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
-  private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionAcceptConversation];
+  private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionAcceptConversation, ActionLeaveConversation];
 
   constructor(app?: express.Application) {
     this.createApp(app);
