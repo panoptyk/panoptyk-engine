@@ -331,7 +331,7 @@ export class Controller {
 
     this.updateChanges(agent, [conversation, agent]);
 
-    if (conversation.get_agent_ids.length === 0) {
+    if (conversation.getAgents().length === 0) {
       conversation.room.removeConversation(conversation);
     }
   }

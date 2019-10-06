@@ -235,7 +235,7 @@ export class Validate {
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
   public static validate_conversation_has_space(conversation: Conversation) {
-    if (conversation.get_agent_ids().length >= conversation.maxAgents) {
+    if (conversation.getAgents().length >= conversation.maxAgents) {
       return { status: false, message: "Conversation is full", conversation };
     }
 

@@ -8,23 +8,22 @@ export const ActionRequestTrade: Action = {
   name: "request-trade",
   formats: [
     {
-      agentID: "number",
-      conversationID: "number"
+      agentID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const conversation = Conversation.getByID(inputData.conversationID);
+    const conversation = agent.conversation;
     const toAgent = Agent.getByID(inputData.agentID);
 
     const trade = controller.createTrade(conversation, agent, toAgent);
 
-    logger.log("Event request-trade (" + conversation.conversation_id + ") for agent " + agent.agentName + " registered.", 2);
+    logger.log("Event request-trade (" + conversation.id + ") for agent " + agent.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    const toAgent = Agent.getByID(inputData.agent_id);
+    const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;
     }

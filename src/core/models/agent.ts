@@ -287,8 +287,8 @@ export class Agent extends IDObject {
    */
   public joinConversation(conversation: Conversation) {
     // remove requests of people current in conversation
-    for (const id of conversation.get_agent_ids()) {
-      this._conversationRequests.delete(id);
+    for (const agent of conversation.getAgents()) {
+      this._conversationRequests.delete(agent.id);
     }
     this._conversationID = conversation.id;
   }

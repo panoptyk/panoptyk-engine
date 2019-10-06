@@ -165,4 +165,13 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("leave-conversation", {conversationID: targetConversation.id});
     return res;
   }
+
+  /**
+   * Request trade between 2 agents in a Conversation
+   * @param targetAgent agent to request trade with
+   */
+  public static async requestTrade(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("request-trade", {agentID: targetAgent.id});
+    return res;
+  }
 }

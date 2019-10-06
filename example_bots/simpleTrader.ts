@@ -29,6 +29,25 @@ async function sendRequests() {
     }
 }
 
+async function attemptTrade() {
+    while (ClientAPI.playerAgent.conversation) {
+        if (Trade.getActiveTradesWithAgent(ClientAPI.playerAgent)[0]) {
+
+        }
+        else {
+            // attempt to start trade with anyone in conversation
+            for (const agent of ClientAPI.playerAgent.conversation.getAgents(ClientAPI.playerAgent)) {
+                await ClientAPI.requestTrade(agent).catch(err => {
+                    console.log(err.message);
+                });
+            }
+        }
+        // delay next iteration of loop to avoid spinning cpu
+        // tslint:disable-next-line: ban
+        await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 500));
+    }
+}
+
 async function main() {
     let waitAmount: number;
     while (true) {
@@ -38,11 +57,8 @@ async function main() {
                 await sendRequests();
         }
         else if (ClientAPI.playerAgent.conversation !== undefined) {
-            waitAmount = 20000;
             console.log("yay conversation!!");
-            await ClientAPI.leaveConversation(ClientAPI.playerAgent.conversation).catch(err => {
-                console.log(err.message);
-            });
+            await attemptTrade();
         }
         else {
             await ClientAPI.acceptConversation(ClientAPI.playerAgent.conversationRequesters[0]).catch(err => {

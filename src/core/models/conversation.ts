@@ -77,7 +77,7 @@ export class Conversation extends IDObject {
   }
 
   /**
-   * Get a list of agent ids for this conversation.
+   * Get a list of agent ids for this conversation. TODO: EVALUATE REMOVAL OF THIS FUNCTION
    * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
    * @return {[int]}
    */
@@ -89,6 +89,22 @@ export class Conversation extends IDObject {
       }
     }
     return ids;
+  }
+
+  /**
+   * Get a list of agents for this conversation.
+   * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
+   * @return {[Agent]}
+   */
+  public getAgents(ignoreAgent?: Agent) {
+    const agents = [];
+    for (const id of this.agentIDs) {
+      const agent = Agent.getByID(id);
+      if (agent !== ignoreAgent) {
+        agents.push(agent);
+      }
+    }
+    return agents;
   }
 
   get room(): Room {
