@@ -77,16 +77,15 @@ export class Validate {
 
   /**
    * Validate agent owns list of items.
-   * @param {Object} agent - agent that might own items.
-   * @param {[int]} itemIds - ids of items agent is supposed to own.
+   * @param {Agent} agent - agent that might own items.
+   * @param {[Item]} items - items agent is supposed to own.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_agent_owns_items(agent: Agent, itemIds: number[]) {
-    const items: Item[] = Item.getByIDs(itemIds);
-    if (items === null) {
+  public static validate_agent_owns_items(agent: Agent, items: Item[]) {
+    if (items === undefined) {
       return {
         status: false,
-        message: "No item for id " + JSON.stringify(itemIds)
+        message: "No such item detected " + JSON.stringify(items)
       };
     }
 
@@ -99,7 +98,7 @@ export class Validate {
       }
     }
 
-    return { status: true, message: "", items };
+    return { status: true, message: "" };
   }
 
   /**
@@ -108,7 +107,7 @@ export class Validate {
    * @return {Object} {status: boolean, message: string}
    */
   public static validate_agent_logged_in(agent: Agent) {
-    if (agent !== null) {
+    if (agent !== undefined) {
       return Validate.successMsg;
     }
 
@@ -123,7 +122,7 @@ export class Validate {
    */
   public static validate_items_in_room(room: Room, itemIds: number[]) {
     const items: Item[] = Item.getByIDs(itemIds);
-    if (items === null) {
+    if (items === undefined) {
       return {
         status: false,
         message: "No item for id " + JSON.stringify(itemIds)

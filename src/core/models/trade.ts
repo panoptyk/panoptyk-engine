@@ -4,14 +4,16 @@ import { IDObject } from "./idObject";
 import { Conversation } from "./conversation";
 import { Agent } from "./agent";
 
+export enum TradeStatus {
+  FAILED = 0,
+  SUCCESS = 1,
+  IN_PROGRESS = 2,
+  REQUESTED = 3
+}
+
 export class Trade extends IDObject {
   private static actives: Set<Trade> = new Set();
-  public static result = {
-    FAILED: 0,
-    SUCCESS: 1,
-    IN_PROGRESS: 2,
-    REQUESTED: 3
-  };
+  private static requested: Set<Trade> = new Set();
 
   private initiatorID: number;
   private receiverID: number;
@@ -39,7 +41,7 @@ export class Trade extends IDObject {
     receiver: Agent,
     conversation: Conversation,
     id?,
-    resultStatus = Trade.result.REQUESTED
+    resultStatus = TradeStatus.REQUESTED
   ) {
     super(Trade.name, id);
     this.initiatorID = initiator ? initiator.id : undefined;
@@ -53,8 +55,15 @@ export class Trade extends IDObject {
     this.initiatorStatus = false;
     this.receiverStatus = false;
 
-    if (this.resultStatus === 3) {
-      Trade.actives.add(this);
+    switch (this._resultStatus) {
+      case TradeStatus.IN_PROGRESS: {
+        Trade.actives.add(this);
+        break;
+      }
+      case TradeStatus.REQUESTED: {
+        Trade.requested.add(this);
+        break;
+      }
     }
 
     logger.log("Trade " + this + " Initialized.", LOG.INFO);
@@ -71,7 +80,7 @@ public toString() {
   static load(json: Trade) {
     // Should probably never have active trades on startup
     let t = Trade.objects[json.id];
-    t = t ? t : new Trade(undefined, undefined, undefined);;
+    t = t ? t : new Trade(undefined, undefined, undefined);
     for (const key in json) {
       t[key] = json[key];
     }
@@ -134,8 +143,32 @@ public toString() {
    * 0=failed, 1=success, 2=in progress, 3=requested
    * @param {number} stat - status to set.
    */
-  setStatus(stat) {
-    this._resultStatus = stat;
+  setStatus(stat: TradeStatus) {
+    if (stat !== this._resultStatus) {
+      // remove from previous category set (if applicable)
+      switch (this._resultStatus) {
+        case TradeStatus.IN_PROGRESS: {
+          Trade.actives.delete(this);
+          break;
+        }
+        case TradeStatus.REQUESTED: {
+          Trade.requested.delete(this);
+          break;
+        }
+      }
+      this._resultStatus = stat;
+      // add to new category set (if applicable)
+      switch (this._resultStatus) {
+        case TradeStatus.IN_PROGRESS: {
+          Trade.actives.add(this);
+          break;
+        }
+        case TradeStatus.REQUESTED: {
+          Trade.requested.add(this);
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -143,7 +176,7 @@ public toString() {
    * @param {Agent} agent - agent to set status for.
    * @param {boolean} rstatus - status. True = ready, false = not ready.
    */
-  setAgentReady(agent: Agent, rstatus) {
+  setAgentReady(agent: Agent, rstatus: boolean) {
     if (agent.id === this.initiatorID) {
       this.initiatorStatus = rstatus;
     } else if (agent.id === this.receiverID) {
@@ -196,29 +229,26 @@ public toString() {
   }
 
   /**
-   * Call when trade is over, nomatter if it was successful or not.
-   * Unlocks all the items in the trade and removes it from the active trade list.
+   * Unlocks all the items in the trade.
    */
   cleanup() {
     let unlocked = "";
 
     for (const item of this.initiatorItemIDs) {
       Item[item].in_transaction = false;
-      unlocked += Item[item].item_id + " ";
+      unlocked += Item[item].id + " ";
     }
 
     for (const item of this.receiverItemIDs) {
       Item[item].in_transaction = false;
-      unlocked += Item[item].item_id + " ";
+      unlocked += Item[item].id + " ";
     }
-
-    Trade.actives.delete(this);
 
     logger.log("Unlocked trade " + this.id + " items [ " + unlocked + "]", 2);
   }
 
   /**
-   * Get all the trade objects with this agent.
+   * Get all active trade objects with this agent.
    * @param {Agent} agent - agent to find trades for.
    * @return [trade]
    */
@@ -226,6 +256,23 @@ public toString() {
     const trades = [];
 
     for (const trade of Trade.actives) {
+      if (trade.initiatorID === agent.id || trade.receiverID === agent.id) {
+        trades.push(trade);
+      }
+    }
+
+    return trades;
+  }
+
+  /**
+   * Get all requested trade objects with this agent.
+   * @param {Agent} agent - agent to find trades for.
+   * @return [trade]
+   */
+  static getRequestedTradesWithAgent(agent: Agent) {
+    const trades = [];
+
+    for (const trade of Trade.requested) {
       if (trade.initiatorID === agent.id || trade.receiverID === agent.id) {
         trades.push(trade);
       }
@@ -243,6 +290,24 @@ public toString() {
     const trades = [];
 
     for (const trade of Trade.actives) {
+      if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
+        trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
+        trades.push(trade);
+      }
+    }
+
+    return trades;
+  }
+
+  /**
+   * Get all requested trades between the 2 given agents
+   * @param {Agent} agent1
+   * @param {Agent} agent2
+   */
+  static getRequestedTradesBetweenAgents(agent1: Agent, agent2: Agent) {
+    const trades = [];
+
+    for (const trade of Trade.requested) {
       if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
         trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
         trades.push(trade);

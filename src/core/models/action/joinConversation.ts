@@ -27,7 +27,8 @@ export const ActionJoinConversation: Action = {
     if (!(res = Validate.validate_conversation_exists(agent.room, Conversation.getByID(inputData.conversationID))).status) {
       return res;
     }
-    if (!(res = Validate.validate_conversation_has_space(res.conversation)).status) {
+    const conversation: Conversation = Conversation.getByID(inputData.conversationID);
+    if (!(res = Validate.validate_conversation_has_space(conversation)).status) {
       return res;
     }
     return Validate.successMsg;

@@ -14,7 +14,7 @@ export const ActionReadyTrade: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = Trade.getByID(inputData.tradeID);
     const readyStatus = inputData.readyStatus;
 
     controller.setTradeAgentStatus(
@@ -23,29 +23,29 @@ export const ActionReadyTrade: Action = {
       readyStatus
     );
 
-    logger.log("Event ready-trade " + trade.trade_id + " registered.", 2);
+    logger.log("Event ready-trade " + trade.id + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_trade_exists(inputData.trade_id)).status) {
+    if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
       return res;
     }
-    if (!(res = Validate.validate_trade_status(res.trade, [2])).status) {
+    const trade: Trade = Trade.getByID(inputData.tradeID);
+    if (!(res = Validate.validate_trade_status(trade, [2])).status) {
       return res;
     }
     if (
       !(res = Validate.validate_ready_status(
-        res.trade,
+        trade,
         agent,
         !inputData.readyStatus
       )).status
     ) {
       return res;
     }
-    const res2 = res;
     if (
-      !(res = Validate.validate_agent_logged_in(res.trade.agent_ini)).status
+      !(res = Validate.validate_agent_logged_in(trade.agentIni)).status
     ) {
       return res;
     }

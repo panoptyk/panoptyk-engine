@@ -158,7 +158,7 @@ export class Room extends IDObject {
   removeConversation(conversation: Conversation) {
     const index = this.conversationIDs.has(conversation.id);
 
-    if (index) {
+    if (!index) {
       logger.log(
         "Could not remove conversation id#" + conversation.id,
         0

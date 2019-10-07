@@ -31,7 +31,7 @@ async function sendRequests() {
 
 async function attemptTrade() {
     while (ClientAPI.playerAgent.conversation) {
-        if (Trade.getActiveTradesWithAgent(ClientAPI.playerAgent)[0]) {
+        if (Trade.getActiveTradesWithAgent(ClientAPI.playerAgent).length > 0) {
 
         }
         else {

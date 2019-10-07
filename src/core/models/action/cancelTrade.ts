@@ -13,11 +13,11 @@ export const ActionCancelTrade: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = Trade.getByID(inputData.tradeID);
 
     controller.cancelTrade(trade);
 
-    logger.log("Event cancel-trade (" + trade.trade_id + ") for agent " + trade.agent_ini.name + "/" + trade.agent_res.name + " registered.", 2);
+    logger.log("Event cancel-trade (" + trade.id + ") for agent " + trade.agentIni.agentName + "/" + trade.agentRec.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -25,11 +25,12 @@ export const ActionCancelTrade: Action = {
     if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
       return res;
     }
-    if (!(res = Validate.validate_trade_status(res.trade, [2, 3])).status) {
+    const trade: Trade = Trade.getByID(inputData.tradeID);
+    if (!(res = Validate.validate_trade_status(trade, [2, 3])).status) {
       return res;
     }
     const res2 = res;
-    if (!(res = Validate.validate_agent_logged_in(res.trade.agent_ini)).status) {
+    if (!(res = Validate.validate_agent_logged_in(trade.agentIni)).status) {
       return res;
     }
 

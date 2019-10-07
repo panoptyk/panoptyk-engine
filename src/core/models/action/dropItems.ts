@@ -13,7 +13,7 @@ export const ActionDropItems: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const items = Item.getByIDs(inputData.itemIDs);
+    const items: Item[] = Item.getByIDs(inputData.itemIDs);
     const room: Room = agent.room;
 
     controller.removeItemsFromAgentInventory(items);
@@ -21,13 +21,13 @@ export const ActionDropItems: Action = {
 
     const itemNames = [];
     for (const item of items) {
-      itemNames.push(item.name);
+      itemNames.push(item.itemName);
     }
     // TODO: make sure the next part is already done in controller
     // controller.giveInfoToAgents(room.occupants, (agent.agentName + " dropped " +
     //   itemNames.join(", ") + " in room " + room.name));
 
-    logger.log("Event drop-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
+    logger.log("Event drop-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
       + agent.agentName + " registered.", 2);
     controller.sendUpdates();
   },
@@ -36,10 +36,11 @@ export const ActionDropItems: Action = {
     if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }
-    if (!(res = Validate.validate_agent_owns_items(agent, inputData.itemIDs)).status) {
+    const items: Item[] = Item.getByIDs(inputData.itemIDs);
+    if (!(res = Validate.validate_agent_owns_items(agent, items)).status) {
       return res;
     }
-    if (!(res = Validate.validate_items_not_in_transaction(res.items)).status) {
+    if (!(res = Validate.validate_items_not_in_transaction(items)).status) {
       return res;
     }
     return Validate.successMsg;

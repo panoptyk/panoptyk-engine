@@ -77,21 +77,6 @@ export class Conversation extends IDObject {
   }
 
   /**
-   * Get a list of agent ids for this conversation. TODO: EVALUATE REMOVAL OF THIS FUNCTION
-   * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
-   * @return {[int]}
-   */
-  get_agent_ids(ignoreAgent?: Agent) {
-    const ids = [];
-    for (const agent of this.agentIDs) {
-      if (Agent.getByID(agent) !== ignoreAgent) {
-        ids.push(agent);
-      }
-    }
-    return ids;
-  }
-
-  /**
    * Get a list of agents for this conversation.
    * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
    * @return {[Agent]}

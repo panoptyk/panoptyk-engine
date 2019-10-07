@@ -153,7 +153,7 @@ export class ClientAPI {
    * @param targetAgent agent to accept conversation with
    */
   public static async acceptConversation(targetAgent: Agent) {
-    const res = await ClientAPI.sendWrapper("accept-conversation", {agentID: targetAgent.id});
+    const res = await ClientAPI.sendWrapper("request-conversation", {agentID: targetAgent.id});
     return res;
   }
 

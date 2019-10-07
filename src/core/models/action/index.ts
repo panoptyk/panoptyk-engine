@@ -1,6 +1,4 @@
 export { Action } from "./action";
-export { ActionAcceptConversation } from "./acceptConversation";
-export { ActionAcceptTrade } from "./acceptTrade";
 // export {} from "./agentReadyTrade"; <- empty
 export { ActionCancelTrade } from "./cancelTrade";
 export { ActionDropItems } from "./dropItems";

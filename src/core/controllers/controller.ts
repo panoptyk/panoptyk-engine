@@ -1,7 +1,6 @@
 import { logger, LOG } from "../utilities/logger";
 import * as util from "../utilities/util";
-import { IDObject, Agent, Trade, Room, Item, Info } from "../models/index";
-import { Conversation } from "../models/conversation";
+import { IDObject, Agent, Conversation, Trade, Room, Item, Info } from "../models/index";
 
 
 export class Controller {
@@ -356,6 +355,9 @@ export class Controller {
     for (const trade of Trade.getActiveTradesWithAgent(agent)) {
       this.cancelTrade(trade);
     }
+    for (const trade of Trade.getRequestedTradesWithAgent(agent)) {
+      this.cancelTrade(trade);
+    }
   }
 
 
@@ -382,9 +384,9 @@ export class Controller {
    * @param {Object} trade - trade object.
    */
   public acceptTrade(trade: Trade) {
+    trade.setStatus(2);
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
-    trade.setStatus(2);
   }
 
 
@@ -393,10 +395,10 @@ export class Controller {
    * @param {Object} trade - trade object.
    */
   public cancelTrade(trade: Trade) {
-    this.updateChanges(trade.agentIni, [trade]);
-    this.updateChanges(trade.agentRec, [trade]);
     trade.setStatus(0);
     trade.cleanup();
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
   }
 
 

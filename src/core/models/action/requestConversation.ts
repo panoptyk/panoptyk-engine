@@ -13,16 +13,47 @@ export const ActionRequestConversation: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const toAgent = Agent.getByID(inputData.agentID);
+    const toAgent: Agent = Agent.getByID(inputData.agentID);
 
-    controller.requestConversation(agent, toAgent);
+    // if other agent has not requested a conversation
+    if (agent.conversationRequesters.indexOf(toAgent) === -1) {
+      controller.requestConversation(agent, toAgent);
+      logger.log(
+        "Event request-conversation from (" +
+          agent.agentName +
+          ") to agent " +
+          toAgent.agentName +
+          " registered.",
+        2
+      );
+    }
+    // accept conversation request from other agent
+    else {
+      const conversation = controller.createConversation(
+        agent.room,
+        agent,
+        toAgent
+      );
+      logger.log(
+        "Event accept-conversation (" +
+          conversation.id +
+          ") for agent " +
+          agent.agentName +
+          "/" +
+          toAgent.agentName +
+          " registered.",
+        2
+      );
+    }
 
-    logger.log("Event request-conversation from (" + agent.agentName + ") to agent " + toAgent.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
     const toAgent = Agent.getByID(inputData.agentID);
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;
     }

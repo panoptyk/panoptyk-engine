@@ -19,7 +19,6 @@ import {
   ActionLogin,
   ActionMoveToRoom,
   ActionRequestConversation,
-  ActionAcceptConversation,
   ActionLeaveConversation,
   ActionRequestTrade
 } from "../core/models/action/index";
@@ -35,7 +34,7 @@ export class Server {
    * List of all models that need to be saved and loaded
    */
   private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
-  private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionAcceptConversation,
+  private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation,
     ActionLeaveConversation, ActionRequestTrade];
 
   constructor(app?: express.Application) {

@@ -19,29 +19,29 @@ export const ActionOfferItemsTrade: Action = {
 
     controller.addItemsToTrade(trade, items, agent);
 
-    logger.log("Event offer-items-trade " + trade.trade_id + " registered.", 2);
+    logger.log("Event offer-items-trade " + trade.tradeID + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_array_types(inputData.item_ids, "number")).status) {
+    if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }
-    if (!(res = Validate.validate_agent_owns_items(agent, inputData.item_ids)).status) {
+    const items: Item[] = Item.getByIDs(inputData.itemIDs);
+    if (!(res = Validate.validate_agent_owns_items(agent, items)).status) {
       return res;
     }
-    if (!(res = Validate.validate_items_not_in_transaction(res.items)).status) {
+    if (!(res = Validate.validate_items_not_in_transaction(items)).status) {
       return res;
     }
-    const items = res.items;
-    if (!(res = Validate.validate_trade_exists(inputData.trade_id)).status) {
+    if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
       return res;
     }
-    if (!(res = Validate.validate_trade_status(res.trade, [2])).status) {
+    const trade: Trade = Trade.getByID(inputData.tradeID);
+    if (!(res = Validate.validate_trade_status(trade, [2])).status) {
       return res;
     }
-    const res2 = res;
-    if (!(res = Validate.validate_agent_logged_in(res.trade.agent_ini)).status) {
+    if (!(res = Validate.validate_agent_logged_in(trade.agentIni)).status) {
       return res;
     }
     return Validate.successMsg;
