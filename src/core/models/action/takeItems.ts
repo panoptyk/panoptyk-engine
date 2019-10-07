@@ -28,14 +28,14 @@ export const ActionTakeItems: Action = {
     // controller.giveInfoToAgents(room.occupants, (agent.agentName + " picked up " +
     //   itemNames.join(", ") + " in room " + room.name));
 
-    logger.log("Event take-items (" + JSON.stringify(inputData.item_ids) + ") for agent "
+    logger.log("Event take-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
       + agent.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
     // check if item in room
-    if (!(res = Validate.validate_items_in_room(agent.room, inputData.item_ids)).status) {
+    if (!(res = Validate.validate_items_in_room(agent.room, inputData.itemIDs)).status) {
       return res;
     }
     return Validate.successMsg;

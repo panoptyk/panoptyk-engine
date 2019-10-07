@@ -103,39 +103,23 @@ public toString() {
 
   /**
    * Get item data for an agent in the trade.
-   * @param {Object} agent - agent object.
-   * @returns [Object] list of item data dictionaries.
+   * @param {Agent} agent - agent object.
+   * @returns [Item] array of agent's items involved in trade.
    */
-  getAgentItemsData(agent) {
-    const data = [];
+  getAgentItemsData(agent: Agent) {
+    let items: Item[];
 
-    if (agent === this.initiatorID || agent === this.receiverID) {
-      for (const item of agent === this.initiatorID
-        ? this.initiatorItemIDs
-        : this.receiverItemIDs) {
-        data.push(Item[item].getData());
-      }
-    } else {
+    if (agent.id === this.initiatorID) {
+      items = Item.getByIDs(Array.from(this.initiatorItemIDs));
+    }
+    else if (agent.id === this.receiverID) {
+      items = Item.getByIDs(Array.from(this.receiverItemIDs));
+    }
+    else {
       logger.log("No matching agent for trade item data.", 0, "trade.js");
     }
 
-    return data;
-  }
-
-  /**
-   * Get 'ready-to-send' data to send to client.
-   * @returns {Object}
-   */
-  getData() {
-    return {
-      id: this.id,
-      agent_ini_id: this.initiatorID,
-      agent_res_id: this.receiverID,
-      items_ini: this.initiatorItemIDs,
-      items_res: this.receiverItemIDs,
-      conversation_id: this.conversationID,
-      resultStatus: this.resultStatus
-    };
+    return items;
   }
 
   /**

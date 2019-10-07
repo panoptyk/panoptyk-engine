@@ -15,17 +15,17 @@ export const ActionWithdrawItemsTrade: Action = {
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     // TODO: fix event functionality
-    const items = Item.getByIDs(inputData.itemIDs);
-    const trade = Trade.getByID(inputData.tradeID);
+    const items: Item[] = Item.getByIDs(inputData.itemIDs);
+    const trade: Trade = Trade.getByID(inputData.tradeID);
 
     controller.removeItemsFromTrade(trade, items, agent);
 
-    logger.log("Event withdraw-items-trade " + trade.trade_id + " registered.", 2);
+    logger.log("Event withdraw-items-trade " + trade.id + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_array_types(inputData.item_ids, "number")).status) {
+    if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }
     const items: Item[] = Item.getByIDs(inputData.itemIDs);
