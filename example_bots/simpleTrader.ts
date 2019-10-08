@@ -30,9 +30,15 @@ async function sendRequests() {
 }
 
 async function attemptTrade() {
-    while (ClientAPI.playerAgent.conversation) {
-        if (Trade.getActiveTradesWithAgent(ClientAPI.playerAgent).length > 0) {
-
+    while (ClientAPI.playerAgent.inConversation()) {
+        const trades = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
+        if (trades.length > 0) {
+            if (username === "simpleTrader1") {
+                console.log("CANCELLING");
+                await ClientAPI.cancelTrade(trades[0]).catch(err => {
+                    console.log(err.message);
+                });
+            }
         }
         else {
             // attempt to start trade with anyone in conversation
@@ -44,7 +50,7 @@ async function attemptTrade() {
         }
         // delay next iteration of loop to avoid spinning cpu
         // tslint:disable-next-line: ban
-        await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 500));
+        await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 1000));
     }
 }
 

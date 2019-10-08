@@ -4,14 +4,13 @@ import { IDObject } from "./idObject";
 import { Conversation } from "./conversation";
 import { Agent } from "./agent";
 
-export enum TradeStatus {
-  FAILED = 0,
-  SUCCESS = 1,
-  IN_PROGRESS = 2,
-  REQUESTED = 3
-}
-
 export class Trade extends IDObject {
+  public static result = {
+    FAILED: 0,
+    SUCCESS: 1,
+    IN_PROGRESS: 2,
+    REQUESTED: 3
+  };
   private static actives: Set<Trade> = new Set();
   private static requested: Set<Trade> = new Set();
 
@@ -40,8 +39,8 @@ export class Trade extends IDObject {
     initiator: Agent,
     receiver: Agent,
     conversation: Conversation,
-    id?,
-    resultStatus = TradeStatus.REQUESTED
+    id?: number,
+    resultStatus = Trade.result.REQUESTED
   ) {
     super(Trade.name, id);
     this.initiatorID = initiator ? initiator.id : undefined;
@@ -54,13 +53,12 @@ export class Trade extends IDObject {
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
-
     switch (this._resultStatus) {
-      case TradeStatus.IN_PROGRESS: {
+      case Trade.result.IN_PROGRESS: {
         Trade.actives.add(this);
         break;
       }
-      case TradeStatus.REQUESTED: {
+      case Trade.result.REQUESTED: {
         Trade.requested.add(this);
         break;
       }
@@ -78,14 +76,15 @@ public toString() {
    * @param {JSON} json - serialized trade object.
    */
   static load(json: Trade) {
-    // Should probably never have active trades on startup
+    // Loads previous trades
     let t = Trade.objects[json.id];
-    t = t ? t : new Trade(undefined, undefined, undefined);
+    t = t ? t : new Trade(undefined, undefined, undefined, json.id);
     for (const key in json) {
       t[key] = json[key];
     }
     t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
     t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
+    t.setStatus(t._resultStatus);
     return t;
   }
 
@@ -127,30 +126,23 @@ public toString() {
    * 0=failed, 1=success, 2=in progress, 3=requested
    * @param {number} stat - status to set.
    */
-  setStatus(stat: TradeStatus) {
-    if (stat !== this._resultStatus) {
-      // remove from previous category set (if applicable)
-      switch (this._resultStatus) {
-        case TradeStatus.IN_PROGRESS: {
-          Trade.actives.delete(this);
-          break;
-        }
-        case TradeStatus.REQUESTED: {
-          Trade.requested.delete(this);
-          break;
-        }
+  setStatus(stat: number) {
+    this._resultStatus = stat;
+    switch (this._resultStatus) {
+      case Trade.result.IN_PROGRESS: {
+        Trade.actives.add(this);
+        Trade.requested.delete(this);
+        break;
       }
-      this._resultStatus = stat;
-      // add to new category set (if applicable)
-      switch (this._resultStatus) {
-        case TradeStatus.IN_PROGRESS: {
-          Trade.actives.add(this);
-          break;
-        }
-        case TradeStatus.REQUESTED: {
-          Trade.requested.add(this);
-          break;
-        }
+      case Trade.result.REQUESTED: {
+        Trade.requested.add(this);
+        Trade.actives.delete(this);
+        break;
+      }
+      default: {
+        Trade.requested.delete(this);
+        Trade.actives.delete(this);
+        break;
       }
     }
   }

@@ -174,4 +174,13 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("request-trade", {agentID: targetAgent.id});
     return res;
   }
+
+  /**
+   * Have logged-in agent cancel/reject specified trade
+   * @param targetTrade
+   */
+  public static async cancelTrade(targetTrade: Trade) {
+    const res = await ClientAPI.sendWrapper("cancel-trade", {tradeID: targetTrade.id});
+    return res;
+  }
 }

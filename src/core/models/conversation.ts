@@ -10,7 +10,7 @@ export class Conversation extends IDObject {
   public get maxAgents(): number {
     return this._maxAgents;
   }
-  private agentIDs: number[];
+  private _agentIDs: Set<number>;
 
 
   /**
@@ -23,7 +23,7 @@ export class Conversation extends IDObject {
     super(Conversation.name, id);
 
     this._maxAgents = maxAgents;
-    this.agentIDs = [];
+    this._agentIDs = new Set();
     this.roomID = room.id;
     room.addConversation(this);
 
@@ -40,6 +40,8 @@ export class Conversation extends IDObject {
     for (const key in json) {
       c[key] = json[key];
     }
+    c._agentIDs = new Set<number>(c._agentIDs);
+    return c;
   }
 
   /**
@@ -48,8 +50,9 @@ export class Conversation extends IDObject {
    *  may not be privy to.
    */
   public serialize(removePrivateData = false): Conversation {
-    const safeAgent = Object.assign({}, this);
-    return safeAgent;
+    const safeConversation = Object.assign({}, this);
+    (safeConversation._agentIDs as any) = Array.from(safeConversation._agentIDs);
+    return safeConversation;
   }
 
   /**
@@ -57,7 +60,7 @@ export class Conversation extends IDObject {
    * @param {Object} agent - agent object
    */
   add_agent(agent: Agent) {
-    this.agentIDs.push(agent.id);
+    this._agentIDs.add(agent.id);
   }
 
 
@@ -66,14 +69,7 @@ export class Conversation extends IDObject {
    * @param {Object} agent - agent object.
    */
   remove_agent(agent: Agent) {
-    const index = this.agentIDs.indexOf(agent.id);
-
-    if (index === -1) {
-      logger.log("Tried to remove agent not in conversation " + this.id, 0);
-      return;
-    }
-
-    this.agentIDs.splice(index);
+    this._agentIDs.delete(agent.id);
   }
 
   /**
@@ -81,9 +77,9 @@ export class Conversation extends IDObject {
    * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
    * @return {[Agent]}
    */
-  public getAgents(ignoreAgent?: Agent) {
+  public getAgents(ignoreAgent?: Agent): Agent[] {
     const agents = [];
-    for (const id of this.agentIDs) {
+    for (const id of this._agentIDs) {
       const agent = Agent.getByID(id);
       if (agent !== ignoreAgent) {
         agents.push(agent);
@@ -97,7 +93,7 @@ export class Conversation extends IDObject {
   }
 
   contains_agent(agent: Agent): boolean {
-    return this.agentIDs.indexOf(agent.id) !== -1;
+    return this._agentIDs.has(agent.id);
   }
 
 }

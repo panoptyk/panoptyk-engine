@@ -330,7 +330,12 @@ export class Controller {
 
     this.updateChanges(agent, [conversation, agent]);
 
-    if (conversation.getAgents().length === 0) {
+    // no conversations of 1 or 0 people
+    const agents: Agent[] = conversation.getAgents();
+    if (agents.length === 1) {
+      this.removeAgentFromConversation(conversation, agents[0]);
+    }
+    else if (agents.length === 0) {
       conversation.room.removeConversation(conversation);
     }
   }
@@ -370,10 +375,8 @@ export class Controller {
    */
   public createTrade(conversation: Conversation, fromAgent: Agent, toAgent: Agent) {
     const trade = new Trade(fromAgent, toAgent, conversation);
-
     this.updateChanges(toAgent, [trade]);
     this.updateChanges(fromAgent, [trade]);
-
     return trade;
   }
 

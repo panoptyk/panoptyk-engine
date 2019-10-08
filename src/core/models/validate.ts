@@ -285,8 +285,9 @@ export class Validate {
    * @returns {Object} {status: boolean, message: string}
    */
   public static validate_agents_not_already_trading(agent1: Agent, agent2: Agent) {
-    if (Trade.getActiveTradesBetweenAgents(agent1, agent2).length > 0) {
-      return {status: false, message: "Agents are sharing an active trade"};
+    const shared: Trade[] = Trade.getActiveTradesBetweenAgents(agent1, agent2);
+    if (shared.length > 0) {
+      return {status: false, message: "Agents are sharing an active trade: " + shared[0].id};
     }
     return {status: true, message: "Agents are not sharing an active trade"};
   }
