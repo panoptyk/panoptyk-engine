@@ -19,7 +19,7 @@ export const ActionLogin: Action = {
   enact: (agent: Agent, inputData: any) => {
     const newAgent = Agent.login(inputData.username, inputData.socket);
     const controller = new Controller();
-    controller.addAgentToRoom(newAgent, newAgent.room);
+    controller.login(newAgent);
     logger.log(
       "Event login for agent " + newAgent + " registered.",
       2

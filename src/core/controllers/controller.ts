@@ -143,7 +143,7 @@ export class Controller {
     const removedItems: Item[] = [];
 
     for (const item of items) {
-      item.agent.removeItemInventory(item);
+      agent.removeItemInventory(item);
       item.takeFromAgent();
       removedItems.push(item);
     }
@@ -172,6 +172,16 @@ export class Controller {
 
     this.removeAgentFromRoom(agent);
     this.addAgentToRoom(agent, newRoom);
+  }
+
+
+  /**
+   * Fetches all agent data and adds it to room
+   * @param agent
+   */
+  public login(agent: Agent) {
+    this.updateChanges(agent, [agent.inventory, agent.knowledge]);
+    this.addAgentToRoom(agent, agent.room);
   }
 
 
@@ -266,7 +276,9 @@ export class Controller {
       item.putInRoom(room);
     }
 
-    this.updateChanges(byAgent, [room, items]);
+    for (const occupant of room.occupants) {
+      this.updateChanges(occupant, [room, items]);
+    }
   }
 
 
@@ -295,7 +307,9 @@ export class Controller {
       item.remove_from_room();
     }
 
-    this.updateChanges(byAgent, [items, room]);
+    for (const occupant of room.occupants) {
+      this.updateChanges(occupant, [room, items]);
+    }
   }
 
 
@@ -530,6 +544,7 @@ export class Controller {
     for (const agent of agents) {
       const cpy = info.makeCopy(agent, time);
       this.addInfoToAgentInventory(agent, [cpy]);
+      this.updateChanges(agent, [agent]);
     }
   }
 
@@ -548,5 +563,33 @@ export class Controller {
     this.addAgentToConversation(conversation, agent);
     this.addAgentToConversation(conversation, toAgent);
     return conversation;
+  }
+
+
+  public pickUpItems(agent: Agent, items: Item[]) {
+    this.removeAgentFromConversationIfIn(agent);
+    this.removeItemsFromRoom(items, agent);
+    this.addItemsToAgentInventory(agent, items);
+
+    // inform other users agent has taken items
+    const time = util.getPanoptykDatetime();
+    for (const item of items) {
+      const info = Info.ACTION.PICKUP.create(agent, {0: time, 1: agent.id, 2: item.id, 3: agent.room.id, 4: 1});
+      this.giveInfoToAgents(agent.room.getAgents(), info);
+    }
+  }
+
+
+  public dropItems(agent: Agent, items: Item[]) {
+    const room = agent.room;
+    this.removeItemsFromAgentInventory(items);
+    this.addItemsToRoom(room, items, agent);
+
+    // inform other users agent has taken items
+    const time = util.getPanoptykDatetime();
+    for (const item of items) {
+      const info = Info.ACTION.DROP.create(agent, {0: time, 1: agent.id, 2: item.id, 3: agent.room.id, 4: 1});
+      this.giveInfoToAgents(agent.room.getAgents(), info);
+    }
   }
 }

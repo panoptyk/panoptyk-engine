@@ -5,7 +5,7 @@
       "_roomName": "room1",
       "adjacent": [2, 3],
       "_occupants": [],
-      "itemIDs": [],
+      "itemIDs": [1],
       "conversationIDs": [],
       "_maxOccupants": 15
     },

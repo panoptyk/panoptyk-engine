@@ -90,7 +90,7 @@ export class Validate {
     }
 
     for (const item of items) {
-      if (item.agent === agent) {
+      if (item.agent !== agent) {
         return {
           status: false,
           message: "Agent does not have item " + item.itemName

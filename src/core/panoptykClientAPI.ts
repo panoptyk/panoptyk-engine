@@ -183,4 +183,30 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("cancel-trade", {tradeID: targetTrade.id});
     return res;
   }
+
+  /**
+   * Take items from room
+   * @param items
+   */
+  public static async takeItems(items: Item[]) {
+    const itemIDs: number[] = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    const res = await ClientAPI.sendWrapper("take-items", {itemIDs});
+    return res;
+  }
+
+  /**
+   * Drop items in room
+   * @param items
+   */
+  public static async dropItems(items: Item[]) {
+    const itemIDs: number[] = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    const res = await ClientAPI.sendWrapper("drop-items", {itemIDs});
+    return res;
+  }
 }

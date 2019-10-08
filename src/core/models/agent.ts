@@ -196,7 +196,7 @@ export class Agent extends IDObject {
   removeItemInventory(item: Item) {
     const hasItem = this._inventory.has(item.id);
 
-    if (hasItem) {
+    if (!hasItem) {
       logger.log(
         "Tried to remove invalid item " + item + " from agent " + this + ".",
         0
