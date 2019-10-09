@@ -1,62 +1,62 @@
 import { Mushroom } from "../prefabs/mushroom";
 import { ClientAPI } from "../../core/panoptykClientAPI";
+import { Room } from "../../core/models";
 
 export class Game extends Phaser.State {
-  private mushroom: Mushroom;
-  private cursors: Phaser.CursorKeys;
-  private text: Phaser.BitmapText;
-  private spaceKey: Phaser.Key;
+  private map: Phaser.Tilemap;
+
+  private room: Room;
+  private roomText: Phaser.Text;
+
+  private floorLayer: Phaser.TilemapLayer;
+  private wallLayer: Phaser.TilemapLayer;
+  private doorObjects: Phaser.Group;
 
   public create(): void {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    this.text = this.game.add.bitmapText(
-      this.game.world.centerX,
-      this.game.world.centerY + 100,
-      "font",
-      "Press Arrows / Space",
-      15
-    );
-    this.text.x = this.text.x - ~~(this.text.width * 0.5);
+    this.game.input.mouse.capture = true;
 
-    this.mushroom = new Mushroom(
-      this.state.getCurrentState().game,
-      this.game.world.centerX,
-      this.game.world.centerY
-    );
-    this.game.add.existing(this.mushroom);
+    this.room = ClientAPI.playerAgent.room;
 
-    this.cursors = this.game.input.keyboard.createCursorKeys();
-    this.spaceKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    this.spaceKey.onDown.add(() => {
-      if (ClientAPI.canAct()) {
-        const rooms = ClientAPI.playerAgent.room.getAdjacentRooms();
-        const room = rooms[Math.floor(Math.random() * rooms.length)];
-        ClientAPI.moveToRoom(room)
-          .then(res => {
-            console.log("Moved agent to room: " + room);
-          })
-          .catch(err => {
-            console.log("Failed to move to room!: " + err.message);
-          });
-      }
-    }, this);
+    const style = { font: "65px Arial", fill: "#ffffff" };
+    this.roomText = this.game.add.text(undefined, undefined, "Room: " + this.room.roomName, style);
+    this.roomText.position.set(this.game.world.centerX - this.roomText.width / 2, 0);
+
+    // add tileset map
+    this.map = this.game.add.tilemap("room1");
+    this.map.addTilesetImage("dungeon_tileset", "dungeon_tiles");
+
+    // create floor layer
+    this.floorLayer = this.map.createLayer("Floor");
+    this.floorLayer.fixedToCamera = false;
+    this.floorLayer.resize(this.map.tileWidth * this.map.width, this.map.tileHeight * this.map.height);
+    this.floorLayer.position.set(this.game.world.centerX - this.floorLayer.width / 2, this.game.world.centerY - this.floorLayer.height / 2);
+
+    // create wall layer
+    this.wallLayer = this.map.createLayer("Walls");
+    this.wallLayer.fixedToCamera = false;
+    this.wallLayer.resize(this.map.tileWidth * this.map.width, this.map.tileHeight * this.map.height);
+    this.wallLayer.position.set(this.game.world.centerX - this.wallLayer.width / 2, this.game.world.centerY - this.wallLayer.height / 2);
+
+    // add door objects
+    this.doorObjects = this.game.add.group();
+    this.doorObjects.inputEnableChildren = true;
+    this.map.createFromObjects("Doors", 481, "door", undefined, true, false, this.doorObjects);
+    this.map.createFromObjects("Doors", 482, "sideDoor", undefined, true, false, this.doorObjects);
+    this.doorObjects.position.set(this.game.world.centerX - this.floorLayer.width / 2, this.game.world.centerY - this.floorLayer.height / 2);
+    this.doorObjects.onChildInputDown.add(this.onDoorClicked, this);
   }
 
-  public update(): void {
-    this.game.input.update();
+  public async onDoorClicked(sprite: Phaser.Sprite): Promise<void> {
+    // add a loading image later
 
-    if (this.cursors.down.isDown) {
-      this.mushroom.position.y++;
-    }
-    if (this.cursors.up.isDown) {
-      this.mushroom.position.y--;
-    }
-    if (this.cursors.left.isDown) {
-      this.mushroom.position.x--;
-    }
-    if (this.cursors.right.isDown) {
-      this.mushroom.position.x++;
-    }
+    const temp = ClientAPI.playerAgent.room.getAdjacentRooms()[this.doorObjects.getChildIndex(sprite)];
+    await ClientAPI.moveToRoom(temp).then(res => {
+      this.room = ClientAPI.playerAgent.room;
+      this.roomText.setText("Room: " + this.room.roomName);
+      console.log("room changed");
+    })
+    .catch(err => console.log("room change fail!"));
   }
 }
