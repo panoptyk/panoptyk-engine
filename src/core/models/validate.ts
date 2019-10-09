@@ -6,7 +6,10 @@ export interface ValidationResult {
 }
 
 export class Validate {
-  public static readonly successMsg: ValidationResult = { status: true, message: ""};
+  public static readonly successMsg: ValidationResult = {
+    status: true,
+    message: ""
+  };
   /**
    * Validate a given dictionary has same keys as one of theprovided ones.
    * @param {[Object]} goodFormats - given formats to match to.
@@ -115,6 +118,20 @@ export class Validate {
   }
 
   /**
+   * Checks if a valid username was provided by the client trying to log in
+   * @param username username provided by client trying to log in
+   * @return {Object} {status: boolean, message: string}
+   */
+  public static validate_login_username(
+    username: string
+  ): ValidationResult {
+    if (!username || username.length <= 0) {
+      return { status: false, message: "Username invalid" };
+    }
+    return Validate.successMsg;
+  }
+
+  /**
    * Validate items are in room.
    * @param {Object} room - room items are supposed to be in.
    * @param {[int]} itemIds - ids of items room is supposed to have.
@@ -168,7 +185,11 @@ export class Validate {
    * @param {Object} owner - agent object.
    * @returns {Object} {status: boolean, message: string, trade: [Object]}
    */
-  public static validate_items_in_trade(items: Item[], trade: Trade, owner: Agent) {
+  public static validate_items_in_trade(
+    items: Item[],
+    trade: Trade,
+    owner: Agent
+  ) {
     if (owner === trade.agentIni) {
       for (const item of items) {
         if (trade.itemsIni.indexOf(item) < 0) {
@@ -195,7 +216,11 @@ export class Validate {
    * @param {boolean} rstatus - ready status.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_ready_status(trade: Trade, agent: Agent, rstatus: boolean) {
+  public static validate_ready_status(
+    trade: Trade,
+    agent: Agent,
+    rstatus: boolean
+  ) {
     if (agent === trade.agentIni) {
       if (trade.statusIni !== rstatus) {
         return { status: false, message: "Trade ready status already set" };
@@ -217,7 +242,10 @@ export class Validate {
    * @param {Object} conversation - conversation object.
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
-  public static validate_conversation_exists(room: Room, conversation: Conversation) {
+  public static validate_conversation_exists(
+    room: Room,
+    conversation: Conversation
+  ) {
     if (conversation === undefined) {
       return { status: false, message: "Conversation does not exist" };
     }
@@ -247,7 +275,10 @@ export class Validate {
    * @param {Object} agent - agent object.
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
-  public static validate_conversation_has_agent(conversation: Conversation, agent: Agent) {
+  public static validate_conversation_has_agent(
+    conversation: Conversation,
+    agent: Agent
+  ) {
     if (conversation.contains_agent(agent) === undefined) {
       return {
         status: false,
@@ -265,9 +296,12 @@ export class Validate {
    * @param {Agent} agent2 - agent object.
    * @returns {Object} {status: boolean, message: string, conversation: Object, to_agent: Object}
    */
-  public static validate_agents_share_conversation(agent1: Agent, agent2: Agent) {
+  public static validate_agents_share_conversation(
+    agent1: Agent,
+    agent2: Agent
+  ) {
     if (!agent1.conversation || agent1.conversation !== agent2.conversation) {
-      return {status: false, message: "Agents not in same conversation"};
+      return { status: false, message: "Agents not in same conversation" };
     }
 
     return {
@@ -284,12 +318,18 @@ export class Validate {
    * @param {Agent} agent2 - agent object.
    * @returns {Object} {status: boolean, message: string}
    */
-  public static validate_agents_not_already_trading(agent1: Agent, agent2: Agent) {
+  public static validate_agents_not_already_trading(
+    agent1: Agent,
+    agent2: Agent
+  ) {
     const shared: Trade[] = Trade.getActiveTradesBetweenAgents(agent1, agent2);
     if (shared.length > 0) {
-      return {status: false, message: "Agents are sharing an active trade: " + shared[0].id};
+      return {
+        status: false,
+        message: "Agents are sharing an active trade: " + shared[0].id
+      };
     }
-    return {status: true, message: "Agents are not sharing an active trade"};
+    return { status: true, message: "Agents are not sharing an active trade" };
   }
 
   /**
@@ -331,7 +371,14 @@ export class Validate {
    */
   public static validate_agents_in_same_room(fromAgent: Agent, toAgent: Agent) {
     if (fromAgent.room !== toAgent.room) {
-      return { status: false, message: "Agent " + fromAgent.id + " is not in same room as Agent " + toAgent.id };
+      return {
+        status: false,
+        message:
+          "Agent " +
+          fromAgent.id +
+          " is not in same room as Agent " +
+          toAgent.id
+      };
     }
 
     return { status: true, message: "" };
@@ -344,7 +391,10 @@ export class Validate {
   public static validate_agents_not_conversing(agents: Agent[]) {
     for (const agent of agents) {
       if (agent.conversation !== undefined) {
-        return { status: false, message: "Agent " + agent.id + " is already in a conversation!"};
+        return {
+          status: false,
+          message: "Agent " + agent.id + " is already in a conversation!"
+        };
       }
     }
     return { status: true, message: "" };
