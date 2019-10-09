@@ -31,14 +31,9 @@ async function sendRequests() {
 
 async function attemptTrade() {
     while (ClientAPI.playerAgent.inConversation()) {
-        const trades = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
+        const trades: Trade[] = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
         if (trades.length > 0) {
-            if (username === "simpleTrader1") {
-                console.log("CANCELLING");
-                await ClientAPI.cancelTrade(trades[0]).catch(err => {
-                    console.log(err.message);
-                });
-            }
+            // accept any trade
         }
         else {
             // attempt to start trade with anyone in conversation
@@ -57,13 +52,13 @@ async function attemptTrade() {
 async function main() {
     let waitAmount: number;
     while (true) {
-        if (ClientAPI.playerAgent.conversation === undefined &&
+        if (!ClientAPI.playerAgent.inConversation() &&
             ClientAPI.playerAgent.conversationRequesters.length === 0) {
                 waitAmount = currentRoom.occupants.length > 1 ? 10000 : 5000;
                 await sendRequests();
         }
-        else if (ClientAPI.playerAgent.conversation !== undefined) {
-            console.log("yay conversation!!");
+        else if (ClientAPI.playerAgent.inConversation()) {
+            console.log("yay conversation!!", ClientAPI.playerAgent.conversation);
             await attemptTrade();
         }
         else {

@@ -455,7 +455,7 @@ export class Controller {
 
     this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
 
-    logger.log("Successfully completed trade " + trade.id, 2);
+    logger.log("Successfully completed trade " + trade, 2);
   }
 
 
@@ -466,7 +466,7 @@ export class Controller {
    * @param {Object} ownerAgent - agent adding the items.
    */
   public addItemsToTrade(trade: Trade, items: Item[], ownerAgent: Agent) {
-    logger.log("Adding items to trade " + trade.id  + "...", 2);
+    logger.log("Adding items to trade " + trade  + "...", 2);
 
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
@@ -476,7 +476,7 @@ export class Controller {
     this.updateChanges(trade.agentIni, [trade, items]);
     this.updateChanges(trade.agentRec, [trade, items]);
 
-    logger.log("Successfully added items to trade " + trade.id, 2);
+    logger.log("Successfully added items to trade " + trade, 2);
   }
 
 

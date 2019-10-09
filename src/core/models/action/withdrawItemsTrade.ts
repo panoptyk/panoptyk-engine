@@ -14,7 +14,6 @@ export const ActionWithdrawItemsTrade: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    // TODO: fix event functionality
     const items: Item[] = Item.getByIDs(inputData.itemIDs);
     const trade: Trade = Trade.getByID(inputData.tradeID);
 

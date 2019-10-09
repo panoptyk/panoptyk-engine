@@ -19,6 +19,38 @@ async function leaveRoom() {
     });
 }
 
+async function sendRequests() {
+    for (const other of currentRoom.occupants) {
+        if (other.id !== ClientAPI.playerAgent.id) {
+            await ClientAPI.requestConversation(other).catch(err => {
+                console.log(err.message);
+            });
+        }
+    }
+}
+
+async function attemptTrade() {
+    while (ClientAPI.playerAgent.inConversation()) {
+        const trades = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
+        if (trades.length > 0) {
+            await ClientAPI.offerItemsTrade(trades[0], ClientAPI.playerAgent.inventory);
+            await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 5000));
+            await ClientAPI.withdrawItemsTrade(trades[0], ClientAPI.playerAgent.inventory);
+        }
+        else {
+            // attempt to start trade with anyone in conversation
+            for (const agent of ClientAPI.playerAgent.conversation.getAgents(ClientAPI.playerAgent)) {
+                await ClientAPI.requestTrade(agent).catch(err => {
+                    console.log(err.message);
+                });
+            }
+        }
+        // delay next iteration of loop to avoid spinning cpu
+        // tslint:disable-next-line: ban
+        await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 1000));
+    }
+}
+
 async function main() {
     let waitAmount: number;
     while (true) {
@@ -33,9 +65,13 @@ async function main() {
         // test drop-items
         const agentItems = ClientAPI.playerAgent.inventory;
         if (agentItems.length > 0) {
-            await ClientAPI.dropItems(agentItems);
-            // tslint:disable-next-line: ban
-            await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 1000));
+            if (!ClientAPI.playerAgent.inConversation()) {
+                await sendRequests();
+            }
+        }
+
+        if (ClientAPI.playerAgent.inConversation()) {
+            await attemptTrade();
         }
 
         if (getPanoptykDatetime() - lastMove > waitAmount) {

@@ -15,7 +15,7 @@ export const ActionOfferItemsTrade: Action = {
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const items: Item[] = Item.getByIDs(inputData.itemIDs);
-    const trade: Trade = Trade.getByID(inputData.tradeIDs);
+    const trade: Trade = Trade.getByID(inputData.tradeID);
 
     controller.addItemsToTrade(trade, items, agent);
 

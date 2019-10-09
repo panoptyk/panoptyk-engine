@@ -185,6 +185,34 @@ export class ClientAPI {
   }
 
   /**
+   * Items to offer in specified trade.
+   * @param trade
+   * @param items
+   */
+  public static async offerItemsTrade(trade: Trade, items: Item[]) {
+    const itemIDs: number[] = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    const res = await ClientAPI.sendWrapper("offer-items-trade", {tradeID: trade.id, itemIDs});
+    return res;
+  }
+
+  /**
+   * Items to withdraw from specified trade.
+   * @param trade
+   * @param items
+   */
+  public static async withdrawItemsTrade(trade: Trade, items: Item[]) {
+    const itemIDs: number[] = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    const res = await ClientAPI.sendWrapper("withdraw-items-trade", {tradeID: trade.id, itemIDs});
+    return res;
+  }
+
+  /**
    * Take items from room
    * @param items
    */
