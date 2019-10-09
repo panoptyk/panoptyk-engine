@@ -160,7 +160,7 @@ export class Room extends IDObject {
 
     if (!index) {
       logger.log(
-        "Could not remove conversation id#" + conversation.id,
+        "Could not remove conversation " + conversation,
         0
       );
       return;

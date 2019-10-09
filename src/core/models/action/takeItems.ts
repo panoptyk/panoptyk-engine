@@ -22,7 +22,7 @@ export const ActionTakeItems: Action = {
       itemNames.push(item.itemName);
     }
     logger.log("Event take-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
-      + agent.agentName + " registered.", 2);
+      + agent + " registered.", 2);
 
     controller.sendUpdates();
   },

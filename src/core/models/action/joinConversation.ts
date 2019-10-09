@@ -18,7 +18,7 @@ export const ActionJoinConversation: Action = {
 
     controller.addAgentToConversation(conversation, agent);
 
-    logger.log("Event join-conversation (" + conversation.id + ") for agent " + agent.agentName + " registered.", 2);
+    logger.log("Event join-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", 2);
 
     controller.sendUpdates();
   },

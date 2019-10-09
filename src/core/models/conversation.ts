@@ -27,7 +27,7 @@ export class Conversation extends IDObject {
     this.roomID = room.id;
     room.addConversation(this);
 
-    logger.log("Conversation intialized in room " + room.id, 2);
+    logger.log("Conversation intialized in room " + room, 2);
   }
 
   /**

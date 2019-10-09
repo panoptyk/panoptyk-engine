@@ -20,9 +20,9 @@ export const ActionRequestConversation: Action = {
       controller.requestConversation(agent, toAgent);
       logger.log(
         "Event request-conversation from (" +
-          agent.agentName +
+          agent +
           ") to agent " +
-          toAgent.agentName +
+          toAgent +
           " registered.",
         2
       );
@@ -36,11 +36,11 @@ export const ActionRequestConversation: Action = {
       );
       logger.log(
         "Event accept-conversation (" +
-          conversation.id +
+          conversation +
           ") for agent " +
-          agent.agentName +
+          agent +
           "/" +
-          toAgent.agentName +
+          toAgent +
           " registered.",
         2
       );

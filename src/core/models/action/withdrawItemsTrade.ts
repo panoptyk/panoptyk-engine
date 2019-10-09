@@ -20,7 +20,7 @@ export const ActionWithdrawItemsTrade: Action = {
 
     controller.removeItemsFromTrade(trade, items, agent);
 
-    logger.log("Event withdraw-items-trade " + trade.id + " registered.", 2);
+    logger.log("Event withdraw-items-trade " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

@@ -17,7 +17,7 @@ export const ActionCancelTrade: Action = {
 
     controller.cancelTrade(trade);
 
-    logger.log("Event cancel-trade (" + trade.id + ") for agent " + trade.agentIni.agentName + "/" + trade.agentRec.agentName + " registered.", 2);
+    logger.log("Event cancel-trade (" + trade + ") for agent " + trade.agentIni.agentName + "/" + trade.agentRec.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

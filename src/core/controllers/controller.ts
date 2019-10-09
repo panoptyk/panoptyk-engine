@@ -74,7 +74,7 @@ export class Controller {
 
     for (const item of items) {
       if (item.room !== undefined || (item.agent !== undefined)) {
-        logger.log("Cannot give item to agent: Agent, item not available " + item.itemName, 0);
+        logger.log("Cannot give item to agent: Agent, item not available " + item, 0);
         return;
       }
     }
@@ -166,7 +166,7 @@ export class Controller {
     const oldRoom: Room = agent.room;
 
     if (!oldRoom.isConnectedTo(newRoom)) {
-      logger.log("Cannot move agent. " + oldRoom.roomName + " not adjacent to " + newRoom.roomName, 0);
+      logger.log("Cannot move agent. " + oldRoom + " not adjacent to " + newRoom, 0);
       return;
     }
 
@@ -227,7 +227,7 @@ export class Controller {
     const oldRoom = agent.room;
 
     if (oldRoom === undefined) {
-      logger.log("Cannot remove agent " + agent.agentName + " from room, agent is not in room.", 0);
+      logger.log("Cannot remove agent " + agent + " from room, agent is not in room.", 0);
       return;
     }
 
@@ -266,7 +266,7 @@ export class Controller {
 
     for (const item of items) {
       if (item.room !== undefined || item.agent !== undefined) {
-        logger.log("Cannot add item " + item.id  + " to room. Item not available,", 0);
+        logger.log("Cannot add item " + item  + " to room. Item not available,", 0);
         return;
       }
     }
@@ -335,7 +335,7 @@ export class Controller {
    * @param {Object} agent - agent object
    */
   public removeAgentFromConversation(conversation: Conversation, agent: Agent) {
-    logger.log("Removing agent " + agent.agentName + " from conversation " + conversation.id, 2);
+    logger.log("Removing agent " + agent + " from conversation " + conversation.id, 2);
 
     this.endAllTradesWithAgent(agent);
 

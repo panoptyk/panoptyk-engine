@@ -19,11 +19,11 @@ export const ActionRequestTrade: Action = {
     let trade = Trade.getRequestedTradesBetweenAgents(agent, toAgent)[0];  // TODO: Why is this an array??
     if (trade === undefined) {
       trade = controller.createTrade(conversation, agent, toAgent);
-      logger.log("Event request-trade (" + trade.id + ") for agent " + agent.agentName + " registered.", 2);
+      logger.log("Event request-trade (" + trade + ") for agent " + agent + " registered.", 2);
     }
     else if (trade.agentRec === agent) {  // accept trade if receiving agent sent this
       controller.acceptTrade(trade);
-      logger.log("Event accept-trade (" + trade.id + ") for agent " + trade.agentIni.agentName + "/" + trade.agentRec.agentName + " registered.", 2);
+      logger.log("Event accept-trade (" + trade + ") for agent " + trade.agentIni + "/" + trade.agentRec + " registered.", 2);
     }
     controller.sendUpdates();
   },

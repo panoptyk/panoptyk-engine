@@ -23,7 +23,7 @@ export const ActionReadyTrade: Action = {
       readyStatus
     );
 
-    logger.log("Event ready-trade " + trade.id + " registered.", 2);
+    logger.log("Event ready-trade " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

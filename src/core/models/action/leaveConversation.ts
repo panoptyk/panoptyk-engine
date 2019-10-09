@@ -18,7 +18,7 @@ export const ActionLeaveConversation: Action = {
 
     controller.removeAgentFromConversation(conversation, agent);
 
-    logger.log("Event leave-conversation (" + conversation.id + ") for agent " + agent.agentName + " registered.", 2);
+    logger.log("Event leave-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

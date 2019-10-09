@@ -220,7 +220,7 @@ public toString() {
       unlocked += Item[item].id + " ";
     }
 
-    logger.log("Unlocked trade " + this.id + " items [ " + unlocked + "]", 2);
+    logger.log("Unlocked trade " + this + " items [ " + unlocked + "]", 2);
   }
 
   /**

@@ -14,12 +14,12 @@ export const ActionOfferItemsTrade: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const items = Item.getByIDs(inputData.itemIDs);
-    const trade = Trade.getByID(inputData.tradeIDs);
+    const items: Item[] = Item.getByIDs(inputData.itemIDs);
+    const trade: Trade = Trade.getByID(inputData.tradeIDs);
 
     controller.addItemsToTrade(trade, items, agent);
 
-    logger.log("Event offer-items-trade " + trade.tradeID + " registered.", 2);
+    logger.log("Event offer-items-trade " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
