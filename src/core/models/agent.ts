@@ -24,7 +24,7 @@ export class Agent extends IDObject {
   public get knowledge(): Info[] {
     return Info.getByIDs(Array.from(this._knowledge));
   }
-  private _conversationID: number;
+  private _conversationID = 0;
   private _conversationRequests: Set<number>;
 
   /**
@@ -274,7 +274,7 @@ export class Agent extends IDObject {
    * Returns true if agent is in a conversation
    */
   public inConversation() {
-    return this._conversationID !== undefined;
+    return this._conversationID;
   }
 
   public get conversation(): Conversation {
@@ -297,6 +297,6 @@ export class Agent extends IDObject {
    * Remove an agent from the conversation.
    */
   public leaveConversation() {
-    this._conversationID = undefined;
+    this._conversationID = 0;
   }
 }
