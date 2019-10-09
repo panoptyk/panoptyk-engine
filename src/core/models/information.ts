@@ -84,7 +84,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Location}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAL.name;
 
         i.agent = v[1];
@@ -100,7 +100,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Faction}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAF.name;
 
         i.agent = v[1];
@@ -116,7 +116,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAA.name;
 
         i.agent = v[1];
@@ -132,7 +132,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Info-ID}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAK.name;
 
         i.agent = v[1];
@@ -148,7 +148,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAAL.name;
 
         i.agent = v[1];
@@ -165,7 +165,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location, 4: Info-ID}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAALK.name;
 
         i.agent = v[1];
@@ -183,7 +183,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Tangible-Item, 3: Location, 4: Quantity}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAILQ.name;
 
         i.agent = v[1];
@@ -201,7 +201,7 @@ export class Info extends IDObject {
        * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Tangible-Item, 4: Location, 5: Quantity}
        */
       create(owner, v) {
-        const i = new Info(undefined, owner, v[0], undefined);
+        const i = new Info(owner, v[0]);
         i.predicate = Info.PREDICATE.TAA.name;
 
         i.agent = v[1];
