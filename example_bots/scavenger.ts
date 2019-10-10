@@ -34,8 +34,9 @@ async function attemptTrade() {
         const trades = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
         if (trades.length > 0) {
             await ClientAPI.offerItemsTrade(trades[0], ClientAPI.playerAgent.inventory);
-            await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 5000));
-            await ClientAPI.withdrawItemsTrade(trades[0], ClientAPI.playerAgent.inventory);
+            // tslint:disable-next-line: ban
+            await new Promise(javascriptIsFun => setTimeout(javascriptIsFun, 2500));
+            await ClientAPI.setTradeReadyStatus(trades[0], true);
         }
         else {
             // attempt to start trade with anyone in conversation

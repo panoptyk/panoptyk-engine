@@ -427,18 +427,22 @@ export class Controller {
   public performTrade(trade: Trade) {
     logger.log("Ending trade " + trade.id, 2);
 
-    this.updateChanges(trade.agentIni, [trade]);
-    this.updateChanges(trade.agentRec, [trade]);
-
-    this.removeItemsFromAgentInventory(trade.itemsIni);
-    this.removeItemsFromAgentInventory(trade.itemsRec);
-
-    this.addItemsToAgentInventory(trade.agentIni, trade.itemsRec);
-    this.addItemsToAgentInventory(trade.agentRec, trade.itemsIni);
+    if (trade.itemsIni.length > 0) {
+      this.removeItemsFromAgentInventory(trade.itemsIni);
+      this.addItemsToAgentInventory(trade.agentRec, trade.itemsIni);
+    }
+    if (trade.itemsRec.length > 0) {
+      this.removeItemsFromAgentInventory(trade.itemsRec);
+      this.addItemsToAgentInventory(trade.agentIni, trade.itemsRec);
+    }
 
     trade.setStatus(1);
     trade.cleanup();
 
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentRec]);
+
+    // TODO: fix info given at end of trade
     // Info object prep
     const itemsIniStr = [];
     const itemsResStr = [];

@@ -15,7 +15,7 @@ export const ActionReadyTrade: Action = {
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const trade: Trade = Trade.getByID(inputData.tradeID);
-    const readyStatus = inputData.readyStatus;
+    const readyStatus: boolean = inputData.readyStatus;
 
     controller.setTradeAgentStatus(
       trade,

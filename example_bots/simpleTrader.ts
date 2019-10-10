@@ -34,6 +34,9 @@ async function attemptTrade() {
         const trades: Trade[] = Trade.getActiveTradesWithAgent(ClientAPI.playerAgent);
         if (trades.length > 0) {
             // accept any trade
+            await ClientAPI.setTradeReadyStatus(trades[0], true).catch(err => {
+                console.log(err.message);
+            });
         }
         else {
             // attempt to start trade with anyone in conversation

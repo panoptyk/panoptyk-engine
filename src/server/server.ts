@@ -25,7 +25,8 @@ import {
   ActionTakeItems,
   ActionDropItems,
   ActionOfferItemsTrade,
-  ActionWithdrawItemsTrade
+  ActionWithdrawItemsTrade,
+  ActionReadyTrade
 } from "../core/models/action/index";
 import { ValidationResult, Validate } from "../core/models/validate";
 
@@ -40,7 +41,7 @@ export class Server {
    */
   private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
   private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionDropItems, ActionOfferItemsTrade,
-    ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade];
+    ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade];
 
   constructor(app?: express.Application) {
     this.createApp(app);

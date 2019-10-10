@@ -148,11 +148,11 @@ public toString() {
   }
 
   /**
-   * Set an agent's ready status.
+   * Set an agent's ready status. Returns true when both agents are ready.
    * @param {Agent} agent - agent to set status for.
    * @param {boolean} rstatus - status. True = ready, false = not ready.
    */
-  setAgentReady(agent: Agent, rstatus: boolean) {
+  setAgentReady(agent: Agent, rstatus: boolean): boolean {
     if (agent.id === this.initiatorID) {
       this.initiatorStatus = rstatus;
     } else if (agent.id === this.receiverID) {
@@ -210,14 +210,16 @@ public toString() {
   cleanup() {
     let unlocked = "";
 
-    for (const item of this.initiatorItemIDs) {
-      Item[item].in_transaction = false;
-      unlocked += Item[item].id + " ";
+    for (const id of this.initiatorItemIDs) {
+      const item = Item.getByID(id);
+      item.in_transaction = false;
+      unlocked += item.id + " ";
     }
 
-    for (const item of this.receiverItemIDs) {
-      Item[item].in_transaction = false;
-      unlocked += Item[item].id + " ";
+    for (const id of this.receiverItemIDs) {
+      const item = Item.getByID(id);
+      item.in_transaction = false;
+      unlocked += item.id + " ";
     }
 
     logger.log("Unlocked trade " + this + " items [ " + unlocked + "]", 2);

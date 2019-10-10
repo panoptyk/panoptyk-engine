@@ -213,6 +213,16 @@ export class ClientAPI {
   }
 
   /**
+   * Set trade ready status to true or false/
+   * @param trade
+   * @param status
+   */
+  public static async setTradeReadyStatus(trade: Trade, status: boolean) {
+    const res = await ClientAPI.sendWrapper("ready-trade", {tradeID: trade.id, readyStatus: status});
+    return res;
+  }
+
+  /**
    * Take items from room
    * @param items
    */
