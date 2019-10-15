@@ -2,10 +2,11 @@
   "name": "panoptyk-engine",
   "version": "0.2.0",
   "description": "",
-  "main": "server.js",
+  "main": "build/core/panoptykClientAPI.js",
   "scripts": {
     "prestart": "tsc -b src/tsproject.json",
     "start": "node build/server/exampleServer.js",
+    "prepare": "npm run build:all",
     "server": "ts-node --project src/tsconfig.settings.json src/server/exampleServer.ts",
     "build:all": "tsc -b src/tsproject.json",
     "build:core": "tsc -b ./src/core",
