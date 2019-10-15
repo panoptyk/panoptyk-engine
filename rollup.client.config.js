@@ -7,7 +7,7 @@ export default {
     {
       file: "./dist/client.js",
       output: "./dist",
-      format: "esm"
+      format: "cjs"
     }
   ],
   external: [
