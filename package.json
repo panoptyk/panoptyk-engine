@@ -13,7 +13,9 @@
   ],
   "scripts": {
     "prepare": "npm run build",
-    "build": "npm run clean && rollup -c",
+    "build": "npm run clean && npm run build:server && npm run build:client",
+    "build:server": "rollup -c",
+    "build:client": "rollup -c ./rollup.client.config.js",
     "clean": "rm -r -f ./dist",
     "pretest": "mkdir -p data",
     "test": "ts-mocha -p test.tsconfig.json src/**/*.spec.ts"
