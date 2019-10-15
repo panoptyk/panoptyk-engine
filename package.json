@@ -2,30 +2,21 @@
   "name": "panoptyk-engine",
   "version": "0.2.0",
   "description": "",
-  "main": "build/core/panoptykClientAPI.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "prestart": "tsc -b src/tsproject.json",
-    "start": "node build/server/exampleServer.js",
-    "prepare": "npm run build:all",
-    "server": "ts-node --project src/tsconfig.settings.json src/server/exampleServer.ts",
-    "build:all": "tsc -b src/tsproject.json",
-    "build:core": "tsc -b ./src/core",
-    "build:server": "tsc -b ./src/server",
-    "build:client": "tsc -b ./src/client",
-    "webpack:client": "webpack --config client.webpack.js -p --progress --mode production",
-    "test:all": "ts-mocha -p src/tsconfig.settings.json src/**/*.spec.ts",
-    "test:core": "ts-mocha -p src/tsconfig.settings.json src/core/**/*.spec.ts",
-    "test:server": "ts-mocha -p src/tsconfig.settings.json src/server/**/*.spec.ts",
-    "test:client": "ts-mocha -p src/tsconfig.settings.json src/client/**/*.spec.ts",
-    "watch": "",
-    "ts-node": "ts-node"
+    "prepare": "npm run build",
+    "build": "npm run clean && rollup -c",
+    "clean": "rm -r -f ./dist",
+    "pretest": "mkdir -p data",
+    "test": "ts-mocha -p test.tsconfig.json src/**/*.spec.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/panoptyk/panoptyk-engine.git"
   },
   "author": "",
-  "license": "",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/panoptyk/panoptyk-engine/issues"
   },
@@ -38,24 +29,17 @@
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.32",
     "chai": "^4.2.0",
-    "copy-webpack-plugin": "^5.0.4",
-    "expose-loader": "^0.7.5",
-    "html-webpack-plugin": "^3.2.0",
     "mocha": "^6.1.4",
-    "ts-loader": "^6.0.4",
+    "rollup": "^1.23.1",
+    "rollup-plugin-typescript2": "^0.24.3",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^4.39.2",
-    "webpack-cli": "^3.3.6",
-    "webpack-obfuscator": "^0.18.3"
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "phaser-ce": "^2.13.2",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0"
+    "socket.io-client": "^2.3.0"
   }
 }
