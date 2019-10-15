@@ -4,6 +4,12 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "dist/"
+  ],
   "scripts": {
     "prepare": "npm run build",
     "build": "npm run clean && rollup -c",
