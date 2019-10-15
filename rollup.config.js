@@ -6,8 +6,9 @@ export default {
   output: [
     {
       file: pkg.main,
+      name: "panoptyk",
       output: "./dist",
-      format: "esm"
+      format: "umd"
     }
   ],
   external: [
