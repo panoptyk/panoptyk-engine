@@ -13,6 +13,7 @@ pids
 
 # TS build folder
 build/**/*
+dist/**/*
 **/*.tsbuildinfo
 
 # Panoptyk specific
