@@ -1,6 +1,0 @@
-{
-    "assets": {
-        "player_spritesheet": {"type": "spritesheet", "source": "sprites/player_spritesheet.png"}
-        
-    }
-}
