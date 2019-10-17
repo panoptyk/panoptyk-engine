@@ -3,19 +3,23 @@ import { IDObject } from "./idObject";
 
 export class Info extends IDObject {
 
-  private action?: number;
-  private predicate?: string;
-  private owner?: number;
-  private time: number;
-  private query = false;
-  private location?: number;
-  private agent?: number;
-  private agent2?: number;
-  private item?: number;
-  private quantity?: number;
-  private faction?: number;
-  private reference = false;
-  private infoID?: number;
+  public action?: number;
+  public predicate?: string;
+  private _owner?: number;
+  public get owner(): Agent {
+    return Agent.getByID(this._owner);
+  }
+  public time: number;
+  public query = false;
+  public location?: number;
+  public agent?: number;
+  public agent2?: number;
+  public item?: number;
+  public quantity?: number;
+  public faction?: number;
+  public reference = false;
+  public infoID?: number;
+  public questionID?: number;
 
   /**
    * Info model.
@@ -36,7 +40,7 @@ export class Info extends IDObject {
    */
   constructor(owner: Agent, time, infoID?, id?) {
     super(Info.name, id);
-    this.owner = owner ? owner.id : undefined;
+    this._owner = owner ? owner.id : undefined;
     this.time = time;
     this.infoID = infoID;
   }
@@ -47,9 +51,35 @@ export class Info extends IDObject {
    * @param {number} time - Time information was copied
    */
   makeCopy(owner: Agent, time) {
-    const i = new Info(owner, time, this.reference ? this.infoID : this.id);
+    const i = new Info(owner, time);
+    for (const key in Object.getOwnPropertyNames(this)) {
+      i[key] = this[key];
+    }
+    i.infoID = this.reference ? this.infoID : this.id;
     i.reference = true;
     return i;
+  }
+
+  makeTradeCopy(owner: Agent, time, relatedQuestion: Info) {
+    const i = new Info(owner, time, this.reference ? this.infoID : this.id);
+    i.reference = true;
+    i.questionID = relatedQuestion.id;
+    return i;
+  }
+
+  /**
+   * Completes transfer of trade information to new owner
+   * @param newOwner agent to transfer information to
+   */
+  completeTradeCopy(newOwner: Agent) {
+    const answer = Info.getByID(this.infoID);
+    for (const key in answer) {
+      this[key] = answer[key];
+    }
+    this._owner = newOwner.id;
+    this.infoID = answer.reference ? answer.infoID : answer.id;
+    this.reference = true;
+    this.questionID = 0;
   }
 
   /**
@@ -62,11 +92,12 @@ export class Info extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
+    return i;
   }
 
   /**
    * Sanatizes data to be serialized
-   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
   public serialize(removePrivateData = false): Info {

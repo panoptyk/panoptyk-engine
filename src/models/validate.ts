@@ -1,4 +1,4 @@
-import { Trade, Item, Room, Agent, Conversation } from "./index";
+import { Trade, Item, Room, Agent, Conversation, Info } from "./index";
 
 export interface ValidationResult {
   status: boolean;
@@ -396,6 +396,90 @@ export class Validate {
           message: "Agent " + agent.id + " is already in a conversation!"
         };
       }
+    }
+    return { status: true, message: "" };
+  }
+
+  public static validate_valid_question(actionType: string, predicate: object) {
+    const type = Info.ACTION[actionType];
+    if (type === undefined) {
+      return {
+        status: false,
+        message: "Error asking question, " + actionType + " is an invalid action!"
+      };
+    }
+    // TODO: Validate predicate
+    return {
+      status: true,
+      message: ""
+    };
+  }
+
+  public static validate_can_answer(agent: Agent, question: Info, conversation: Conversation) {
+    if (question === undefined || !question.query) {
+      return {
+        status: false,
+        message: "Not a valid question to answer!"
+      };
+    }
+    else if (!conversation.contains_agent(question.owner)) {
+      return {
+        status: false,
+        message: "Agent " + question.owner + " is not in your conversation!"
+      };
+    }
+    // TODO: validate that agent can answer question
+    return { status: true, message: "" };
+  }
+
+  public static validate_agent_owns_info(agent: Agent, info: Info) {
+    if (info.owner !== agent) {
+      return {
+        status: false,
+        message: "Cheater! You did not own this information."
+      };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if given answer is related to question
+   * @param question
+   * @param answer
+   */
+  public static validate_info_is_answer(question: Info, answer: Info) {
+    if (question.action !== answer.action) {
+      return {
+        status: false,
+        message: "Answer action does not match question action!"
+      };
+    }
+    // make sure answer has same known info as question
+    for (const key in question) {
+      if (key !== "query" && key !== "reference" && key !== "_owner") {
+        if (question[key] !== answer[key]) {
+          return {
+            status: false,
+            message: "Answer " + key + " does not match the " + key + " in the question!"
+          };
+        }
+      }
+    }
+    // make sure answer adds some unknown info
+    // TODO: change this to be based on predicate
+    let newInfo = 0;
+    for (const key in answer) {
+      if (key !== "query" && key !== "reference" && key !== "_owner") {
+        if (question[key] === undefined) {
+          newInfo += 1;
+        }
+      }
+    }
+    if (newInfo < 1) {
+      return {
+        status: false,
+        message: "Answer does not add any new info to question!"
+      };
     }
     return { status: true, message: "" };
   }
