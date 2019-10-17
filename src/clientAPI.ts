@@ -247,4 +247,29 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("drop-items", {itemIDs});
     return res;
   }
+
+  /**
+   *
+   * @param questionType
+   * @param predicate
+   */
+  public static async askQuestion(questionType: string, predicate: object) {
+    const res = await ClientAPI.sendWrapper("ask-question", {questionType, predicate});
+    return res;
+  }
+
+  public static async confirmKnowledgeOfAnswerToQuestion(question: Info) {
+    const res = await ClientAPI.sendWrapper("answer-question", {questionID: question.id});
+    return res;
+  }
+
+  public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info) {
+    const res = await ClientAPI.sendWrapper("offer-answer-trade", {tradeID: trade.id, answerID: answer.id, questionID: question.id});
+    return res;
+  }
+
+  public static async withdrawInfoTrade(trade: Trade, info: Info) {
+    const res = await ClientAPI.sendWrapper("withdraw-info-trade", {tradeID: trade.id, infoID: info.id});
+    return res;
+  }
 }

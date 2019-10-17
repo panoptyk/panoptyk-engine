@@ -453,6 +453,9 @@ export class Controller {
   public performTrade(trade: Trade) {
     logger.log("Ending trade " + trade.id, 2);
 
+    const tradedInfo: Info[] = [];
+    const generalInfo: Info[] = [];
+
     if (trade.itemsIni.length > 0) {
       this.removeItemsFromAgentInventory(trade.itemsIni);
       this.addItemsToAgentInventory(trade.agentRec, trade.itemsIni);
@@ -462,11 +465,27 @@ export class Controller {
       this.addItemsToAgentInventory(trade.agentIni, trade.itemsRec);
     }
 
+    // complete information trades
+    for (const info of trade.infoIni) {
+      info.completeTradeCopy(trade.agentRec);
+      generalInfo.push(Info.ACTION.TOLD.create(trade.agentIni,
+        { 0: util.getPanoptykDatetime(), 1: trade.agentIni.id,
+          2: trade.agentRec.id, 3: trade.agentIni.room.id, 4: info.id }));
+      tradedInfo.push(info);
+    }
+    for (const info of trade.infoRec) {
+      info.completeTradeCopy(trade.agentIni);
+      generalInfo.push(Info.ACTION.TOLD.create(trade.agentRec,
+        { 0: util.getPanoptykDatetime(), 1: trade.agentRec.id,
+          2: trade.agentIni.id, 3: trade.agentRec.room.id, 4: info.id }));
+      tradedInfo.push(info);
+    }
+
     trade.setStatus(1);
     trade.cleanup();
 
-    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
-    this.updateChanges(trade.agentRec, [trade, trade.agentRec]);
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni, tradedInfo]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentRec, tradedInfo]);
 
     // TODO: fix info given at end of trade
     // Info object prep
@@ -489,7 +508,9 @@ export class Controller {
     });
     info.owner = trade.agentIni;
 
-    this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
+    for (const info of generalInfo) {
+      this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
+    }
 
     logger.log("Successfully completed trade " + trade, 2);
   }
@@ -631,5 +652,50 @@ export class Controller {
       info.owner = agent;
       this.giveInfoToAgents(agent.room.getAgents(), info);
     }
+  }
+
+  public askQuestion(agent: Agent, questionType: string, predicate: object) {
+    const question: Info = Info.ACTION[questionType].create(agent, predicate);
+    question.query = true;
+
+    const conversation: Conversation = agent.conversation;
+    const relevantAgents = conversation.getAgents();
+    for (const other of conversation.getAgents(agent)) {
+      this.giveInfoToAgents(relevantAgents, Info.ACTION.ASK.create(agent, {0: util.getPanoptykDatetime(),
+        1: agent.id, 2: other.id, 3: conversation.room.id, 4: question.id}));
+    }
+    this.giveInfoToAgents(relevantAgents, question);
+  }
+
+  public answerQuestion(agent: Agent, question: Info, conversation: Conversation) {
+    while (question.reference) {
+      question = Info.getByID(question.infoID);
+    }
+    const responseInfo: Info = Info.ACTION.KNOW.create(agent, {0: util.getPanoptykDatetime(), 1: agent, 2: question.id});
+    const relevantAgents = conversation.getAgents();
+    this.giveInfoToAgents(relevantAgents, (Info.ACTION.TOLD.create(agent, {0: util.getPanoptykDatetime(),
+      1: agent.id, 2: question.owner, 3: conversation.room.id, 4: responseInfo.id})));
+    this.giveInfoToAgents(relevantAgents, responseInfo);
+  }
+
+  public addAnswerToTrade(trade: Trade, answer: Info, question: Info, owner: Agent) {
+    this.setTradeUnreadyIfReady(trade, trade.agentIni);
+    this.setTradeUnreadyIfReady(trade, trade.agentRec);
+
+    answer = answer.makeTradeCopy(owner, util.getPanoptykDatetime(), question);
+    trade.addInfo([answer], owner);
+
+    this.updateChanges(trade.agentIni, [trade, answer, question]);
+    this.updateChanges(trade.agentRec, [trade, answer, question]);
+  }
+
+  public removeInfoFromTrade(trade: Trade, info: Info, owner: Agent) {
+    this.setTradeUnreadyIfReady(trade, trade.agentIni);
+    this.setTradeUnreadyIfReady(trade, trade.agentRec);
+
+    trade.removeInfo([info], owner);
+
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
   }
 }

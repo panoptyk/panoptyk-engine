@@ -3,6 +3,7 @@ import { Item } from "./item";
 import { IDObject } from "./idObject";
 import { Conversation } from "./conversation";
 import { Agent } from "./agent";
+import { Info } from "./information";
 
 export class Trade extends IDObject {
   public static result = {
@@ -22,7 +23,9 @@ export class Trade extends IDObject {
     return this._resultStatus;
   }
   private initiatorItemIDs: Set<number>;
+  private initiatorInfoIDs: Set<number>;
   private receiverItemIDs: Set<number>;
+  private receiverInfoIDs: Set<number>;
   private initiatorStatus: boolean;
   private receiverStatus: boolean;
 
@@ -50,6 +53,8 @@ export class Trade extends IDObject {
 
     this.initiatorItemIDs = new Set<number>();
     this.receiverItemIDs = new Set<number>();
+    this.initiatorInfoIDs = new Set<number>();
+    this.receiverInfoIDs = new Set<number>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -84,6 +89,8 @@ public toString() {
     }
     t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
     t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
+    t.initiatorInfoIDs = new Set<number>(t.initiatorInfoIDs);
+    t.receiverInfoIDs = new Set<number>(t.receiverInfoIDs);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -97,6 +104,8 @@ public toString() {
     const safeTrade = Object.assign({}, this);
     (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
     (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
+    (safeTrade.initiatorInfoIDs as any) = Array.from(safeTrade.initiatorInfoIDs);
+    (safeTrade.receiverInfoIDs as any) = Array.from(safeTrade.receiverInfoIDs);
     return safeTrade;
   }
 
@@ -116,6 +125,27 @@ public toString() {
     }
     else {
       logger.log("No matching agent for trade item data.", 0, "trade.js");
+    }
+
+    return items;
+  }
+
+  /**
+   * Get info data for an agent in the trade.
+   * @param {Agent} agent - agent object.
+   * @returns [Item] array of agent's info involved in trade.
+   */
+  getAgentInfosData(agent: Agent) {
+    let items: Info[];
+
+    if (agent.id === this.initiatorID) {
+      items = Info.getByIDs(Array.from(this.initiatorInfoIDs));
+    }
+    else if (agent.id === this.receiverID) {
+      items = Info.getByIDs(Array.from(this.receiverInfoIDs));
+    }
+    else {
+      logger.log("No matching agent for trade info data.", 0, "trade.js");
     }
 
     return items;
@@ -183,6 +213,22 @@ public toString() {
   }
 
   /**
+   * Add info to one side of the trade.
+   * @param {[Object]} items - info to add to trade.
+   * @param {Agent} owner - agent object of agent adding the info.
+   */
+  addInfo(items: Info[], owner: Agent) {
+    if (owner.id === this.initiatorID) {
+      items.forEach(item => this.initiatorInfoIDs.add(item.id));
+    } else if (owner.id === this.receiverID) {
+      items.forEach(item => this.receiverInfoIDs.add(item.id));
+    } else {
+      logger.log("Agent not in trade", 0, "trade.js");
+      return;
+    }
+  }
+
+  /**
    * Remove items from one side of the trade.
    * @param {[Object]} items - items to remove from trade.
    * @param {Object} owner - agent object of agent removing the items.
@@ -197,6 +243,26 @@ public toString() {
       items.forEach(item => {
         this.receiverItemIDs.delete(item.id);
         item.inTransaction = false;
+      });
+    } else {
+      logger.log("Agent not in trade", 0, "trade.js");
+      return;
+    }
+  }
+
+  /**
+   * Remove info from one side of the trade.
+   * @param {[Object]} items - info to remove from trade.
+   * @param {Object} owner - agent object of agent removing the info.
+   */
+  removeInfo(items: Info[], owner: Agent) {
+    if (owner.id === this.initiatorID) {
+      items.forEach(item => {
+        this.initiatorInfoIDs.delete(item.id);
+      });
+    } else if (owner.id === this.receiverID) {
+      items.forEach(item => {
+        this.receiverInfoIDs.delete(item.id);
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
@@ -309,6 +375,14 @@ public toString() {
 
   get itemsRec(): Item[] {
     return Item.getByIDs(Array.from(this.receiverItemIDs));
+  }
+
+  get infoIni(): Info[] {
+    return Info.getByIDs(Array.from(this.initiatorInfoIDs));
+  }
+
+  get infoRec(): Info[] {
+    return Info.getByIDs(Array.from(this.receiverInfoIDs));
   }
 
   get conversation(): Conversation {

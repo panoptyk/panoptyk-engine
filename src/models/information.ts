@@ -231,11 +231,12 @@ export class Info extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
+    return i;
   }
 
   /**
    * Sanatizes data to be serialized
-   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
+   * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
   public serialize(removePrivateData = false): Info {
