@@ -635,10 +635,10 @@ export class Controller {
     while (question.reference) {
       question = Info.getByID(question.infoID);
     }
-    const responseInfo: Info = Info.ACTION.KNOW.create(agent, {0: util.getPanoptykDatetime(), 1: agent, 2: question.id});
+    const responseInfo: Info = Info.ACTION.KNOW.create(agent, {0: util.getPanoptykDatetime(), 1: agent.id, 2: question.id});
     const relevantAgents = conversation.getAgents();
     this.giveInfoToAgents(relevantAgents, (Info.ACTION.TOLD.create(agent, {0: util.getPanoptykDatetime(),
-      1: agent.id, 2: question.owner, 3: conversation.room.id, 4: responseInfo.id})));
+      1: agent.id, 2: question.owner.id, 3: conversation.room.id, 4: responseInfo.id})));
     this.giveInfoToAgents(relevantAgents, responseInfo);
   }
 

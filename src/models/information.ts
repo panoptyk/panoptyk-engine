@@ -55,7 +55,7 @@ export class Info extends IDObject {
     const orig: Info = this;
     for (const key in orig) {
       if (Object.getOwnPropertyDescriptor(orig, key) && Object.getOwnPropertyDescriptor(orig, key).writable) {
-        i[key] = orig [key];
+        i[key] = orig[key];
       }
     }
     i.infoID = this.reference ? this.infoID : this.id;
