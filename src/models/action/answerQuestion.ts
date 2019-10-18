@@ -18,6 +18,7 @@ export const ActionAnswerQuestion: Action = {
     question.query = true;
 
     controller.answerQuestion(agent, question, conversation);
+    logger.log("Event answer-question (" + question + ") for conversation " + conversation + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
