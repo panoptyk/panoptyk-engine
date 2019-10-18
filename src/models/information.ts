@@ -52,8 +52,11 @@ export class Info extends IDObject {
    */
   makeCopy(owner: Agent, time) {
     const i = new Info(owner, time);
-    for (const key in Object.getOwnPropertyNames(this)) {
-      i[key] = this[key];
+    const orig: Info = this;
+    for (const key in orig) {
+      if (Object.getOwnPropertyDescriptor(orig, key) && Object.getOwnPropertyDescriptor(orig, key).writable) {
+        i[key] = orig [key];
+      }
     }
     i.infoID = this.reference ? this.infoID : this.id;
     i.reference = true;
@@ -74,7 +77,9 @@ export class Info extends IDObject {
   completeTradeCopy(newOwner: Agent) {
     const answer = Info.getByID(this.infoID);
     for (const key in answer) {
-      this[key] = answer[key];
+      if (Object.getOwnPropertyDescriptor(answer, key) && Object.getOwnPropertyDescriptor(answer, key).writable) {
+        this[key] = answer[key];
+      }
     }
     this._owner = newOwner.id;
     this.infoID = answer.reference ? answer.infoID : answer.id;
