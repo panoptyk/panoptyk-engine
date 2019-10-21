@@ -39,7 +39,7 @@ export const ActionOfferAnswerTrade: Action = {
     if (!(res = Validate.validate_agent_owns_info(agent, answer)).status) {
         return res;
     }
-    if (!(res = Validate.validate_agent_owns_info(agent, question)).status) {
+    if (!(res = Validate.validate_info_is_answer(answer, question)).status) {
         return res;
     }
     return Validate.successMsg;
