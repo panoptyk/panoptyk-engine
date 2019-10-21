@@ -84,7 +84,6 @@ export class Info extends IDObject {
   }
   private _query = false;
   private _reference = false;
-
   private _action?: string;
   public get action(): string {
     if (this._reference) {
@@ -231,6 +230,7 @@ export class Info extends IDObject {
    */
   public makeCopy(owner: Agent, time: number): Info {
     const i = new Info(time, this._reference ? this._infoID : this.id);
+    i._query = this._query;
     i._owner = owner.id;
     i._reference = true;
     return i;
@@ -242,9 +242,7 @@ export class Info extends IDObject {
    * @param {number} time - Time information was copied
    */
   public makeMaskedCopy(owner: Agent, time: number, mask: Info): Info {
-    const i = new Info(time, this._reference ? this._infoID : this.id);
-    i._owner = owner.id;
-    i._reference = true;
+    const i = this.makeCopy(owner, time);
     i._maskID = mask.id;
     return i;
   }
