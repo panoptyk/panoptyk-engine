@@ -657,8 +657,8 @@ export class Controller {
     }
   }
 
-  public askQuestion(agent: Agent, questionType: string, predicate: object) {
-    const question: Info = Info.ACTIONS[questionType].createQuery(agent, predicate);
+  public askQuestion(agent: Agent, predicate: any) {
+    const question: Info = Info.ACTIONS[predicate.action].createQuery(agent, predicate);
 
     const conversation: Conversation = agent.conversation;
     const relevantAgents = conversation.getAgents();
@@ -669,9 +669,17 @@ export class Controller {
     this.giveInfoToAgents(relevantAgents, question);
   }
 
+  /**
+   * Agent tells all agents in conversation that it knows the answer to specified question
+   * @param agent
+   * @param question
+   * @param conversation
+   */
   public answerQuestion(agent: Agent, question: Info, conversation: Conversation) {
     const responseInfo: Info = Info.ACTIONS.KNOW.create({time: util.getPanoptykDatetime(), agent, info: question});
     const relevantAgents = conversation.getAgents();
+    this.giveInfoToAgents(relevantAgents, (Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(),
+      agent1: agent, agent2: question.owner, loc: conversation.room, info: responseInfo})));
     this.giveInfoToAgents(relevantAgents, responseInfo);
   }
 

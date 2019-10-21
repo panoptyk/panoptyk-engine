@@ -8,14 +8,13 @@ export const ActionAskQuestion: Action = {
   name: "ask-question",
   formats: [
     {
-      questionType: "string",
-      predicate: "object"
+      question: "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
 
-    controller.askQuestion(agent, inputData.questionType, inputData.predicate);
+    controller.askQuestion(agent, inputData.question);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -30,7 +29,7 @@ export const ActionAskQuestion: Action = {
     if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
         return res;
     }
-    if (!(res = Validate.validate_valid_question(inputData.questionType, inputData.predicate)).status) {
+    if (!(res = Validate.validate_valid_question(inputData.question)).status) {
         return res;
     }
     return Validate.successMsg;

@@ -400,12 +400,12 @@ export class Validate {
     return { status: true, message: "" };
   }
 
-  public static validate_valid_question(actionType: string, predicate: object) {
-    const type = Info.ACTION[actionType];
+  public static validate_valid_question(predicate: any) {
+    const type = Info.ACTIONS[predicate.action];
     if (type === undefined) {
       return {
         status: false,
-        message: "Error asking question, " + actionType + " is an invalid action!"
+        message: "Error asking question, " + predicate.action + " is an invalid action!"
       };
     }
     // TODO: Validate predicate
@@ -416,7 +416,7 @@ export class Validate {
   }
 
   public static validate_can_answer(agent: Agent, question: Info, conversation: Conversation) {
-    if (question === undefined || !question.query) {
+    if (question === undefined || !question.isQuery()) {
       return {
         status: false,
         message: "Not a valid question to answer!"
@@ -454,26 +454,23 @@ export class Validate {
         message: "Answer action does not match question action!"
       };
     }
+    const questionTerms = question.getTerms();
+    const answerTerms = answer.getTerms();
     // make sure answer has same known info as question
-    for (const key in question) {
-      if (key !== "query" && key !== "reference" && key !== "_owner") {
-        if (question[key] !== answer[key]) {
-          return {
-            status: false,
-            message: "Answer " + key + " does not match the " + key + " in the question!"
-          };
-        }
+    for (const key in questionTerms) {
+      if (questionTerms[key] !== answerTerms[key]) {
+        return {
+          status: false,
+          message: "Answer " + key + " does not match the " + key + " in the question!"
+        };
       }
     }
     // make sure answer adds some unknown info
-    // TODO: change this to be based on predicate
     let newInfo = 0;
-    for (const key in answer) {
-      if (key !== "query" && key !== "reference" && key !== "_owner") {
-        if (question[key] === undefined) {
+    for (const key in answerTerms) {
+        if (questionTerms[key] === undefined) {
           newInfo += 1;
         }
-      }
     }
     if (newInfo < 1) {
       return {

@@ -253,8 +253,8 @@ export class ClientAPI {
    * @param questionType
    * @param predicate
    */
-  public static async askQuestion(questionType: string, predicate: object) {
-    const res = await ClientAPI.sendWrapper("ask-question", {questionType, predicate});
+  public static async askQuestion(predicate: object) {
+    const res = await ClientAPI.sendWrapper("ask-question", {predicate});
     return res;
   }
 
