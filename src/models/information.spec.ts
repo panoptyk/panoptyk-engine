@@ -18,9 +18,9 @@ describe("Info Class", function() {
             const i2 = new Info(undefined, 10);
             const i3 = new Info(undefined, 10);
 
-            (i1 as any).owner = 3;
-            (i2 as any).owner = 4;
-            (i3 as any).owner = 5;
+            (i1 as any)._owner = 3;
+            (i2 as any)._owner = 4;
+            (i3 as any)._owner = 5;
 
             assert.exists(i1);
             assert.exists(i2);

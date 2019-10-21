@@ -1,10 +1,16 @@
 import { logger, LOG } from "../utilities/logger";
 import * as util from "../utilities/util";
-import { IDObject, Agent, Conversation, Trade, Room, Item, Info } from "../models/index";
-
+import {
+  IDObject,
+  Agent,
+  Conversation,
+  Trade,
+  Room,
+  Item,
+  Info
+} from "../models/index";
 
 export class Controller {
-
   private _updates: Map<Agent, Set<IDObject>>;
   public get updates(): Map<Agent, Set<IDObject>> {
     return this._updates;
@@ -13,7 +19,6 @@ export class Controller {
   constructor() {
     this._updates = new Map<Agent, Set<IDObject>>();
   }
-
 
   private updateChanges(agent: Agent, models: any[]) {
     let updates = new Set<IDObject>();
@@ -61,7 +66,6 @@ export class Controller {
    * @param {[Object]} items - list of items to give to agent.
    */
   public addItemsToAgentInventory(agent: Agent, items: Item[]) {
-
     if (agent === undefined) {
       logger.log("Cannot give items to undefined agent", 0);
       return;
@@ -73,8 +77,11 @@ export class Controller {
     }
 
     for (const item of items) {
-      if (item.room !== undefined || (item.agent !== undefined)) {
-        logger.log("Cannot give item to agent: Agent, item not available " + item, 0);
+      if (item.room !== undefined || item.agent !== undefined) {
+        logger.log(
+          "Cannot give item to agent: Agent, item not available " + item,
+          0
+        );
         return;
       }
     }
@@ -97,7 +104,6 @@ export class Controller {
    * @param {[Object]} info - list of info to give to agent.
    */
   public addInfoToAgentInventory(agent: Agent, info: Info[]) {
-
     if (agent === undefined) {
       logger.log("Cannot give info to undefined agent", 0);
       return;
@@ -120,7 +126,6 @@ export class Controller {
     this.updateChanges(agent, [addedInfo, agent]);
   }
 
-
   /**
    * Remove items from agent's inventory. Does validation.
    * @params {[Object]} items - list of items to remove from agent.
@@ -135,7 +140,10 @@ export class Controller {
 
     for (const item of items) {
       if (item.agent !== agent) {
-        logger.log("Cannot remove items from agent inventory, not all items from same agent", 0);
+        logger.log(
+          "Cannot remove items from agent inventory, not all items from same agent",
+          0
+        );
         return;
       }
     }
@@ -151,14 +159,17 @@ export class Controller {
     this.updateChanges(agent, [removedItems, agent]);
   }
 
-
   /**
    * Move agent to room. Remove agent from old room, add to new room. Does validation.
    * @param {Object} agent - agent object.
    * @param {Object} newRoom - new room to move agent to.
    */
   public moveAgentToRoom(agent: Agent, newRoom: Room) {
-    if (agent === undefined || newRoom === undefined || agent.room === undefined) {
+    if (
+      agent === undefined ||
+      newRoom === undefined ||
+      agent.room === undefined
+    ) {
       logger.log("Cannot move agent to room", 0);
       return;
     }
@@ -166,14 +177,16 @@ export class Controller {
     const oldRoom: Room = agent.room;
 
     if (!oldRoom.isConnectedTo(newRoom)) {
-      logger.log("Cannot move agent. " + oldRoom + " not adjacent to " + newRoom, 0);
+      logger.log(
+        "Cannot move agent. " + oldRoom + " not adjacent to " + newRoom,
+        0
+      );
       return;
     }
 
     this.removeAgentFromRoom(agent);
     this.addAgentToRoom(agent, newRoom);
   }
-
 
   /**
    * Fetches all agent data and adds it to room
@@ -183,7 +196,6 @@ export class Controller {
     this.updateChanges(agent, [agent.inventory, agent.knowledge]);
     this.addAgentToRoom(agent, agent.room);
   }
-
 
   /**
    * Add agent to a room. Does validation.
@@ -201,17 +213,23 @@ export class Controller {
 
     // agent.socket.join(newRoom.id); <- should we use this functionality?
 
-    this.updateChanges(agent, [newRoom, agent, newRoom.getAdjacentRooms(), newRoom.getAgents(), newRoom.getItems()]);
+    this.updateChanges(agent, [
+      newRoom,
+      agent,
+      newRoom.getAdjacentRooms(),
+      newRoom.getAgents(),
+      newRoom.getItems()
+    ]);
     newRoom.occupants.forEach(occupant => {
       this.updateChanges(occupant, [newRoom, agent]);
     });
 
     const time = util.getPanoptykDatetime();
-    const info = Info.ACTION.ENTER.create(agent, {0: time, 1: agent.id, 2: newRoom.id});
+    const info = Info.ACTIONS.ENTER.create({ time, agent, loc: newRoom });
+    info.owner = agent;
 
     this.giveInfoToAgents(newRoom.getAgents(), info);
   }
-
 
   /**
    * Remove agent from a room. Does validation.
@@ -227,7 +245,10 @@ export class Controller {
     const oldRoom = agent.room;
 
     if (oldRoom === undefined) {
-      logger.log("Cannot remove agent " + agent + " from room, agent is not in room.", 0);
+      logger.log(
+        "Cannot remove agent " + agent + " from room, agent is not in room.",
+        0
+      );
       return;
     }
 
@@ -235,8 +256,7 @@ export class Controller {
 
     if (logout) {
       agent.logout();
-    }
-    else {
+    } else {
       agent.removeFromRoom();
     }
     oldRoom.removeAgent(agent);
@@ -246,11 +266,11 @@ export class Controller {
     });
 
     const time = util.getPanoptykDatetime();
-    const info = Info.ACTION.DEPART.create(agent, {0: time, 1: agent.id, 2: oldRoom.id});
+    const info = Info.ACTIONS.DEPART.create({ time, agent, loc: oldRoom });
+    info.owner = agent;
 
     this.giveInfoToAgents(oldRoom.getAgents(), info);
   }
-
 
   /**
    * Add items to a room. Does validation.
@@ -266,7 +286,10 @@ export class Controller {
 
     for (const item of items) {
       if (item.room !== undefined || item.agent !== undefined) {
-        logger.log("Cannot add item " + item  + " to room. Item not available,", 0);
+        logger.log(
+          "Cannot add item " + item + " to room. Item not available,",
+          0
+        );
         return;
       }
     }
@@ -280,7 +303,6 @@ export class Controller {
       this.updateChanges(occupant, [room, items]);
     }
   }
-
 
   /**
    * Remove items from a room. Does validation.
@@ -297,7 +319,10 @@ export class Controller {
 
     for (const item of items) {
       if (item.room !== room) {
-        logger.log("Cannot remove items from room, not all items from same room", 0);
+        logger.log(
+          "Cannot remove items from room, not all items from same room",
+          0
+        );
         return;
       }
     }
@@ -312,7 +337,6 @@ export class Controller {
     }
   }
 
-
   /**
    * Add an agent to a conversation. Does validation.
    * @param {Object} conversation - conversation agent wants to join.
@@ -321,13 +345,15 @@ export class Controller {
   public addAgentToConversation(conversation: Conversation, agent: Agent) {
     this.removeAgentFromConversationIfIn(agent);
 
-    logger.log("Adding agent " + agent.agentName + " to conversation " + conversation.id, 2);
+    logger.log(
+      "Adding agent " + agent.agentName + " to conversation " + conversation.id,
+      2
+    );
     agent.joinConversation(conversation);
     conversation.add_agent(agent);
 
     this.updateChanges(agent, [conversation, agent]);
   }
-
 
   /**
    * Remove an agent from a conversation. Does validation.
@@ -335,7 +361,10 @@ export class Controller {
    * @param {Object} agent - agent object
    */
   public removeAgentFromConversation(conversation: Conversation, agent: Agent) {
-    logger.log("Removing agent " + agent + " from conversation " + conversation.id, 2);
+    logger.log(
+      "Removing agent " + agent + " from conversation " + conversation.id,
+      2
+    );
 
     this.endAllTradesWithAgent(agent);
 
@@ -348,12 +377,10 @@ export class Controller {
     const agents: Agent[] = conversation.getAgents();
     if (agents.length === 1) {
       this.removeAgentFromConversation(conversation, agents[0]);
-    }
-    else if (agents.length === 0) {
+    } else if (agents.length === 0) {
       conversation.room.removeConversation(conversation);
     }
   }
-
 
   /**
    * Remove agent from their conversation if they are in one. Otherwise do nothing.
@@ -364,7 +391,6 @@ export class Controller {
       this.removeAgentFromConversation(agent.conversation, agent);
     }
   }
-
 
   /**
    * Cancel all trades containing an agent.
@@ -379,7 +405,6 @@ export class Controller {
     }
   }
 
-
   /**
    * Create a trade and send request to appropriate agent.
    * 2param {Object} conversation - conversation object containing both agents.
@@ -387,13 +412,16 @@ export class Controller {
    * @param {Object} toAgent - agent object getting request.
    * @returns {Object} new trade object.
    */
-  public createTrade(conversation: Conversation, fromAgent: Agent, toAgent: Agent) {
+  public createTrade(
+    conversation: Conversation,
+    fromAgent: Agent,
+    toAgent: Agent
+  ) {
     const trade = new Trade(fromAgent, toAgent, conversation);
     this.updateChanges(toAgent, [trade]);
     this.updateChanges(fromAgent, [trade]);
     return trade;
   }
-
 
   /**
    * Accept a trade and send updates to both agents.
@@ -406,7 +434,6 @@ export class Controller {
     this.updateChanges(trade.agentRec, [trade]);
   }
 
-
   /**
    * Cancel a trade, send updates to agents, and close out trade.
    * @param {Object} trade - trade object.
@@ -417,7 +444,6 @@ export class Controller {
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
   }
-
 
   /**
    * Do the trade. Send updates to agents, move items, close out trade, and give observation
@@ -441,17 +467,19 @@ export class Controller {
 
     // complete information trades
     for (const info of trade.infoIni) {
-      info.completeTradeCopy(trade.agentRec);
-      generalInfo.push(Info.ACTION.TOLD.create(trade.agentIni,
-        { 0: util.getPanoptykDatetime(), 1: trade.agentIni.id,
-          2: trade.agentRec.id, 3: trade.agentIni.room.id, 4: info.id }));
+      info.removeMask();
+      info.owner = trade.agentRec;
+      generalInfo.push(Info.ACTIONS.TOLD.create(
+        { time: util.getPanoptykDatetime(), agent1: trade.agentIni,
+          agent2: trade.agentRec, loc: trade.agentIni.room, info }));
       tradedInfo.push(info);
     }
     for (const info of trade.infoRec) {
-      info.completeTradeCopy(trade.agentIni);
-      generalInfo.push(Info.ACTION.TOLD.create(trade.agentRec,
-        { 0: util.getPanoptykDatetime(), 1: trade.agentRec.id,
-          2: trade.agentIni.id, 3: trade.agentRec.room.id, 4: info.id }));
+      info.removeMask();
+      info.owner = trade.agentIni;
+      generalInfo.push(Info.ACTIONS.TOLD.create(
+        { time: util.getPanoptykDatetime(), agent1: trade.agentRec,
+          agent2: trade.agentIni, loc: trade.agentRec.room, info }));
       tradedInfo.push(info);
     }
 
@@ -474,7 +502,14 @@ export class Controller {
     }
 
     const time = util.getPanoptykDatetime();
-    generalInfo.push(Info.ACTION.CONVERSE.create(trade.agentIni, {0: time, 1: trade.agentIni.id, 2: trade.agentIni.id, 3: trade.conversation.room.id}));
+    const info = Info.ACTIONS.CONVERSE.create({
+      time,
+      agent1: trade.agentIni,
+      agent2: trade.agentRec,
+      loc: trade.conversation.room
+    });
+    info.owner = trade.agentIni;
+    generalInfo.push(info);
 
     for (const info of generalInfo) {
       this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
@@ -483,7 +518,6 @@ export class Controller {
     logger.log("Successfully completed trade " + trade, 2);
   }
 
-
   /**
    * Add items to a trade and send updates.
    * @param {Object} trade - trade object.
@@ -491,7 +525,7 @@ export class Controller {
    * @param {Object} ownerAgent - agent adding the items.
    */
   public addItemsToTrade(trade: Trade, items: Item[], ownerAgent: Agent) {
-    logger.log("Adding items to trade " + trade  + "...", 2);
+    logger.log("Adding items to trade " + trade + "...", 2);
 
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
@@ -504,7 +538,6 @@ export class Controller {
     logger.log("Successfully added items to trade " + trade, 2);
   }
 
-
   /**
    * Remove items from a trade and send updates.
    * @param {Object} trade - trade object.
@@ -512,7 +545,7 @@ export class Controller {
    * @param {Object} ownerAgent - agent removing the items.
    */
   public removeItemsFromTrade(trade: Trade, items: Item[], ownerAgent: Agent) {
-    logger.log("Removing items from trade " + trade.id  + "...", 2);
+    logger.log("Removing items from trade " + trade.id + "...", 2);
 
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
@@ -524,7 +557,6 @@ export class Controller {
 
     logger.log("Successfully removed items from trade " + trade.id, 2);
   }
-
 
   /**
    * Update agent trade ready status. If both agents are ready, trade will commence and end.
@@ -542,7 +574,6 @@ export class Controller {
     }
   }
 
-
   /**
    * Will turn an agent ready status to false if it is true.
    * @param {Object} trade - trade object.
@@ -551,8 +582,7 @@ export class Controller {
   public setTradeUnreadyIfReady(trade: Trade, agent: Agent) {
     if (trade.agentIni === agent && trade.statusIni) {
       this.setTradeAgentStatus(trade, agent, false);
-    }
-    else if (trade.agentRec === agent && trade.statusRec) {
+    } else if (trade.agentRec === agent && trade.statusRec) {
       this.setTradeAgentStatus(trade, agent, false);
     }
   }
@@ -563,22 +593,19 @@ export class Controller {
    * @param {Info} info - info Object.
    */
   public giveInfoToAgents(agents: Agent[], info: Info) {
-
     const time = util.getPanoptykDatetime();
 
     for (const agent of agents) {
       const cpy = info.makeCopy(agent, time);
       this.addInfoToAgentInventory(agent, [cpy]);
-      this.updateChanges(agent, [agent]);
+      this.updateChanges(agent, [info]);
     }
   }
-
 
   public requestConversation(agent: Agent, toAgent: Agent) {
     toAgent.conversationRequest(agent.id);
     this.updateChanges(toAgent, [toAgent]);
   }
-
 
   public createConversation(room: Room, agent: Agent, toAgent: Agent) {
     const conversation = new Conversation(room);
@@ -590,7 +617,6 @@ export class Controller {
     return conversation;
   }
 
-
   public pickUpItems(agent: Agent, items: Item[]) {
     this.removeAgentFromConversationIfIn(agent);
     this.removeItemsFromRoom(items, agent);
@@ -599,11 +625,17 @@ export class Controller {
     // inform other users agent has taken items
     const time = util.getPanoptykDatetime();
     for (const item of items) {
-      const info = Info.ACTION.PICKUP.create(agent, {0: time, 1: agent.id, 2: item.id, 3: agent.room.id, 4: 1});
+      const info = Info.ACTIONS.PICKUP.create({
+        time,
+        agent,
+        item,
+        loc: agent.room,
+        quantity: 1
+      });
+      info.owner = agent;
       this.giveInfoToAgents(agent.room.getAgents(), info);
     }
   }
-
 
   public dropItems(agent: Agent, items: Item[]) {
     const room = agent.room;
@@ -613,32 +645,33 @@ export class Controller {
     // inform other users agent has taken items
     const time = util.getPanoptykDatetime();
     for (const item of items) {
-      const info = Info.ACTION.DROP.create(agent, {0: time, 1: agent.id, 2: item.id, 3: agent.room.id, 4: 1});
+      const info = Info.ACTIONS.DROP.create({
+        time,
+        agent,
+        item,
+        loc: agent.room,
+        quantity: 1
+      });
+      info.owner = agent;
       this.giveInfoToAgents(agent.room.getAgents(), info);
     }
   }
 
   public askQuestion(agent: Agent, questionType: string, predicate: object) {
-    const question: Info = Info.ACTION[questionType].create(agent, predicate);
-    question.query = true;
+    const question: Info = Info.ACTIONS[questionType].createQuery(agent, predicate);
 
     const conversation: Conversation = agent.conversation;
     const relevantAgents = conversation.getAgents();
     for (const other of conversation.getAgents(agent)) {
-      this.giveInfoToAgents(relevantAgents, Info.ACTION.ASK.create(agent, {0: util.getPanoptykDatetime(),
-        1: agent.id, 2: other.id, 3: conversation.room.id, 4: question.id}));
+      this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
+        agent1: agent, agent2: other, loc: conversation.room, info: question}));
     }
     this.giveInfoToAgents(relevantAgents, question);
   }
 
   public answerQuestion(agent: Agent, question: Info, conversation: Conversation) {
-    while (question.reference) {
-      question = Info.getByID(question.infoID);
-    }
-    const responseInfo: Info = Info.ACTION.KNOW.create(agent, {0: util.getPanoptykDatetime(), 1: agent.id, 2: question.id});
+    const responseInfo: Info = Info.ACTIONS.KNOW.create({time: util.getPanoptykDatetime(), agent, info: question});
     const relevantAgents = conversation.getAgents();
-    this.giveInfoToAgents(relevantAgents, (Info.ACTION.TOLD.create(agent, {0: util.getPanoptykDatetime(),
-      1: agent.id, 2: question.owner.id, 3: conversation.room.id, 4: responseInfo.id})));
     this.giveInfoToAgents(relevantAgents, responseInfo);
   }
 
@@ -646,7 +679,7 @@ export class Controller {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
-    answer = answer.makeTradeCopy(owner, util.getPanoptykDatetime(), question);
+    answer = answer.makeMaskedCopy(owner, util.getPanoptykDatetime(), question);
     trade.addInfo([answer], owner);
 
     this.updateChanges(trade.agentIni, [trade, answer, question]);

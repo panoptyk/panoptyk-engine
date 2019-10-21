@@ -1,48 +1,227 @@
 import { Agent } from "./agent";
 import { IDObject } from "./idObject";
+import { Room } from "./room";
+import { Item } from "./item";
+
+export interface Ipredicate {
+  name: string;
+  create: (payload: object) => Info;
+  getTerms: (info: Info) => any;
+}
+
+export interface Iaction {
+  name: string;
+  predicate: string;
+  create: (payload: object) => Info;
+  createQuery: (payload: object) => object;
+  question: (payload: object) => object;
+  getTerms: (info: Info) => any;
+}
+
+export interface TAL {
+  time: number;
+  agent: Agent;
+  loc: Room;
+}
+
+export interface TAF {
+  time: number;
+  agent: Agent;
+  faction: number;
+}
+
+export interface TAA {
+  time: number;
+  agent1: Agent;
+  agent2: Agent;
+}
+
+export interface TAK {
+  time: number;
+  agent: Agent;
+  info: Info;
+}
+
+export interface TAAL {
+  time: number;
+  agent1: Agent;
+  agent2: Agent;
+  loc: Room;
+}
+
+export interface TAALK {
+  time: number;
+  agent1: Agent;
+  agent2: Agent;
+  loc: Room;
+  info: Info;
+}
+
+export interface TAILQ {
+  time: number;
+  agent: Agent;
+  item: Item;
+  loc: Room;
+  quantity: number;
+}
+
+export interface TAAILQ {
+  time: number;
+  agent1: Agent;
+  agent2: Agent;
+  item: Item;
+  loc: Room;
+  quantity: number;
+}
 
 export class Info extends IDObject {
+  private _time: number;
+  public get time(): number {
+    return this._time;
+  }
+  public set time(value: number) {
+    this._time = value;
+  }
+  private _query = false;
+  private _reference = false;
 
-  public action?: number;
-  public predicate?: string;
+  private _action?: string;
+  public get action(): string {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._action;
+      }
+      return Info.getByID(this._infoID)._action;
+    }
+    return this._action;
+  }
+  public set action(value: string) {
+    this._action = value;
+  }
+  private _predicate?: string;
+  public get predicate(): string {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._predicate;
+      }
+      return Info.getByID(this._infoID)._predicate;
+    }
+    return this._predicate;
+  }
+  public set predicate(value: string) {
+    this._predicate = value;
+  }
   private _owner?: number;
   public get owner(): Agent {
     return Agent.getByID(this._owner);
   }
-  public time: number;
-  public query = false;
-  public location?: number;
-  public agent?: number;
-  public agent2?: number;
-  public item?: number;
-  public quantity?: number;
-  public faction?: number;
-  public reference = false;
-  public infoID?: number;
-  public questionID?: number;
+  public set owner(value: Agent) {
+    this._owner = value.id;
+  }
+  private _location: number[] = [];
+  public get locations(): number[] {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._location;
+      }
+      return Info.getByID(this._infoID)._location;
+    }
+    return this._location;
+  }
+  private _agent: number[] = [];
+  public get agents(): number[] {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._agent;
+      }
+      return Info.getByID(this._infoID)._agent;
+    }
+    return this._agent;
+  }
+  private _item: number[] = [];
+  public get items(): number[] {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._item;
+      }
+      return Info.getByID(this._infoID)._item;
+    }
+    return this._item;
+  }
+  private _quantity: number[] = [];
+  public get quantities(): number[] {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._quantity;
+      }
+      return Info.getByID(this._infoID)._quantity;
+    }
+    return this._quantity;
+  }
+  private _faction: number[] = [];
+  public get factions(): number[] {
+    if (this._reference) {
+      if (this._maskID !== 0) {
+        return Info.getByID(this._maskID)._faction;
+      }
+      return Info.getByID(this._infoID)._faction;
+    }
+    return this._faction;
+  }
+  private _infoID?: number;
+  public get infoID(): number {
+    return this._infoID;
+  }
+  public set infoID(value: number) {
+    this._infoID = value;
+  }
+  private _maskID = 0;
 
   /**
    * Info model.
-   * @param {number} id - id of item. If undefined, one will be assigned
-   * @param {number} action - action occured as number code
-   * @param {String} predicate - predicate contents see Info.PREDICATE Enum
    * @param {Agent} owner - Agent who owns this info
-   * @param {number} time - Time information/event happened (possible predicate)
-   * @param {bool} query - is this info just a query?
-   * @param {number} location - possible predicate of location event occured at
-   * @param {number} agent - possible predicate about agent
-   * @param {number} agent2 - possible predicate about another agent
-   * @param {number} item - possible predicate of a tangible item type
-   * @param {number} quantity - possible predicate about quantity of tangible item
-   * @param {number} faction - possible predicate about faction group
-   * @param {bool} reference - whether this is just a copy of info owned by another agent
+   * @param {number} time - Time information/event happened (possible predicate term)
    * @param {number} infoID - possible predicate pointing to other info needed
+   * @param {number} id - id of item. If undefined, one will be assigned
    */
-  constructor(owner: Agent, time, infoID?, id?) {
+  constructor(time: number, infoID?: number, id?: number) {
     super(Info.name, id);
-    this._owner = owner ? owner.id : undefined;
-    this.time = time;
-    this.infoID = infoID;
+    this._time = time;
+    this._infoID = infoID;
+  }
+
+  /**
+   * Is this a piece of query information as part of an ASK or other action
+   * @returns {boolean} True if information is a query
+   */
+  public isQuery(): boolean {
+    return this._query;
+  }
+
+  /**
+   * creates formatted question data from a query info object
+   */
+  public toQuestion() {
+    if (!this._query) {
+      return undefined;
+    }
+    const a: Iaction = Info.ACTIONS[this.action];
+    return a.question(a.getTerms(this));
+  }
+
+  /**
+   * Is this a reference to a master copy of information
+   * @returns {boolean} is a reference owned by an agent of a master-copy information
+   */
+  public isReference(): boolean {
+    return this._reference;
+  }
+
+  /** This is the master copy of a piece of info.
+   *  It is referenced by other Information objects for each agent who owns this info.
+   */
+  public isMaster(): boolean {
+    return !this._reference;
   }
 
   /**
@@ -50,41 +229,39 @@ export class Info extends IDObject {
    * @param {Agent} owner - Agent who owns this info
    * @param {number} time - Time information was copied
    */
-  makeCopy(owner: Agent, time) {
-    const i = new Info(owner, time);
-    const orig: Info = this;
-    for (const key in orig) {
-      if (Object.getOwnPropertyDescriptor(orig, key) && Object.getOwnPropertyDescriptor(orig, key).writable) {
-        i[key] = orig[key];
-      }
-    }
-    i.infoID = this.reference ? this.infoID : this.id;
-    i.reference = true;
-    return i;
-  }
-
-  makeTradeCopy(owner: Agent, time, relatedQuestion: Info) {
-    const i = new Info(owner, time, this.reference ? this.infoID : this.id);
-    i.reference = true;
-    i.questionID = relatedQuestion.id;
+  public makeCopy(owner: Agent, time: number): Info {
+    const i = new Info(time, this._reference ? this._infoID : this.id);
+    i._owner = owner.id;
+    i._reference = true;
     return i;
   }
 
   /**
-   * Completes transfer of trade information to new owner
-   * @param newOwner agent to transfer information to
+   * Creates a new copy that is masked by another info item
+   * @param {Agent} owner - Agent who owns this info
+   * @param {number} time - Time information was copied
    */
-  completeTradeCopy(newOwner: Agent) {
-    const answer = Info.getByID(this.infoID);
-    for (const key in answer) {
-      if (Object.getOwnPropertyDescriptor(answer, key) && Object.getOwnPropertyDescriptor(answer, key).writable) {
-        this[key] = answer[key];
-      }
-    }
-    this._owner = newOwner.id;
-    this.infoID = answer.reference ? answer.infoID : answer.id;
-    this.reference = true;
-    this.questionID = 0;
+  public makeMaskedCopy(owner: Agent, time: number, mask: Info): Info {
+    const i = new Info(time, this._reference ? this._infoID : this.id);
+    i._owner = owner.id;
+    i._reference = true;
+    i._maskID = mask.id;
+    return i;
+  }
+
+  /**
+   * Removes mask so that referenced item is accessed instead.
+   * WARNING: The original copy must still be sent to the client.
+   */
+  public removeMask() {
+    this._maskID = 0;
+  }
+
+  /**
+   * Retrieve relevant terms from this information object
+   */
+  public getTerms() {
+    return Info.ACTIONS[this.action].getTerms(this);
   }
 
   /**
@@ -93,7 +270,7 @@ export class Info extends IDObject {
    */
   static load(json: Info) {
     let i = Info.objects[json.id];
-    i = i ? i : new Info(undefined, json.time, json.infoID, json.id);
+    i = i ? i : new Info(json.time, json._infoID, json.id);
     for (const key in json) {
       i[key] = json[key];
     }
@@ -106,343 +283,589 @@ export class Info extends IDObject {
    *  may not be privy to.
    */
   public serialize(removePrivateData = false): Info {
-    const safeAgent = Object.assign({}, this);
-    return safeAgent;
+    const safeObj = Object.assign({}, this);
+    // Cleaning empty arrays
+    for (const key in safeObj) {
+      const val = safeObj[key];
+      if (Array.isArray(val) && val.length === 0) {
+        safeObj[key] = undefined;
+      }
+    }
+
+    return safeObj;
   }
+
+  // public static addPredicate(Ipredicate) TODO
 
   // Predicate types
   static PREDICATE = {
     TAL: {
       name: "TAL", // predicate(Time, Agent, Location)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Location}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Location)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAL.name;
+      create({ time, agent, loc }: TAL): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent ? agent.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
 
-        i.agent = v[1];
-        i.location = v[2];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAL {
+        return {
+          time: info.time,
+          agent: Agent.getByID(info.agents[0]),
+          loc: Room.getByID(info.locations[0])
+        };
       }
     },
     TAF: {
       name: "TAF", // predicate(Time, Agent, Faction)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Faction}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Faction)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAF.name;
+      create({ time, agent, faction }: TAF): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent ? agent.id : undefined;
+        i._faction[0] = faction;
 
-        i.agent = v[1];
-        i.faction = v[2];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param {info} i information in question
+       */
+      getTerms(info: Info): TAF {
+        return {
+          time: info.time,
+          agent: Agent.getByID(info.agents[0]),
+          faction: info.factions[0]
+        };
       }
     },
     TAA: {
       name: "TAA", // predicate(Time, Agent, Agent)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Agent)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAA.name;
+      create({ time, agent1, agent2 }: TAA): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
 
-        i.agent = v[1];
-        i.agent2 = v[2];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAA {
+        return {
+          time: info.time,
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1])
+        };
       }
     },
     TAK: {
       name: "TAK", // predicate(Time, Agent, Info-ID)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Info-ID}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Info-ID)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAK.name;
+      create({ time, agent, info }: TAK): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent ? agent.id : undefined;
+        i._infoID = info.isReference() ? info.infoID : info.id;
 
-        i.agent = v[1];
-        i.infoID = v[2];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAK {
+        return {
+          time: info.time,
+          agent: Agent.getByID(info.agents[0]),
+          info: Info.getByID(info.infoID)
+        };
       }
     },
     TAAL: {
       name: "TAAL", // predicate(Time, Agent, Agent, Location)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Agent, Location)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAAL.name;
+      create({ time, agent1, agent2, loc }: TAAL): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
 
-        i.agent = v[1];
-        i.agent2 = v[2];
-        i.location = v[3];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAAL {
+        return {
+          time: info.time,
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1]),
+          loc: Room.getByID(info.locations[0])
+        };
       }
     },
     TAALK: {
       name: "TAALK", // predicate(Time, Agent, Agent, Location, Info-ID)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location, 4: Info-ID}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Agent, Location, Info-ID)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAALK.name;
+      create({ time, agent1, agent2, loc, info }: TAALK): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._infoID = info.isReference() ? info.infoID : info.id;
 
-        i.agent = v[1];
-        i.agent2 = v[2];
-        i.location = v[3];
-        i.infoID = v[4];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAALK {
+        return {
+          time: info.time,
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1]),
+          loc: Room.getByID(info.locations[0]),
+          info: Info.getByID(info.infoID)
+        };
       }
     },
     TAILQ: {
       name: "TAILQ", // predicate(Time, Agent, Tangible-Item, Location, Quantity)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Tangible-Item, 3: Location, 4: Quantity}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Tangible-Item, Location, Quantity)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAILQ.name;
+      create({ time, agent, item, loc, quantity }: TAILQ): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent ? agent.id : undefined;
+        i._item[0] = item ? item.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._quantity[0] = quantity;
 
-        i.agent = v[1];
-        i.item = v[2];
-        i.location = v[3];
-        i.quantity = v[4];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAILQ {
+        return {
+          time: info.time,
+          agent: Agent.getByID(info.agents[0]),
+          item: Item.getByID(info.items[0]),
+          loc: Room.getByID(info.locations[0]),
+          quantity: info.quantities[0]
+        };
       }
     },
     TAAILQ: {
       name: "TAAILQ", // predicate(Time, Agent, Agent, Tangible-Item, Location, Quantity)
       /**
-       * Creates an action that uses this predicate formate
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Tangible-Item, 4: Location, 5: Quantity}
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Agent, Tangible-Item, Location, Quantity)
        */
-      create(owner, v) {
-        const i = new Info(owner, v[0]);
-        i.predicate = Info.PREDICATE.TAA.name;
+      create({ time, agent1, agent2, item, loc, quantity }: TAAILQ): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAL.name;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
+        i._item[0] = item ? item.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._quantity[0] = quantity;
 
-        i.agent = v[1];
-        i.agent2 = v[2];
-        i.item = v[3];
-        i.location = v[4];
-        i.quantity = v[5];
         return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TAAILQ {
+        return {
+          time: info.time,
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1]),
+          item: Item.getByID(info.items[0]),
+          loc: Room.getByID(info.locations[0]),
+          quantity: info.quantities[0]
+        };
       }
     }
   };
 
   // All possible actions
-  static ACTION = {
-    WHAT: { code: 0, name: "WHAT", create: undefined },
+  static ACTIONS = {
     ENTER: {
-      code: 1,
       name: "ENTER",
+      predicate: Info.PREDICATE.TAL.name,
       /**
-       * Creates an ENTER action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Location}
+       * Creates an action that uses this predicate format
+       *   ENTER(Time, Agent, Location)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAL.create(owner, v);
-        i.action = Info.ACTION.ENTER.code;
+      create(args: TAL): Info {
+        const i = Info.PREDICATE.TAL.create(args);
+        i._action = Info.ACTIONS.ENTER.name;
         return i;
+      },
+      createQuery(args: TAL): Info {
+        const i = Info.ACTIONS.ENTER.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent, time, loc }: TAL): { action: string } & TAL {
+        return {
+          action: Info.ACTIONS.ENTER.name,
+          agent,
+          time,
+          loc
+        };
+      },
+      getTerms(info: Info): { action: string } & TAL {
+        const terms: any = Info.PREDICATE.TAL.getTerms(info);
+        terms.action = Info.ACTIONS.ENTER.name;
+        return terms;
       }
     },
     DEPART: {
-      code: 2,
       name: "DEPART",
+      predicate: Info.PREDICATE.TAL.name,
       /**
-       * Creates a DEPART action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Location}
+       * Creates an action that uses this predicate format
+       *   DEPART(Time, Agent, Location)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAL.create(owner, v);
-        i.action = Info.ACTION.DEPART.code;
+      create(args: TAL): Info {
+        const i = Info.PREDICATE.TAL.create(args);
+        i._action = Info.ACTIONS.DEPART.name;
         return i;
+      },
+      createQuery(args: TAL): Info {
+        const i = Info.ACTIONS.DEPART.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent, time, loc }: TAL): { action: string } & TAL {
+        return {
+          action: Info.ACTIONS.DEPART.name,
+          agent,
+          time,
+          loc
+        };
+      },
+      getTerms(info: Info): { action: string } & TAL {
+        const terms: any = Info.PREDICATE.TAL.getTerms(info);
+        terms.action = Info.ACTIONS.DEPART.name;
+        return terms;
       }
     },
     PICKUP: {
-      code: 3,
       name: "PICKUP",
+      predicate: Info.PREDICATE.TAILQ.name,
       /**
-       * Creates a PICKUP action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Tangible-Item, 3: Location, 4: Quantity}
+       * Creates an action that uses this predicate format
+       *   PICKUP(Time, Agent, Tangible-Item, Location, Quantity)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAILQ.create(owner, v);
-        i.action = Info.ACTION.PICKUP.code;
+      create(args: TAILQ): Info {
+        const i = Info.PREDICATE.TAILQ.create(args);
+        i._action = Info.ACTIONS.PICKUP.name;
         return i;
+      },
+      createQuery(args: TAILQ): Info {
+        const i = Info.ACTIONS.PICKUP.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        time,
+        agent,
+        item,
+        loc,
+        quantity
+      }: TAILQ): { action: string } & TAILQ {
+        return {
+          action: Info.ACTIONS.PICKUP.name,
+          time,
+          agent,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TAILQ {
+        const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
+        terms.action = Info.ACTIONS.PICKUP.name;
+        return terms;
       }
     },
     DROP: {
-      code: 4,
       name: "DROP",
+      predicate: Info.PREDICATE.TAILQ.name,
       /**
-       * Creates a DROP action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Tangible-Item, 3: Location, 4: Quantity}
+       * Creates an action that uses this predicate format
+       *   DROP(Time, Agent, Tangible-Item, Location, Quantity)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAILQ.create(owner, v);
-        i.action = Info.ACTION.DROP.code;
+      create(args: TAILQ): Info {
+        const i = Info.PREDICATE.TAILQ.create(args);
+        i._action = Info.ACTIONS.DROP.name;
         return i;
+      },
+      createQuery(args: TAILQ): Info {
+        const i = Info.ACTIONS.DROP.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        time,
+        agent,
+        item,
+        loc,
+        quantity
+      }: TAILQ): { action: string } & TAILQ {
+        return {
+          action: Info.ACTIONS.DROP.name,
+          time,
+          agent,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TAILQ {
+        const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
+        terms.action = Info.ACTIONS.DROP.name;
+        return terms;
       }
     },
     KNOW: {
-      code: 5,
       name: "KNOW",
+      predicate: Info.PREDICATE.TAK.name,
       /**
-       * Creates a KNOW action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Info-ID}
+       * Creates an action that uses this predicate format
+       *   KNOW(Time, Agent, Info-ID)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAK.create(owner, v);
-        i.action = Info.ACTION.KNOW.code;
+      create(args: TAK): Info {
+        const i = Info.PREDICATE.TAK.create(args);
+        i._action = Info.ACTIONS.KNOW.name;
         return i;
-      }
-    },
-    STEAL: {
-      code: 6,
-      name: "STEAL",
+      },
+      createQuery(args: TAK): Info {
+        const i = Info.ACTIONS.KNOW.create(args);
+        i._query = true;
+        return i;
+      },
       /**
-       * Creates a STEAL action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Tangible-Item, 4: Location, 5: Quantity}
+       * create a question object for sending. Untracked/unsaved
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAAILQ.create(owner, v);
-        i.action = Info.ACTION.STEAL.code;
-        return i;
-      }
-    },
-    KILL: {
-      code: 7,
-      name: "KILL",
-      /**
-       * Creates a KILL action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location}
-       */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAAL.create(owner, v);
-        i.action = Info.ACTION.KILL.code;
-        return i;
-      }
-    },
-    WORKSFOR: {
-      code: 8,
-      name: "WORKSFOR",
-      /**
-       * Creates a WORKSFOR action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Faction}
-       */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAF.create(owner, v);
-        i.action = Info.ACTION.WORKSFOR.code;
-        return i;
-      }
-    },
-    BOSSOF: {
-      code: 9,
-      name: "BOSSOF",
-      /**
-       * Creates a BOSSOF action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent}
-       */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAA.create(owner, v);
-        i.action = Info.ACTION.BOSSOF.code;
-        return i;
+      question({ agent, time, info }: TAK): { action: string } & TAK {
+        return {
+          action: Info.ACTIONS.KNOW.name,
+          agent,
+          time,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAK {
+        const terms: any = Info.PREDICATE.TAK.getTerms(info);
+        terms.action = Info.ACTIONS.KNOW.name;
+        return terms;
       }
     },
     CONVERSE: {
-      code: 10,
       name: "CONVERSE",
+      predicate: Info.PREDICATE.TAAL.name,
       /**
-       * Creates a CONVERSE action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location}
+       * Creates an action that uses this predicate format
+       *   CONVERSE(Time, Agent, Agent, Location)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAAL.create(owner, v);
-        i.action = Info.ACTION.CONVERSE.code;
+      create(args: TAAL): Info {
+        const i = Info.PREDICATE.TAAL.create(args);
+        i._action = Info.ACTIONS.CONVERSE.name;
         return i;
+      },
+      createQuery(args: TAAL): Info {
+        const i = Info.ACTIONS.CONVERSE.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent1, agent2, time, loc }: TAAL): { action: string } & TAAL {
+        return {
+          action: Info.ACTIONS.CONVERSE.name,
+          agent1,
+          agent2,
+          time,
+          loc
+        };
+      },
+      getTerms(info: Info): { action: string } & TAAL {
+        const terms: any = Info.PREDICATE.TAAL.getTerms(info);
+        terms.action = Info.ACTIONS.CONVERSE.name;
+        return terms;
       }
     },
     GREET: {
-      code: 11,
       name: "GREET",
+      predicate: Info.PREDICATE.TAAL.name,
       /**
-       * Creates a GREET action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location}
+       * Creates an action that uses this predicate format
+       *   GREET(Time, Agent, Agent, Location)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAAL.create(owner, v);
-        i.action = Info.ACTION.GREET.code;
+      create(args: TAAL): Info {
+        const i = Info.PREDICATE.TAAL.create(args);
+        i._action = Info.ACTIONS.GREET.name;
         return i;
+      },
+      createQuery(args: TAAL): Info {
+        const i = Info.ACTIONS.GREET.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent1, agent2, time, loc }: TAAL): { action: string } & TAAL {
+        return {
+          action: Info.ACTIONS.GREET.name,
+          agent1,
+          agent2,
+          time,
+          loc
+        };
+      },
+      getTerms(info: Info): { action: string } & TAAL {
+        const terms: any = Info.PREDICATE.TAAL.getTerms(info);
+        terms.action = Info.ACTIONS.GREET.name;
+        return terms;
       }
     },
     ASK: {
-      code: 12,
       name: "ASK",
+      predicate: Info.PREDICATE.TAALK.name,
       /**
-       * Creates a ASK action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location, 4: Info-ID}
+       * Creates an action that uses this predicate format
+       *   ASK(Time, Agent, Agent, Location, Info-ID)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAALK.create(owner, v);
-        i.action = Info.ACTION.ASK.code;
+      create(args: TAALK): Info {
+        const i = Info.PREDICATE.TAALK.create(args);
+        i._action = Info.ACTIONS.ASK.name;
         return i;
+      },
+      createQuery(args: TAALK): Info {
+        const i = Info.ACTIONS.ASK.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time,
+        loc,
+        info
+      }: TAALK): { action: string } & TAALK {
+        return {
+          action: Info.ACTIONS.ASK.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAALK {
+        const terms: any = Info.PREDICATE.TAALK.getTerms(info);
+        terms.action = Info.ACTIONS.ASK.name;
+        return terms;
       }
     },
     TOLD: {
-      code: 13,
       name: "TOLD",
+      predicate: Info.PREDICATE.TAALK.name,
       /**
-       * Creates a TOLD action that uses this predicate format
-       * @param {*} owner - agent who owns this info
-       * @param {*} v - object of predicate variables: {0: Time, 1: Agent, 2: Agent, 3: Location, 4: Info-ID}
+       * Creates an action that uses this predicate format
+       *   TOLD(Time, Agent, Agent, Location, Info-ID)
        */
-      create(owner, v) {
-        const i = Info.PREDICATE.TAALK.create(owner, v);
-        i.action = Info.ACTION.TOLD.code;
+      create(args: TAALK): Info {
+        const i = Info.PREDICATE.TAALK.create(args);
+        i._action = Info.ACTIONS.TOLD.name;
         return i;
+      },
+      createQuery(args: TAALK): Info {
+        const i = Info.ACTIONS.TOLD.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time,
+        loc,
+        info
+      }: TAALK): { action: string } & TAALK {
+        return {
+          action: Info.ACTIONS.TOLD.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAALK {
+        const terms: any = Info.PREDICATE.TAALK.getTerms(info);
+        terms.action = Info.ACTIONS.TOLD.name;
+        return terms;
       }
     }
   };
-
-  /**
-   * Retrieves action object by its code stored in Info.action
-   * @param {int} code - action code
-   */
-  static getACTION(code) {
-    return Info.ACTION[Object.keys(Info.ACTION)[code]];
-  }
-
 }
