@@ -77,6 +77,9 @@ export interface TAAILQ {
 export class Info extends IDObject {
   private _time: number;
   public get time(): number {
+    if (this._reference) {
+      return Info.getByID(this._infoID)._time;
+    }
     return this._time;
   }
   public set time(value: number) {
