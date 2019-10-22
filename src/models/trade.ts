@@ -23,9 +23,9 @@ export class Trade extends IDObject {
     return this._resultStatus;
   }
   private initiatorItemIDs: Set<number>;
-  private initiatorInfoIDs: Set<number>;
+  private initiatorInfoIDs: Map<number, number>;
   private receiverItemIDs: Set<number>;
-  private receiverInfoIDs: Set<number>;
+  private receiverInfoIDs: Map<number, number>;
   private initiatorStatus: boolean;
   private receiverStatus: boolean;
 
@@ -53,8 +53,8 @@ export class Trade extends IDObject {
 
     this.initiatorItemIDs = new Set<number>();
     this.receiverItemIDs = new Set<number>();
-    this.initiatorInfoIDs = new Set<number>();
-    this.receiverInfoIDs = new Set<number>();
+    this.initiatorInfoIDs = new Map<number, number>();
+    this.receiverInfoIDs = new Map<number, number>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -89,8 +89,8 @@ public toString() {
     }
     t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
     t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.initiatorInfoIDs = new Set<number>(t.initiatorInfoIDs);
-    t.receiverInfoIDs = new Set<number>(t.receiverInfoIDs);
+    t.initiatorInfoIDs = new Map<number, number>(t.initiatorInfoIDs);
+    t.receiverInfoIDs = new Map<number, number>(t.receiverInfoIDs);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -139,10 +139,10 @@ public toString() {
     let items: Info[];
 
     if (agent.id === this.initiatorID) {
-      items = Info.getByIDs(Array.from(this.initiatorInfoIDs));
+      items = Info.getByIDs(Array.from(this.initiatorInfoIDs.keys()));
     }
     else if (agent.id === this.receiverID) {
-      items = Info.getByIDs(Array.from(this.receiverInfoIDs));
+      items = Info.getByIDs(Array.from(this.receiverInfoIDs.keys()));
     }
     else {
       logger.log("No matching agent for trade info data.", 0, "trade.js");
@@ -214,14 +214,12 @@ public toString() {
 
   /**
    * Add info to one side of the trade.
-   * @param {[Object]} items - info to add to trade.
-   * @param {Agent} owner - agent object of agent adding the info.
    */
-  addInfo(items: Info[], owner: Agent) {
+  addInfo(question: Info, answer: Info, owner: Agent) {
     if (owner.id === this.initiatorID) {
-      items.forEach(item => this.initiatorInfoIDs.add(item.id));
+      this.initiatorInfoIDs.set(question.id, answer.id);
     } else if (owner.id === this.receiverID) {
-      items.forEach(item => this.receiverInfoIDs.add(item.id));
+      this.receiverInfoIDs.set(question.id, answer.id);
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
@@ -377,12 +375,12 @@ public toString() {
     return Item.getByIDs(Array.from(this.receiverItemIDs));
   }
 
-  get infoIni(): Info[] {
-    return Info.getByIDs(Array.from(this.initiatorInfoIDs));
+  get infoAnsIni(): Info[] {
+    return Info.getByIDs(Array.from(this.initiatorInfoIDs.values()));
   }
 
-  get infoRec(): Info[] {
-    return Info.getByIDs(Array.from(this.receiverInfoIDs));
+  get infoAnsRec(): Info[] {
+    return Info.getByIDs(Array.from(this.receiverInfoIDs.values()));
   }
 
   get conversation(): Conversation {

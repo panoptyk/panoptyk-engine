@@ -453,7 +453,6 @@ export class Controller {
   public performTrade(trade: Trade) {
     logger.log("Ending trade " + trade.id, 2);
 
-    const tradedInfo: Info[] = [];
     const generalInfo: Info[] = [];
 
     if (trade.itemsIni.length > 0) {
@@ -466,28 +465,24 @@ export class Controller {
     }
 
     // complete information trades
-    for (const info of trade.infoIni) {
-      info.removeMask();
-      info.owner = trade.agentRec;
+    for (const info of trade.infoAnsIni) {
       generalInfo.push(Info.ACTIONS.TOLD.create(
         { time: util.getPanoptykDatetime(), agent1: trade.agentIni,
           agent2: trade.agentRec, loc: trade.agentIni.room, info }));
-      tradedInfo.push(info);
+      this.giveInfoToAgents([trade.agentRec], info);
     }
-    for (const info of trade.infoRec) {
-      info.removeMask();
-      info.owner = trade.agentIni;
+    for (const info of trade.infoAnsRec) {
       generalInfo.push(Info.ACTIONS.TOLD.create(
         { time: util.getPanoptykDatetime(), agent1: trade.agentRec,
           agent2: trade.agentIni, loc: trade.agentRec.room, info }));
-      tradedInfo.push(info);
+      this.giveInfoToAgents([trade.agentIni], info);
     }
 
     trade.setStatus(1);
     trade.cleanup();
 
-    this.updateChanges(trade.agentIni, [trade, trade.agentIni, tradedInfo]);
-    this.updateChanges(trade.agentRec, [trade, trade.agentRec, tradedInfo]);
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentRec]);
 
     // TODO: fix info given at end of trade
     // Info object prep
@@ -687,8 +682,7 @@ export class Controller {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
-    answer = answer.makeMaskedCopy(owner, util.getPanoptykDatetime(), question);
-    trade.addInfo([answer], owner);
+    trade.addInfo(question, answer, owner);
 
     this.updateChanges(trade.agentIni, [trade, answer, question]);
     this.updateChanges(trade.agentRec, [trade, answer, question]);
