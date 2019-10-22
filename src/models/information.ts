@@ -90,9 +90,6 @@ export class Info extends IDObject {
   private _action?: string;
   public get action(): string {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._action;
-      }
       return Info.getByID(this._infoID)._action;
     }
     return this._action;
@@ -103,9 +100,6 @@ export class Info extends IDObject {
   private _predicate?: string;
   public get predicate(): string {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._predicate;
-      }
       return Info.getByID(this._infoID)._predicate;
     }
     return this._predicate;
@@ -123,9 +117,6 @@ export class Info extends IDObject {
   private _location: number[] = [];
   public get locations(): number[] {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._location;
-      }
       return Info.getByID(this._infoID)._location;
     }
     return this._location;
@@ -133,9 +124,6 @@ export class Info extends IDObject {
   private _agent: number[] = [];
   public get agents(): number[] {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._agent;
-      }
       return Info.getByID(this._infoID)._agent;
     }
     return this._agent;
@@ -143,9 +131,6 @@ export class Info extends IDObject {
   private _item: number[] = [];
   public get items(): number[] {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._item;
-      }
       return Info.getByID(this._infoID)._item;
     }
     return this._item;
@@ -153,9 +138,6 @@ export class Info extends IDObject {
   private _quantity: number[] = [];
   public get quantities(): number[] {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._quantity;
-      }
       return Info.getByID(this._infoID)._quantity;
     }
     return this._quantity;
@@ -163,9 +145,6 @@ export class Info extends IDObject {
   private _faction: number[] = [];
   public get factions(): number[] {
     if (this._reference) {
-      if (this._maskID !== 0) {
-        return Info.getByID(this._maskID)._faction;
-      }
       return Info.getByID(this._infoID)._faction;
     }
     return this._faction;
@@ -177,7 +156,7 @@ export class Info extends IDObject {
   public set infoID(value: number) {
     this._infoID = value;
   }
-  private _maskID = 0;
+  private _mask: any = {};
 
   /**
    * Info model.
@@ -227,6 +206,18 @@ export class Info extends IDObject {
   }
 
   /**
+   * Is the information object's info masked to the owner
+   */
+  public isMasked(): boolean {
+    for (const key in this._mask) {
+      if (this._mask[key] === "mask") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Creates a new copy that references old info for recieving Agent to own
    * @param {Agent} owner - Agent who owns this info
    * @param {number} time - Time information was copied
@@ -240,22 +231,50 @@ export class Info extends IDObject {
   }
 
   /**
-   * Creates a new copy that is masked by another info item
-   * @param {Agent} owner - Agent who owns this info
-   * @param {number} time - Time information was copied
-   */
-  public makeMaskedCopy(owner: Agent, time: number, mask: Info): Info {
-    const i = this.makeCopy(owner, time);
-    i._maskID = mask.id;
-    return i;
-  }
-
-  /**
    * Removes mask so that referenced item is accessed instead.
    * WARNING: The original copy must still be sent to the client.
    */
   public removeMask() {
-    this._maskID = 0;
+    this._mask = {};
+  }
+
+  /**
+   * set a mask on any specific term of the action. Use Info.prototype.getTerms() for terms
+   * @param mask Object containing terms set to "mask" to be masked
+   */
+  public setMask(mask: object) {
+    this._mask = mask;
+  }
+
+  public applyMask(info: Info) {
+    for (const key in this._mask) {
+      if (this._mask[key] === "mask") {
+        if (key === "time") {
+          info._time = undefined;
+        }
+        else if (key === "agent" || key === "agent1") {
+          info._agent[0] = undefined;
+        }
+        else if (key === "agent2") {
+          info._agent[1] = undefined;
+        }
+        else if (key === "loc") {
+          info._location[0] = undefined;
+        }
+        else if (key === "faction") {
+          info._faction = undefined;
+        }
+        else if (key === "quantity") {
+          info._quantity = undefined;
+        }
+        else if (key === "info") {
+          info._infoID = undefined;
+        }
+        else if (key === "item") {
+          info._item[0] = undefined;
+        }
+      }
+    }
   }
 
   /**
@@ -290,6 +309,10 @@ export class Info extends IDObject {
       const val = safeObj[key];
       if (Array.isArray(val) && val.length === 0) {
         safeObj[key] = undefined;
+      }
+      // use mask
+      if (removePrivateData) {
+        this.applyMask(safeObj);
       }
     }
 
