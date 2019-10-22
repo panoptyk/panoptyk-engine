@@ -74,6 +74,10 @@ export class Agent extends IDObject {
     (safeAgent._conversationRequests as any) = Array.from(
       safeAgent._conversationRequests
     );
+    if (removePrivateData) {
+      safeAgent._inventory = undefined;
+      safeAgent._knowledge = undefined;
+    }
     return safeAgent;
   }
 
