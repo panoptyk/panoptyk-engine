@@ -1,6 +1,13 @@
 import * as io from "socket.io-client";
 import { ValidationResult } from "./models/validate";
-import { Agent, Room, Info, Trade, Item, Conversation } from "./models/index";
+import {
+  Agent,
+  Room,
+  Info,
+  Trade,
+  Item,
+  Conversation
+} from "./models/index";
 
 const MODELS: any = {
   Agent,
@@ -8,10 +15,23 @@ const MODELS: any = {
   Info,
   Item,
   Trade,
-  Conversation,
+  Conversation
 };
 
-const emit = function(socket: SocketIOClient.Socket, event: string, payload: any): Promise<ValidationResult> {
+export interface UpdatedModels {
+  Info: Info[];
+  Room: Room[];
+  Agent: Agent[];
+  Item: Item[];
+  Trade: Trade[];
+  Conversation: Conversation[];
+}
+
+const emit = function(
+  socket: SocketIOClient.Socket,
+  event: string,
+  payload: any
+): Promise<ValidationResult> {
   return new Promise((resolve, reject) => {
     socket.emit(event, payload, (result: ValidationResult) => {
       resolve(result);
@@ -21,7 +41,9 @@ const emit = function(socket: SocketIOClient.Socket, event: string, payload: any
 
 export class ClientAPI {
   // set of functions with signature function(): void
-  private static modelListeners: Set<() => void> = new Set<() => void>();
+  private static onUpdateListeners: Set<
+    (updatedModels: UpdatedModels) => void
+  > = new Set<(updatedModels: UpdatedModels) => void>();
   private static socket: SocketIOClient.Socket = undefined;
   private static initialized = false;
   private static actionSent = false;
@@ -34,12 +56,17 @@ export class ClientAPI {
       return undefined;
     }
     // Skip searching for player agent if already found
-    if (ClientAPI._playerAgent && ClientAPI._playerAgent.agentName === ClientAPI.playerAgentName) {
+    if (
+      ClientAPI._playerAgent &&
+      ClientAPI._playerAgent.agentName === ClientAPI.playerAgentName
+    ) {
       // Get latest verison of player
       return ClientAPI._playerAgent;
     }
     // Search for player agent
-    return (ClientAPI._playerAgent = Agent.getAgentByName(ClientAPI.playerAgentName));
+    return (ClientAPI._playerAgent = Agent.getAgentByName(
+      ClientAPI.playerAgentName
+    ));
   }
 
   private static async sendWrapper(event: string, payload: any) {
@@ -54,10 +81,9 @@ export class ClientAPI {
     const res = await emit(ClientAPI.socket, event, payload);
     ClientAPI.actionSent = false;
     if (res.status) {
-        return res;
-    }
-    else {
-        throw res;
+      return res;
+    } else {
+      throw res;
     }
   }
 
@@ -71,18 +97,38 @@ export class ClientAPI {
     ClientAPI.socket.on("updateModels", data => {
       console.log("--Model updates recieved--");
       ClientAPI.updating.push(true);
+      const updates: UpdatedModels = {
+        Agent: [],
+        Info: [],
+        Item: [],
+        Room: [],
+        Trade: [],
+        Conversation: []
+      };
       for (const key in data) {
         for (const model of data[key]) {
           MODELS[key].load(model);
+          updates[key].push(MODELS[key].getByID(model.id));
         }
       }
-      ClientAPI.updating.pop();
+      // Sort new info
+      const agent = ClientAPI.playerAgent;
+      if (agent) {
+        updates.Info.forEach(i => {
+          agent.addInfoToBeSorted(i);
+        });
+        agent.sortInfo();
+      }
 
+      ClientAPI.updating.pop();
       // alert listeners if there are no more incoming updates
-      if (ClientAPI.updating.length === 0) {
-        for (const callback of this.modelListeners) {
-          callback();
-        }
+      for (const callback of this.onUpdateListeners) {
+        callback(updates);
+      }
+
+      // dereference variables
+      for (const key in updates) {
+        updates[key] = undefined;
       }
     });
     ClientAPI.initialized = true;
@@ -90,18 +136,18 @@ export class ClientAPI {
 
   /**
    * Adds function to be called when model is updated
-   * @param func function with signature function(): void
+   * @param func function with signature function(u: ClientAPI.UpdateModels): void
    */
-  public static addUpdateListener(func: () => void) {
-    this.modelListeners.add(func);
+  public static addOnUpdateListener(func: (u: UpdatedModels) => void) {
+    this.onUpdateListeners.add(func);
   }
 
   /**
    * Removes callback function from listeners
-   * @param func function with signature function(): void
+   * @param func function with signature function(u: ClientAPI.UpdateModels): void
    */
-  public static removeUpdateListener(func: () => void) {
-    this.modelListeners.delete(func);
+  public static removeOnUpdateListener(func: (u: UpdatedModels) => void) {
+    this.onUpdateListeners.delete(func);
   }
 
   /**
@@ -124,7 +170,10 @@ export class ClientAPI {
    * @param password password (should be a hash eventually)
    */
   public static async login(name: string, password: string) {
-    const res = await ClientAPI.sendWrapper("login", { username: name, password });
+    const res = await ClientAPI.sendWrapper("login", {
+      username: name,
+      password
+    });
     ClientAPI.playerAgentName = name;
     return res;
   }
@@ -135,7 +184,9 @@ export class ClientAPI {
    * @param agent for admins move other agents around
    */
   public static async moveToRoom(room: Room, agent?: Agent) {
-    const res = await ClientAPI.sendWrapper("move-to-room", {roomID: room.id});
+    const res = await ClientAPI.sendWrapper("move-to-room", {
+      roomID: room.id
+    });
     return res;
   }
 
@@ -144,7 +195,9 @@ export class ClientAPI {
    * @param targetAgent agent to request conversation with
    */
   public static async requestConversation(targetAgent: Agent) {
-    const res = await ClientAPI.sendWrapper("request-conversation", {agentID: targetAgent.id});
+    const res = await ClientAPI.sendWrapper("request-conversation", {
+      agentID: targetAgent.id
+    });
     return res;
   }
 
@@ -153,7 +206,9 @@ export class ClientAPI {
    * @param targetAgent agent to accept conversation with
    */
   public static async acceptConversation(targetAgent: Agent) {
-    const res = await ClientAPI.sendWrapper("request-conversation", {agentID: targetAgent.id});
+    const res = await ClientAPI.sendWrapper("request-conversation", {
+      agentID: targetAgent.id
+    });
     return res;
   }
 
@@ -162,7 +217,9 @@ export class ClientAPI {
    * @param targetConversation conversation to leave
    */
   public static async leaveConversation(targetConversation: Conversation) {
-    const res = await ClientAPI.sendWrapper("leave-conversation", {conversationID: targetConversation.id});
+    const res = await ClientAPI.sendWrapper("leave-conversation", {
+      conversationID: targetConversation.id
+    });
     return res;
   }
 
@@ -171,7 +228,9 @@ export class ClientAPI {
    * @param targetAgent agent to request trade with
    */
   public static async requestTrade(targetAgent: Agent) {
-    const res = await ClientAPI.sendWrapper("request-trade", {agentID: targetAgent.id});
+    const res = await ClientAPI.sendWrapper("request-trade", {
+      agentID: targetAgent.id
+    });
     return res;
   }
 
@@ -180,7 +239,9 @@ export class ClientAPI {
    * @param targetTrade
    */
   public static async cancelTrade(targetTrade: Trade) {
-    const res = await ClientAPI.sendWrapper("cancel-trade", {tradeID: targetTrade.id});
+    const res = await ClientAPI.sendWrapper("cancel-trade", {
+      tradeID: targetTrade.id
+    });
     return res;
   }
 
@@ -194,7 +255,10 @@ export class ClientAPI {
     for (const item of items) {
       itemIDs.push(item.id);
     }
-    const res = await ClientAPI.sendWrapper("offer-items-trade", {tradeID: trade.id, itemIDs});
+    const res = await ClientAPI.sendWrapper("offer-items-trade", {
+      tradeID: trade.id,
+      itemIDs
+    });
     return res;
   }
 
@@ -208,7 +272,10 @@ export class ClientAPI {
     for (const item of items) {
       itemIDs.push(item.id);
     }
-    const res = await ClientAPI.sendWrapper("withdraw-items-trade", {tradeID: trade.id, itemIDs});
+    const res = await ClientAPI.sendWrapper("withdraw-items-trade", {
+      tradeID: trade.id,
+      itemIDs
+    });
     return res;
   }
 
@@ -218,7 +285,10 @@ export class ClientAPI {
    * @param status
    */
   public static async setTradeReadyStatus(trade: Trade, status: boolean) {
-    const res = await ClientAPI.sendWrapper("ready-trade", {tradeID: trade.id, readyStatus: status});
+    const res = await ClientAPI.sendWrapper("ready-trade", {
+      tradeID: trade.id,
+      readyStatus: status
+    });
     return res;
   }
 
@@ -231,7 +301,7 @@ export class ClientAPI {
     for (const item of items) {
       itemIDs.push(item.id);
     }
-    const res = await ClientAPI.sendWrapper("take-items", {itemIDs});
+    const res = await ClientAPI.sendWrapper("take-items", { itemIDs });
     return res;
   }
 
@@ -244,7 +314,7 @@ export class ClientAPI {
     for (const item of items) {
       itemIDs.push(item.id);
     }
-    const res = await ClientAPI.sendWrapper("drop-items", {itemIDs});
+    const res = await ClientAPI.sendWrapper("drop-items", { itemIDs });
     return res;
   }
 
@@ -252,7 +322,7 @@ export class ClientAPI {
    * Ask a question in current conversation.
    */
   public static async askQuestion(question: object) {
-    const res = await ClientAPI.sendWrapper("ask-question", {question});
+    const res = await ClientAPI.sendWrapper("ask-question", { question });
     return res;
   }
 
@@ -260,7 +330,10 @@ export class ClientAPI {
    * Tells owner of question that you have an answer to their question.
    */
   public static async confirmKnowledgeOfAnswerToQuestion(question: Info, answer: Info) {
-    const res = await ClientAPI.sendWrapper("confirm-knowledge", {questionID: question.id, answerID: answer.id});
+    const res = await ClientAPI.sendWrapper("confirm-knowledge", {
+      questionID: question.id,
+      answerID: answer.id
+    });
     return res;
   }
 
@@ -268,7 +341,11 @@ export class ClientAPI {
    * Offer an answer to a question as part of a trade.
    */
   public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info) {
-    const res = await ClientAPI.sendWrapper("offer-answer-trade", {tradeID: trade.id, answerID: answer.id, questionID: question.id});
+    const res = await ClientAPI.sendWrapper("offer-answer-trade", {
+      tradeID: trade.id,
+      answerID: answer.id,
+      questionID: question.id
+    });
     return res;
   }
 
@@ -276,7 +353,10 @@ export class ClientAPI {
    * Withdraw an answer from a given trade.
    */
   public static async withdrawInfoTrade(trade: Trade, info: Info) {
-    const res = await ClientAPI.sendWrapper("withdraw-info-trade", {tradeID: trade.id, infoID: info.id});
+    const res = await ClientAPI.sendWrapper("withdraw-info-trade", {
+      tradeID: trade.id,
+      infoID: info.id
+    });
     return res;
   }
 

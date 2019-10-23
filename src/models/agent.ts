@@ -27,6 +27,14 @@ export class Agent extends IDObject {
   private _conversationID = 0;
   private _conversationRequests: Set<number>;
 
+  // Client-side filter tools
+  private _infoToSort: Info[] = [];
+  private _sortedInfo = {
+    byAction: new Map<string, Set<number>>(),
+    byAgent: new Map<number, Set<number>>(),
+    byLoc: new Map<number, Set<number>>()
+  };
+
   /**
    * Agent model.
    * @param {string} username - username of agent
@@ -69,6 +77,8 @@ export class Agent extends IDObject {
   public serialize(removePrivateData = false) {
     const safeAgent = Object.assign({}, this);
     safeAgent.socket = undefined;
+    safeAgent._infoToSort = undefined;
+    safeAgent._sortedInfo = undefined;
     (safeAgent._inventory as any) = Array.from(safeAgent._inventory);
     (safeAgent._knowledge as any) = Array.from(safeAgent._knowledge);
     (safeAgent._conversationRequests as any) = Array.from(
@@ -80,29 +90,6 @@ export class Agent extends IDObject {
     }
     return safeAgent;
   }
-
-  // /**
-  //  * Get the data object for this agent that other agent's can see.
-  //  * @returns {Object}
-  //  */
-  // public getPublicData() {
-  //   return {
-  //     id: this.id,
-  //     agentName: this.agentName,
-  //     roomID: this.roomID,
-  //     inventory: []
-  //   };
-  // }
-
-  // /**
-  //  * Get the data object for this agent that the owner agent can see.
-  //  * @returns {Object}
-  //  */
-  // public getPrivateData() {
-  //   const dat = this.getPublicData();
-  //   dat.inventory = this.getInventoryData();
-  //   return dat;
-  // }
 
   toString() {
     return this.agentName + "(id#" + this.id + ")";
@@ -243,6 +230,67 @@ export class Agent extends IDObject {
     return true;
   }
 
+  // Client-side filtering of information ===========================================
+
+  public addInfoToBeSorted(info: Info) {
+    if (info && !info.isMaster() && info.owner.id === this.id) {
+      this._infoToSort.push(info);
+    }
+  }
+  public infoNeedsSorting(): boolean {
+    return this._infoToSort.length > 0;
+  }
+
+  public getInfoByAction(action: string): Info[] {
+    const key = action ? action : "none";
+    if (this._sortedInfo.byAction.has(key)) {
+      return Info.getByIDs(Array.from(this._sortedInfo.byAction.get(key)));
+    }
+    return undefined;
+  }
+
+  public getInfoByLoc(room: Room): Info[] {
+    const key = room ? room.id : 0;
+    if (this._sortedInfo.byLoc.has(key)) {
+      return Info.getByIDs(Array.from(this._sortedInfo.byLoc.get(key)));
+    }
+    return undefined;
+  }
+
+  public getInfoByAgent(agent: Agent): Info[] {
+    const key = agent ? agent.id : 0;
+    if (this._sortedInfo.byAgent.has(key)) {
+      return Info.getByIDs(Array.from(this._sortedInfo.byAgent.get(key)));
+    }
+    return undefined;
+  }
+
+  public sortInfo() {
+    while (this._infoToSort.length > 0) {
+      const info = this._infoToSort.pop();
+      const action = info.action ? info.action : "none";
+      let agent = info.agents[0];
+      agent = agent ? agent : 0;
+      let loc = info.locations[0];
+      loc = loc ? loc : 0;
+
+      if (!this._sortedInfo.byAction.has(action)) {
+        this._sortedInfo.byAction.set(action, new Set());
+      }
+      if (!this._sortedInfo.byAgent.has(agent)) {
+        this._sortedInfo.byAgent.set(agent, new Set());
+      }
+      if (!this._sortedInfo.byLoc.has(loc)) {
+        this._sortedInfo.byLoc.set(loc, new Set());
+      }
+
+      this._sortedInfo.byAction.get(action).add(info.id);
+      this._sortedInfo.byAgent.get(agent).add(info.id);
+      this._sortedInfo.byLoc.get(loc).add(info.id);
+    }
+  }
+  // =============================================================================
+
   /**
    * Put agent in room.
    * @param {Room} newRoom - room to move to
@@ -282,7 +330,9 @@ export class Agent extends IDObject {
   }
 
   public get conversation(): Conversation {
-    return this._conversationID ? Conversation.getByID(this._conversationID) : undefined;
+    return this._conversationID
+      ? Conversation.getByID(this._conversationID)
+      : undefined;
   }
 
   /**
