@@ -319,40 +319,45 @@ export class ClientAPI {
   }
 
   /**
-   *
-   * @param questionType
-   * @param predicate
+   * Ask a question in current conversation.
    */
   public static async askQuestion(question: object) {
     const res = await ClientAPI.sendWrapper("ask-question", { question });
     return res;
   }
 
-  public static async confirmKnowledgeOfAnswerToQuestion(question: Info) {
-    const res = await ClientAPI.sendWrapper("answer-question", {
-      questionID: question.id
-    });
+  /**
+   * Tells owner of question that you have an answer to their question.
+   */
+  public static async confirmKnowledgeOfAnswerToQuestion(question: Info, answer: Info) {
+    const res = await ClientAPI.sendWrapper("confirm-knowledge", {questionID: question.id, answerID: answer.id});
     return res;
   }
 
-  public static async offerAnswerTrade(
-    trade: Trade,
-    answer: Info,
-    question: Info
-  ) {
-    const res = await ClientAPI.sendWrapper("offer-answer-trade", {
-      tradeID: trade.id,
-      answerID: answer.id,
-      questionID: question.id
-    });
+  /**
+   * Offer an answer to a question as part of a trade.
+   */
+  public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info) {
+    const res = await ClientAPI.sendWrapper("offer-answer-trade", {tradeID: trade.id, answerID: answer.id, questionID: question.id});
     return res;
   }
 
+  /**
+   * Withdraw an answer from a given trade.
+   */
   public static async withdrawInfoTrade(trade: Trade, info: Info) {
     const res = await ClientAPI.sendWrapper("withdraw-info-trade", {
       tradeID: trade.id,
       infoID: info.id
     });
+    return res;
+  }
+
+  /**
+   * Freely give an information item in a conversation.
+   */
+  public static async tellInfo(info: Info) {
+    const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id});
     return res;
   }
 }

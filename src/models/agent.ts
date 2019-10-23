@@ -353,4 +353,18 @@ export class Agent extends IDObject {
   public leaveConversation() {
     this._conversationID = 0;
   }
+
+  /**
+   * Checks if player knows specific info.
+   */
+  public hasKnowledge(info: Info) {
+    return this._knowledge.has(info.id);
+  }
+
+  /**
+   * Checks if player has specific item.
+   */
+  public hasItem(item: Item) {
+    return this._inventory.has(item.id);
+  }
 }

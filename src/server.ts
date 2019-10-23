@@ -30,7 +30,8 @@ import {
   ActionAskQuestion,
   ActionAnswerQuestion,
   ActionOfferAnswerTrade,
-  ActionWithdrawInfoTrade
+  ActionWithdrawInfoTrade,
+  ActionTellInfo
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -46,7 +47,7 @@ export class Server {
   private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
   private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionDropItems, ActionOfferItemsTrade,
     ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade,
-    ActionAskQuestion, ActionAnswerQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade];
+    ActionAskQuestion, ActionAnswerQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo];
 
   constructor(app?: express.Application) {
     this.createApp(app);

@@ -42,6 +42,9 @@ export const ActionOfferAnswerTrade: Action = {
     if (!(res = Validate.validate_info_is_answer(answer, question)).status) {
         return res;
     }
+    if (!(res = Validate.validate_answer_not_used(answer, question)).status) {
+      return res;
+    }
     return Validate.successMsg;
   }
 };
