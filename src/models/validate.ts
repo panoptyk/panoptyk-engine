@@ -400,6 +400,9 @@ export class Validate {
     return { status: true, message: "" };
   }
 
+  /**
+   * Validates that a valid question can be constructed from parameters
+   */
   public static validate_valid_question(predicate: any) {
     const type = Info.ACTIONS[predicate.action];
     if (type === undefined) {
@@ -415,7 +418,11 @@ export class Validate {
     };
   }
 
-  public static validate_can_answer(agent: Agent, question: Info, conversation: Conversation) {
+  /**
+   * Validates that a valid question is being answered and that the owner of
+   * the question is in the conversation.
+   */
+  public static validate_can_answer(question: Info, conversation: Conversation) {
     if (question === undefined || !question.isQuery()) {
       return {
         status: false,
@@ -428,7 +435,6 @@ export class Validate {
         message: "Agent " + question.owner + " is not in your conversation!"
       };
     }
-    // TODO: validate that agent can answer question
     return { status: true, message: "" };
   }
 
@@ -477,6 +483,33 @@ export class Validate {
         status: false,
         message: "Answer does not add any new info to question!"
       };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if agent has already answered question with specific answer
+   */
+  public static validate_answer_not_used(question: Info, answer: Info) {
+    const askingAgent: Agent = Info.getByID(question.infoID).owner;
+    const answeringAgent: Agent = answer.owner;
+    for (const info of answeringAgent.knowledge) {
+      if (info.action === Info.ACTIONS.TOLD.name) {
+        // checks if answering agent has told this answer to asking agent
+        if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === answer.infoID) {
+          return {
+            status: false,
+            message: "You have already told " + askingAgent + " that!"
+          };
+        }
+        // checks if asking agent has told this answer to answering agent
+        else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === answer.infoID) {
+          return {
+            status: false,
+            message: askingAgent + " has already told you that!"
+          };
+        }
+      }
     }
     return { status: true, message: "" };
   }

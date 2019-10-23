@@ -16,4 +16,5 @@ export { ActionAskQuestion } from "./askQuestion";
 export { ActionAnswerQuestion } from "./answerQuestion";
 export { ActionOfferAnswerTrade } from "./offerAnswerTrade";
 export { ActionWithdrawInfoTrade } from "./withdrawInfoTrade";
+export { ActionTellInfo } from "./tellInfo";
 // export {} from "./"; <- future Actions

@@ -591,17 +591,30 @@ export class Controller {
     const time = util.getPanoptykDatetime();
 
     for (const agent of agents) {
-      const cpy = info.makeCopy(agent, time);
-      this.addInfoToAgentInventory(agent, [cpy]);
-      this.updateChanges(agent, [info]);
+      if (!agent.hasKnowledge(info)) {
+        const cpy = info.makeCopy(agent, time);
+        this.addInfoToAgentInventory(agent, [cpy]);
+        this.updateChanges(agent, [info]);
+      }
     }
   }
 
+  /**
+   * Informs receiving agent of conversation request.
+   * @param agent sending agent
+   * @param toAgent receiving agent
+   */
   public requestConversation(agent: Agent, toAgent: Agent) {
     toAgent.conversationRequest(agent.id);
     this.updateChanges(toAgent, [toAgent]);
   }
 
+  /**
+   * Creates a conversation between sending and receiving agent.
+   * @param room current room
+   * @param agent sending agent
+   * @param toAgent receiving agent
+   */
   public createConversation(room: Room, agent: Agent, toAgent: Agent) {
     const conversation = new Conversation(room);
     conversation.add_agent(agent);
@@ -612,6 +625,11 @@ export class Controller {
     return conversation;
   }
 
+  /**
+   * Sending agent picks up items from their current room
+   * @param agent sending agent
+   * @param items items to pick up
+   */
   public pickUpItems(agent: Agent, items: Item[]) {
     this.removeAgentFromConversationIfIn(agent);
     this.removeItemsFromRoom(items, agent);
@@ -632,6 +650,11 @@ export class Controller {
     }
   }
 
+  /**
+   * Sending agent drops items into their current room
+   * @param agent sending agent
+   * @param items items
+   */
   public dropItems(agent: Agent, items: Item[]) {
     const room = agent.room;
     this.removeItemsFromAgentInventory(items);
@@ -652,6 +675,11 @@ export class Controller {
     }
   }
 
+  /**
+   * Sending agent asks question to their current conversation
+   * @param agent sending agent
+   * @param predicate valid Info question data
+   */
   public askQuestion(agent: Agent, predicate: any) {
     const question: Info = Info.ACTIONS[predicate.action].createQuery(agent, predicate);
 
@@ -672,12 +700,17 @@ export class Controller {
    */
   public answerQuestion(agent: Agent, question: Info, conversation: Conversation) {
     const responseInfo: Info = Info.ACTIONS.KNOW.create({time: util.getPanoptykDatetime(), agent, info: question});
-    const relevantAgents = conversation.getAgents();
-    this.giveInfoToAgents(relevantAgents, (Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(),
-      agent1: agent, agent2: question.owner, loc: conversation.room, info: responseInfo})));
+    const relevantAgents = conversation.getAgents(agent);
     this.giveInfoToAgents(relevantAgents, responseInfo);
   }
 
+  /**
+   * Adds answer to given question to specified trade.
+   * @param trade Relevant trade
+   * @param answer Info answer to given question
+   * @param question Info question
+   * @param owner sending agent
+   */
   public addAnswerToTrade(trade: Trade, answer: Info, question: Info, owner: Agent) {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
@@ -688,6 +721,12 @@ export class Controller {
     this.updateChanges(trade.agentRec, [trade, answer, question]);
   }
 
+  /**
+   * Removes specieifed Info answer from the specified trade
+   * @param trade Relevant trade
+   * @param info Info answer in trade
+   * @param owner sending agent
+   */
   public removeInfoFromTrade(trade: Trade, info: Info, owner: Agent) {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
@@ -696,5 +735,21 @@ export class Controller {
 
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  /**
+   * Sending agent gives out Info item in their current conversation
+   * @param agent Sending agent
+   * @param info Free info
+   */
+  public tellInfoFreely(agent: Agent, info: Info) {
+    const agents = agent.conversation.getAgents();
+    for (const other of agents) {
+      if (other !== agent) {
+        const knowInfo = Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: other, loc: agent.room, info});
+        this.giveInfoToAgents([other], info);
+        this.giveInfoToAgents(agents, knowInfo);
+      }
+    }
   }
 }
