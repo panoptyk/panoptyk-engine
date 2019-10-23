@@ -233,7 +233,7 @@ export class Agent extends IDObject {
   // Client-side filtering of information ===========================================
 
   public addInfoToBeSorted(info: Info) {
-    if (info.owner.id === this.id) {
+    if (info && !info.isMaster() && info.owner.id === this.id) {
       this._infoToSort.push(info);
     }
   }
