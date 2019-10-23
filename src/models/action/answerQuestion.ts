@@ -15,7 +15,7 @@ export const ActionAnswerQuestion: Action = {
     const controller = new Controller();
     const conversation: Conversation = agent.conversation;
     const question: Info = Info.getByID(inputData.questionID);
-    question.query = true;
+    // question.query = true;
 
     controller.answerQuestion(agent, question, conversation);
     logger.log("Event answer-question (" + question + ") for conversation " + conversation + " registered.", 2);
