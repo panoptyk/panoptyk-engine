@@ -693,15 +693,10 @@ export class Controller {
   }
 
   /**
-   * Agent tells all agents in conversation that it knows the answer to specified question
-   * @param agent
-   * @param question
-   * @param conversation
+   * Agent passes on specified question in conversation
    */
-  public answerQuestion(agent: Agent, question: Info, conversation: Conversation) {
-    const responseInfo: Info = Info.ACTIONS.KNOW.create({time: util.getPanoptykDatetime(), agent, info: question});
-    const relevantAgents = conversation.getAgents(agent);
-    this.giveInfoToAgents(relevantAgents, responseInfo);
+  public passOnQuestion(agent: Agent, question: Info, conversation: Conversation) {
+
   }
 
   /**

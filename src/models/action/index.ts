@@ -13,7 +13,6 @@ export { ActionRequestTrade } from "./requestTrade";
 export { ActionTakeItems } from "./takeItems";
 export { ActionWithdrawItemsTrade } from "./withdrawItemsTrade";
 export { ActionAskQuestion } from "./askQuestion";
-export { ActionAnswerQuestion } from "./answerQuestion";
 export { ActionOfferAnswerTrade } from "./offerAnswerTrade";
 export { ActionWithdrawInfoTrade } from "./withdrawInfoTrade";
 export { ActionTellInfo } from "./tellInfo";
