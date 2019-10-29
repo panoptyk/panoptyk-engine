@@ -500,10 +500,11 @@ export class Controller {
     const info = Info.ACTIONS.CONVERSE.create({
       time,
       agent1: trade.agentIni,
-      /* is this right ->*/ agent2: trade.agentIni,
+      agent2: trade.agentRec,
       loc: trade.conversation.room
     });
     info.owner = trade.agentIni;
+    generalInfo.push(info);
 
     for (const info of generalInfo) {
       this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
@@ -685,8 +686,8 @@ export class Controller {
     const conversation: Conversation = agent.conversation;
     const relevantAgents = conversation.getAgents();
     for (const other of conversation.getAgents(agent)) {
-      this.giveInfoToAgents(relevantAgents, Info.ACTION.ASK.create(agent, {0: util.getPanoptykDatetime(),
-        1: agent.id, 2: other.id, 3: conversation.room.id, 4: question.id}));
+      this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
+        agent1: agent, agent2: other, loc: conversation.room, info: question}));
     }
     this.giveInfoToAgents(relevantAgents, question);
   }

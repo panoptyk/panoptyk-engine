@@ -330,7 +330,10 @@ export class ClientAPI {
    * Tells owner of question that you have an answer to their question.
    */
   public static async confirmKnowledgeOfAnswerToQuestion(question: Info, answer: Info) {
-    const res = await ClientAPI.sendWrapper("confirm-knowledge", {questionID: question.id, answerID: answer.id});
+    const res = await ClientAPI.sendWrapper("confirm-knowledge", {
+      questionID: question.id,
+      answerID: answer.id
+    });
     return res;
   }
 
@@ -338,7 +341,11 @@ export class ClientAPI {
    * Offer an answer to a question as part of a trade.
    */
   public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info) {
-    const res = await ClientAPI.sendWrapper("offer-answer-trade", {tradeID: trade.id, answerID: answer.id, questionID: question.id});
+    const res = await ClientAPI.sendWrapper("offer-answer-trade", {
+      tradeID: trade.id,
+      answerID: answer.id,
+      questionID: question.id
+    });
     return res;
   }
 
