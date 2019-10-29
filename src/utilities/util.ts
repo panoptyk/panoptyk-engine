@@ -13,13 +13,17 @@ export let makeDir = function(dir) {
 
 /**
  * Dates are currently set to 1 IRL hour = 1 Panoptyk day
+ * @param {number} offset offset in milliseconds for start of server (usually some past date in UTC ms)
  * @returns the number of hours since the start of the Panoptyk server
  */
-export let getPanoptykDatetime = function(): number {
+export let getPanoptykDatetime = function(offset = -1): number {
   // Dates are currently set to 1 IRL hour = 1 Panoptyk day
   // This will be the "Panoptyk Days" since midnight, January 1, 1970 so let's offset it
   const irlTime = Date.now();
-  return Math.floor((irlTime - panoptykSettings.server_start_date_ms) / 150000);
+  if (offset < 0) {
+    offset = panoptykSettings.server_start_date_ms;
+  }
+  return Math.floor((irlTime - offset) / 150000);
 };
 
 const DAYNAMES = [
