@@ -66,7 +66,7 @@ export class Server {
   private loadConfig(): void {
     // Read settings
     try {
-      const settings = fs.readFileSync("panoptyk-settings.json");
+      const settings = JSON.parse(fs.readFileSync("panoptyk-settings.json").toString());
       for (const key in settings) {
         util.panoptykSettings[key] = settings[key];
       }
@@ -77,6 +77,16 @@ export class Server {
         "panoptyk-settings.json",
         JSON.stringify(util.panoptykSettings)
       );
+    }
+    // Calc UTC offset(ms)
+    util.panoptykSettings.server_start_date_ms = Date.UTC(
+      util.panoptykSettings.server_start_date.year,
+      util.panoptykSettings.server_start_date.month - 1, // Month is on a 0 to 11 scale
+      util.panoptykSettings.server_start_date.day
+    );
+    logger.log("Panoptyk Settings:", LOG.INFO);
+    for (const key in util.panoptykSettings) {
+      logger.log(key + ": " + JSON.stringify(util.panoptykSettings[key]), LOG.INFO);
     }
 
     // Assign port

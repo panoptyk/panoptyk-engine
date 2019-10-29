@@ -49,7 +49,7 @@ export class Item extends IDObject {
    */
   static load(json: Item) {
     let i = Item.objects[json.id];
-    i = i ? i : new Item(json.itemName, json.type, undefined, undefined, json.id);
+    i = i ? i : new Item(json._itemName, json.type, undefined, undefined, json.id);
     for (const key in json) {
       i[key] = json[key];
     }
@@ -67,7 +67,7 @@ export class Item extends IDObject {
   }
 
   toString() {
-    return this.itemName + ":" + this.type + " (id#" + this.id + ")";
+    return this._itemName + ":" + this.type + " (id#" + this.id + ")";
   }
 
   /**
