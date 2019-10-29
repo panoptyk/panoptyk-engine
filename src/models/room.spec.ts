@@ -3,6 +3,7 @@ import "mocha";
 import * as fs from "fs";
 import { Room } from "./room";
 import { Item } from "./item";
+import { logger } from "../utilities/logger";
 
 const idObj = Room;
 
@@ -57,10 +58,15 @@ describe("Room Class", function() {
 
     // describe("Stress", function() {
     //     it("Item Load", function() {
+    //         logger.logLevel = 2;
+    //         const start = Date.now();
     //         const r1: any = new Room("Room 1", 5);
     //         for (let i = 0; i < 10000; i++) {
     //             r1.addItem(new Item("coin", "currency"));
     //         }
+    //         const end = Date.now();
+    //         logger.logLevel = 2;
+    //         logger.log("10000 items created in " + (end - start) + "ms");
     //     });
     // });
 });
