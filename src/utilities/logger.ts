@@ -40,7 +40,7 @@ export class Logger {
    * @param {string} msg - message to log.
    * @param {int} logLevel - level of message importance.
    */
-  log(msg, logLevel = 0) {
+  log(msg, logLevel = 0, file?: string) {
     if (logLevel <= this.logLevel) {
       const prefix =
         "[" +
