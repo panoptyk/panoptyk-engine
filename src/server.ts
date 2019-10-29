@@ -61,7 +61,7 @@ export class Server {
   private loadConfig(): void {
     // Read settings
     try {
-      const settings = fs.readFileSync("panoptyk-settings.json");
+      const settings = JSON.parse(fs.readFileSync("panoptyk-settings.json").toString());
       for (const key in settings) {
         util.panoptykSettings[key] = settings[key];
       }
@@ -79,6 +79,10 @@ export class Server {
       util.panoptykSettings.server_start_date.month,
       util.panoptykSettings.server_start_date.day
     );
+    logger.log("Panoptyk Settings:", LOG.INFO);
+    for (const key in util.panoptykSettings) {
+      logger.log(key + ": " + JSON.stringify(util.panoptykSettings[key]), LOG.INFO);
+    }
 
     // Assign port
     this.port = util.panoptykSettings.port;
