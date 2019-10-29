@@ -73,6 +73,12 @@ export class Server {
         JSON.stringify(util.panoptykSettings)
       );
     }
+    // Calc UTC offset(ms)
+    util.panoptykSettings.server_start_date_ms = Date.UTC(
+      util.panoptykSettings.server_start_date.year,
+      util.panoptykSettings.server_start_date.month,
+      util.panoptykSettings.server_start_date.day
+    );
 
     // Assign port
     this.port = util.panoptykSettings.port;
