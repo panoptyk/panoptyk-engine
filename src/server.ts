@@ -76,7 +76,7 @@ export class Server {
     // Calc UTC offset(ms)
     util.panoptykSettings.server_start_date_ms = Date.UTC(
       util.panoptykSettings.server_start_date.year,
-      util.panoptykSettings.server_start_date.month,
+      util.panoptykSettings.server_start_date.month - 1, // Month is on a 0 to 11 scale
       util.panoptykSettings.server_start_date.day
     );
     logger.log("Panoptyk Settings:", LOG.INFO);
