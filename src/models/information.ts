@@ -265,8 +265,11 @@ export class Info extends IDObject {
         else if (key === "agent2") {
           info._agent[1] = undefined;
         }
-        else if (key === "loc") {
+        else if (key === "loc" || key === "loc1") {
           info._location[0] = undefined;
+        }
+        else if (key === "loc2") {
+          info._location[1] = undefined;
         }
         else if (key === "faction") {
           info._faction = undefined;
