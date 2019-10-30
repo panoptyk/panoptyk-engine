@@ -186,6 +186,12 @@ export class Controller {
 
     this.removeAgentFromRoom(agent);
     this.addAgentToRoom(agent, newRoom);
+
+    const time = util.getPanoptykDatetime();
+    const info = Info.ACTIONS.MOVE.create({ time, agent, loc1: oldRoom, loc2: newRoom });
+    info.owner = agent;
+
+    this.giveInfoToAgents(oldRoom.getAgents().concat(newRoom.getAgents()), info);
   }
 
   /**
@@ -223,12 +229,6 @@ export class Controller {
     newRoom.occupants.forEach(occupant => {
       this.updateChanges(occupant, [newRoom, agent]);
     });
-
-    const time = util.getPanoptykDatetime();
-    const info = Info.ACTIONS.ENTER.create({ time, agent, loc: newRoom });
-    info.owner = agent;
-
-    this.giveInfoToAgents(newRoom.getAgents(), info);
   }
 
   /**
@@ -264,12 +264,6 @@ export class Controller {
     oldRoom.occupants.forEach(occupant => {
       this.updateChanges(occupant, [oldRoom]);
     });
-
-    const time = util.getPanoptykDatetime();
-    const info = Info.ACTIONS.DEPART.create({ time, agent, loc: oldRoom });
-    info.owner = agent;
-
-    this.giveInfoToAgents(oldRoom.getAgents(), info);
   }
 
   /**

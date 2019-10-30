@@ -24,6 +24,13 @@ export interface TAL {
   loc: Room;
 }
 
+export interface TALL {
+  time: number;
+  agent: Agent;
+  loc1: Room;
+  loc2: Room;
+}
+
 export interface TAF {
   time: number;
   agent: Agent;
@@ -349,6 +356,34 @@ export class Info extends IDObject {
         };
       }
     },
+    TALL: {
+      name: "TALL", // predicate(Time, Agent, Location, Location)
+      /**
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Location, Location)
+       */
+      create({ time, agent, loc1, loc2 }: TALL): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TALL.name;
+        i._agent[0] = agent ? agent.id : undefined;
+        i._location[0] = loc1 ? loc1.id : undefined;
+        i._location[1] = loc2 ? loc2.id : undefined;
+
+        return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TALL {
+        return {
+          time: info.time,
+          agent: Agent.getByID(info.agents[0]),
+          loc1: Room.getByID(info.locations[0]),
+          loc2: Room.getByID(info.locations[1])
+        };
+      }
+    },
     TAF: {
       name: "TAF", // predicate(Time, Agent, Faction)
       /**
@@ -551,71 +586,38 @@ export class Info extends IDObject {
 
   // All possible actions
   static ACTIONS = {
-    ENTER: {
-      name: "ENTER",
-      predicate: Info.PREDICATE.TAL.name,
+    MOVE: {
+      name: "MOVE",
+      predicate: Info.PREDICATE.TALL.name,
       /**
        * Creates an action that uses this predicate format
-       *   ENTER(Time, Agent, Location)
+       *   MOVE(Time, Agent, Location, Location)
        */
-      create(args: TAL): Info {
-        const i = Info.PREDICATE.TAL.create(args);
-        i._action = Info.ACTIONS.ENTER.name;
+      create(args: TALL): Info {
+        const i = Info.PREDICATE.TALL.create(args);
+        i._action = Info.ACTIONS.MOVE.name;
         return i;
       },
-      createQuery(args: TAL): Info {
-        const i = Info.ACTIONS.ENTER.create(args);
+      createQuery(args: TALL): Info {
+        const i = Info.ACTIONS.MOVE.create(args);
         i._query = true;
         return i;
       },
       /**
        * create a question object for sending. Untracked/unsaved
        */
-      question({ agent, time, loc }: TAL): { action: string } & TAL {
+      question({ agent, time, loc1, loc2 }: TALL): { action: string } & TALL {
         return {
-          action: Info.ACTIONS.ENTER.name,
+          action: Info.ACTIONS.MOVE.name,
           agent,
           time,
-          loc
+          loc1,
+          loc2
         };
       },
-      getTerms(info: Info): { action: string } & TAL {
-        const terms: any = Info.PREDICATE.TAL.getTerms(info);
-        terms.action = Info.ACTIONS.ENTER.name;
-        return terms;
-      }
-    },
-    DEPART: {
-      name: "DEPART",
-      predicate: Info.PREDICATE.TAL.name,
-      /**
-       * Creates an action that uses this predicate format
-       *   DEPART(Time, Agent, Location)
-       */
-      create(args: TAL): Info {
-        const i = Info.PREDICATE.TAL.create(args);
-        i._action = Info.ACTIONS.DEPART.name;
-        return i;
-      },
-      createQuery(args: TAL): Info {
-        const i = Info.ACTIONS.DEPART.create(args);
-        i._query = true;
-        return i;
-      },
-      /**
-       * create a question object for sending. Untracked/unsaved
-       */
-      question({ agent, time, loc }: TAL): { action: string } & TAL {
-        return {
-          action: Info.ACTIONS.DEPART.name,
-          agent,
-          time,
-          loc
-        };
-      },
-      getTerms(info: Info): { action: string } & TAL {
-        const terms: any = Info.PREDICATE.TAL.getTerms(info);
-        terms.action = Info.ACTIONS.DEPART.name;
+      getTerms(info: Info): { action: string } & TALL {
+        const terms: any = Info.PREDICATE.TALL.getTerms(info);
+        terms.action = Info.ACTIONS.MOVE.name;
         return terms;
       }
     },
