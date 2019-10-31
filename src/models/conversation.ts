@@ -137,4 +137,12 @@ export class Conversation extends IDObject {
   public passOnQuestion(question: Info, agent: Agent) {
     this._askedQuestions.get(question.id).push(agent.id);
   }
+
+  /**
+   * Checks if specified question has been asked on conversation
+   * @param question specified question
+   */
+  public hasQuestion(question: Info) {
+    return this._askedQuestions.has(question.id);
+  }
 }

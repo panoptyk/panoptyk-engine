@@ -367,4 +367,12 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id});
     return res;
   }
+
+  /**
+   * Pass on question in current conversation.
+   */
+  public static async passOnQuestion(question: Info) {
+    const res = await ClientAPI.sendWrapper("pass-question", { infoID: question.id });
+    return res;
+  }
 }
