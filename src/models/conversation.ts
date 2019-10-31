@@ -2,6 +2,7 @@ import { logger } from "../utilities/logger";
 import { IDObject } from "./idObject";
 import { Room } from "./room";
 import { Agent } from "./agent";
+import { Info } from "./information";
 
 export class Conversation extends IDObject {
 
@@ -11,7 +12,7 @@ export class Conversation extends IDObject {
     return this._maxAgents;
   }
   private _agentIDs: Set<number>;
-
+  private _infoID: number;
 
   /**
    * Conversation constructor.
@@ -96,4 +97,11 @@ export class Conversation extends IDObject {
     return this._agentIDs.has(agent.id);
   }
 
+  set info(info: Info) {
+    this._infoID = info.id;
+  }
+
+  get info(): Info {
+    return Info.getByID(this._infoID);
+  }
 }

@@ -217,8 +217,6 @@ export class Controller {
     agent.putInRoom(newRoom);
     newRoom.addAgent(agent);
 
-    // agent.socket.join(newRoom.id); <- should we use this functionality?
-
     this.updateChanges(agent, [
       newRoom,
       agent,
@@ -229,6 +227,13 @@ export class Controller {
     newRoom.occupants.forEach(occupant => {
       this.updateChanges(occupant, [newRoom, agent]);
     });
+
+    for (const convo of newRoom.getConversations()) {
+      // give time masked info of current conversations
+      const convoInfo = convo.info;
+      const mask = { time: "mask" };
+      this.giveMaskedInfoToAgents([agent], convoInfo, mask);
+    }
   }
 
   /**
@@ -594,6 +599,22 @@ export class Controller {
   }
 
   /**
+   * Give a piece of masked info to an array of agents.
+   * @param {[Object]} agents - agents to give info to.
+   * @param {Info} info - info Object.
+   */
+  public giveMaskedInfoToAgents(agents: Agent[], info: Info, mask) {
+    const time = util.getPanoptykDatetime();
+
+    for (const agent of agents) {
+      const cpy = info.makeCopy(agent, time);
+      cpy.setMask(mask);
+      this.addInfoToAgentInventory(agent, [cpy]);
+      this.updateChanges(agent, [info]);
+    }
+  }
+
+  /**
    * Informs receiving agent of conversation request.
    * @param agent sending agent
    * @param toAgent receiving agent
@@ -616,6 +637,17 @@ export class Controller {
 
     this.addAgentToConversation(conversation, agent);
     this.addAgentToConversation(conversation, toAgent);
+
+    const time = util.getPanoptykDatetime();
+    const info = Info.ACTIONS.CONVERSE.create({
+      time,
+      agent1: agent,
+      agent2: toAgent,
+      loc: room
+    });
+    this.giveInfoToAgents(room.getAgents(), info);
+    conversation.info = info;
+
     return conversation;
   }
 

@@ -197,4 +197,12 @@ export class Room extends IDObject {
   public getItems(): Item[] {
     return Item.getByIDs(Array.from(this.itemIDs));
   }
+
+  /**
+   * Gets the active conversations in this room
+   * @returns {Conversationp[]}
+   */
+  public getConversations(): Conversation[] {
+    return Conversation.getByIDs(Array.from(this.conversationIDs));
+  }
 }
