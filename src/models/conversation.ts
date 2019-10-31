@@ -13,6 +13,10 @@ export class Conversation extends IDObject {
   }
   private _agentIDs: Set<number>;
   private _infoID: number;
+  private _askedQuestions: Map<number, number[]>;
+  public get askedQuestions(): Info[] {
+    return Info.getByIDs(Array.from(this._askedQuestions.keys()));
+  }
 
   /**
    * Conversation constructor.
@@ -26,6 +30,7 @@ export class Conversation extends IDObject {
     this._maxAgents = maxAgents;
     this._agentIDs = new Set();
     this.roomID = room.id;
+    this._askedQuestions = new Map();
     room.addConversation(this);
 
     logger.log("Conversation intialized in room " + room, 2);
@@ -42,6 +47,7 @@ export class Conversation extends IDObject {
       c[key] = json[key];
     }
     c._agentIDs = new Set<number>(c._agentIDs);
+    c._askedQuestions = new Map<number, number[]>(c._askedQuestions);
     return c;
   }
 
@@ -53,6 +59,7 @@ export class Conversation extends IDObject {
   public serialize(removePrivateData = false): Conversation {
     const safeConversation = Object.assign({}, this);
     (safeConversation._agentIDs as any) = Array.from(safeConversation._agentIDs);
+    (safeConversation._askedQuestions as any) = Array.from(safeConversation._askedQuestions);
     return safeConversation;
   }
 
@@ -103,5 +110,31 @@ export class Conversation extends IDObject {
 
   get info(): Info {
     return Info.getByID(this._infoID);
+  }
+
+  /**
+   * Keeps track of question in this Conversation
+   * @param question specified question
+   */
+  public logQuestion(question: Info) {
+    this._askedQuestions.set(question.id, []);
+  }
+
+  /**
+   * Checks if given agent has decided to pass on question
+   * @param question specified question
+   * @param agent agent to check
+   */
+  public agentPassedQuestion(question: Info, agent: Agent): boolean {
+    return this._askedQuestions.get(question.id).includes(agent.id);
+  }
+
+  /**
+   * Logs that agent has decided to pass on specified question
+   * @param question specified question
+   * @param agent current agent
+   */
+  public passOnQuestion(question: Info, agent: Agent) {
+    this._askedQuestions.get(question.id).push(agent.id);
   }
 }

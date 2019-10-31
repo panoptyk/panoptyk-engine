@@ -607,10 +607,12 @@ export class Controller {
     const time = util.getPanoptykDatetime();
 
     for (const agent of agents) {
-      const cpy = info.makeCopy(agent, time);
-      cpy.setMask(mask);
-      this.addInfoToAgentInventory(agent, [cpy]);
-      this.updateChanges(agent, [info]);
+      if (!agent.hasKnowledge(info)) {
+        const cpy = info.makeCopy(agent, time);
+        cpy.setMask(mask);
+        this.addInfoToAgentInventory(agent, [cpy]);
+        this.updateChanges(agent, [info]);
+      }
     }
   }
 
@@ -710,6 +712,7 @@ export class Controller {
     const question: Info = Info.ACTIONS[predicate.action].createQuery(agent, predicate);
 
     const conversation: Conversation = agent.conversation;
+    conversation.logQuestion(question);
     const relevantAgents = conversation.getAgents();
     for (const other of conversation.getAgents(agent)) {
       this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
@@ -722,7 +725,7 @@ export class Controller {
    * Agent passes on specified question in conversation
    */
   public passOnQuestion(agent: Agent, question: Info, conversation: Conversation) {
-
+    conversation.passOnQuestion(question, agent);
   }
 
   /**
