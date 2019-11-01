@@ -717,7 +717,9 @@ export class Controller {
     for (const other of conversation.getAgents(agent)) {
       this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
         agent1: agent, agent2: other, loc: conversation.room, info: question}));
+        this.updateChanges(other, [conversation]);
     }
+    this.updateChanges(agent, [conversation]);
     this.giveInfoToAgents(relevantAgents, question);
   }
 
@@ -726,6 +728,9 @@ export class Controller {
    */
   public passOnQuestion(agent: Agent, question: Info, conversation: Conversation) {
     conversation.passOnQuestion(question, agent);
+    for (const member of conversation.getAgents()) {
+      this.updateChanges(member, [conversation]);
+    }
   }
 
   /**
