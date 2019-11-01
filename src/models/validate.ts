@@ -513,4 +513,17 @@ export class Validate {
     }
     return { status: true, message: "" };
   }
+
+  /**
+   * Checks if question has been asked in current conversation
+   */
+  public static validate_asked_in_conversation(question: Info, conversation: Conversation) {
+    if (!conversation.hasQuestion(question)) {
+      return {
+        status: false,
+        message: question + " has not been asked on conversation " + conversation
+      };
+    }
+    return { status: true, message: "" };
+  }
 }
