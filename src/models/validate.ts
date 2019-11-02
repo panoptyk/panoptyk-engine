@@ -464,7 +464,8 @@ export class Validate {
     const answerTerms = answer.getTerms();
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if (questionTerms[key] !== answerTerms[key]) {
+      if (questionTerms[key] !== undefined &&
+        questionTerms[key] !== answerTerms[key]) {
         return {
           status: false,
           message: "Answer " + key + " does not match the " + key + " in the question!"
