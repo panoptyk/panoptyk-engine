@@ -321,30 +321,20 @@ export class ClientAPI {
   /**
    * Ask a question in current conversation.
    */
-  public static async askQuestion(question: object) {
-    const res = await ClientAPI.sendWrapper("ask-question", { question });
-    return res;
-  }
-
-  /**
-   * Tells owner of question that you have an answer to their question.
-   */
-  public static async confirmKnowledgeOfAnswerToQuestion(question: Info, answer: Info) {
-    const res = await ClientAPI.sendWrapper("confirm-knowledge", {
-      questionID: question.id,
-      answerID: answer.id
-    });
+  public static async askQuestion(question: object, desiredInfo: string[] = []) {
+    const res = await ClientAPI.sendWrapper("ask-question", { question, desiredInfo });
     return res;
   }
 
   /**
    * Offer an answer to a question as part of a trade.
    */
-  public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info) {
+  public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info, mask: string[] = []) {
     const res = await ClientAPI.sendWrapper("offer-answer-trade", {
       tradeID: trade.id,
       answerID: answer.id,
-      questionID: question.id
+      questionID: question.id,
+      mask
     });
     return res;
   }
@@ -363,8 +353,8 @@ export class ClientAPI {
   /**
    * Freely give an information item in a conversation.
    */
-  public static async tellInfo(info: Info) {
-    const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id});
+  public static async tellInfo(info: Info, mask: string[] = []) {
+    const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id, mask});
     return res;
   }
 

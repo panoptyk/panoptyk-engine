@@ -164,6 +164,9 @@ export class Info extends IDObject {
     this._infoID = value;
   }
   private _mask: any = {};
+  public get mask(): any {
+    return this._mask;
+  }
 
   /**
    * Info model.

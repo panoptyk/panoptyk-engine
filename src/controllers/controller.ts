@@ -232,7 +232,7 @@ export class Controller {
       // give time masked info of current conversations
       const convoInfo = convo.info;
       const mask = { time: "mask" };
-      this.giveMaskedInfoToAgents([agent], convoInfo, mask);
+      this.giveInfoToAgents([agent], convoInfo, mask);
     }
   }
 
@@ -582,28 +582,12 @@ export class Controller {
   }
 
   /**
-   * Give a piece of info to an array of agents.
-   * @param {[Object]} agents - agents to give info to.
-   * @param {Info} info - info Object.
-   */
-  public giveInfoToAgents(agents: Agent[], info: Info) {
-    const time = util.getPanoptykDatetime();
-
-    for (const agent of agents) {
-      if (!agent.hasKnowledge(info)) {
-        const cpy = info.makeCopy(agent, time);
-        this.addInfoToAgentInventory(agent, [cpy]);
-        this.updateChanges(agent, [info]);
-      }
-    }
-  }
-
-  /**
    * Give a piece of masked info to an array of agents.
    * @param {[Object]} agents - agents to give info to.
    * @param {Info} info - info Object.
+   * @param {Object} mask - optional mask to apply to given Info
    */
-  public giveMaskedInfoToAgents(agents: Agent[], info: Info, mask) {
+  public giveInfoToAgents(agents: Agent[], info: Info, mask = {}) {
     const time = util.getPanoptykDatetime();
 
     for (const agent of agents) {
@@ -708,11 +692,11 @@ export class Controller {
    * @param agent sending agent
    * @param predicate valid Info question data
    */
-  public askQuestion(agent: Agent, predicate: any) {
+  public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
     const question: Info = Info.ACTIONS[predicate.action].createQuery(agent, predicate);
 
     const conversation: Conversation = agent.conversation;
-    conversation.logQuestion(question);
+    conversation.logQuestion(question, desiredInfo);
     const relevantAgents = conversation.getAgents();
     for (const other of conversation.getAgents(agent)) {
       this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
@@ -740,11 +724,17 @@ export class Controller {
    * @param question Info question
    * @param owner sending agent
    */
-  public addAnswerToTrade(trade: Trade, answer: Info, question: Info, owner: Agent) {
+  public addAnswerToTrade(trade: Trade, answer: Info, question: Info, owner: Agent, maskedInfo: string[]) {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
-
-    trade.addInfo(question, answer, owner);
+    // update mask with fields that are already masked by answer
+    const compare = new Set(maskedInfo);
+    for (const key in answer.getTerms()) {
+      if (answer.mask[key] === "mask" && !compare.has(key)) {
+        maskedInfo.push(key);
+      }
+    }
+    trade.addInfo(question, answer, owner, maskedInfo);
 
     this.updateChanges(trade.agentIni, [trade, answer, question]);
     this.updateChanges(trade.agentRec, [trade, answer, question]);
@@ -771,12 +761,17 @@ export class Controller {
    * @param agent Sending agent
    * @param info Free info
    */
-  public tellInfoFreely(agent: Agent, info: Info) {
+  public tellInfoFreely(agent: Agent, info: Info, maskedInfo: string[]) {
     const agents = agent.conversation.getAgents();
+    // apply mask if given
+    const mask = {};
+    for (const val of maskedInfo) {
+      mask[val] = "mask";
+    }
     for (const other of agents) {
       if (other !== agent) {
         const knowInfo = Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: other, loc: agent.room, info});
-        this.giveInfoToAgents([other], info);
+        this.giveInfoToAgents([other], info, mask);
         this.giveInfoToAgents(agents, knowInfo);
       }
     }

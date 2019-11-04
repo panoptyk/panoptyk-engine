@@ -8,13 +8,15 @@ export const ActionAskQuestion: Action = {
   name: "ask-question",
   formats: [
     {
-      question: "object"
+      question: "object",
+      desiredInfo: "string[]"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
+    const desiredInfo: string[] = inputData.desiredInfo;
 
-    controller.askQuestion(agent, inputData.question);
+    controller.askQuestion(agent, inputData.question, desiredInfo);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -29,7 +31,8 @@ export const ActionAskQuestion: Action = {
     if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
         return res;
     }
-    if (!(res = Validate.validate_valid_question(inputData.question)).status) {
+    const desiredInfo: string[] = inputData.desiredInfo;
+    if (!(res = Validate.validate_valid_question(inputData.question, desiredInfo)).status) {
         return res;
     }
     return Validate.successMsg;
