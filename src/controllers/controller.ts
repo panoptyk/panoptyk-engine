@@ -51,7 +51,21 @@ export class Controller {
         if (!payload[name]) {
           payload[name] = [];
         }
-        payload[name].push(model.serialize());
+        if (name === Info.name) {
+          const info: Info = model as Info;
+          if (info.isReference()) {
+            const master: Info = Info.getByID(info.infoID);
+            if (info.isMasked()) {
+              master.setMask(info.mask);
+            }
+            payload[name].push(master.serialize(true));
+            master.removeMask();
+            payload[name].push(info.serialize());
+          }
+        }
+        else {
+          payload[name].push(model.serialize());
+        }
       }
       // console.log(payload);
       if (agent.socket) {
