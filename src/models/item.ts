@@ -82,7 +82,7 @@ export class Item extends IDObject {
    * Remove item from its room and send updates.
    */
   remove_from_room() {
-    this.roomID = undefined;
+    this.roomID = 0;
   }
 
   /**
@@ -97,15 +97,15 @@ export class Item extends IDObject {
    * Take this item from an agent.
    */
   takeFromAgent() {
-    this.agentID = undefined;
+    this.agentID = 0;
   }
 
   get room(): Room {
-    return Room.getByID(this.roomID);
+    return this.roomID ? Room.getByID(this.roomID) : undefined;
   }
 
   get agent(): Agent {
-    return Agent.getByID(this.agentID);
+    return this.agentID ? Agent.getByID(this.agentID) : undefined;
   }
 
 }

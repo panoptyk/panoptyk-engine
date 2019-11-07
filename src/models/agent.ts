@@ -13,7 +13,7 @@ export class Agent extends IDObject {
   }
   private roomID: number;
   public get room(): Room {
-    return Room.getByID(this.roomID);
+    return this.roomID ? Room.getByID(this.roomID) : undefined;
   }
   public socket: SocketIO.Socket;
   private _inventory: Set<number>;
@@ -303,7 +303,7 @@ export class Agent extends IDObject {
    * Remove agent from room.
    */
   public removeFromRoom() {
-    this.roomID = undefined;
+    this.roomID = 0;
     this._conversationRequests.clear();
   }
 
