@@ -609,7 +609,6 @@ export class Controller {
         const cpy = info.makeCopy(agent, time);
         cpy.setMask(mask);
         this.addInfoToAgentInventory(agent, [cpy]);
-        this.updateChanges(agent, [info]);
       }
     }
   }
@@ -750,8 +749,8 @@ export class Controller {
     }
     trade.addInfo(question, answer, owner, maskedInfo);
 
-    this.updateChanges(trade.agentIni, [trade, answer, question]);
-    this.updateChanges(trade.agentRec, [trade, answer, question]);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
   }
 
   /**
