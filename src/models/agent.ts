@@ -5,6 +5,7 @@ import { IDObject } from "./idObject";
 import { Room } from "./room";
 import { Info } from "./information";
 import { Conversation } from "./conversation";
+import { Trade } from "./trade";
 
 export class Agent extends IDObject {
   private _agentName: string;
@@ -13,7 +14,7 @@ export class Agent extends IDObject {
   }
   private roomID: number;
   public get room(): Room {
-    return Room.getByID(this.roomID);
+    return this.roomID ? Room.getByID(this.roomID) : undefined;
   }
   public socket: SocketIO.Socket;
   private _inventory: Set<number>;
@@ -303,7 +304,7 @@ export class Agent extends IDObject {
    * Remove agent from room.
    */
   public removeFromRoom() {
-    this.roomID = undefined;
+    this.roomID = 0;
     this._conversationRequests.clear();
   }
 
@@ -326,13 +327,31 @@ export class Agent extends IDObject {
    * Returns true if agent is in a conversation
    */
   public inConversation() {
-    return this._conversationID;
+    return this._conversationID > 0;
   }
 
   public get conversation(): Conversation {
     return this._conversationID
       ? Conversation.getByID(this._conversationID)
       : undefined;
+  }
+
+  public get tradeRequesters(): Agent[] {
+    const requested: Trade[] = Trade.getRequestedTradesWithAgent(this);
+    const requesters = [];
+    for (const trade of requested) {
+      if (trade.agentIni !== this) {
+        requesters.push(trade.agentIni);
+      }
+      else {
+        requesters.push(trade.agentRec);
+      }
+    }
+    return requesters;
+  }
+
+  public get trade(): Trade {
+    return Trade.getActiveTradesWithAgent(this)[0];
   }
 
   /**

@@ -4,6 +4,11 @@ import { Room } from "./room";
 import { Agent } from "./agent";
 import { Info } from "./information";
 
+export interface QuestionInfo {
+  passers: number[];
+  desiredInfo: string[];
+}
+
 export class Conversation extends IDObject {
 
   private roomID: number;
@@ -13,7 +18,7 @@ export class Conversation extends IDObject {
   }
   private _agentIDs: Set<number>;
   private _infoID: number;
-  private _askedQuestions: Map<number, number[]>;
+  private _askedQuestions: Map<number, QuestionInfo>;
   public get askedQuestions(): Info[] {
     return Info.getByIDs(Array.from(this._askedQuestions.keys()));
   }
@@ -47,7 +52,7 @@ export class Conversation extends IDObject {
       c[key] = json[key];
     }
     c._agentIDs = new Set<number>(c._agentIDs);
-    c._askedQuestions = new Map<number, number[]>(c._askedQuestions);
+    c._askedQuestions = new Map<number, QuestionInfo>(c._askedQuestions);
     return c;
   }
 
@@ -114,33 +119,41 @@ export class Conversation extends IDObject {
 
   /**
    * Keeps track of question in this Conversation
-   * @param question specified question
+   * @param question question asked in conversation
    */
-  public logQuestion(question: Info) {
-    this._askedQuestions.set(question.id, []);
+  public logQuestion(question: Info, desiredInfo: string[]) {
+    this._askedQuestions.set(question.id, {passers: [], desiredInfo});
   }
 
   /**
    * Checks if given agent has decided to pass on question
-   * @param question specified question
+   * @param question question asked in conversation
    * @param agent agent to check
    */
   public agentPassedQuestion(question: Info, agent: Agent): boolean {
-    return this._askedQuestions.get(question.id).includes(agent.id);
+    return this._askedQuestions.get(question.id).passers.includes(agent.id);
+  }
+
+  /**
+   * Checks what part of the question is being prioritized by asker
+   * @param question question asked in conversation
+   */
+  public requestedInformation(question: Info): string[] {
+    return this._askedQuestions.get(question.id).desiredInfo;
   }
 
   /**
    * Logs that agent has decided to pass on specified question
-   * @param question specified question
+   * @param question question asked in conversation
    * @param agent current agent
    */
   public passOnQuestion(question: Info, agent: Agent) {
-    this._askedQuestions.get(question.id).push(agent.id);
+    this._askedQuestions.get(question.id).passers.push(agent.id);
   }
 
   /**
    * Checks if specified question has been asked on conversation
-   * @param question specified question
+   * @param question question asked in conversation
    */
   public hasQuestion(question: Info) {
     return this._askedQuestions.has(question.id);

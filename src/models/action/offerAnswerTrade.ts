@@ -10,7 +10,8 @@ export const ActionOfferAnswerTrade: Action = {
     {
       "tradeID": "number",
       "answerID": "number",
-      "questionID": "number"
+      "questionID": "number",
+      "mask": "string[]"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
@@ -18,8 +19,9 @@ export const ActionOfferAnswerTrade: Action = {
     const trade: Trade = Trade.getByID(inputData.tradeID);
     const answer: Info = Info.getByID(inputData.answerID);
     const question: Info = Info.getByID(inputData.questionID);
+    const mask: string[] = inputData.mask;
 
-    controller.addAnswerToTrade(trade, answer, question, agent);
+    controller.addAnswerToTrade(trade, answer, question, agent, mask);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -36,6 +38,10 @@ export const ActionOfferAnswerTrade: Action = {
     }
     const answer: Info = Info.getByID(inputData.answerID);
     const question: Info = Info.getByID(inputData.questionID);
+    const mask: string[] = inputData.mask;
+    if (!(res = Validate.validate_info_mask(answer, mask)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_agent_owns_info(agent, answer)).status) {
         return res;
     }

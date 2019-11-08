@@ -164,6 +164,9 @@ export class Info extends IDObject {
     this._infoID = value;
   }
   private _mask: any = {};
+  public get mask(): any {
+    return this._mask;
+  }
 
   /**
    * Info model.
@@ -327,6 +330,26 @@ export class Info extends IDObject {
     }
 
     return safeObj;
+  }
+
+  /**
+   * Check if this Info item is an answer to a given question
+   * @param question question to check
+   */
+  public isAnswer(question: Info): boolean {
+    if (this.action !== question.action) {
+      return false;
+    }
+    const questionTerms = question.getTerms();
+    const answerTerms = this.getTerms();
+    // make sure answer has same known info as question
+    for (const key in questionTerms) {
+      if (questionTerms[key] !== undefined &&
+        questionTerms[key] !== answerTerms[key]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // public static addPredicate(Ipredicate) TODO

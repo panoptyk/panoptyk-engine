@@ -403,7 +403,7 @@ export class Validate {
   /**
    * Validates that a valid question can be constructed from parameters
    */
-  public static validate_valid_question(predicate: any) {
+  public static validate_valid_question(predicate: any, mask: string[]) {
     const type = Info.ACTIONS[predicate.action];
     if (type === undefined) {
       return {
@@ -411,7 +411,7 @@ export class Validate {
         message: "Error asking question, " + predicate.action + " is an invalid action!"
       };
     }
-    // TODO: Validate predicate
+    // TODO: Validate predicate and mask predicates
     return {
       status: true,
       message: ""
@@ -452,6 +452,7 @@ export class Validate {
    * Checks if given answer is related to question
    * @param question
    * @param answer
+   * @param mask
    */
   public static validate_info_is_answer(question: Info, answer: Info) {
     if (question.action !== answer.action) {
@@ -464,7 +465,8 @@ export class Validate {
     const answerTerms = answer.getTerms();
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if (questionTerms[key] !== answerTerms[key]) {
+      if (questionTerms[key] !== undefined &&
+        questionTerms[key] !== answerTerms[key]) {
         return {
           status: false,
           message: "Answer " + key + " does not match the " + key + " in the question!"
@@ -523,6 +525,24 @@ export class Validate {
         status: false,
         message: question + " has not been asked on conversation " + conversation
       };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if given mask can be applied to specified info item
+   * @param info info to be masked
+   * @param mask mask to be applied
+   */
+  public static validate_info_mask(info: Info, mask: string[]) {
+    const preds = info.getTerms();
+    for (const val of mask) {
+      if (preds[val] === undefined) {
+        return {
+          status: false,
+          message: val + " cannot be masked as it does not exist on Info " + info
+        };
+      }
     }
     return { status: true, message: "" };
   }

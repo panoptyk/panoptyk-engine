@@ -8,14 +8,16 @@ export const ActionTellInfo: Action = {
   name: "tell-info",
   formats: [
     {
-      infoID: "number"
+      infoID: "number",
+      mask: "string[]"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const info: Info = Info.getByID(inputData.infoID);
+    const mask: string[] = inputData.mask;
 
-    controller.tellInfoFreely(agent, info);
+    controller.tellInfoFreely(agent, info, mask);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -33,6 +35,10 @@ export const ActionTellInfo: Action = {
     const info: Info = Info.getByID(inputData.infoID);
     if (!(res = Validate.validate_agent_owns_info(agent, info)).status) {
         return res;
+    }
+    const mask: string[] = inputData.mask;
+    if (!(res = Validate.validate_info_mask(info, mask)).status) {
+      return res;
     }
     return Validate.successMsg;
   }

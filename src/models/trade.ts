@@ -5,6 +5,11 @@ import { Conversation } from "./conversation";
 import { Agent } from "./agent";
 import { Info } from "./information";
 
+export interface AnswerInfo {
+  answerID: number;
+  maskedInfo: string[];
+}
+
 export class Trade extends IDObject {
   public static result = {
     FAILED: 0,
@@ -23,9 +28,9 @@ export class Trade extends IDObject {
     return this._resultStatus;
   }
   private initiatorItemIDs: Set<number>;
-  private initiatorInfoIDs: Map<number, number>;
+  private initiatorInfo: Map<number, AnswerInfo>;
   private receiverItemIDs: Set<number>;
-  private receiverInfoIDs: Map<number, number>;
+  private receiverInfo: Map<number, AnswerInfo>;
   private initiatorStatus: boolean;
   private receiverStatus: boolean;
 
@@ -53,8 +58,8 @@ export class Trade extends IDObject {
 
     this.initiatorItemIDs = new Set<number>();
     this.receiverItemIDs = new Set<number>();
-    this.initiatorInfoIDs = new Map<number, number>();
-    this.receiverInfoIDs = new Map<number, number>();
+    this.initiatorInfo = new Map<number, AnswerInfo>();
+    this.receiverInfo = new Map<number, AnswerInfo>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -82,15 +87,15 @@ public toString() {
    */
   static load(json: Trade) {
     // Loads previous trades
-    let t = Trade.objects[json.id];
+    let t: Trade = Trade.objects[json.id];
     t = t ? t : new Trade(undefined, undefined, undefined, json.id);
     for (const key in json) {
       t[key] = json[key];
     }
     t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.initiatorInfoIDs = new Map<number, number>(t.initiatorInfoIDs);
-    t.receiverInfoIDs = new Map<number, number>(t.receiverInfoIDs);
+    t.receiverItemIDs = new Set<number>(t.receiverItemIDs);
+    t.initiatorInfo = new Map<number, AnswerInfo>(t.initiatorInfo);
+    t.receiverInfo = new Map<number, AnswerInfo>(t.receiverInfo);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -104,8 +109,8 @@ public toString() {
     const safeTrade = Object.assign({}, this);
     (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
     (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
-    (safeTrade.initiatorInfoIDs as any) = Array.from(safeTrade.initiatorInfoIDs);
-    (safeTrade.receiverInfoIDs as any) = Array.from(safeTrade.receiverInfoIDs);
+    (safeTrade.initiatorInfo as any) = Array.from(safeTrade.initiatorInfo);
+    (safeTrade.receiverInfo as any) = Array.from(safeTrade.receiverInfo);
     return safeTrade;
   }
 
@@ -139,10 +144,10 @@ public toString() {
     let items: Info[];
 
     if (agent.id === this.initiatorID) {
-      items = Info.getByIDs(Array.from(this.initiatorInfoIDs.keys()));
+      items = Info.getByIDs(Array.from(this.initiatorInfo.keys()));
     }
     else if (agent.id === this.receiverID) {
-      items = Info.getByIDs(Array.from(this.receiverInfoIDs.keys()));
+      items = Info.getByIDs(Array.from(this.receiverInfo.keys()));
     }
     else {
       logger.log("No matching agent for trade info data.", 0, "trade.js");
@@ -215,11 +220,11 @@ public toString() {
   /**
    * Add info to one side of the trade.
    */
-  addInfo(question: Info, answer: Info, owner: Agent) {
+  addInfo(question: Info, answer: Info, owner: Agent, maskedInfo: string[]) {
     if (owner.id === this.initiatorID) {
-      this.initiatorInfoIDs.set(question.id, answer.id);
+      this.initiatorInfo.set(question.id, {answerID: answer.id, maskedInfo});
     } else if (owner.id === this.receiverID) {
-      this.receiverInfoIDs.set(question.id, answer.id);
+      this.receiverInfo.set(question.id, {answerID: answer.id, maskedInfo});
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
@@ -256,11 +261,11 @@ public toString() {
   removeInfo(items: Info[], owner: Agent) {
     if (owner.id === this.initiatorID) {
       items.forEach(item => {
-        this.initiatorInfoIDs.delete(item.id);
+        this.initiatorInfo.delete(item.id);
       });
     } else if (owner.id === this.receiverID) {
       items.forEach(item => {
-        this.receiverInfoIDs.delete(item.id);
+        this.receiverInfo.delete(item.id);
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
@@ -376,11 +381,19 @@ public toString() {
   }
 
   get infoAnsIni(): Info[] {
-    return Info.getByIDs(Array.from(this.initiatorInfoIDs.values()));
+    const answers = [];
+    for (const ans of this.initiatorInfo.values()) {
+      answers.push(Info.getByID(ans.answerID));
+    }
+    return answers;
   }
 
   get infoAnsRec(): Info[] {
-    return Info.getByIDs(Array.from(this.receiverInfoIDs.values()));
+    const answers = [];
+    for (const ans of this.receiverInfo.values()) {
+      answers.push(Info.getByID(ans.answerID));
+    }
+    return answers;
   }
 
   get conversation(): Conversation {
