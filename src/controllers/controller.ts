@@ -574,11 +574,12 @@ export class Controller {
    */
   public setTradeAgentStatus(trade: Trade, agent: Agent, rstatus: boolean) {
     const endTrade = trade.setAgentReady(agent, rstatus);
-
-    this.updateChanges(agent, [trade]);
-
     if (endTrade) {
       this.performTrade(trade);
+    }
+    else {
+      this.updateChanges(trade.agentRec, [trade]);
+      this.updateChanges(trade.agentIni, [trade]);
     }
   }
 
