@@ -235,6 +235,17 @@ export class ClientAPI {
   }
 
   /**
+   * Accept trade from another agent in current Conversation
+   * @param targetAgent agent to accept trade with
+   */
+  public static async acceptTrade(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("request-trade", {
+      agentID: targetAgent.id
+    });
+    return res;
+  }
+
+  /**
    * Have logged-in agent cancel/reject specified trade
    * @param targetTrade
    */
