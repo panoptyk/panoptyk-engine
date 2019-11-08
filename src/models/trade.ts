@@ -93,7 +93,7 @@ public toString() {
       t[key] = json[key];
     }
     t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.receiverItemIDs = new Set<number>(t.initiatorItemIDs);
+    t.receiverItemIDs = new Set<number>(t.receiverItemIDs);
     t.initiatorInfo = new Map<number, AnswerInfo>(t.initiatorInfo);
     t.receiverInfo = new Map<number, AnswerInfo>(t.receiverInfo);
     t.setStatus(t._resultStatus);
