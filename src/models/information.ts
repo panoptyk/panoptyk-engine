@@ -918,6 +918,50 @@ export class Info extends IDObject {
         terms.action = Info.ACTIONS.TOLD.name;
         return terms;
       }
+    },
+    GAVE: {
+      name: "GAVE",
+      predicate: Info.PREDICATE.TAAILQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   GAVE(Time, Agent, Agent, Location, Item-ID, quantity)
+       */
+      create(args: TAAILQ): Info {
+        const i = Info.PREDICATE.TAAILQ.create(args);
+        i._action = Info.ACTIONS.GAVE.name;
+        return i;
+      },
+      createQuery(args: TAAILQ): Info {
+        const i = Info.ACTIONS.GAVE.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time,
+        loc,
+        item,
+        quantity
+      }: TAAILQ): { action: string } & TAAILQ {
+        return {
+          action: Info.ACTIONS.GAVE.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          item,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TAAILQ {
+        const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
+        terms.action = Info.ACTIONS.GAVE.name;
+        return terms;
+      }
     }
   };
 }
