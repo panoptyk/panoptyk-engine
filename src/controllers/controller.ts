@@ -497,27 +497,19 @@ export class Controller {
     this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
     this.updateChanges(trade.agentRec, [trade, trade.agentRec]);
 
-    // TODO: fix info given at end of trade
-    // Info object prep
-    const itemsIniStr = [];
-    const itemsResStr = [];
-
+    // Info on items traded
     for (const item of trade.itemsIni) {
-      itemsIniStr.push(item.itemName);
+      generalInfo.push(Info.ACTIONS.GAVE.create({
+        time: util.getPanoptykDatetime(), agent1: trade.agentIni,
+          agent2: trade.agentRec, loc: trade.agentRec.room, item, quantity: 1
+      }));
     }
     for (const item of trade.itemsRec) {
-      itemsResStr.push(item.itemName);
+      generalInfo.push(Info.ACTIONS.GAVE.create({
+        time: util.getPanoptykDatetime(), agent1: trade.agentRec,
+          agent2: trade.agentIni, loc: trade.agentRec.room, item, quantity: 1
+      }));
     }
-
-    const time = util.getPanoptykDatetime();
-    const info = Info.ACTIONS.CONVERSE.create({
-      time,
-      agent1: trade.agentIni,
-      agent2: trade.agentRec,
-      loc: trade.conversation.room
-    });
-    info.owner = trade.agentIni;
-    generalInfo.push(info);
 
     for (const info of generalInfo) {
       this.giveInfoToAgents(trade.conversation.room.getAgents(), info);
