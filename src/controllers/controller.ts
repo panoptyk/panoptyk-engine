@@ -699,7 +699,7 @@ export class Controller {
    * @param predicate valid Info question data
    */
   public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
-    const question: Info = Info.ACTIONS[predicate.action].createQuery(agent, predicate);
+    const question: Info = Info.ACTIONS[predicate.action].create(predicate, "query");
 
     const conversation: Conversation = agent.conversation;
     conversation.logQuestion(question, desiredInfo);

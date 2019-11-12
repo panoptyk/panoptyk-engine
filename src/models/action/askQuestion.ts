@@ -9,7 +9,7 @@ export const ActionAskQuestion: Action = {
   formats: [
     {
       question: "object",
-      desiredInfo: "string[]"
+      desiredInfo: "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
