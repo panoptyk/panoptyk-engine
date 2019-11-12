@@ -782,4 +782,28 @@ export class Controller {
       }
     }
   }
+
+  /**
+   * Sending agent gives quest to other agent
+   * @param agent sending agent
+   * @param predicate valid predicate to construct info
+   */
+  public sendQuest(agent: Agent, rawInfo: any) {
+    const quest: Info = Info.ACTIONS.QUEST.create(rawInfo);
+    const relevantAgents = agent.conversation.getAgents();
+    this.updateChanges(agent, [agent.conversation]);
+    this.giveInfoToAgents(relevantAgents, quest);
+  }
+
+  /**
+   * Sending agent gives command to other agent
+   * @param agent sending agent
+   * @param predicate valid predicate to construct info
+   */
+  public sendCommand(agent: Agent, rawInfo: any) {
+    const quest: Info = Info.ACTIONS.COMMAND.create(rawInfo);
+    const relevantAgents = agent.conversation.getAgents();
+    this.updateChanges(agent, [agent.conversation]);
+    this.giveInfoToAgents(relevantAgents, quest);
+  }
 }

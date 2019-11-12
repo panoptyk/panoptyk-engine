@@ -81,17 +81,25 @@ export interface TAAILQ {
   quantity: number;
 }
 
+export interface TTAAI {
+  time1: number;
+  time2: number;
+  agent1: Agent;
+  agent2: Agent;
+  info: Info;
+}
+
 export class Info extends IDObject {
-  private _time: number;
-  public get time(): number {
+  private _time: number[];
+  public get time(): number[] {
     if (this._reference) {
       return Info.getByID(this._infoID)._time;
     }
     return this._time;
   }
-  public set time(value: number) {
-    this._time = value;
-  }
+  // public set time(value: number) {
+  //   this._time = value;
+  // }
   private _query = false;
   private _reference = false;
   private _action?: string;
@@ -177,7 +185,7 @@ export class Info extends IDObject {
    */
   constructor(time: number, infoID?: number, id?: number) {
     super(Info.name, id);
-    this._time = time;
+    this._time = [time];
     this._infoID = infoID;
   }
 
@@ -259,8 +267,11 @@ export class Info extends IDObject {
   public applyMask(info: Info) {
     for (const key in this._mask) {
       if (this._mask[key] === "mask") {
-        if (key === "time") {
-          info._time = undefined;
+        if (key === "time" || key === "time1") {
+          info._time[0] = undefined;
+        }
+        else if (key === "time2") {
+          info._time[1] = undefined;
         }
         else if (key === "agent" || key === "agent1") {
           info._agent[0] = undefined;
@@ -303,7 +314,7 @@ export class Info extends IDObject {
    */
   static load(json: Info) {
     let i = Info.objects[json.id];
-    i = i ? i : new Info(json.time, json._infoID, json.id);
+    i = i ? i : new Info(json.time[0], json._infoID, json.id);
     for (const key in json) {
       i[key] = json[key];
     }
@@ -376,7 +387,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAL {
         return {
-          time: info.time,
+          time: info.time[0],
           agent: Agent.getByID(info.agents[0]),
           loc: Room.getByID(info.locations[0])
         };
@@ -403,7 +414,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TALL {
         return {
-          time: info.time,
+          time: info.time[0],
           agent: Agent.getByID(info.agents[0]),
           loc1: Room.getByID(info.locations[0]),
           loc2: Room.getByID(info.locations[1])
@@ -430,7 +441,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAF {
         return {
-          time: info.time,
+          time: info.time[0],
           agent: Agent.getByID(info.agents[0]),
           faction: info.factions[0]
         };
@@ -456,7 +467,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAA {
         return {
-          time: info.time,
+          time: info.time[0],
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1])
         };
@@ -482,7 +493,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAK {
         return {
-          time: info.time,
+          time: info.time[0],
           agent: Agent.getByID(info.agents[0]),
           info: Info.getByID(info.infoID)
         };
@@ -509,7 +520,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAAL {
         return {
-          time: info.time,
+          time: info.time[0],
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           loc: Room.getByID(info.locations[0])
@@ -538,7 +549,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAALK {
         return {
-          time: info.time,
+          time: info.time[0],
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           loc: Room.getByID(info.locations[0]),
@@ -568,7 +579,7 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAILQ {
         return {
-          time: info.time,
+          time: info.time[0],
           agent: Agent.getByID(info.agents[0]),
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
@@ -599,12 +610,42 @@ export class Info extends IDObject {
        */
       getTerms(info: Info): TAAILQ {
         return {
-          time: info.time,
+          time: info.time[0],
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
           quantity: info.quantities[0]
+        };
+      }
+    },
+    TTAAI: {
+      name: "TTAAI", // predicate(Time, Time, Agent, Agent, Information)
+      /**
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Time, Agent, Agent, Information)
+       */
+      create({time1, time2, agent1, agent2, info}: TTAAI): Info {
+        const i = new Info(time1);
+        i._predicate = Info.PREDICATE.TTAAI.name;
+        i._time[1] = time2;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
+        i._infoID = info.isReference() ? info.infoID : info.id;
+
+        return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TTAAI {
+        return {
+          time1: info.time[0],
+          time2: info.time[1],
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1]),
+          info: Info.getByID(info.infoID)
         };
       }
     }
@@ -960,6 +1001,90 @@ export class Info extends IDObject {
       getTerms(info: Info): { action: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.GAVE.name;
+        return terms;
+      }
+    },
+    QUEST: {
+      name: "QUEST",
+      predicate: Info.PREDICATE.TTAAI,
+      /**
+       * Creates an action that uses this predicate format
+       *   GAVE(Time, Time, Agent, Agent, Info-ID)
+       */
+      create(args: TTAAI): Info {
+        const i = Info.PREDICATE.TTAAI.create(args);
+        i._action = Info.ACTIONS.QUEST.name;
+        return i;
+      },
+      createQuery(args: TTAAI): Info {
+        const i = Info.ACTIONS.QUEST.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time1,
+        time2,
+        info
+      }: TTAAI): { action: string } & TTAAI {
+        return {
+          action: Info.ACTIONS.QUEST.name,
+          agent1,
+          agent2,
+          time1,
+          time2,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TTAAI {
+        const terms: any = Info.PREDICATE.TTAAI.getTerms(info);
+        terms.action = Info.ACTIONS.QUEST.name;
+        return terms;
+      }
+    },
+    COMMAND: {
+      name: "COMMAND",
+      predicate: Info.PREDICATE.TTAAI,
+      /**
+       * Creates an action that uses this predicate format
+       *   COMMAND(Time, Time, Agent, Agent, Info-ID)
+       */
+      create(args: TTAAI): Info {
+        const i = Info.PREDICATE.TTAAI.create(args);
+        i._action = Info.ACTIONS.COMMAND.name;
+        return i;
+      },
+      createQuery(args: TTAAI): Info {
+        const i = Info.ACTIONS.COMMAND.create(args);
+        i._query = true;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time1,
+        time2,
+        info
+      }: TTAAI): { action: string } & TTAAI {
+        return {
+          action: Info.ACTIONS.COMMAND.name,
+          agent1,
+          agent2,
+          time1,
+          time2,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TTAAI {
+        const terms: any = Info.PREDICATE.TTAAI.getTerms(info);
+        terms.action = Info.ACTIONS.COMMAND.name;
         return terms;
       }
     }

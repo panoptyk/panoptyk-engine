@@ -376,4 +376,20 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("pass-question", { infoID: question.id });
     return res;
   }
+
+  /**
+   * Gives Quest
+   */
+  public static async giveQuest(quest: object) {
+    const res = await ClientAPI.sendWrapper("give-quest", { rawInfo: quest });
+    return res;
+  }
+
+  /**
+   * Gives Command
+   */
+  public static async giveCommand(command: object) {
+    const res = await ClientAPI.sendWrapper("give-command", { rawInfo: command });
+    return res;
+  }
 }

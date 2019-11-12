@@ -546,4 +546,21 @@ export class Validate {
     }
     return { status: true, message: "" };
   }
+
+  /**
+   * Checks if agent meets specific rank requirement
+   * @param agent agent to check
+   * @param rank rank that agent must be <=
+   */
+  public static validate_required_rank(agent: Agent, rank: number) {
+    if (agent.rank > rank) {
+      return {
+        status: false,
+        message: agent + " does not meet rank requirement of " + rank
+      };
+    }
+    return { status: true, message: " "};
+  }
+
+  // TODO: need to validate if agent is in specific faction
 }

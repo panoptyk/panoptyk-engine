@@ -28,6 +28,12 @@ export class Agent extends IDObject {
   private _conversationID = 0;
   private _conversationRequests: Set<number>;
 
+  // faction related information
+  private _rank = 1;  // 0 is highest rank
+  public get rank() {
+    return this._rank;
+  }
+
   // Client-side filter tools
   private _infoToSort: Info[] = [];
   private _sortedInfo = {
