@@ -8,13 +8,15 @@ export const ActionGiveCommand: Action = {
   name: "give-command",
   formats: [
     {
+      agentID: "number",
       rawInfo: "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const rawInfo = inputData.rawInfo;
-    controller.sendCommand(agent, rawInfo);
+    const toAgent = Agent.getByID(inputData.agentID);
+    controller.sendCommand(agent, toAgent, rawInfo);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

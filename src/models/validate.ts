@@ -559,7 +559,21 @@ export class Validate {
         message: agent + " does not meet rank requirement of " + rank
       };
     }
-    return { status: true, message: " "};
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if info item can be used for quests
+   * @param info quest target
+   */
+  public static validate_valid_quest(info: Info) {
+    if (!info.isQuery() && !info.isCommand()) {
+      return {
+        status: false,
+        message: "Only a command or query can be assigned as a quest!"
+      };
+    }
+    return { status: true, message: "" };
   }
 
   // TODO: need to validate if agent is in specific faction

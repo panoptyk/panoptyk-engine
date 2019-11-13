@@ -380,16 +380,16 @@ export class ClientAPI {
   /**
    * Gives Quest
    */
-  public static async giveQuest(quest: object) {
-    const res = await ClientAPI.sendWrapper("give-quest", { rawInfo: quest });
+  public static async giveQuest(toAgent: Agent, task: Info) {
+    const res = await ClientAPI.sendWrapper("give-quest", { agentID: toAgent.id, infoID: task.id });
     return res;
   }
 
   /**
    * Gives Command
    */
-  public static async giveCommand(command: object) {
-    const res = await ClientAPI.sendWrapper("give-command", { rawInfo: command });
+  public static async giveCommand(toAgent: Agent, command: object) {
+    const res = await ClientAPI.sendWrapper("give-command", { agentID: toAgent.id, rawInfo: command });
     return res;
   }
 }

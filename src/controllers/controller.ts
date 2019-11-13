@@ -786,10 +786,11 @@ export class Controller {
   /**
    * Sending agent gives quest to other agent
    * @param agent sending agent
-   * @param predicate valid predicate to construct info
+   * @param toAgent agent receiving quest
+   * @param task command or query to serve as quest
    */
-  public sendQuest(agent: Agent, rawInfo: any) {
-    const quest: Info = Info.ACTIONS.QUEST.create(rawInfo);
+  public sendQuest(agent: Agent, toAgent: Agent, task: Info) {
+    const quest: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: task});
     const relevantAgents = agent.conversation.getAgents();
     this.updateChanges(agent, [agent.conversation]);
     this.giveInfoToAgents(relevantAgents, quest);
@@ -798,12 +799,14 @@ export class Controller {
   /**
    * Sending agent gives command to other agent
    * @param agent sending agent
+   * @param toAgent agent receiving command
    * @param predicate valid predicate to construct info
    */
-  public sendCommand(agent: Agent, rawInfo: any) {
-    const quest: Info = Info.ACTIONS.COMMAND.create(rawInfo);
+  public sendCommand(agent: Agent, toAgent: Agent, predicate: any) {
+    const query: Info = Info.ACTIONS[predicate.action].create(predicate, "command");
+    const command: Info = Info.ACTIONS.COMMAND.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: query});
     const relevantAgents = agent.conversation.getAgents();
     this.updateChanges(agent, [agent.conversation]);
-    this.giveInfoToAgents(relevantAgents, quest);
+    this.giveInfoToAgents(relevantAgents, command);
   }
 }

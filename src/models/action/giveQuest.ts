@@ -8,13 +8,15 @@ export const ActionGiveQuest: Action = {
   name: "give-quest",
   formats: [
     {
-      rawInfo: "object"
+      agentID: "number",
+      infoID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const rawInfo = inputData.rawInfo;
-    controller.sendQuest(agent, rawInfo);
+    const task = Info.getByID(inputData.infoID);
+    const toAgent = Agent.getByID(inputData.agentID);
+    controller.sendQuest(agent, toAgent, task);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -32,7 +34,10 @@ export const ActionGiveQuest: Action = {
     if (!(res = Validate.validate_required_rank(agent, 0)).status) {
         return res;
     }
-    // TODO: validate that rawInfo is valid
+    const info: Info = Info.getByID(inputData.infoID);
+    if (!(res = Validate.validate_valid_quest(info)).status) {
+      return res;
+    }
     return Validate.successMsg;
   }
 };

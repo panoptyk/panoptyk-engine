@@ -513,10 +513,10 @@ export class Info extends IDObject {
       }
     },
     TAK: {
-      name: "TAK", // predicate(Time, Agent, Info-ID)
+      name: "TAK", // predicate(Time, Agent, Info)
       /**
        * Creates an action that uses this predicate format
-       *   predicate(Time, Agent, Info-ID)
+       *   predicate(Time, Agent, Info)
        */
       create({ time, agent, info }: TAK, type: string): Info {
         const i = new Info(time);
@@ -585,10 +585,10 @@ export class Info extends IDObject {
       }
     },
     TAALK: {
-      name: "TAALK", // predicate(Time, Agent, Agent, Location, Info-ID)
+      name: "TAALK", // predicate(Time, Agent, Agent, Location, Info)
       /**
        * Creates an action that uses this predicate format
-       *   predicate(Time, Agent, Agent, Location, Info-ID)
+       *   predicate(Time, Agent, Agent, Location, Info)
        */
       create({ time, agent1, agent2, loc, info }: TAALK, type: string): Info {
         const i = new Info(time);
@@ -853,7 +853,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAK.name,
       /**
        * Creates an action that uses this predicate format
-       *   KNOW(Time, Agent, Info-ID)
+       *   KNOW(Time, Agent, Info)
        */
       create(args: TAK, type = "normal"): Info {
         const i = Info.PREDICATE.TAK.create(args, type);
@@ -942,7 +942,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAALK.name,
       /**
        * Creates an action that uses this predicate format
-       *   ASK(Time, Agent, Agent, Location, Info-ID)
+       *   ASK(Time, Agent, Agent, Location, Info)
        */
       create(args: TAALK, type = "normal"): Info {
         const i = Info.PREDICATE.TAALK.create(args, type);
@@ -979,7 +979,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAALK.name,
       /**
        * Creates an action that uses this predicate format
-       *   TOLD(Time, Agent, Agent, Location, Info-ID)
+       *   TOLD(Time, Agent, Agent, Location, Info)
        */
       create(args: TAALK, type = "normal"): Info {
         const i = Info.PREDICATE.TAALK.create(args, type);
@@ -1055,7 +1055,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAAI,
       /**
        * Creates an action that uses this predicate format
-       *   GAVE(Time, Time, Agent, Agent, Info-ID)
+       *   GAVE(Time, Time, Agent, Agent, Info)
        */
       create(args: TAAI, type = "normal"): Info {
         const i = Info.PREDICATE.TAAI.create(args, type);
@@ -1090,7 +1090,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAAI,
       /**
        * Creates an action that uses this predicate format
-       *   COMMAND(Time, Time, Agent, Agent, Info-ID)
+       *   COMMAND(Time, Time, Agent, Agent, Info)
        */
       create(args: TAAI, type = "normal"): Info {
         const i = Info.PREDICATE.TAAI.create(args, type);
