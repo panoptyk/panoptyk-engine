@@ -61,3 +61,12 @@ export let panoptykSettings = {
   },
   "server_start_date_ms": 0
 };
+
+/**
+ * Returns a random integer within [min, max)
+ * @param min inclusive min
+ * @param max exclusive max
+ */
+export let randomInt = function(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min)) + min;
+};
