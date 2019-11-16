@@ -33,6 +33,14 @@ export class Trade extends IDObject {
   private receiverInfo: Map<number, AnswerInfo>;
   private initiatorStatus: boolean;
   private receiverStatus: boolean;
+  private _initiatorRequestedItems: Map<number, boolean>;
+  public get initiatorRequestedItems(): Map<number, boolean> {
+    return this._initiatorRequestedItems;
+  }
+  private _receiverRequestedItems: Map<number, boolean>;
+  public get receiverRequestedItems(): Map<number, boolean> {
+    return this._receiverRequestedItems;
+  }
 
   /**
    * Trade model.
@@ -60,6 +68,8 @@ export class Trade extends IDObject {
     this.receiverItemIDs = new Set<number>();
     this.initiatorInfo = new Map<number, AnswerInfo>();
     this.receiverInfo = new Map<number, AnswerInfo>();
+    this._initiatorRequestedItems = new Map<number, boolean>();
+    this._receiverRequestedItems = new Map<number, boolean>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -96,6 +106,8 @@ public toString() {
     t.receiverItemIDs = new Set<number>(t.receiverItemIDs);
     t.initiatorInfo = new Map<number, AnswerInfo>(t.initiatorInfo);
     t.receiverInfo = new Map<number, AnswerInfo>(t.receiverInfo);
+    t._initiatorRequestedItems = new Map<number, boolean>(t._initiatorRequestedItems);
+    t._receiverRequestedItems = new Map<number, boolean>(t._receiverRequestedItems);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -111,6 +123,8 @@ public toString() {
     (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
     (safeTrade.initiatorInfo as any) = Array.from(safeTrade.initiatorInfo);
     (safeTrade.receiverInfo as any) = Array.from(safeTrade.receiverInfo);
+    (safeTrade._initiatorRequestedItems as any) = Array.from(safeTrade._initiatorRequestedItems);
+    (safeTrade._receiverRequestedItems as any) = Array.from(safeTrade._receiverRequestedItems);
     return safeTrade;
   }
 
@@ -406,5 +420,41 @@ public toString() {
 
   get statusRec(): boolean {
     return this.receiverStatus;
+  }
+
+  public addRequestedItem(agent: Agent, item: Item) {
+    if (agent.id === this.initiatorID) {
+      this._initiatorRequestedItems.set(item.id, false);
+    }
+    else if (agent.id === this.receiverID) {
+      this._receiverRequestedItems.set(item.id, false);
+    }
+  }
+
+  /**
+   * Returns item requests for an agent; items that have been passed are set to true
+   * @param agent
+   */
+  public getAgentsRequestedItems(agent: Agent): Map<number, boolean> {
+    if (agent.id === this.initiatorID) {
+      return this._initiatorRequestedItems;
+    }
+    else if (agent.id === this.receiverID) {
+      return this._receiverRequestedItems;
+    }
+  }
+
+  /**
+   * Given agent passes on other agent's item request
+   * @param agent
+   * @param item
+   */
+  public passOnRequestedItem(agent: Agent, item: Item) {
+    if (agent.id !== this.initiatorID && this._initiatorRequestedItems.has(item.id)) {
+      this._initiatorRequestedItems.set(item.id, true);
+    }
+    else if (agent.id !== this.receiverID && this._receiverRequestedItems.has(item.id)) {
+      this._receiverRequestedItems.set(item.id, true);
+    }
   }
 }

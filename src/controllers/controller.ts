@@ -809,4 +809,24 @@ export class Controller {
     this.updateChanges(agent, [agent.conversation]);
     this.giveInfoToAgents(relevantAgents, command);
   }
+
+  /**
+   * Agent requests an item within a trade
+   * @param agent
+   * @param trade
+   * @param item
+   */
+  public requestItemTrade(agent: Agent, trade: Trade, item: Item) {
+    trade.addRequestedItem(agent, item);
+  }
+
+  /**
+   * Agent passes on item request in current trade
+   * @param agent
+   * @param trade
+   * @param item
+   */
+  public passOnItemRequest(agent: Agent, trade: Trade, item: Item) {
+    trade.passOnRequestedItem(agent, item);
+  }
 }

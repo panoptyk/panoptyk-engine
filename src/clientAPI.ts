@@ -385,4 +385,22 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("give-command", { agentID: toAgent.id, rawInfo: command });
     return res;
   }
+
+  /**
+   * Request an item in current trade
+   * @param item
+   */
+  public static async requestItemTrade(item: Item) {
+    const res = await ClientAPI.sendWrapper("request-item-trade", { itemID: item.id });
+    return res;
+  }
+
+  /**
+   * Pass on item request in current trade
+   * @param item
+   */
+  public static async passItemRequestTrade(item: Item) {
+    const res = await ClientAPI.sendWrapper("pass-item-request", { itemID: item.id });
+    return res;
+  }
 }
