@@ -170,11 +170,11 @@ export class ClientAPI {
    * @param password password (should be a hash eventually)
    */
   public static async login(name: string, password: string) {
+    ClientAPI.playerAgentName = name;
     const res = await ClientAPI.sendWrapper("login", {
       username: name,
       password
     });
-    ClientAPI.playerAgentName = name;
     return res;
   }
 
