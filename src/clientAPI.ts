@@ -183,7 +183,7 @@ export class ClientAPI {
    * @param room room to move to
    * @param agent for admins move other agents around
    */
-  public static async moveToRoom(room: Room, agent?: Agent) {
+  public static async moveToRoom(room: Room) {
     const res = await ClientAPI.sendWrapper("move-to-room", {
       roomID: room.id
     });
@@ -249,25 +249,22 @@ export class ClientAPI {
    * Have logged-in agent cancel/reject specified trade
    * @param targetTrade
    */
-  public static async cancelTrade(targetTrade: Trade) {
+  public static async cancelTrade() {
     const res = await ClientAPI.sendWrapper("cancel-trade", {
-      tradeID: targetTrade.id
     });
     return res;
   }
 
   /**
    * Items to offer in specified trade.
-   * @param trade
    * @param items
    */
-  public static async offerItemsTrade(trade: Trade, items: Item[]) {
+  public static async offerItemsTrade(items: Item[]) {
     const itemIDs: number[] = [];
     for (const item of items) {
       itemIDs.push(item.id);
     }
     const res = await ClientAPI.sendWrapper("offer-items-trade", {
-      tradeID: trade.id,
       itemIDs
     });
     return res;
@@ -278,13 +275,12 @@ export class ClientAPI {
    * @param trade
    * @param items
    */
-  public static async withdrawItemsTrade(trade: Trade, items: Item[]) {
+  public static async withdrawItemsTrade(items: Item[]) {
     const itemIDs: number[] = [];
     for (const item of items) {
       itemIDs.push(item.id);
     }
     const res = await ClientAPI.sendWrapper("withdraw-items-trade", {
-      tradeID: trade.id,
       itemIDs
     });
     return res;
@@ -295,9 +291,8 @@ export class ClientAPI {
    * @param trade
    * @param status
    */
-  public static async setTradeReadyStatus(trade: Trade, status: boolean) {
+  public static async setTradeReadyStatus(status: boolean) {
     const res = await ClientAPI.sendWrapper("ready-trade", {
-      tradeID: trade.id,
       readyStatus: status
     });
     return res;
@@ -340,9 +335,8 @@ export class ClientAPI {
   /**
    * Offer an answer to a question as part of a trade.
    */
-  public static async offerAnswerTrade(trade: Trade, answer: Info, question: Info, mask: string[] = []) {
+  public static async offerAnswerTrade(answer: Info, question: Info, mask: string[] = []) {
     const res = await ClientAPI.sendWrapper("offer-answer-trade", {
-      tradeID: trade.id,
       answerID: answer.id,
       questionID: question.id,
       mask
@@ -353,9 +347,8 @@ export class ClientAPI {
   /**
    * Withdraw an answer from a given trade.
    */
-  public static async withdrawInfoTrade(trade: Trade, info: Info) {
+  public static async withdrawInfoTrade(info: Info) {
     const res = await ClientAPI.sendWrapper("withdraw-info-trade", {
-      tradeID: trade.id,
       infoID: info.id
     });
     return res;

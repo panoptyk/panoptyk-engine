@@ -8,13 +8,12 @@ export const ActionWithdrawInfoTrade: Action = {
   name: "withdraw-info-trade",
   formats: [
     {
-      "tradeID": "number",
       "infoID": "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
     const info: Info = Info.getByID(inputData.infoID);
 
     controller.removeInfoFromTrade(trade, info, agent);
@@ -22,10 +21,7 @@ export const ActionWithdrawInfoTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
-      return res;
-    }
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
       return res;
     }

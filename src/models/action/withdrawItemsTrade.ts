@@ -8,14 +8,13 @@ export const ActionWithdrawItemsTrade: Action = {
   name: "withdraw-items-trade",
   formats: [
     {
-      tradeID: "number",
       itemIDs: "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const items: Item[] = Item.getByIDs(inputData.itemIDs);
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
 
     controller.removeItemsFromTrade(trade, items, agent);
 
@@ -31,10 +30,7 @@ export const ActionWithdrawItemsTrade: Action = {
     if (!(res = Validate.validate_agent_owns_items(agent, items)).status) {
       return res;
     }
-    if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
-      return res;
-    }
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
       return res;
     }

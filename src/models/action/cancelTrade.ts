@@ -8,12 +8,11 @@ export const ActionCancelTrade: Action = {
   name: "cancel-trade",
   formats: [
     {
-      tradeID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
 
     controller.cancelTrade(trade);
 
@@ -22,10 +21,7 @@ export const ActionCancelTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_trade_exists(inputData.tradeID)).status) {
-      return res;
-    }
-    const trade: Trade = Trade.getByID(inputData.tradeID);
+    const trade: Trade = agent.trade;
     if (!(res = Validate.validate_trade_status(trade, [2, 3])).status) {
       return res;
     }
