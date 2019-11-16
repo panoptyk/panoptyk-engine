@@ -39,7 +39,8 @@ export class Agent extends IDObject {
   private _sortedInfo = {
     byAction: new Map<string, Set<number>>(),
     byAgent: new Map<number, Set<number>>(),
-    byLoc: new Map<number, Set<number>>()
+    byLoc: new Map<number, Set<number>>(),
+    byItem: new Map<number, Set<number>>()
   };
 
   /**
@@ -272,6 +273,14 @@ export class Agent extends IDObject {
     return undefined;
   }
 
+  public getInfoByItem(item: Item): Info[] {
+    const key = item ? item.id : 0;
+    if (this._sortedInfo.byItem.has(key)) {
+      return Info.getByIDs(Array.from(this._sortedInfo.byItem.get(key)));
+    }
+    return undefined;
+  }
+
   public sortInfo() {
     while (this._infoToSort.length > 0) {
       const info = this._infoToSort.pop();
@@ -280,6 +289,8 @@ export class Agent extends IDObject {
       agent = agent ? agent : 0;
       let loc = info.locations[0];
       loc = loc ? loc : 0;
+      let item = info.items[0];
+      item = item ? item : 0;
 
       if (!this._sortedInfo.byAction.has(action)) {
         this._sortedInfo.byAction.set(action, new Set());
@@ -290,10 +301,14 @@ export class Agent extends IDObject {
       if (!this._sortedInfo.byLoc.has(loc)) {
         this._sortedInfo.byLoc.set(loc, new Set());
       }
+      if (!this._sortedInfo.byItem.has(item)) {
+        this._sortedInfo.byItem.set(item, new Set());
+      }
 
       this._sortedInfo.byAction.get(action).add(info.id);
       this._sortedInfo.byAgent.get(agent).add(info.id);
       this._sortedInfo.byLoc.get(loc).add(info.id);
+      this._sortedInfo.byItem.get(item).add(info.id);
     }
   }
   // =============================================================================

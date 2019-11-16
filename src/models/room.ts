@@ -205,4 +205,20 @@ export class Room extends IDObject {
   public getConversations(): Conversation[] {
     return Conversation.getByIDs(Array.from(this.conversationIDs));
   }
+
+  /**
+   * Check if room contains specified item
+   * @param item
+   */
+  public hasItem(item: Item): boolean {
+    return this.itemIDs.has(item.id);
+  }
+
+  /**
+   * Checks if room contains specified agent
+   * @param agent
+   */
+  public hasAgent(agent: Agent): boolean {
+    return this._occupants.has(agent.id);
+  }
 }
