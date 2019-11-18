@@ -33,6 +33,10 @@ export class Agent extends IDObject {
   public get rank() {
     return this._rank;
   }
+  private _faction = "SIS";
+  public get faction() {
+    return this._faction;
+  }
 
   // Client-side filter tools
   private _infoToSort: Info[] = [];

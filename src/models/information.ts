@@ -33,7 +33,7 @@ export interface TALL {
 export interface TAF {
   time: number;
   agent: Agent;
-  faction: number;
+  faction: string;
 }
 
 export interface TAA {
@@ -153,8 +153,8 @@ export class Info extends IDObject {
     }
     return this._quantity;
   }
-  private _faction: number[] = [];
-  public get factions(): number[] {
+  private _faction: string[] = [];
+  public get factions(): string[] {
     if (this._reference) {
       return Info.getByID(this._infoID)._faction;
     }
