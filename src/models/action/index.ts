@@ -17,8 +17,8 @@ export { ActionOfferAnswerTrade } from "./offerAnswerTrade";
 export { ActionWithdrawInfoTrade } from "./withdrawInfoTrade";
 export { ActionTellInfo } from "./tellInfo";
 export { ActionPassQuestion } from "./passQuestion";
-export { ActionGiveCommand } from "./giveCommand";
 export { ActionGiveQuest } from "./giveQuest";
 export { ActionPassItemRequest } from "./passItemRequest";
 export { ActionRequestItemTrade } from "./requestItemTrade";
+export { ActionCompleteQuest } from "./completeQuest";
 // export {} from "./"; <- future Actions

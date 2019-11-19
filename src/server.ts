@@ -12,7 +12,8 @@ import {
   Item,
   Conversation,
   Trade,
-  IDObject
+  IDObject,
+  Quest
 } from "./models/index";
 import {
   Action,
@@ -32,10 +33,10 @@ import {
   ActionWithdrawInfoTrade,
   ActionTellInfo,
   ActionPassQuestion,
-  ActionGiveCommand,
   ActionGiveQuest,
   ActionRequestItemTrade,
-  ActionPassItemRequest
+  ActionPassItemRequest,
+  ActionCompleteQuest
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -48,10 +49,10 @@ export class Server {
   /**
    * List of all models that need to be saved and loaded
    */
-  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade];
+  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade, Quest];
   private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionDropItems, ActionOfferItemsTrade,
     ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade,
-    ActionAskQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo, ActionPassQuestion, ActionGiveCommand, 
+    ActionAskQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo, ActionPassQuestion, ActionCompleteQuest,
     ActionGiveQuest, ActionRequestItemTrade, ActionPassItemRequest];
 
   constructor(app?: express.Application) {

@@ -7,7 +7,8 @@ import {
   Trade,
   Room,
   Item,
-  Info
+  Info,
+  Quest
 } from "../models/index";
 
 export class Controller {
@@ -27,16 +28,33 @@ export class Controller {
     }
     for (const change of models) {
       if (!Array.isArray(change)) {
-        updates.add(change);
+        this.addChange(updates, change);
       }
       // sometimes we will have arrays of changes in models
       else {
         for (const item of change) {
-          updates.add(item);
+          this.addChange(updates, item);
         }
       }
     }
     this._updates.set(agent, updates);
+  }
+
+  /**
+   * Makes sure that anything mentioned in an Info item is also sent
+   * @param updates
+   * @param change
+   */
+  public addChange(updates: Set<IDObject>, change: any) {
+    updates.add(change);
+    if (change instanceof Info) {
+      const terms = change.getTerms();
+      for (const term in terms) {
+        if (terms[term] instanceof IDObject) {
+          updates.add(terms[term]);
+        }
+      }
+    }
   }
 
   /**
@@ -213,7 +231,8 @@ export class Controller {
    * @param agent
    */
   public login(agent: Agent) {
-    this.updateChanges(agent, [agent.inventory, agent.knowledge]);
+    this.updateChanges(agent, [agent.inventory, agent.knowledge,
+      agent.activeAssignedQuests, agent.activeGivenQuests]);
     this.addAgentToRoom(agent, agent.room);
   }
 
@@ -785,29 +804,45 @@ export class Controller {
 
   /**
    * Sending agent gives quest to other agent
-   * @param agent sending agent
-   * @param toAgent agent receiving quest
-   * @param task command or query to serve as quest
+   * @param agent
+   * @param toAgent
+   * @param predicate valid predicate to construct info
    */
-  public sendQuest(agent: Agent, toAgent: Agent, task: Info) {
-    const quest: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: task});
+  public sendQuest(agent: Agent, toAgent: Agent, predicate: any, isQuestion: boolean, deadline: number) {
+    const type = isQuestion ? "question" : "command";
+    const query: Info = Info.ACTIONS[predicate.action].create(predicate, type);
+    const questInfo: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: query});
+    const quest: Quest = new Quest(toAgent, agent, query, questInfo, type, deadline);
+    Agent.addQuest(quest);
+    this.updateChanges(toAgent, [toAgent, quest]);
+    this.updateChanges(agent, [agent, quest]);
     const relevantAgents = agent.conversation.getAgents();
-    this.updateChanges(agent, [agent.conversation]);
-    this.giveInfoToAgents(relevantAgents, quest);
+    this.giveInfoToAgents(relevantAgents, questInfo);
+    this.giveInfoToAgents(relevantAgents, query);
+    return quest;
   }
 
   /**
-   * Sending agent gives command to other agent
-   * @param agent sending agent
-   * @param toAgent agent receiving command
-   * @param predicate valid predicate to construct info
+   * Removes quest from active list and generates appropiate updates
+   * @param quest
+   * @param closeType FAILED or COMPLETE
    */
-  public sendCommand(agent: Agent, toAgent: Agent, predicate: any) {
-    const query: Info = Info.ACTIONS[predicate.action].create(predicate, "command");
-    const command: Info = Info.ACTIONS.COMMAND.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: query});
+  public closeQuest(agent: Agent, quest: Quest, closeType: string) {
+    let closeInfo: Info;
+    if (closeType === "COMPLETE") {
+      closeInfo = Info.ACTIONS.QUEST_COMPLETE.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
+        agent2: quest.receiver, info: quest.info});
+    }
+    else if (closeType === "FAILED") {
+      closeInfo = Info.ACTIONS.QUEST_FAILED.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
+        agent2: quest.receiver, info: quest.info});
+    }
+    Agent.removeQuest(quest);
+    quest.setStatus(closeType);
+    this.updateChanges(quest.giver, [quest.giver, quest]);
+    this.updateChanges(quest.receiver, [quest.receiver, quest]);
     const relevantAgents = agent.conversation.getAgents();
-    this.updateChanges(agent, [agent.conversation]);
-    this.giveInfoToAgents(relevantAgents, command);
+    this.giveInfoToAgents(relevantAgents, closeInfo);
   }
 
   /**
@@ -818,6 +853,8 @@ export class Controller {
    */
   public requestItemTrade(agent: Agent, trade: Trade, item: Item) {
     trade.addRequestedItem(agent, item);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
   }
 
   /**
@@ -828,5 +865,7 @@ export class Controller {
    */
   public passOnItemRequest(agent: Agent, trade: Trade, item: Item) {
     trade.passOnRequestedItem(agent, item);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
   }
 }

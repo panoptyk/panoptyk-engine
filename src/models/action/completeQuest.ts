@@ -2,23 +2,24 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent, Trade, Conversation, Info } from "../index";
+import { Agent, Info } from "../index";
+import { Quest } from "../quest";
 
-export const ActionTellInfo: Action = {
-  name: "tell-info",
+export const ActionCompleteQuest: Action = {
+  name: "complete-quest",
   formats: [
     {
-      infoID: "number",
-      mask: "object"
+        solutionID: "number",
+        questID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const info: Info = Info.getByID(inputData.infoID);
-    const mask: string[] = inputData.mask;
-
-    controller.tellInfoFreely(agent, info, mask);
-    logger.log("Event tell-info " + info, 2);
+    const solution = Info.getByID(inputData.solutionID);
+    const quest: Quest = Quest.getByID(inputData.questID);
+    controller.giveInfoToAgents([quest.giver], solution);
+    controller.closeQuest(agent, quest, "COMPLETE");
+    logger.log("Event complete-quest " + quest, 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -33,13 +34,13 @@ export const ActionTellInfo: Action = {
     if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
         return res;
     }
-    const info: Info = Info.getByID(inputData.infoID);
-    if (!(res = Validate.validate_agent_owns_info(agent, info)).status) {
+    const quest: Quest = Quest.getByID(inputData.questID);
+    if (!(res = Validate.validate_conversation_has_agent(conversation, quest.giver)).status) {
         return res;
     }
-    const mask: string[] = inputData.mask;
-    if (!(res = Validate.validate_info_mask(info, mask)).status) {
-      return res;
+    const solution = Info.getByID(inputData.solutionID);
+    if (!(res = Validate.validate_info_satisfies_quest(solution, quest)).status) {
+        return res;
     }
     return Validate.successMsg;
   }

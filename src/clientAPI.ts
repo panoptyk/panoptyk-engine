@@ -6,7 +6,8 @@ import {
   Info,
   Trade,
   Item,
-  Conversation
+  Conversation,
+  Quest
 } from "./models/index";
 
 const MODELS: any = {
@@ -15,7 +16,8 @@ const MODELS: any = {
   Info,
   Item,
   Trade,
-  Conversation
+  Conversation,
+  Quest
 };
 
 export interface UpdatedModels {
@@ -25,6 +27,7 @@ export interface UpdatedModels {
   Item: Item[];
   Trade: Trade[];
   Conversation: Conversation[];
+  Quest: Quest[];
 }
 
 const emit = function(
@@ -103,7 +106,8 @@ export class ClientAPI {
         Item: [],
         Room: [],
         Trade: [],
-        Conversation: []
+        Conversation: [],
+        Quest: []
       };
       for (const key in data) {
         for (const model of data[key]) {
@@ -371,22 +375,6 @@ export class ClientAPI {
   }
 
   /**
-   * Gives Quest
-   */
-  public static async giveQuest(toAgent: Agent, task: Info) {
-    const res = await ClientAPI.sendWrapper("give-quest", { agentID: toAgent.id, infoID: task.id });
-    return res;
-  }
-
-  /**
-   * Gives Command
-   */
-  public static async giveCommand(toAgent: Agent, command: object) {
-    const res = await ClientAPI.sendWrapper("give-command", { agentID: toAgent.id, rawInfo: command });
-    return res;
-  }
-
-  /**
    * Request an item in current trade
    * @param item
    */
@@ -401,6 +389,29 @@ export class ClientAPI {
    */
   public static async passItemRequestTrade(item: Item) {
     const res = await ClientAPI.sendWrapper("pass-item-request", { itemID: item.id });
+    return res;
+  }
+
+  /**
+   * Give quest to another toAgent in current Conversation
+   * @param toAgent
+   * @param query
+   * @param isQuestion
+   * @param deadline OPTIONAL deadline of 0 counts as no deadline
+   */
+  public static async giveQuest(toAgent: Agent, query: object, isQuestion: boolean, deadline = 0) {
+    const res = await ClientAPI.sendWrapper("give-quest", { receiverID: toAgent.id, rawInfo: query,
+      isQuestion, deadline});
+    return res;
+  }
+
+  /**
+   * Completes quest if assigning agent is in current Conversation AND goal satisfies quest parameters
+   * @param quest
+   * @param goal info that fufills the assigned task of the quest
+   */
+  public static async completeQuest(quest: Quest, goal: Info) {
+    const res = await ClientAPI.sendWrapper("complete-quest", { questID: quest.id, solutionID: goal.id });
     return res;
   }
 }

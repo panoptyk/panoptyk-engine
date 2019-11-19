@@ -1,4 +1,4 @@
-import { Trade, Item, Room, Agent, Conversation, Info } from "./index";
+import { Trade, Item, Room, Agent, Conversation, Info, Quest } from "./index";
 
 export interface ValidationResult {
   status: boolean;
@@ -563,14 +563,30 @@ export class Validate {
   }
 
   /**
-   * Checks if info item can be used for quests
-   * @param info quest target
+   * Checks if quest was assigned by given agent
+   * @param agent
+   * @param quest
    */
-  public static validate_valid_quest(info: Info) {
-    if (!info.isQuery() && !info.isCommand()) {
+  public static validate_agent_assigned_quest(agent: Agent, quest: Quest) {
+    if (agent !== quest.giver) {
       return {
         status: false,
-        message: "Only a command or query can be assigned as a quest!"
+        message: agent + " did not create quest " + quest
+      };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Checks if given info solves the quest
+   * @param info
+   * @param quest
+   */
+  public static validate_info_satisfies_quest(info: Info, quest: Quest) {
+    if (!quest.checkSatisfiability(info)) {
+      return {
+        status: false,
+        message: info + " does not solve " + quest
       };
     }
     return { status: true, message: "" };

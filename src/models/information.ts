@@ -1085,16 +1085,16 @@ export class Info extends IDObject {
         return terms;
       }
     },
-    COMMAND: {
-      name: "COMMAND",
+    QUEST_COMPLETE: {
+      name: "QUEST_COMPLETE",
       predicate: Info.PREDICATE.TAAI,
       /**
        * Creates an action that uses this predicate format
-       *   COMMAND(Time, Time, Agent, Agent, Info)
+       *   GAVE(Time, Time, Agent, Agent, Info)
        */
       create(args: TAAI, type = "normal"): Info {
         const i = Info.PREDICATE.TAAI.create(args, type);
-        i._action = Info.ACTIONS.COMMAND.name;
+        i._action = Info.ACTIONS.QUEST_COMPLETE.name;
         return i;
       },
       /**
@@ -1107,7 +1107,7 @@ export class Info extends IDObject {
         info
       }: TAAI): { action: string } & TAAI {
         return {
-          action: Info.ACTIONS.COMMAND.name,
+          action: Info.ACTIONS.QUEST_COMPLETE.name,
           agent1,
           agent2,
           time,
@@ -1116,7 +1116,42 @@ export class Info extends IDObject {
       },
       getTerms(info: Info): { action: string } & TAAI {
         const terms: any = Info.PREDICATE.TAAI.getTerms(info);
-        terms.action = Info.ACTIONS.COMMAND.name;
+        terms.action = Info.ACTIONS.QUEST_COMPLETE.name;
+        return terms;
+      }
+    },
+    QUEST_FAILED: {
+      name: "QUEST_FAILED",
+      predicate: Info.PREDICATE.TAAI,
+      /**
+       * Creates an action that uses this predicate format
+       *   GAVE(Time, Time, Agent, Agent, Info)
+       */
+      create(args: TAAI, type = "normal"): Info {
+        const i = Info.PREDICATE.TAAI.create(args, type);
+        i._action = Info.ACTIONS.QUEST_FAILED.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time,
+        info
+      }: TAAI): { action: string } & TAAI {
+        return {
+          action: Info.ACTIONS.QUEST_FAILED.name,
+          agent1,
+          agent2,
+          time,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAAI {
+        const terms: any = Info.PREDICATE.TAAI.getTerms(info);
+        terms.action = Info.ACTIONS.QUEST_FAILED.name;
         return terms;
       }
     }

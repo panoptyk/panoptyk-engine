@@ -6,6 +6,7 @@ import { Room } from "./room";
 import { Info } from "./information";
 import { Conversation } from "./conversation";
 import { Trade } from "./trade";
+import { Quest } from "./quest";
 
 export class Agent extends IDObject {
   private _agentName: string;
@@ -25,6 +26,8 @@ export class Agent extends IDObject {
   public get knowledge(): Info[] {
     return Info.getByIDs(Array.from(this._knowledge));
   }
+  private _assignedQuests: Set<number>;
+  private _givenQuests: Set<number>;
   private _conversationID = 0;
   private _conversationRequests: Set<number>;
 
@@ -50,7 +53,7 @@ export class Agent extends IDObject {
   /**
    * Agent model.
    * @param {string} username - username of agent
-   * @param {Room} room - room id of agent. Does not put agent in room, simply saves it.
+   * @param {Room} room - room of agent. Does not put agent in room, simply saves it.
    * @param {int} id - id of agent. If undefined, one will be assigned.
    */
   constructor(username: string, room?: Room, id?: number) {
@@ -61,6 +64,8 @@ export class Agent extends IDObject {
     this._inventory = new Set<number>();
     this._knowledge = new Set<number>();
     this._conversationRequests = new Set<number>();
+    this._assignedQuests = new Set<number>();
+    this._givenQuests = new Set<number>();
 
     logger.log("Agent " + this + " initialized.", 2);
   }
@@ -78,6 +83,8 @@ export class Agent extends IDObject {
     a._inventory = new Set<number>(a._inventory);
     a._knowledge = new Set<number>(a._knowledge);
     a._conversationRequests = new Set<number>(a._conversationRequests);
+    a._assignedQuests = new Set<number>(a._assignedQuests);
+    a._givenQuests = new Set<number>(a._givenQuests);
     return a;
   }
 
@@ -96,6 +103,8 @@ export class Agent extends IDObject {
     (safeAgent._conversationRequests as any) = Array.from(
       safeAgent._conversationRequests
     );
+    (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
+    (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
     if (removePrivateData) {
       safeAgent._inventory = undefined;
       safeAgent._knowledge = undefined;
@@ -392,6 +401,24 @@ export class Agent extends IDObject {
   }
 
   /**
+   * Server: Removes quest from list of active quests for both agents
+   * @param quest
+   */
+  public static removeQuest(quest: Quest) {
+    quest.receiver._assignedQuests.delete(quest.id);
+    quest.giver._givenQuests.delete(quest.id);
+  }
+
+  /**
+   * Server: Add quest to list of active quests for both agents
+   * @param quest
+   */
+  public static addQuest(quest: Quest) {
+    quest.receiver._assignedQuests.add(quest.id);
+    quest.giver._givenQuests.add(quest.id);
+  }
+
+  /**
    * Remove an agent from the conversation.
    */
   public leaveConversation() {
@@ -410,5 +437,19 @@ export class Agent extends IDObject {
    */
   public hasItem(item: Item) {
     return this._inventory.has(item.id);
+  }
+
+  /**
+   * Active Quests that have been assigned to this agent
+   */
+  public get activeAssignedQuests(): Quest[] {
+    return Quest.getByIDs(Array.from(this._assignedQuests));
+  }
+
+  /**
+   * Active Quests that have been given out by this agent
+   */
+  public get activeGivenQuests(): Quest[] {
+    return Quest.getByIDs(Array.from(this._givenQuests));
   }
 }
