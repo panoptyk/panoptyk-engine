@@ -4,14 +4,16 @@ export class Logger {
   writeFile: fs.WriteStream;
   constructor(public logLevel = 2, private logLineLen = 99) {
     if (process.env.NODE_ENV !== "development") {
-      this.writeFile = fs.createWriteStream("log.txt", {flags: "a"});
+      this.setLogFile("log.txt");
     }
   }
 
   public static logLevels = {
+    "-1": " CLIENT",
     "0": " ERROR ",
     "1": "WARNING",
     "2": "  INFO ",
+    CLIENT: -1,
     ERROR: 0,
     WARNING: 1,
     INFO: 2
@@ -47,26 +49,35 @@ export class Logger {
    * @param {string} msg - message to log.
    * @param {int} logLevel - level of message importance.
    */
-  log(msg, logLevel = 0, file?: string) {
+  public log(msg, logLevel = 0, file?: string) {
     if (logLevel <= this.logLevel) {
       const prefix =
-        "[" +
-        new Date() +
-        "]═[" +
-        Logger.logLevels[logLevel] +
-        "]\t";
-      switch (process.env.NODE_ENV) {
-        case "development":
-          console.log(prefix + msg);
-          break;
-        default:
-          this.writeFile.write(prefix + msg + "\n");
+        "[" + new Date() + "]═[" + Logger.logLevels[logLevel] + "]\t";
+      const fullMsg = prefix + msg;
+      if (file) {
+        fs.appendFileSync(file, fullMsg + "\n");
+      } else if (this.writeFile) {
+        this.writeFile.write(fullMsg + "\n");
+      } else {
+        console.log(prefix + msg);
       }
     }
   }
+
+  public clientLog(msg, file?: string) {
+    this.log(msg, Logger.logLevels.CLIENT, file);
+  }
+
   // TODO: add ability to change settings & load from settings.json file
-  public silence() {
-    this.logLevel = -1;
+  public silence(andClient = false) {
+    this.logLevel = andClient ? -2 : -1;
+  }
+
+  public setLogFile(file: string) {
+    if (this.writeFile) {
+      this.writeFile.close();
+    }
+    this.writeFile = fs.createWriteStream(file, { flags: "a" });
   }
 }
 

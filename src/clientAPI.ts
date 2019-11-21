@@ -108,6 +108,7 @@ export class ClientAPI {
    * @param ipAddress address of panoptyk game server
    */
   public static init(ipAddress = "http://localhost:8080") {
+    logger.silence();
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
