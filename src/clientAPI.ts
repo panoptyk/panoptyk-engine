@@ -1,4 +1,5 @@
 import * as io from "socket.io-client";
+import { logger } from "./utilities/logger";
 import { ValidationResult } from "./models/validate";
 import {
   Agent,
@@ -110,7 +111,7 @@ export class ClientAPI {
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
-      console.log("--Model updates recieved--");
+      logger.log("--Model updates recieved--", 2);
       ClientAPI.updating.push(true);
       const updates: UpdatedModels = {
         Agent: [],

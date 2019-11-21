@@ -1,5 +1,12 @@
+import * as fs from "fs";
+
 export class Logger {
-  constructor(public logLevel = 2, private logLineLen = 99) {}
+  writeFile: fs.WriteStream;
+  constructor(public logLevel = 2, private logLineLen = 99) {
+    if (process.env.NODE_ENV !== "development") {
+      this.writeFile = fs.createWriteStream("log.txt", {flags: "a"});
+    }
+  }
 
   public static logLevels = {
     "0": " ERROR ",
@@ -48,8 +55,13 @@ export class Logger {
         "]═[" +
         Logger.logLevels[logLevel] +
         "]\t";
-
-      console.log(prefix + msg);
+      switch (process.env.NODE_ENV) {
+        case "development":
+          console.log(prefix + msg);
+          break;
+        default:
+          this.writeFile.write(prefix + msg + "\n");
+      }
     }
   }
   // TODO: add ability to change settings & load from settings.json file
