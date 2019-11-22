@@ -54,7 +54,7 @@ export class Logger {
       const prefix =
         "[" + new Date() + "]═[" + Logger.logLevels[logLevel] + "]\t";
       const fullMsg = prefix + msg;
-      if (file) {
+      if (fs.appendFileSync && file) {
         fs.appendFileSync(file, fullMsg + "\n");
       } else if (this.writeFile) {
         this.writeFile.write(fullMsg + "\n");
@@ -74,6 +74,9 @@ export class Logger {
   }
 
   public setLogFile(file: string) {
+    if (!(fs.createWriteStream)) {
+      return;
+    }
     if (this.writeFile) {
       this.writeFile.close();
     }
