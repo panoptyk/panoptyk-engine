@@ -292,6 +292,10 @@ export class Controller {
 
     this.removeAgentFromConversationIfIn(agent);
 
+    // end all incoming and outgoing requests
+    this.removeAgentsConversationRequests(agent);
+    this.removeAgentsTradeRequests(agent);
+
     if (logout) {
       agent.logout();
     } else {
@@ -432,9 +436,6 @@ export class Controller {
     for (const trade of Trade.getActiveTradesWithAgent(agent)) {
       this.cancelTrade(trade);
     }
-    for (const trade of Trade.getRequestedTradesWithAgent(agent)) {
-      this.cancelTrade(trade);
-    }
   }
 
   /**
@@ -450,20 +451,11 @@ export class Controller {
     toAgent: Agent
   ) {
     const trade = new Trade(fromAgent, toAgent, conversation);
+    this.removeAgentsTradeRequests(fromAgent);
+    this.removeAgentsTradeRequests(toAgent);
     this.updateChanges(toAgent, [trade]);
     this.updateChanges(fromAgent, [trade]);
     return trade;
-  }
-
-  /**
-   * Accept a trade and send updates to both agents.
-   * Trade is now ready to accept items.
-   * @param {Object} trade - trade object.
-   */
-  public acceptTrade(trade: Trade) {
-    trade.setStatus(2);
-    this.updateChanges(trade.agentIni, [trade]);
-    this.updateChanges(trade.agentRec, [trade]);
   }
 
   /**
@@ -626,13 +618,73 @@ export class Controller {
   }
 
   /**
+   * Informs receiving agent of trade request.
+   * @param agent sending agent
+   * @param toAgent receiving agent
+   */
+  public requestTrade(agent: Agent, toAgent: Agent) {
+    Agent.tradeRequest(toAgent, agent);
+    this.updateChanges(toAgent, [toAgent]);
+    this.updateChanges(agent, [agent]);
+  }
+
+  /**
+   * Informs toAgent that agent has rejected its trade request.
+   * @param agent
+   * @param toAgent
+   */
+  public removeTradeRequest(agent: Agent, toAgent: Agent) {
+    Agent.removeTradeRequest(toAgent, agent);
+    this.updateChanges(toAgent, [toAgent]);
+    this.updateChanges(agent, [agent]);
+  }
+
+  /**
    * Informs receiving agent of conversation request.
    * @param agent sending agent
    * @param toAgent receiving agent
    */
   public requestConversation(agent: Agent, toAgent: Agent) {
-    toAgent.conversationRequest(agent.id);
+    Agent.conversationRequest(toAgent, agent);
     this.updateChanges(toAgent, [toAgent]);
+    this.updateChanges(agent, [agent]);
+  }
+
+  /**
+   * Informs toAgent that agent has rejected its conversation request.
+   * @param agent
+   * @param toAgent
+   */
+  public removeConversationRequest(agent: Agent, toAgent: Agent) {
+    Agent.removeConversationRequest(toAgent, agent);
+    this.updateChanges(toAgent, [toAgent]);
+    this.updateChanges(agent, [agent]);
+  }
+
+  /**
+   * Remove all incoming and outoging trade requests for an agent
+   * @param agent
+   */
+  public removeAgentsTradeRequests(agent: Agent) {
+    for (const other of agent.tradeRequested) {
+      this.removeTradeRequest(agent, other);
+    }
+    for (const other of agent.tradeRequesters) {
+      this.removeTradeRequest(other, agent);
+    }
+  }
+
+  /**
+   * Remove all incoming and outgoing trade requests for an agent
+   * @param agent
+   */
+  public removeAgentsConversationRequests(agent: Agent) {
+    for (const other of agent.conversationRequested) {
+      this.removeConversationRequest(agent, other);
+    }
+    for (const other of agent.conversationRequesters) {
+      this.removeConversationRequest(other, agent);
+    }
   }
 
   /**
@@ -648,6 +700,8 @@ export class Controller {
 
     this.addAgentToConversation(conversation, agent);
     this.addAgentToConversation(conversation, toAgent);
+    this.removeAgentsConversationRequests(agent);
+    this.removeAgentsConversationRequests(toAgent);
 
     const time = util.getPanoptykDatetime();
     const info = Info.ACTIONS.CONVERSE.create({

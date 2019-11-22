@@ -439,4 +439,26 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("complete-quest", { questID: quest.id, solutionID: goal.id });
     return res;
   }
+
+  /**
+   * Reject conversation request from targetAgent
+   * @param targetAgent
+   */
+  public static async rejectConversation(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("reject-conversation-request", {
+      agentID: targetAgent.id
+    });
+    return res;
+  }
+
+  /**
+   * Reject trade request from targetAgent
+   * @param targetAgent
+   */
+  public static async rejectTrade(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("reject-trade-request", {
+      agentID: targetAgent.id
+    });
+    return res;
+  }
 }

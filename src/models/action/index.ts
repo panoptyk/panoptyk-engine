@@ -21,4 +21,6 @@ export { ActionGiveQuest } from "./giveQuest";
 export { ActionPassItemRequest } from "./passItemRequest";
 export { ActionRequestItemTrade } from "./requestItemTrade";
 export { ActionCompleteQuest } from "./completeQuest";
+export { ActionRejectConversationRequest } from "./rejectConversationRequest";
+export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 // export {} from "./"; <- future Actions

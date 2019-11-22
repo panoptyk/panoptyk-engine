@@ -14,11 +14,9 @@ export class Trade extends IDObject {
   public static result = {
     FAILED: 0,
     SUCCESS: 1,
-    IN_PROGRESS: 2,
-    REQUESTED: 3
+    IN_PROGRESS: 2
   };
   private static actives: Set<Trade> = new Set();
-  private static requested: Set<Trade> = new Set();
 
   private initiatorID: number;
   private receiverID: number;
@@ -49,14 +47,14 @@ export class Trade extends IDObject {
    * @param {Conversation} conversationID - conversation trade is happening in.
    * @param {number} id - id of trade. If undefined, one will be assigned.
    * @param {number} resultStatus - result status of trade.
-   *              0=failed, 1=success, 2=in progress, 3=requested
+   *              0=failed, 1=success, 2=in progress
    */
   constructor(
     initiator: Agent,
     receiver: Agent,
     conversation: Conversation,
     id?: number,
-    resultStatus = Trade.result.REQUESTED
+    resultStatus = Trade.result.IN_PROGRESS
   ) {
     super(Trade.name, id);
     this.initiatorID = initiator ? initiator.id : undefined;
@@ -73,16 +71,7 @@ export class Trade extends IDObject {
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
-    switch (this._resultStatus) {
-      case Trade.result.IN_PROGRESS: {
-        Trade.actives.add(this);
-        break;
-      }
-      case Trade.result.REQUESTED: {
-        Trade.requested.add(this);
-        break;
-      }
-    }
+    Trade.actives.add(this);
 
     logger.log("Trade " + this + " Initialized.", LOG.INFO);
   }
@@ -172,7 +161,7 @@ public toString() {
 
   /**
    * Set status of trade.
-   * 0=failed, 1=success, 2=in progress, 3=requested
+   * 0=failed, 1=success, 2=in progress
    * @param {number} stat - status to set.
    */
   setStatus(stat: number) {
@@ -180,16 +169,9 @@ public toString() {
     switch (this._resultStatus) {
       case Trade.result.IN_PROGRESS: {
         Trade.actives.add(this);
-        Trade.requested.delete(this);
-        break;
-      }
-      case Trade.result.REQUESTED: {
-        Trade.requested.add(this);
-        Trade.actives.delete(this);
         break;
       }
       default: {
-        Trade.requested.delete(this);
         Trade.actives.delete(this);
         break;
       }
@@ -326,23 +308,6 @@ public toString() {
   }
 
   /**
-   * Get all requested trade objects with this agent.
-   * @param {Agent} agent - agent to find trades for.
-   * @return [trade]
-   */
-  static getRequestedTradesWithAgent(agent: Agent) {
-    const trades = [];
-
-    for (const trade of Trade.requested) {
-      if (trade.initiatorID === agent.id || trade.receiverID === agent.id) {
-        trades.push(trade);
-      }
-    }
-
-    return trades;
-  }
-
-  /**
    * Get all active trades between the 2 given agents
    * @param {Agent} agent1
    * @param {Agent} agent2
@@ -351,24 +316,6 @@ public toString() {
     const trades = [];
 
     for (const trade of Trade.actives) {
-      if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
-        trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
-        trades.push(trade);
-      }
-    }
-
-    return trades;
-  }
-
-  /**
-   * Get all requested trades between the 2 given agents
-   * @param {Agent} agent1
-   * @param {Agent} agent2
-   */
-  static getRequestedTradesBetweenAgents(agent1: Agent, agent2: Agent) {
-    const trades = [];
-
-    for (const trade of Trade.requested) {
       if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
         trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
         trades.push(trade);

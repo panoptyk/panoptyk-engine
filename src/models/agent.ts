@@ -30,6 +30,19 @@ export class Agent extends IDObject {
   private _givenQuests: Set<number>;
   private _conversationID = 0;
   private _conversationRequests: Set<number>;
+  private _conversationRequested: Set<number>;
+  public get conversationRequested(): Agent[] {
+    return Agent.getByIDs(Array.from(this._conversationRequested));
+  }
+  private _tradeRequests: Set<number>;
+  public get tradeRequesters(): Agent[] {
+    return Agent.getByIDs(Array.from(this._tradeRequests));
+  }
+  private _tradeRequested: Set<number>;
+  public get tradeRequested(): Agent[] {
+    return Agent.getByIDs(Array.from(this._tradeRequested));
+  }
+
 
   // faction related information
   private _rank = 1;  // 0 is highest rank
@@ -64,6 +77,9 @@ export class Agent extends IDObject {
     this._inventory = new Set<number>();
     this._knowledge = new Set<number>();
     this._conversationRequests = new Set<number>();
+    this._conversationRequested = new Set<number>();
+    this._tradeRequests = new Set<number>();
+    this._tradeRequested = new Set<number>();
     this._assignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
 
@@ -83,6 +99,9 @@ export class Agent extends IDObject {
     a._inventory = new Set<number>(a._inventory);
     a._knowledge = new Set<number>(a._knowledge);
     a._conversationRequests = new Set<number>(a._conversationRequests);
+    a._conversationRequested = new Set<number>(a._conversationRequested);
+    a._tradeRequests = new Set<number>(a._tradeRequests);
+    a._tradeRequested = new Set<number>(a._tradeRequested);
     a._assignedQuests = new Set<number>(a._assignedQuests);
     a._givenQuests = new Set<number>(a._givenQuests);
     return a;
@@ -102,6 +121,15 @@ export class Agent extends IDObject {
     (safeAgent._knowledge as any) = Array.from(safeAgent._knowledge);
     (safeAgent._conversationRequests as any) = Array.from(
       safeAgent._conversationRequests
+    );
+    (safeAgent._conversationRequested as any) = Array.from(
+      safeAgent._conversationRequested
+    );
+    (safeAgent._tradeRequests as any) = Array.from(
+      safeAgent._tradeRequests
+    );
+    (safeAgent._tradeRequested as any) = Array.from(
+      safeAgent._tradeRequested
     );
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
@@ -339,15 +367,60 @@ export class Agent extends IDObject {
    */
   public removeFromRoom() {
     this.roomID = 0;
-    this._conversationRequests.clear();
   }
 
   /**
-   * adds agent requesting a conversation with this agent
+   * Client: Check if agent has an active conversation request to other agent
+   * @param other
+   */
+  public activeConversationRequestTo(other: Agent) {
+    return this._conversationRequested.has(other.id);
+  }
+
+  /**
+   * Client: Check if agent has an active trade request to other agent
+   * @param other
+   */
+  public activeTradeRequestTo(other: Agent) {
+    return this._tradeRequests.has(other.id);
+  }
+
+  /**
+   * Server: Adds agent requesting a trade with toAgent
+   * @param toAgent
+   * @param agent
+   */
+  public static tradeRequest(toAgent: Agent, agent: Agent) {
+    toAgent._tradeRequests.add(agent.id);
+    agent._tradeRequested.add(toAgent.id);
+  }
+
+  /**
+   * Server: Removes agents trade request to toAgent
+   * @param toAgent
+   * @param agent
+   */
+  public static removeTradeRequest(toAgent: Agent, agent: Agent) {
+    toAgent._tradeRequests.delete(agent.id);
+    agent._tradeRequested.delete(toAgent.id);
+  }
+
+  /**
+   * Server: adds agent requesting a conversation with toAgent
    * @param agent Requesting agent
    */
-  public conversationRequest(agent: number) {
-    this._conversationRequests.add(agent);
+  public static conversationRequest(toAgent: Agent, agent: Agent) {
+    toAgent._conversationRequests.add(agent.id);
+    agent._conversationRequested.add(toAgent.id);
+  }
+
+  /**
+   * Server: Remove agent's request from set of conversation requests
+   * @param agent
+   */
+  public static removeConversationRequest(toAgent: Agent, agent: Agent) {
+    toAgent._conversationRequests.delete(agent.id);
+    agent._conversationRequested.delete(toAgent.id);
   }
 
   /**
@@ -368,20 +441,6 @@ export class Agent extends IDObject {
     return this._conversationID
       ? Conversation.getByID(this._conversationID)
       : undefined;
-  }
-
-  public get tradeRequesters(): Agent[] {
-    const requested: Trade[] = Trade.getRequestedTradesWithAgent(this);
-    const requesters = [];
-    for (const trade of requested) {
-      if (trade.agentIni !== this) {
-        requesters.push(trade.agentIni);
-      }
-      else {
-        requesters.push(trade.agentRec);
-      }
-    }
-    return requesters;
   }
 
   public get trade(): Trade {
