@@ -71,7 +71,9 @@ export class Trade extends IDObject {
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
-    Trade.actives.add(this);
+    if (this._resultStatus === Trade.result.IN_PROGRESS) {
+      Trade.actives.add(this);
+    }
 
     logger.log("Trade " + this + " Initialized.", LOG.INFO);
   }
