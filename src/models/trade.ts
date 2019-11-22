@@ -141,6 +141,19 @@ public toString() {
   }
 
   /**
+   * Client: Returns ready status of agent or nothing if agent is not part of trade
+   * @param agent
+   */
+  getAgentReadyStatus(agent: Agent) {
+    if (agent.id === this.initiatorID) {
+      return this.initiatorStatus;
+    }
+    else if (agent.id === this.receiverID) {
+      return this.receiverStatus;
+    }
+  }
+
+  /**
    * Get info data for an agent in the trade.
    * @param {Agent} agent - agent object.
    * @returns [Item] array of agent's info involved in trade.
@@ -162,7 +175,7 @@ public toString() {
   }
 
   /**
-   * Set status of trade.
+   * Server: Set status of trade.
    * 0=failed, 1=success, 2=in progress
    * @param {number} stat - status to set.
    */
@@ -181,7 +194,7 @@ public toString() {
   }
 
   /**
-   * Set an agent's ready status. Returns true when both agents are ready.
+   * Server: Set an agent's ready status. Returns true when both agents are ready.
    * @param {Agent} agent - agent to set status for.
    * @param {boolean} rstatus - status. True = ready, false = not ready.
    */
