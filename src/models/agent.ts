@@ -419,8 +419,8 @@ export class Agent extends IDObject {
    * @param agent
    */
   public static removeConversationRequest(toAgent: Agent, agent: Agent) {
-    toAgent._conversationRequests.delete(agent.id);
-    agent._conversationRequested.delete(toAgent.id);
+    toAgent._conversationRequested.delete(agent.id);
+    agent._conversationRequests.delete(toAgent.id);
   }
 
   /**
