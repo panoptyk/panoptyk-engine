@@ -401,8 +401,8 @@ export class Agent extends IDObject {
    * @param agent
    */
   public static removeTradeRequest(toAgent: Agent, agent: Agent) {
-    toAgent._tradeRequests.delete(agent.id);
-    agent._tradeRequested.delete(toAgent.id);
+    toAgent._tradeRequested.delete(agent.id);
+    agent._tradeRequests.delete(toAgent.id);
   }
 
   /**
