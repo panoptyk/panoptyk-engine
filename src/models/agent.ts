@@ -295,7 +295,7 @@ export class Agent extends IDObject {
     if (this._sortedInfo.byAction.has(key)) {
       return Info.getByIDs(Array.from(this._sortedInfo.byAction.get(key)));
     }
-    return undefined;
+    return [];
   }
 
   public getInfoByLoc(room: Room): Info[] {
@@ -303,7 +303,7 @@ export class Agent extends IDObject {
     if (this._sortedInfo.byLoc.has(key)) {
       return Info.getByIDs(Array.from(this._sortedInfo.byLoc.get(key)));
     }
-    return undefined;
+    return [];
   }
 
   public getInfoByAgent(agent: Agent): Info[] {
@@ -311,7 +311,7 @@ export class Agent extends IDObject {
     if (this._sortedInfo.byAgent.has(key)) {
       return Info.getByIDs(Array.from(this._sortedInfo.byAgent.get(key)));
     }
-    return undefined;
+    return [];
   }
 
   public getInfoByItem(item: Item): Info[] {
@@ -319,7 +319,7 @@ export class Agent extends IDObject {
     if (this._sortedInfo.byItem.has(key)) {
       return Info.getByIDs(Array.from(this._sortedInfo.byItem.get(key)));
     }
-    return undefined;
+    return [];
   }
 
   public sortInfo() {
