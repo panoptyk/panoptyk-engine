@@ -21,6 +21,7 @@ export const ActionOfferAnswerTrade: Action = {
     const mask: string[] = inputData.mask;
 
     controller.addAnswerToTrade(trade, answer, question, agent, mask);
+    logger.log("Event offer-answer-trade " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

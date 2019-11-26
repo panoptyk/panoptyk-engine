@@ -17,6 +17,7 @@ export const ActionAskQuestion: Action = {
     const desiredInfo: string[] = inputData.desiredInfo;
 
     controller.askQuestion(agent, inputData.question, desiredInfo);
+    logger.log("Event ask-question from " + agent + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

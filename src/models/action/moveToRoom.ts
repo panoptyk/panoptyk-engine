@@ -19,7 +19,6 @@ export const ActionMoveToRoom: Action = {
 
     controller.moveAgentToRoom(agent, newRoom);
 
-    // (Validate.objects = Validate.objects || []).push(this);
     logger.log("Event move-to-room (" + oldRoom + "->"
       + newRoom  + ") for agent " + agent + " registered.", 2);
     controller.sendUpdates();

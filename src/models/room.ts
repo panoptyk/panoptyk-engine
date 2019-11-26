@@ -173,7 +173,7 @@ export class Room extends IDObject {
    * Get the data for agents in this room.
    * @returns {Agent}
    */
-  public getAgents(curAgent?: Agent) {
+  public getAgents(curAgent?: Agent): Agent[] {
     const agents = [];
     for (const agentID of this._occupants) {
       if (!curAgent || agentID !== curAgent.id) {

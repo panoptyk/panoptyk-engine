@@ -17,6 +17,7 @@ export const ActionWithdrawInfoTrade: Action = {
     const info: Info = Info.getByID(inputData.infoID);
 
     controller.removeInfoFromTrade(trade, info, agent);
+    logger.log("Event withdraw-info-trade " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

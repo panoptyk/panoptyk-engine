@@ -16,6 +16,7 @@ export const ActionPassQuestion: Action = {
     const info: Info = Info.getByID(inputData.infoID);
 
     controller.passOnQuestion(agent, info, agent.conversation);
+    logger.log("Event pass-question on " + agent.conversation + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

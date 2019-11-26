@@ -408,6 +408,10 @@ export class Controller {
     conversation.remove_agent(agent);
 
     this.updateChanges(agent, [conversation, agent]);
+    // let room members know agent is no longer conversing
+    agent.room.occupants.forEach(occupant => {
+      this.updateChanges(occupant, [agent]);
+    });
 
     // no conversations of 1 or 0 people
     const agents: Agent[] = conversation.getAgents();
