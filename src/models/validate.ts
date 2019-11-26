@@ -592,5 +592,20 @@ export class Validate {
     return { status: true, message: "" };
   }
 
+  /**
+   * Prevents stupid requests
+   * @param agent
+   * @param toAgent
+   */
+  public static validate_not_same_agent(agent: Agent, toAgent: Agent) {
+    if (agent === toAgent) {
+      return {
+        status: false,
+        message: "You cannot send a request to yourself!"
+      };
+    }
+    return { status: true, message: "" };
+  }
+
   // TODO: need to validate if agent is in specific faction
 }

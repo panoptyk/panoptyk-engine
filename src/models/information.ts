@@ -201,6 +201,10 @@ export class Info extends IDObject {
     return this._command;
   }
 
+  toString() {
+    return "(id#" + this.id + ")";
+  }
+
   /**
    * creates formatted question data from a query info object
    */

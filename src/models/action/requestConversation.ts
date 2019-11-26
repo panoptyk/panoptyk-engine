@@ -54,6 +54,9 @@ export const ActionRequestConversation: Action = {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
+    if (!(res = Validate.validate_not_same_agent(agent, toAgent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;
     }
