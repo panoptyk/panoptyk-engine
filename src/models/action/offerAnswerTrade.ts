@@ -10,7 +10,7 @@ export const ActionOfferAnswerTrade: Action = {
     {
       "answerID": "number",
       "questionID": "number",
-      "mask": "string[]"
+      "mask": "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
