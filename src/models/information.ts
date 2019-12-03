@@ -2,6 +2,7 @@ import { Agent } from "./agent";
 import { IDObject } from "./idObject";
 import { Room } from "./room";
 import { Item } from "./item";
+import * as _ from "lodash";
 
 export interface Ipredicate {
   name: string;
@@ -274,9 +275,9 @@ export class Info extends IDObject {
     this._mask = mask;
   }
 
-  public applyMask(info: Info) {
-    for (const key in this._mask) {
-      if (this._mask[key] === "mask") {
+  public static applyMask(info: Info, mask) {
+    for (const key in mask) {
+      if (mask[key] === "mask") {
         if (key === "time") {
           info._time = undefined;
         }
@@ -333,20 +334,11 @@ export class Info extends IDObject {
    * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false): Info {
-    const safeObj = Object.assign({}, this);
-    // Cleaning empty arrays
-    for (const key in safeObj) {
-      const val = safeObj[key];
-      if (Array.isArray(val) && val.length === 0) {
-        safeObj[key] = undefined;
-      }
-      // use mask
-      if (removePrivateData) {
-        this.applyMask(safeObj);
-      }
+  public serialize(removePrivateData = false, mask = {}): Info {
+    const safeObj: Info = _.cloneDeep(this);
+    if (removePrivateData) {
+      Info.applyMask(safeObj, mask);
     }
-
     return safeObj;
   }
 

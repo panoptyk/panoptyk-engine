@@ -73,11 +73,7 @@ export class Controller {
           const info: Info = model as Info;
           if (info.isReference()) {
             const master: Info = Info.getByID(info.infoID);
-            if (info.isMasked()) {
-              master.setMask(info.mask);
-            }
-            payload[name].push(master.serialize(true));
-            master.removeMask();
+            payload[name].push(master.serialize(true, info.mask));
             payload[name].push(info.serialize());
           }
         }

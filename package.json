@@ -8,7 +8,7 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
-    "dist/", 
+    "dist/",
     "example_data"
   ],
   "scripts": {
@@ -47,7 +47,9 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.149",
     "express": "^4.17.1",
+    "lodash": "^4.17.15",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.3.0"
   }
