@@ -168,6 +168,14 @@ export class Info extends IDObject {
   public set infoID(value: number) {
     this._infoID = value;
   }
+  /* this is becuase we use infoID for both reference info and
+  master info that references other info as part of itself */
+  public get refInfoID(): number {
+    if (this._reference) {
+      return Info.getByID(this._infoID)._infoID;
+    }
+    return this._infoID;
+  }
   private _mask: any = {};
   public get mask(): any {
     return this._mask;
@@ -204,6 +212,16 @@ export class Info extends IDObject {
 
   toString() {
     return "(id#" + this.id + ")";
+  }
+
+  /**
+   * Returns true if other is the same piece of info or a reference of it
+   * @param other
+   */
+  public equals(other: Info): boolean {
+    const otherID = other._reference ? other.infoID : other.id;
+    const thisID = this._reference ? this.infoID : this.id;
+    return thisID === otherID;
   }
 
   /**
@@ -539,7 +557,7 @@ export class Info extends IDObject {
         return {
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
-          info: Info.getByID(info.infoID)
+          info: Info.getByID(info.refInfoID)
         };
       }
     },
@@ -615,7 +633,7 @@ export class Info extends IDObject {
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           loc: Room.getByID(info.locations[0]),
-          info: Info.getByID(info.infoID)
+          info: Info.getByID(info.refInfoID)
         };
       }
     },
@@ -732,7 +750,7 @@ export class Info extends IDObject {
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
-          info: Info.getByID(info.infoID)
+          info: Info.getByID(info.refInfoID)
         };
       }
     }
