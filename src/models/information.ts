@@ -400,7 +400,7 @@ export class Info extends IDObject {
         i._agent[0] = agent ? agent.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -436,7 +436,7 @@ export class Info extends IDObject {
         i._location[0] = loc1 ? loc1.id : undefined;
         i._location[1] = loc2 ? loc2.id : undefined;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -472,7 +472,7 @@ export class Info extends IDObject {
         i._agent[0] = agent ? agent.id : undefined;
         i._faction[0] = faction;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -507,7 +507,7 @@ export class Info extends IDObject {
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -542,7 +542,7 @@ export class Info extends IDObject {
         i._agent[0] = agent ? agent.id : undefined;
         i._infoID = info.isReference() ? info.infoID : info.id;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -578,7 +578,7 @@ export class Info extends IDObject {
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -616,7 +616,7 @@ export class Info extends IDObject {
         i._location[0] = loc ? loc.id : undefined;
         i._infoID = info.isReference() ? info.infoID : info.id;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -655,7 +655,7 @@ export class Info extends IDObject {
         i._location[0] = loc ? loc.id : undefined;
         i._quantity[0] = quantity;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -695,7 +695,7 @@ export class Info extends IDObject {
         i._location[0] = loc ? loc.id : undefined;
         i._quantity[0] = quantity;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }
@@ -734,7 +734,7 @@ export class Info extends IDObject {
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._infoID = info.isReference() ? info.infoID : info.id;
         switch (type) {
-          case "query": {
+          case "question": {
             i._query = true;
             break;
           }

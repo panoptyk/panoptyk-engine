@@ -772,7 +772,7 @@ export class Controller {
    * @param predicate valid Info question data
    */
   public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
-    const question: Info = Info.ACTIONS[predicate.action].create(predicate, "query");
+    const question: Info = Info.ACTIONS[predicate.action].create(predicate, "question");
 
     const conversation: Conversation = agent.conversation;
     conversation.logQuestion(question, desiredInfo);
@@ -863,7 +863,7 @@ export class Controller {
    * @param predicate valid predicate to construct info
    */
   public sendQuest(agent: Agent, toAgent: Agent, predicate: any, isQuestion: boolean, deadline: number) {
-    const type = isQuestion ? "question" : "command";
+    const type: string = isQuestion ? "question" : "command";
     const query: Info = Info.ACTIONS[predicate.action].create(predicate, type);
     const questInfo: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: query});
     const quest: Quest = new Quest(toAgent, agent, query, questInfo, type, deadline);
