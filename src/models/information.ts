@@ -286,11 +286,15 @@ export class Info extends IDObject {
   }
 
   /**
-   * set a mask on any specific term of the action. Use Info.prototype.getTerms() for terms
+   * Adds non-present mask values on top of existing mask. Use Info.prototype.getTerms() for terms
    * @param mask Object containing terms set to "mask" to be masked
    */
-  public setMask(mask: object) {
-    this._mask = mask;
+  public updateMask(mask: object) {
+    for (const key in mask) {
+      if (!(key in this._mask)) {
+        this._mask[key] = mask[key];
+      }
+    }
   }
 
   public static applyMask(info: Info, mask) {

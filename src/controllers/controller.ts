@@ -611,7 +611,7 @@ export class Controller {
     for (const agent of agents) {
       if (!agent.hasKnowledge(info)) {
         const cpy = info.makeCopy(agent, time);
-        cpy.setMask(mask);
+        cpy.updateMask(mask);
         this.addInfoToAgentInventory(agent, [cpy]);
       }
     }
