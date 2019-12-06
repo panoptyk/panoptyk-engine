@@ -625,7 +625,7 @@ export class Controller {
       // update mask if info would unmask more details
       else if (existingCopy.isMasked()) {
         existingCopy.simplifyMask(mask);
-        this.updateChanges(agent, [existingCopy, agent]);
+        this.updateChanges(agent, [existingCopy]);
       }
     }
   }
