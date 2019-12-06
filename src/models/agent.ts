@@ -487,14 +487,30 @@ export class Agent extends IDObject {
   /**
    * Checks if player knows specific info.
    */
-  public hasKnowledge(info: Info) {
-    return this._knowledge.has(info.id);
+  public hasKnowledge(info: Info): boolean {
+    if (this._knowledge.has(info.id)) return true;
+    for (const agentInfo of this.knowledge) {
+      if (agentInfo.equals(info)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Server: Returns the agent's reference to targetInfo if it has one
+   * @param targetInfo
+   */
+  public getInfoRef(targetInfo: Info): Info {
+    if (this._knowledge.has(targetInfo.id)) return targetInfo;
+    for (const agentInfo of this.knowledge) {
+      if (agentInfo.equals(targetInfo)) return agentInfo;
+    }
+    return undefined;
   }
 
   /**
    * Checks if player has specific item.
    */
-  public hasItem(item: Item) {
+  public hasItem(item: Item): boolean {
     return this._inventory.has(item.id);
   }
 

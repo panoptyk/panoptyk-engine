@@ -607,12 +607,24 @@ export class Controller {
    */
   public giveInfoToAgents(agents: Agent[], info: Info, mask = {}) {
     const time = util.getPanoptykDatetime();
-
+    if (info.isMasked()) {
+      // merge given mask with info's current mask
+      for (const key in info.mask) {
+        if (!(key in mask)) {
+          mask[key] = info.mask[key];
+        }
+      }
+    }
     for (const agent of agents) {
-      if (!agent.hasKnowledge(info)) {
+      const existingCopy = agent.getInfoRef(info);
+      if (existingCopy === undefined) {
         const cpy = info.makeCopy(agent, time);
-        cpy.updateMask(mask);
+        cpy.setMask(mask);
         this.addInfoToAgentInventory(agent, [cpy]);
+      }
+      // update mask if info would unmask more details
+      else if (existingCopy.isMasked()) {
+        existingCopy.simplifyMask(mask);
       }
     }
   }

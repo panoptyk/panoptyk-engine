@@ -176,8 +176,8 @@ export class Info extends IDObject {
     }
     return this._infoID;
   }
-  private _mask: any = {};
-  public get mask(): any {
+  private _mask: object = {};
+  public get mask(): object {
     return this._mask;
   }
 
@@ -278,7 +278,7 @@ export class Info extends IDObject {
   }
 
   /**
-   * Removes mask so that referenced item is accessed instead.
+   * Server: Removes mask so that referenced item is accessed instead.
    * WARNING: The original copy must still be sent to the client.
    */
   public removeMask() {
@@ -286,15 +286,29 @@ export class Info extends IDObject {
   }
 
   /**
-   * Adds non-present mask values on top of existing mask. Use Info.prototype.getTerms() for terms
+   * Server: Set a mask on any specific term of the action.
+   * Use Info.prototype.getTerms() for terms
    * @param mask Object containing terms set to "mask" to be masked
    */
-  public updateMask(mask: object) {
-    for (const key in mask) {
-      if (!(key in this._mask)) {
-        this._mask[key] = mask[key];
+  public setMask(mask: object) {
+    this._mask = mask;
+  }
+
+  /**
+   * Server: Sets a new mask that only contains values that are
+   * masked in both the current mask and the incoming mask. This is
+   * used to reduce the mask when dealing with two pieces of partial
+   * info.
+   * @param mask
+   */
+  public simplifyMask(mask: object) {
+    const newMask = {};
+    for (const key in this._mask) {
+      if (key in mask) {
+        newMask[key] = mask[key];
       }
     }
+    this._mask = newMask;
   }
 
   public static applyMask(info: Info, mask) {
