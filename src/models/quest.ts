@@ -104,7 +104,6 @@ export class Quest extends IDObject {
      * @param info potential solution to quest
      */
     public checkSatisfiability(info: Info): boolean {
-        const goal: Info = this.task;
-        return info.isAnswer(goal);
+        return info.isAnswer(this.task);
     }
 }

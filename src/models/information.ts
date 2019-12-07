@@ -379,7 +379,7 @@ export class Info extends IDObject {
   }
 
   /**
-   * Check if this Info item is an answer to a given question
+   * Check if this Info item is a complete answer to a given question
    * @param question question to check
    */
   public isAnswer(question: Info): boolean {
@@ -390,8 +390,8 @@ export class Info extends IDObject {
     const answerTerms = this.getTerms();
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if (questionTerms[key] !== undefined &&
-        questionTerms[key] !== answerTerms[key]) {
+      if (answerTerms[key] === undefined || (questionTerms[key] !== undefined &&
+        questionTerms[key] !== answerTerms[key])) {
         return false;
       }
     }
