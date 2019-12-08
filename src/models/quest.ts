@@ -104,6 +104,6 @@ export class Quest extends IDObject {
      * @param info potential solution to quest
      */
     public checkSatisfiability(info: Info): boolean {
-        return info.isAnswer(this.task);
+        return info.isAnswer(this.task, this.task.getTerms());
     }
 }
