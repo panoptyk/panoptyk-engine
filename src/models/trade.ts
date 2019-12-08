@@ -397,13 +397,19 @@ public toString() {
    * Returns item requests for an agent; items that have been passed are set to true
    * @param agent
    */
-  public getAgentsRequestedItems(agent: Agent): Map<number, boolean> {
+  public getAgentsRequestedItems(agent: Agent): Map<Item, boolean> {
+    const requestMap = new Map<Item, boolean>();
     if (agent.id === this.initiatorID) {
-      return this._initiatorRequestedItems;
+      for (const [id, response] of this._initiatorRequestedItems) {
+        requestMap.set(Item.getByID(id), response);
+      }
     }
     else if (agent.id === this.receiverID) {
-      return this._receiverRequestedItems;
+      for (const [id, response] of this._receiverRequestedItems) {
+        requestMap.set(Item.getByID(id), response);
+      }
     }
+    return requestMap;
   }
 
   /**
