@@ -312,6 +312,7 @@ export class Info extends IDObject {
   }
 
   public static applyMask(info: Info, mask) {
+    info._mask = mask;
     for (const key in mask) {
       if (mask[key] === "mask") {
         if (key === "time") {
