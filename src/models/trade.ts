@@ -425,4 +425,34 @@ public toString() {
       this._receiverRequestedItems.set(item.id, true);
     }
   }
+
+  /**
+   * Returns true if agent has offered a specific item, false otherwise.
+   * @param agent
+   * @param item
+   */
+  public agentOfferedItem(agent: Agent, item: Item): boolean {
+    if (agent.id === this.initiatorID) {
+      return this.initiatorItemIDs.has(item.id);
+    }
+    else if (agent.id === this.receiverID) {
+      return this.receiverItemIDs.has(item.id);
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if agent has offered an answer to the specified question, false otherwise.
+   * @param agent
+   * @param question
+   */
+  public agentOfferedAnswer(agent: Agent, question: Info): boolean {
+    if (agent.id === this.initiatorID) {
+      return this.initiatorInfo.has(question.id);
+    }
+    else if (agent.id === this.receiverID) {
+      return this.receiverInfo.has(question.id);
+    }
+    return false;
+  }
 }
