@@ -393,7 +393,7 @@ export class Info extends IDObject {
     // make sure answer has same known info as question
     for (const key in questionTerms) {
       if ((questionTerms[key] !== undefined && questionTerms[key] !== answerTerms[key]) ||
-        (key in wantedTerms && answerTerms[key] === undefined)) {
+        (key in wantedTerms && (answerTerms[key] === undefined || this._mask[key] === "mask"))) {
         return false;
       }
     }
