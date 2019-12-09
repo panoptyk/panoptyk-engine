@@ -50,8 +50,8 @@ export class Controller {
     if (change instanceof Info) {
       const terms = change.getTerms();
       for (const term in terms) {
-        if (terms[term] instanceof IDObject) {
-          this.addChange(updates, terms[term]);
+        if (terms[term] instanceof IDObject && !(terms[term] instanceof Info)) {
+          updates.add(terms[term]);
         }
       }
     }
