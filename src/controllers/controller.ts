@@ -51,7 +51,7 @@ export class Controller {
       const terms = change.getTerms();
       for (const term in terms) {
         if (terms[term] instanceof IDObject) {
-          updates.add(terms[term]);
+          this.addChange(updates, terms[term]);
         }
       }
     }
@@ -71,10 +71,10 @@ export class Controller {
         }
         if (name === Info.name) {
           const info: Info = model as Info;
+          payload[name].push(info.serialize());
           if (info.isReference()) {
             const master: Info = Info.getByID(info.infoID);
             payload[name].push(master.serialize(true, info.mask));
-            payload[name].push(info.serialize());
           }
         }
         else {
