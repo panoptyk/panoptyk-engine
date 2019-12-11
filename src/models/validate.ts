@@ -469,7 +469,8 @@ export class Validate {
         questionTerms[key] !== answerTerms[key]) {
         return {
           status: false,
-          message: "Answer " + key + " does not match the " + key + " in the question!"
+          message: "Answer " + key + " of " + answerTerms[key] + " does not match the "
+            + key + " of " + questionTerms[key] + " in the question!"
         };
       }
     }
