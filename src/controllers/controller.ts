@@ -600,6 +600,36 @@ export class Controller {
   }
 
   /**
+   * DO NOT CALL, call giveInfoToAgents instead to ensure proper masking
+   * Makes sure that an agent is given the proper info along with all embedded info
+   * @param agent
+   * @param info
+   * @param time
+   * @param mask complete mask, should include info's mask or bad things will happen
+   */
+  private giveInfoToAgentRec(agent: Agent, infoItem: Info, time: number, mask: object): Info {
+    const existingCopy = agent.getInfoRef(infoItem);
+    if (existingCopy === undefined) {
+      const cpy = infoItem.makeCopy(agent, time);
+      cpy.setMask(mask);
+      // give any embedded info if necessary
+      const embeddedInfo: Info = infoItem.getTerms().info;
+      if (embeddedInfo !== undefined) {
+        const embeddedCpy = this.giveInfoToAgentRec(agent, embeddedInfo, time, embeddedInfo.mask);
+        cpy.setReplacementInfo(embeddedCpy);
+      }
+      this.addInfoToAgentInventory(agent, [cpy]);
+      return cpy;
+    }
+    else if (existingCopy.isMasked()) {
+      // update mask if info would unmask more details
+      existingCopy.simplifyMask(mask);
+      this.updateChanges(agent, [existingCopy]);
+    }
+    return existingCopy;
+  }
+
+  /**
    * Give a piece of masked info to an array of agents.
    * @param {[Object]} agents - agents to give info to.
    * @param {Info} info - info Object.
@@ -616,17 +646,29 @@ export class Controller {
       }
     }
     for (const agent of agents) {
-      const existingCopy = agent.getInfoRef(info);
-      if (existingCopy === undefined) {
-        const cpy = info.makeCopy(agent, time);
-        cpy.setMask(mask);
-        this.addInfoToAgentInventory(agent, [cpy]);
+      this.giveInfoToAgentRec(agent, info, time, mask);
+    }
+  }
+
+  /**
+   * Used to distribute a newly made masterInfo that has a mask to apply on the embedded info
+   * @param agents
+   * @param masterInfo
+   * @param maskForEmb
+   */
+  private distributeMaskedEmbeddedInfo(agents: Agent[], masterInfo: Info, maskForEmb = {}) {
+    const time = util.getPanoptykDatetime();
+    const embInfo: Info = Info.getByID(masterInfo.infoID);
+    if (embInfo.isMasked()) {
+      for (const key in embInfo.mask) {
+        if (!(key in maskForEmb)) maskForEmb[key] = embInfo.mask[key];
       }
-      // update mask if info would unmask more details
-      else if (existingCopy.isMasked()) {
-        existingCopy.simplifyMask(mask);
-        this.updateChanges(agent, [existingCopy]);
-      }
+    }
+    for (const agent of agents) {
+      const embCpy = this.giveInfoToAgentRec(agent, embInfo, time, maskForEmb);
+      const cpy = masterInfo.makeCopy(agent, time);
+      cpy.setReplacementInfo(embCpy);
+      this.addInfoToAgentInventory(agent, [cpy]);
     }
   }
 
@@ -793,7 +835,7 @@ export class Controller {
     for (const other of conversation.getAgents(agent)) {
       this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
         agent1: agent, agent2: other, loc: conversation.room, info: question}));
-        this.updateChanges(other, [conversation]);
+      this.updateChanges(other, [conversation]);
     }
     this.updateChanges(agent, [conversation]);
     this.giveInfoToAgents(relevantAgents, question);
@@ -864,7 +906,7 @@ export class Controller {
       if (other !== agent) {
         const knowInfo = Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: other, loc: agent.room, info});
         this.giveInfoToAgents([other], info, mask);
-        this.giveInfoToAgents(agents, knowInfo);
+        this.distributeMaskedEmbeddedInfo(agents, knowInfo, mask);
       }
     }
   }

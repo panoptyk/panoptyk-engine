@@ -165,17 +165,16 @@ export class Info extends IDObject {
   public get infoID(): number {
     return this._infoID;
   }
-  public set infoID(value: number) {
-    this._infoID = value;
-  }
-  /* this is becuase we use infoID for both reference info and
-  master info that references other info as part of itself */
-  public get refInfoID(): number {
-    if (this._reference) {
+  public get infoRef(): number {
+    if (this._replacementInfoID) {
+      return this._replacementInfoID;
+    }
+    else if (this._reference) {
       return Info.getByID(this._infoID)._infoID;
     }
     return this._infoID;
   }
+  private _replacementInfoID?: number;
   private _mask: object = {};
   public get mask(): object {
     return this._mask;
@@ -278,6 +277,14 @@ export class Info extends IDObject {
   }
 
   /**
+   * Server: Sets the info that would be used in place of its parent's infoID
+   * @param info
+   */
+  public setReplacementInfo(info: Info) {
+    this._replacementInfoID = info.id;
+  }
+
+  /**
    * Server: Removes mask so that referenced item is accessed instead.
    * WARNING: The original copy must still be sent to the client.
    */
@@ -312,7 +319,6 @@ export class Info extends IDObject {
   }
 
   public static applyMask(info: Info, mask) {
-    info._mask = mask;
     for (const key in mask) {
       if (mask[key] === "mask") {
         if (key === "time") {
@@ -374,6 +380,7 @@ export class Info extends IDObject {
   public serialize(removePrivateData = false, mask = {}): Info {
     const safeObj: Info = _.cloneDeep(this);
     if (removePrivateData) {
+      safeObj.setMask(mask);
       Info.applyMask(safeObj, mask);
     }
     return safeObj;
@@ -577,7 +584,7 @@ export class Info extends IDObject {
         return {
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
-          info: Info.getByID(info.refInfoID)
+          info: Info.getByID(info.infoRef)
         };
       }
     },
@@ -653,7 +660,7 @@ export class Info extends IDObject {
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           loc: Room.getByID(info.locations[0]),
-          info: Info.getByID(info.refInfoID)
+          info: Info.getByID(info.infoRef)
         };
       }
     },
@@ -770,7 +777,7 @@ export class Info extends IDObject {
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
-          info: Info.getByID(info.refInfoID)
+          info: Info.getByID(info.infoRef)
         };
       }
     }
