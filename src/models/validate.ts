@@ -493,9 +493,9 @@ export class Validate {
   /**
    * Checks if agent has already answered question with specific answer
    */
-  public static validate_answer_not_used(question: Info, answer: Info) {
-    const askingAgent: Agent = Info.getByID(question.infoID).owner;
+  public static validate_answer_not_used(trade: Trade, answer: Info) {
     const answeringAgent: Agent = answer.owner;
+    const askingAgent: Agent = trade.agentIni === answeringAgent ? trade.agentRec : trade.agentIni;
     for (const info of answeringAgent.knowledge) {
       if (info.action === Info.ACTIONS.TOLD.name) {
         // checks if answering agent has told this answer to asking agent

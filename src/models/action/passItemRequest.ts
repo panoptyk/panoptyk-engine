@@ -18,7 +18,7 @@ export const ActionPassItemRequest: Action = {
 
     controller.passOnItemRequest(agent, trade, item);
 
-    logger.log("Event pass-item-request " + trade + " registered.", 2);
+    logger.log("Event pass-item-request from " + agent + " on " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

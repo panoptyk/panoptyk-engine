@@ -144,34 +144,13 @@ public toString() {
    * Client: Returns ready status of agent or nothing if agent is not part of trade
    * @param agent
    */
-  getAgentReadyStatus(agent: Agent) {
+  getAgentReadyStatus(agent: Agent): boolean {
     if (agent.id === this.initiatorID) {
       return this.initiatorStatus;
     }
     else if (agent.id === this.receiverID) {
       return this.receiverStatus;
     }
-  }
-
-  /**
-   * Get info data for an agent in the trade.
-   * @param {Agent} agent - agent object.
-   * @returns [Item] array of agent's info involved in trade.
-   */
-  getAgentInfosData(agent: Agent) {
-    let items: Info[];
-
-    if (agent.id === this.initiatorID) {
-      items = Info.getByIDs(Array.from(this.initiatorInfo.keys()));
-    }
-    else if (agent.id === this.receiverID) {
-      items = Info.getByIDs(Array.from(this.receiverInfo.keys()));
-    }
-    else {
-      logger.log("No matching agent for trade info data.", 0, "trade.js");
-    }
-
-    return items;
   }
 
   /**
@@ -229,13 +208,16 @@ public toString() {
   }
 
   /**
-   * Add info to one side of the trade.
+   * Server: Add info to one side of the trade.
    */
   addInfo(question: Info, answer: Info, owner: Agent, maskedInfo: string[]) {
+    // Make sure that master copy of question is added to trade (so both agents can access it)
+    const qID = question.isReference() ? question.infoID : question.id;
+    const aID = answer.id;
     if (owner.id === this.initiatorID) {
-      this.initiatorInfo.set(question.id, {answerID: answer.id, maskedInfo});
+      this.initiatorInfo.set(qID, {answerID: aID, maskedInfo});
     } else if (owner.id === this.receiverID) {
-      this.receiverInfo.set(question.id, {answerID: answer.id, maskedInfo});
+      this.receiverInfo.set(qID, {answerID: aID, maskedInfo});
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
@@ -265,18 +247,18 @@ public toString() {
   }
 
   /**
-   * Remove info from one side of the trade.
-   * @param {[Object]} items - info to remove from trade.
-   * @param {Object} owner - agent object of agent removing the info.
+   * Server: Remove info from one side of the trade.
+   * @param {[Info]} infos - info to remove from trade.
+   * @param {Agent} owner - agent object of agent removing the info.
    */
-  removeInfo(items: Info[], owner: Agent) {
+  removeInfo(infos: Info[], owner: Agent) {
     if (owner.id === this.initiatorID) {
-      items.forEach(item => {
-        this.initiatorInfo.delete(item.id);
+      infos.forEach(info => {
+        this.initiatorInfo.delete(info.id);
       });
     } else if (owner.id === this.receiverID) {
-      items.forEach(item => {
-        this.receiverInfo.delete(item.id);
+      infos.forEach(info => {
+        this.receiverInfo.delete(info.id);
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
@@ -310,7 +292,7 @@ public toString() {
    * @param {Agent} agent - agent to find trades for.
    * @return [trade]
    */
-  static getActiveTradesWithAgent(agent: Agent) {
+  static getActiveTradesWithAgent(agent: Agent): Trade[] {
     const trades = [];
 
     for (const trade of Trade.actives) {
@@ -327,7 +309,7 @@ public toString() {
    * @param {Agent} agent1
    * @param {Agent} agent2
    */
-  static getActiveTradesBetweenAgents(agent1: Agent, agent2: Agent) {
+  static getActiveTradesBetweenAgents(agent1: Agent, agent2: Agent): Trade[] {
     const trades = [];
 
     for (const trade of Trade.actives) {
@@ -356,6 +338,9 @@ public toString() {
     return Item.getByIDs(Array.from(this.receiverItemIDs));
   }
 
+  /**
+   * Server: Return answers initiator has offered
+   */
   get infoAnsIni(): Info[] {
     const answers = [];
     for (const ans of this.initiatorInfo.values()) {
@@ -364,6 +349,9 @@ public toString() {
     return answers;
   }
 
+  /**
+   * Server: Return answers receiver has offered
+   */
   get infoAnsRec(): Info[] {
     const answers = [];
     for (const ans of this.receiverInfo.values()) {
@@ -446,12 +434,16 @@ public toString() {
    * @param agent
    * @param question
    */
-  public agentOfferedAnswer(agent: Agent, question: Info): boolean {
+  public agentOfferedAnswer(agent: Agent, info: Info): boolean {
     if (agent.id === this.initiatorID) {
-      return this.initiatorInfo.has(question.id);
+      for (const id of this.initiatorInfo.keys()) {
+        if (info.isAnswer(Info.getByID(id))) return true;
+      }
     }
     else if (agent.id === this.receiverID) {
-      return this.receiverInfo.has(question.id);
+      for (const id of this.receiverInfo.keys()) {
+        if (info.isAnswer(Info.getByID(id))) return true;
+      }
     }
     return false;
   }

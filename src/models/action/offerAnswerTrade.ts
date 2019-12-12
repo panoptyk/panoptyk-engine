@@ -21,7 +21,7 @@ export const ActionOfferAnswerTrade: Action = {
     const mask: string[] = inputData.mask;
 
     controller.addAnswerToTrade(trade, answer, question, agent, mask);
-    logger.log("Event offer-answer-trade " + trade + " registered.", 2);
+    logger.log("Event offer-answer-trade from " + agent + " on " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -45,7 +45,7 @@ export const ActionOfferAnswerTrade: Action = {
     if (!(res = Validate.validate_info_is_answer(question, answer)).status) {
         return res;
     }
-    if (!(res = Validate.validate_answer_not_used(question, answer)).status) {
+    if (!(res = Validate.validate_answer_not_used(trade, answer)).status) {
       return res;
     }
     return Validate.successMsg;

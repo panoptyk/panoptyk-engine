@@ -18,7 +18,7 @@ export const ActionRequestItemTrade: Action = {
 
     controller.requestItemTrade(agent, trade, item);
 
-    logger.log("Event request-item-trade " + trade + " registered.", 2);
+    logger.log("Event request-item-trade from " + agent + " on " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
