@@ -39,6 +39,14 @@ export class Trade extends IDObject {
   public get receiverRequestedItems(): Map<number, boolean> {
     return this._receiverRequestedItems;
   }
+  private _initiatorGold: number;
+  public get initiatorGold(): number {
+    return this._initiatorGold;
+  }
+  private _receiverGold: number;
+  public get receiverGold(): number {
+    return this._receiverGold;
+  }
 
   /**
    * Trade model.
@@ -446,5 +454,33 @@ public toString() {
       }
     }
     return false;
+  }
+
+  /**
+   * Server: Modify gold that agent has offered in trade
+   * @param agent
+   * @param amount
+   */
+  public changeOfferedGold(agent: Agent, amount: number) {
+    if (agent.id === this.initiatorID) {
+      this._initiatorGold += amount;
+    }
+    else if (agent.id === this.receiverID) {
+      this._receiverGold += amount;
+    }
+  }
+
+  /**
+   * Returns the amount of gold an agent has offered in the trade
+   * @param agent
+   */
+  public getAgentsOfferedGold(agent: Agent): number {
+    if (agent.id === this.initiatorID) {
+      return this._initiatorGold;
+    }
+    else if (agent.id === this.receiverID) {
+      return this._receiverGold;
+    }
+    return 0;
   }
 }

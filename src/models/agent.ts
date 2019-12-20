@@ -42,7 +42,10 @@ export class Agent extends IDObject {
   public get tradeRequested(): Agent[] {
     return Agent.getByIDs(Array.from(this._tradeRequested));
   }
-
+  private _gold: number;
+  public get gold(): number {
+    return this._gold;
+  }
 
   // faction related information
   private _rank = 1;  // 0 is highest rank
@@ -521,5 +524,13 @@ export class Agent extends IDObject {
    */
   public get activeGivenQuests(): Quest[] {
     return Quest.getByIDs(Array.from(this._givenQuests));
+  }
+
+  /**
+   * Server: Modify agent's gold amount
+   * @param amount
+   */
+  public modifyGold(amount: number) {
+    this._gold += amount;
   }
 }

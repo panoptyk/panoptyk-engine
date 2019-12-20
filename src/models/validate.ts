@@ -608,5 +608,36 @@ export class Validate {
     return { status: true, message: "" };
   }
 
+  /**
+   * Makes sure agent has enough gold
+   * @param agent
+   * @param gold
+   */
+  public static validate_agent_has_enough_gold(agent: Agent, gold: number) {
+    if (gold > 0 && agent.gold < gold) {
+      return {
+        status: false,
+        message: "You do not have enough gold!"
+      };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
+   * Makes sure that proposed gold change would not cause negative balance for agent
+   * @param agent
+   * @param trade
+   * @param amount
+   */
+  public static validate_trade_gold_change(agent: Agent, trade: Trade, amount: number) {
+    if (trade.getAgentsOfferedGold(agent) + amount < 0) {
+      return {
+        status: false,
+        message: "You cannot offer less than zero gold!"
+      };
+    }
+    return { status: true, message: "" };
+  }
+
   // TODO: need to validate if agent is in specific faction
 }

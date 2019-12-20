@@ -476,4 +476,27 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Add specified gold amount to trade offering
+   * @param amount
+   */
+  public static async addGoldToTrade(amount: number) {
+    const res = await ClientAPI.sendWrapper("modify-gold-trade", {
+      amount
+    });
+    return res;
+  }
+
+  /**
+   * Remove specified gold amount from trade offering
+   * @param amount
+   */
+  public static async removeGoldfromTrade(amount: number) {
+    amount *= -1;
+    const res = await ClientAPI.sendWrapper("modify-gold-trade", {
+      amount
+    });
+    return res;
+  }
 }

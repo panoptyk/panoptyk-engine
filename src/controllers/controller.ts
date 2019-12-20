@@ -463,10 +463,12 @@ export class Controller {
    * @param {Object} trade - trade object.
    */
   public cancelTrade(trade: Trade) {
+    trade.agentIni.modifyGold(trade.initiatorGold);
+    trade.agentRec.modifyGold(trade.receiverGold);
     trade.setStatus(0);
     trade.cleanup();
-    this.updateChanges(trade.agentIni, [trade]);
-    this.updateChanges(trade.agentRec, [trade]);
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentIni]);
   }
 
   /**
@@ -479,6 +481,7 @@ export class Controller {
 
     const generalInfo: Info[] = [];
 
+    // item trades
     if (trade.itemsIni.length > 0) {
       this.removeItemsFromAgentInventory(trade.itemsIni);
       this.addItemsToAgentInventory(trade.agentRec, trade.itemsIni);
@@ -487,6 +490,10 @@ export class Controller {
       this.removeItemsFromAgentInventory(trade.itemsRec);
       this.addItemsToAgentInventory(trade.agentIni, trade.itemsRec);
     }
+
+    // gold trades
+    trade.agentIni.modifyGold(trade.receiverGold);
+    trade.agentRec.modifyGold(trade.initiatorGold);
 
     // complete information trades
     for (const info of trade.infoAnsIni) {
@@ -988,5 +995,18 @@ export class Controller {
     targetAgent.faction = faction;
     targetAgent.rank = rank;
     this.updateChanges(targetAgent, [targetAgent]);
+  }
+
+  /**
+   * Modifies amount of gold offered by agent in trade (can be negative)
+   * @param agent
+   * @param trade
+   * @param amount
+   */
+  public modifyGoldTrade(agent: Agent, trade: Trade, amount: number) {
+    agent.modifyGold(-1 * amount);
+    trade.changeOfferedGold(agent, amount);
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentIni]);
   }
 }
