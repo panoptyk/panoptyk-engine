@@ -49,9 +49,15 @@ export class Agent extends IDObject {
   public get rank() {
     return this._rank;
   }
+  public set rank(value) {
+    this._rank = value;
+  }
   private _faction = "SIS";
   public get faction() {
     return this._faction;
+  }
+  public set faction(value) {
+    this._faction = value;
   }
 
   // Client-side filter tools

@@ -23,4 +23,5 @@ export { ActionRequestItemTrade } from "./requestItemTrade";
 export { ActionCompleteQuest } from "./completeQuest";
 export { ActionRejectConversationRequest } from "./rejectConversationRequest";
 export { ActionRejectTradeRequest } from "./rejectTradeRequest";
+export { ActionModifyAgentFaction } from "./modifyAgentFaction";
 // export {} from "./"; <- future Actions

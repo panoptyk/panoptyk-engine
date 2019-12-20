@@ -461,4 +461,19 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * WIP way to change agent faction/rank
+   * @param targetAgent
+   * @param faction
+   * @param rank
+   */
+  public static async modifyAgentFaction(targetAgent: Agent, faction: string, rank = 10) {
+    const res = await ClientAPI.sendWrapper("modify-agent-faction", {
+      agentID: targetAgent.id,
+      faction,
+      rank
+    });
+    return res;
+  }
 }

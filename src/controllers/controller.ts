@@ -977,4 +977,16 @@ export class Controller {
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
   }
+
+  /**
+   * WIP function to change an agent's faction/rank
+   * @param targetAgent
+   * @param faction
+   * @param rank
+   */
+  public modifyAgentFaction(targetAgent: Agent, faction: string, rank: number) {
+    targetAgent.faction = faction;
+    targetAgent.rank = rank;
+    this.updateChanges(targetAgent, [targetAgent]);
+  }
 }
