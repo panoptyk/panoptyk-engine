@@ -639,5 +639,21 @@ export class Validate {
     return { status: true, message: "" };
   }
 
+  /**
+   * Validation for events that require a minimum number of an object
+   * @param obj
+   * @param amount
+   * @param threshold
+   */
+  public static validate_amount_greater_than(obj: string, amount: number, threshold: number) {
+    if (!(amount > threshold)) {
+      return {
+        status: false,
+        message: "Minimum of " + threshold + " " + obj + " required for action!"
+      };
+    }
+    return { status: true, message: "" };
+  }
+
   // TODO: need to validate if agent is in specific faction
 }

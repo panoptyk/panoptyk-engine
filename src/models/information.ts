@@ -81,13 +81,6 @@ export interface TAAILQ {
   quantity: number;
 }
 
-export interface TAAI {
-  time: number;
-  agent1: Agent;
-  agent2: Agent;
-  info: Info;
-}
-
 export class Info extends IDObject {
   private _time: number;
   public get time(): number {
@@ -491,7 +484,7 @@ export class Info extends IDObject {
        */
       create({ time, agent, faction }: TAF, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAF.name;
         i._agent[0] = agent ? agent.id : undefined;
         i._faction[0] = faction;
         switch (type) {
@@ -526,7 +519,7 @@ export class Info extends IDObject {
        */
       create({ time, agent1, agent2 }: TAA, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAA.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         switch (type) {
@@ -561,7 +554,7 @@ export class Info extends IDObject {
        */
       create({ time, agent, info }: TAK, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAK.name;
         i._agent[0] = agent ? agent.id : undefined;
         i._infoID = info.isReference() ? info.infoID : info.id;
         switch (type) {
@@ -596,7 +589,7 @@ export class Info extends IDObject {
        */
       create({ time, agent1, agent2, loc }: TAAL, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAAL.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
@@ -633,7 +626,7 @@ export class Info extends IDObject {
        */
       create({ time, agent1, agent2, loc, info }: TAALK, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAALK.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
@@ -672,7 +665,7 @@ export class Info extends IDObject {
        */
       create({ time, agent, item, loc, quantity }: TAILQ, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAILQ.name;
         i._agent[0] = agent ? agent.id : undefined;
         i._item[0] = item ? item.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
@@ -711,7 +704,7 @@ export class Info extends IDObject {
        */
       create({ time, agent1, agent2, item, loc, quantity }: TAAILQ, type: string): Info {
         const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAL.name;
+        i._predicate = Info.PREDICATE.TAAILQ.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._item[0] = item ? item.id : undefined;
@@ -741,43 +734,6 @@ export class Info extends IDObject {
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
           quantity: info.quantities[0]
-        };
-      }
-    },
-    TAAI: {
-      name: "TAAI", // predicate(Time, Time, Agent, Agent, Information)
-      /**
-       * Creates an action that uses this predicate format
-       *   predicate(Time, Time, Agent, Agent, Information)
-       */
-      create({time, agent1, agent2, info}: TAAI, type: string): Info {
-        const i = new Info(time);
-        i._predicate = Info.PREDICATE.TAAI.name;
-        i._agent[0] = agent1 ? agent1.id : undefined;
-        i._agent[1] = agent2 ? agent2.id : undefined;
-        i._infoID = info.isReference() ? info.infoID : info.id;
-        switch (type) {
-          case "question": {
-            i._query = true;
-            break;
-          }
-          case "command": {
-            i._command = true;
-            break;
-          }
-        }
-        return i;
-      },
-      /**
-       * returns labeled object of all the important terms for this predicate type
-       * @param i information in question
-       */
-      getTerms(info: Info): TAAI {
-        return {
-          time: info.time,
-          agent1: Agent.getByID(info.agents[0]),
-          agent2: Agent.getByID(info.agents[1]),
-          info: Info.getByID(info.infoRef)
         };
       }
     }
@@ -1093,13 +1049,13 @@ export class Info extends IDObject {
     },
     QUEST: {
       name: "QUEST",
-      predicate: Info.PREDICATE.TAAI,
+      predicate: Info.PREDICATE.TAALK,
       /**
        * Creates an action that uses this predicate format
-       *   GAVE(Time, Time, Agent, Agent, Info)
+       *   GAVE(Time, Time, Agent, Agent, Location, Info)
        */
-      create(args: TAAI, type = "normal"): Info {
-        const i = Info.PREDICATE.TAAI.create(args, type);
+      create(args: TAALK, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALK.create(args, type);
         i._action = Info.ACTIONS.QUEST.name;
         return i;
       },
@@ -1110,31 +1066,33 @@ export class Info extends IDObject {
         agent1,
         agent2,
         time,
+        loc,
         info
-      }: TAAI): { action: string } & TAAI {
+      }: TAALK): { action: string } & TAALK {
         return {
           action: Info.ACTIONS.QUEST.name,
           agent1,
           agent2,
           time,
+          loc,
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAAI {
-        const terms: any = Info.PREDICATE.TAAI.getTerms(info);
+      getTerms(info: Info): { action: string } & TAALK {
+        const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST.name;
         return terms;
       }
     },
     QUEST_COMPLETE: {
       name: "QUEST_COMPLETE",
-      predicate: Info.PREDICATE.TAAI,
+      predicate: Info.PREDICATE.TAALK,
       /**
        * Creates an action that uses this predicate format
-       *   GAVE(Time, Time, Agent, Agent, Info)
+       *   GAVE(Time, Time, Agent, Agent, Location, Info)
        */
-      create(args: TAAI, type = "normal"): Info {
-        const i = Info.PREDICATE.TAAI.create(args, type);
+      create(args: TAALK, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALK.create(args, type);
         i._action = Info.ACTIONS.QUEST_COMPLETE.name;
         return i;
       },
@@ -1145,31 +1103,33 @@ export class Info extends IDObject {
         agent1,
         agent2,
         time,
+        loc,
         info
-      }: TAAI): { action: string } & TAAI {
+      }: TAALK): { action: string } & TAALK {
         return {
           action: Info.ACTIONS.QUEST_COMPLETE.name,
           agent1,
           agent2,
           time,
+          loc,
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAAI {
-        const terms: any = Info.PREDICATE.TAAI.getTerms(info);
+      getTerms(info: Info): { action: string } & TAALK {
+        const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST_COMPLETE.name;
         return terms;
       }
     },
     QUEST_FAILED: {
       name: "QUEST_FAILED",
-      predicate: Info.PREDICATE.TAAI,
+      predicate: Info.PREDICATE.TAALK,
       /**
        * Creates an action that uses this predicate format
-       *   GAVE(Time, Time, Agent, Agent, Info)
+       *   GAVE(Time, Time, Agent, Agent, Location, Info)
        */
-      create(args: TAAI, type = "normal"): Info {
-        const i = Info.PREDICATE.TAAI.create(args, type);
+      create(args: TAALK, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALK.create(args, type);
         i._action = Info.ACTIONS.QUEST_FAILED.name;
         return i;
       },
@@ -1180,18 +1140,20 @@ export class Info extends IDObject {
         agent1,
         agent2,
         time,
+        loc,
         info
-      }: TAAI): { action: string } & TAAI {
+      }: TAALK): { action: string } & TAALK {
         return {
           action: Info.ACTIONS.QUEST_FAILED.name,
           agent1,
           agent2,
           time,
+          loc,
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAAI {
-        const terms: any = Info.PREDICATE.TAAI.getTerms(info);
+      getTerms(info: Info): { action: string } & TAALK {
+        const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST_FAILED.name;
         return terms;
       }

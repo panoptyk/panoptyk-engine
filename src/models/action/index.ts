@@ -25,4 +25,5 @@ export { ActionRejectConversationRequest } from "./rejectConversationRequest";
 export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 export { ActionModifyAgentFaction } from "./modifyAgentFaction";
 export { ActionModifyGoldTrade } from "./modifyGoldTrade";
+export { ActionDropGold } from "./dropGold";
 // export {} from "./"; <- future Actions

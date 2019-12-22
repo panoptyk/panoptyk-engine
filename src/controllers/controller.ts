@@ -118,9 +118,13 @@ export class Controller {
 
     for (const item of items) {
       addedItems.push(item);
-
-      agent.addItemInventory(addedItems[addedItems.length - 1]);
-      addedItems[addedItems.length - 1].giveToAgent(agent);
+      if (item.type === "gold") {
+        agent.modifyGold(item.quantity);
+      }
+      else {
+        agent.addItemInventory(addedItems[addedItems.length - 1]);
+        addedItems[addedItems.length - 1].giveToAgent(agent);
+      }
     }
 
     this.updateChanges(agent, [addedItems, agent]);
@@ -492,8 +496,22 @@ export class Controller {
     }
 
     // gold trades
-    trade.agentIni.modifyGold(trade.receiverGold);
-    trade.agentRec.modifyGold(trade.initiatorGold);
+    if (trade.initiatorGold > 0) {
+      trade.agentRec.modifyGold(trade.initiatorGold);
+      const item: Item = new Item("gold", "gold", trade.initiatorGold); // fake item to represent gold bag
+      generalInfo.push(Info.ACTIONS.GAVE.create({
+        time: util.getPanoptykDatetime(), agent1: trade.agentIni,
+        agent2: trade.agentRec, loc: trade.agentRec.room, item, quantity: trade.initiatorGold
+      }));
+    }
+    if (trade.receiverGold > 0) {
+      trade.agentIni.modifyGold(trade.receiverGold);
+      const item: Item = new Item("gold", "gold", trade.receiverGold); // fake item to represent gold bag
+      generalInfo.push(Info.ACTIONS.GAVE.create({
+        time: util.getPanoptykDatetime(), agent1: trade.agentRec,
+        agent2: trade.agentIni, loc: trade.agentRec.room, item, quantity: trade.receiverGold
+      }));
+    }
 
     // complete information trades
     for (const info of trade.infoAnsIni) {
@@ -927,7 +945,8 @@ export class Controller {
   public sendQuest(agent: Agent, toAgent: Agent, predicate: any, isQuestion: boolean, deadline: number) {
     const type: string = isQuestion ? "question" : "command";
     const query: Info = Info.ACTIONS[predicate.action].create(predicate, type);
-    const questInfo: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: toAgent, info: query});
+    const questInfo: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent,
+      agent2: toAgent, loc: agent.room, info: query});
     const quest: Quest = new Quest(toAgent, agent, query, questInfo, type, deadline);
     Agent.addQuest(quest);
     this.updateChanges(toAgent, [toAgent, quest]);
@@ -947,11 +966,11 @@ export class Controller {
     let closeInfo: Info;
     if (closeType === "COMPLETE") {
       closeInfo = Info.ACTIONS.QUEST_COMPLETE.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
-        agent2: quest.receiver, info: quest.info});
+        agent2: quest.receiver, loc: agent.room, info: quest.info});
     }
     else if (closeType === "FAILED") {
       closeInfo = Info.ACTIONS.QUEST_FAILED.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
-        agent2: quest.receiver, info: quest.info});
+        agent2: quest.receiver, loc: agent.room, info: quest.info});
     }
     Agent.removeQuest(quest);
     quest.setStatus(closeType);
@@ -1008,5 +1027,28 @@ export class Controller {
     trade.changeOfferedGold(agent, amount);
     this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
     this.updateChanges(trade.agentRec, [trade, trade.agentIni]);
+  }
+
+  /**
+   * Agent drops amount of gold into current room
+   * @param agent
+   * @param amount
+   */
+  public dropGold(agent: Agent, amount: number) {
+    const room: Room = agent.room;
+    agent.modifyGold(-1 * amount);
+
+    const item: Item = new Item("gold", "gold", amount);
+    this.addItemsToRoom(room, [item], agent);
+    const time = util.getPanoptykDatetime();
+    const info = Info.ACTIONS.DROP.create({
+      time,
+      agent,
+      item,
+      loc: agent.room,
+      quantity: amount
+    });
+    info.owner = agent;
+    this.giveInfoToAgents(agent.room.getAgents(), info);
   }
 }

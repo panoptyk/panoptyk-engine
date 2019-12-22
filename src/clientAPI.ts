@@ -499,4 +499,15 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Drop specified gold amount into room
+   * @param amount
+   */
+  public static async dropGold(amount: number) {
+    const res = await ClientAPI.sendWrapper("drop-gold", {
+      amount
+    });
+    return res;
+  }
 }

@@ -5,10 +5,17 @@ import { IDObject } from "./idObject";
 
 export class Item extends IDObject {
 
-  private type: number;
+  private _type: string;
+  public get type(): string {
+    return this._type;
+  }
   private _itemName: string;
   public get itemName(): string {
     return this._itemName;
+  }
+  private _quantity: number;
+  public get quantity(): number {
+    return this._quantity;
   }
   private roomID: number;
   private agentID: number;
@@ -17,16 +24,18 @@ export class Item extends IDObject {
   /**
    * Item model.
    * @param {string} itemName - item name
-   * @param {string} type - item type
+   * @param {string} type - item type. (Default: unique)
+   * @param {number} quantity - number of item. (Default: 1)
    * @param {Room} room - room object item is in. (Optional).
    * @param {Agent} agent - agent that owns item. (Optional).
    * @param {number} id - id of item. If null, one will be assigned.
    */
-  constructor(itemName, type, room?: Room, agent?: Agent, id?) {
+  constructor(itemName: string, type = "unique", quantity = 1, room?: Room, agent?: Agent, id?: number) {
     super(Item.name, id);
 
     this._itemName = itemName;
-    this.type = type;
+    this._type = type;
+    this._quantity = quantity;
     this.roomID = room ? room.id : undefined;
     this.agentID = agent ? agent.id : undefined;
 
@@ -49,7 +58,7 @@ export class Item extends IDObject {
    */
   static load(json: Item) {
     let i = Item.objects[json.id];
-    i = i ? i : new Item(json._itemName, json.type, undefined, undefined, json.id);
+    i = i ? i : new Item(json._itemName, json._type, json._quantity, undefined, undefined, json.id);
     for (const key in json) {
       i[key] = json[key];
     }
