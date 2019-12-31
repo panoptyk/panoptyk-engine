@@ -76,6 +76,8 @@ export class Trade extends IDObject {
     this.receiverInfo = new Map<number, AnswerInfo>();
     this._initiatorRequestedItems = new Map<number, boolean>();
     this._receiverRequestedItems = new Map<number, boolean>();
+    this._initiatorGold = 0;
+    this._receiverGold = 0;
 
     this.initiatorStatus = false;
     this.receiverStatus = false;

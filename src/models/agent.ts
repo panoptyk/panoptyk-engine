@@ -85,6 +85,7 @@ export class Agent extends IDObject {
     this.socket = undefined;
     this._inventory = new Set<number>();
     this._knowledge = new Set<number>();
+    this._gold = 0;
     this._conversationRequests = new Set<number>();
     this._conversationRequested = new Set<number>();
     this._tradeRequests = new Set<number>();

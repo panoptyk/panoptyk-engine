@@ -374,10 +374,9 @@ export class Validate {
       return {
         status: false,
         message:
-          "Agent " +
-          fromAgent.id +
-          " is not in same room as Agent " +
-          toAgent.id
+          fromAgent +
+          " is not in same room as " +
+          toAgent
       };
     }
 
@@ -393,7 +392,7 @@ export class Validate {
       if (agent.conversation !== undefined) {
         return {
           status: false,
-          message: "Agent " + agent.id + " is already in a conversation!"
+          message: agent + " is already in a conversation!"
         };
       }
     }
