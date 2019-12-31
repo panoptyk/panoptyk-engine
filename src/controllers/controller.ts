@@ -747,10 +747,10 @@ export class Controller {
    */
   public removeAgentsTradeRequests(agent: Agent) {
     for (const other of agent.tradeRequested) {
-      this.removeTradeRequest(agent, other);
+      this.removeTradeRequest(other, agent);
     }
     for (const other of agent.tradeRequesters) {
-      this.removeTradeRequest(other, agent);
+      this.removeTradeRequest(agent, other);
     }
   }
 
@@ -760,10 +760,10 @@ export class Controller {
    */
   public removeAgentsConversationRequests(agent: Agent) {
     for (const other of agent.conversationRequested) {
-      this.removeConversationRequest(agent, other);
+      this.removeConversationRequest(other, agent);
     }
     for (const other of agent.conversationRequesters) {
-      this.removeConversationRequest(other, agent);
+      this.removeConversationRequest(agent, other);
     }
   }
 

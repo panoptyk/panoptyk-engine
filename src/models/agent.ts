@@ -35,6 +35,9 @@ export class Agent extends IDObject {
     return Agent.getByIDs(Array.from(this._conversationRequested));
   }
   private _tradeRequests: Set<number>;
+  /**
+   * Get agents requesting trade with current this agent
+   */
   public get tradeRequesters(): Agent[] {
     return Agent.getByIDs(Array.from(this._tradeRequests));
   }
@@ -392,7 +395,7 @@ export class Agent extends IDObject {
    * @param other
    */
   public activeTradeRequestTo(other: Agent) {
-    return this._tradeRequests.has(other.id);
+    return this._tradeRequested.has(other.id);
   }
 
   /**
