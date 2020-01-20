@@ -50,10 +50,10 @@ export const ActionRequestConversation: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
+    const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_not_same_agent(agent, toAgent)).status) {
       return res;
     }

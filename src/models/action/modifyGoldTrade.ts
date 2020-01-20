@@ -22,6 +22,9 @@ export const ActionModifyGoldTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_agent_has_enough_gold(agent, inputData.amount)).status) {
         return res;
     }

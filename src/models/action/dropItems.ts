@@ -28,6 +28,9 @@ export const ActionDropItems: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }

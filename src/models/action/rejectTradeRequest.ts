@@ -21,6 +21,9 @@ export const ActionRejectTradeRequest: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     const toAgent = Agent.getByID(inputData.agentID);
     if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
       return res;

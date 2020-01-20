@@ -23,6 +23,9 @@ export const ActionWithdrawItemsTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
       return res;
     }
@@ -35,9 +38,6 @@ export const ActionWithdrawItemsTrade: Action = {
       return res;
     }
     if (!(res = Validate.validate_items_in_trade(items, trade, agent)).status) {
-      return res;
-    }
-    if (!(res = Validate.validate_agent_logged_in(trade.agentIni)).status) {
       return res;
     }
     return Validate.successMsg;

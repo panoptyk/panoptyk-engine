@@ -25,6 +25,9 @@ export const ActionMoveToRoom: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_room_adjacent(agent.room, Room.getByID(inputData.roomID))).status) {
       return res;
     }

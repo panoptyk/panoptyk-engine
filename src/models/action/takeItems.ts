@@ -28,6 +28,9 @@ export const ActionTakeItems: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     // check if item in room
     if (!(res = Validate.validate_items_in_room(agent.room, inputData.itemIDs)).status) {
       return res;

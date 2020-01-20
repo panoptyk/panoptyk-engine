@@ -24,6 +24,9 @@ export const ActionJoinConversation: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_conversation_exists(agent.room, Conversation.getByID(inputData.conversationID))).status) {
       return res;
     }

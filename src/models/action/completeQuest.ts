@@ -24,10 +24,10 @@ export const ActionCompleteQuest: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    const conversation = agent.conversation;
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-        return res;
+      return res;
     }
+    const conversation = agent.conversation;
     if (!(res = Validate.validate_conversation_exists(agent.room, conversation)).status) {
         return res;
     }

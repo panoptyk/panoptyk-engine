@@ -22,8 +22,11 @@ export const ActionLeaveConversation: Action = {
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
-    const conversation =  Conversation.getByID(inputData.conversationID);
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
+    const conversation =  Conversation.getByID(inputData.conversationID);
     if (!(res = Validate.validate_conversation_exists(agent.room, conversation)).status) {
       return res;
     }

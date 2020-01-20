@@ -27,6 +27,9 @@ export const ActionReadyTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+      return res;
+    }
     const trade: Trade = agent.trade;
     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
       return res;
@@ -37,11 +40,6 @@ export const ActionReadyTrade: Action = {
         agent,
         !inputData.readyStatus
       )).status
-    ) {
-      return res;
-    }
-    if (
-      !(res = Validate.validate_agent_logged_in(trade.agentIni)).status
     ) {
       return res;
     }

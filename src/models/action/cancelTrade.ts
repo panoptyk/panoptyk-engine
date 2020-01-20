@@ -21,12 +21,11 @@ export const ActionCancelTrade: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    const trade: Trade = agent.trade;
-    if (!(res = Validate.validate_trade_status(trade, [2, 3])).status) {
+    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    const res2 = res;
-    if (!(res = Validate.validate_agent_logged_in(trade.agentIni)).status) {
+    const trade: Trade = agent.trade;
+    if (!(res = Validate.validate_trade_status(trade, [2, 3])).status) {
       return res;
     }
 
