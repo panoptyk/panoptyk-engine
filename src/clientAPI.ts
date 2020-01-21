@@ -53,6 +53,7 @@ export class ClientAPI {
   private static actionSent = false;
   private static updating: boolean[] = [];
   private static playerAgentName = undefined;
+  private static playerAgentPassword = undefined;
   private static _playerAgent: Agent = undefined;
   public static get playerAgent(): Agent {
     // No name to use to find agent
@@ -107,8 +108,10 @@ export class ClientAPI {
    * Call init before using anything else in the ClientAPI
    * @param ipAddress address of panoptyk game server
    */
-  public static init(ipAddress = "http://localhost:8080") {
-    logger.silence();
+  public static init(ipAddress = "http://localhost:8080", mode = 0) {
+    if (mode === 0) {
+      logger.silence();
+    }
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
@@ -160,6 +163,16 @@ export class ClientAPI {
         updates[key] = undefined;
       }
     });
+    ClientAPI.socket.on("connect", () => {
+      // auto-reconnection if player was logged-in
+      if (ClientAPI.playerAgentName !== undefined && ClientAPI.playerAgentPassword !== undefined) {
+        logger.log("Reconnecting with previous login data", 2);
+        emit(ClientAPI.socket, "login", {
+          username: ClientAPI.playerAgentName,
+          password: ClientAPI.playerAgentPassword
+        });
+      }
+    });
     ClientAPI.initialized = true;
   }
 
@@ -204,6 +217,10 @@ export class ClientAPI {
       username: name,
       password
     });
+    // save data for reconnection if successful
+    if (res.status) {
+      ClientAPI.playerAgentPassword = password;
+    }
     return res;
   }
 
