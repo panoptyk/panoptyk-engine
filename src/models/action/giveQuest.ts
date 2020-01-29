@@ -19,7 +19,7 @@ export const ActionGiveQuest: Action = {
     const rawInfo = inputData.rawInfo;
     const toAgent = Agent.getByID(inputData.receiverID);
     const quest = controller.sendQuest(agent, toAgent, rawInfo, inputData.isQuestion, inputData.deadline);
-    logger.log("Event give-quest " + quest, 2);
+    logger.log("Event give-quest " + quest + " from agent " + agent + " to agent " + toAgent, 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

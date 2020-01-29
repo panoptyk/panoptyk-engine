@@ -19,7 +19,7 @@ export const ActionCompleteQuest: Action = {
     const quest: Quest = Quest.getByID(inputData.questID);
     controller.giveInfoToAgents([quest.giver], solution);
     controller.closeQuest(agent, quest, "COMPLETE");
-    logger.log("Event complete-quest " + quest, 2);
+    logger.log("Event complete-quest " + quest + " for agent " + agent, 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

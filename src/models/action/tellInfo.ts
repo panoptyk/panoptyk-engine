@@ -18,7 +18,8 @@ export const ActionTellInfo: Action = {
     const mask: string[] = inputData.mask;
 
     controller.tellInfoFreely(agent, info, mask);
-    logger.log("Event tell-info " + info, 2);
+    logger.log("Event tell-info " + info + " from agent " + agent
+      + " on conversation " + agent.conversation, 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
