@@ -1,4 +1,4 @@
-import { Trade, Item, Room, Agent, Conversation, Info, Quest } from "./index";
+import { Trade, Item, Room, Agent, Conversation, Info, Quest, Faction } from "./index";
 
 export interface ValidationResult {
   status: boolean;
@@ -548,21 +548,6 @@ export class Validate {
   }
 
   /**
-   * Checks if agent meets specific rank requirement
-   * @param agent agent to check
-   * @param rank rank that agent must be <=
-   */
-  public static validate_required_rank(agent: Agent, rank: number) {
-    if (agent.rank > rank) {
-      return {
-        status: false,
-        message: agent + " does not meet rank requirement of " + rank
-      };
-    }
-    return { status: true, message: "" };
-  }
-
-  /**
    * Checks if quest was assigned by given agent
    * @param agent
    * @param quest
@@ -654,5 +639,43 @@ export class Validate {
     return { status: true, message: "" };
   }
 
-  // TODO: need to validate if agent is in specific faction
+  /**
+   * Check if agent is part of required factionType needed to perform action
+   * @param requiredType
+   * @param agent
+   */
+  public static validate_factionType_requirement(requiredType: Set<string>, agent: Agent) {
+    if (requiredType) {
+      if (!agent.faction || !requiredType.has(agent.faction.factionType)) {
+        return {
+          status: false,
+          message: agent + " is not part of a faction able to do that action"
+        };
+      }
+    }
+    return Validate.successMsg;
+  }
+
+  /**
+   * Checks if agent is in a faction and optionally meets given rank requirement
+   * @param agent agent to check
+   * @param faction
+   * @param rank optional param rank that agent must be <=
+   */
+  public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
+    const agentRank = faction.getAgentRank(agent);
+    if (agentRank === undefined) {
+      return {
+        status: false,
+        message: agent + " is not part of faction " + faction
+      };
+    }
+    else if (rank !== undefined && agentRank > rank) {
+      return {
+        status: false,
+        message: agent + " does not meet rank requirement of " + rank + " in faction " + faction
+      };
+    }
+    return { status: true, message: "" };
+  }
 }

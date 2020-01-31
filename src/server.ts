@@ -13,7 +13,8 @@ import {
   Conversation,
   Trade,
   IDObject,
-  Quest
+  Quest,
+  Faction
 } from "./models/index";
 import {
   Action,
@@ -54,7 +55,7 @@ export class Server {
   /**
    * List of all models that need to be saved and loaded
    */
-  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade, Quest];
+  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade, Quest, Faction];
   private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionDropItems, ActionOfferItemsTrade,
     ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade,
     ActionAskQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo, ActionPassQuestion, ActionCompleteQuest,
@@ -129,7 +130,8 @@ export class Server {
           logger.log("Action recieved: " + action.name, LOG.INFO);
           const agent = Agent.getAgentBySocket(socket);
           let res: ValidationResult;
-          if ((res = Validate.validate_key_format(action.formats, data)).status) {
+          if ((res = Validate.validate_key_format(action.formats, data)).status &&
+          (res = Validate.validate_factionType_requirement(action.requiredFactionType, agent)).status) {
             res = action.validate(agent, socket, data);
             if (res.status) {
               action.enact(agent, data);

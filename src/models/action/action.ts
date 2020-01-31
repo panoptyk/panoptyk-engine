@@ -15,24 +15,11 @@ export type validateFunction = (agent: Agent, socket, inputData: any) => Validat
 
 export interface Action {
   name: string;
+  requiredFactionType?: Set<string>;
   formats: object[];
   enact: enactFunction;
   validate: validateFunction;
 }
-
-export const createAction = function(
-  name: string,
-  formats: object[],
-  enactFunction: enactFunction,
-  validateFunction: validateFunction
-): Action {
-  return {
-    name,
-    formats,
-    enact: enactFunction,
-    validate: validateFunction
-  };
-};
 
 const ActionExample: Action = {
   name: "example-action",

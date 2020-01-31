@@ -5,4 +5,5 @@ export { Info } from "./information";
 export { Conversation } from "./conversation";
 export { Trade } from "./trade";
 export { Quest } from "./quest";
+export { Faction } from "./faction";
 export { IDObject } from "./idObject";

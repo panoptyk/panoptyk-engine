@@ -8,7 +8,8 @@ import {
   Trade,
   Item,
   Conversation,
-  Quest
+  Quest,
+  Faction
 } from "./models/index";
 
 const MODELS: any = {
@@ -485,10 +486,10 @@ export class ClientAPI {
    * @param faction
    * @param rank
    */
-  public static async modifyAgentFaction(targetAgent: Agent, faction: string, rank = 10) {
+  public static async modifyAgentFaction(targetAgent: Agent, faction: Faction, rank = 10) {
     const res = await ClientAPI.sendWrapper("modify-agent-faction", {
       agentID: targetAgent.id,
-      faction,
+      factionID: faction.id,
       rank
     });
     return res;

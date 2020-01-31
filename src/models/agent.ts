@@ -7,6 +7,7 @@ import { Info } from "./information";
 import { Conversation } from "./conversation";
 import { Trade } from "./trade";
 import { Quest } from "./quest";
+import { Faction } from "./faction";
 
 export class Agent extends IDObject {
   private _agentName: string;
@@ -49,21 +50,12 @@ export class Agent extends IDObject {
   public get gold(): number {
     return this._gold;
   }
-
-  // faction related information
-  private _rank = 1;  // 0 is highest rank
-  public get rank() {
-    return this._rank;
+  private _faction: number;
+  public get faction(): Faction {
+    return this._faction ? Faction.getByID(this._faction) : undefined;
   }
-  public set rank(value) {
-    this._rank = value;
-  }
-  private _faction = "SIS";
-  public get faction() {
-    return this._faction;
-  }
-  public set faction(value) {
-    this._faction = value;
+  public set faction(newFaction: Faction) {
+    this._faction = newFaction ? newFaction.id : 0;
   }
 
   // Client-side filter tools

@@ -2,21 +2,22 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent } from "../index";
+import { Agent, Faction } from "../index";
 
 export const ActionModifyAgentFaction: Action = {
   name: "modify-agent-faction",
   formats: [
     {
       agentID: "number",
-      faction: "string",
+      factionID: "number",
       rank: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const targetAgent: Agent = Agent.getByID(inputData.agentID);
-    controller.modifyAgentFaction(targetAgent, inputData.faction, inputData.rank);
+    const agentFaction: Faction = Faction.getByID(inputData.factionID);
+    controller.modifyAgentFaction(targetAgent, agentFaction, inputData.rank);
     logger.log("Event modify-agent-faction from (" + agent + ") targeting " + targetAgent + " registered.", 2);
 
     controller.sendUpdates();

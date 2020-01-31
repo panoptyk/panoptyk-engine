@@ -8,7 +8,8 @@ import {
   Room,
   Item,
   Info,
-  Quest
+  Quest,
+  Faction
 } from "../models/index";
 
 export class Controller {
@@ -1010,9 +1011,9 @@ export class Controller {
    * @param faction
    * @param rank
    */
-  public modifyAgentFaction(targetAgent: Agent, faction: string, rank: number) {
+  public modifyAgentFaction(targetAgent: Agent, faction: Faction, rank: number) {
+    faction.setAgentRank(targetAgent, rank);
     targetAgent.faction = faction;
-    targetAgent.rank = rank;
     this.updateChanges(targetAgent, [targetAgent]);
   }
 
