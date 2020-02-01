@@ -528,4 +528,17 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Attempt to steal targetItem from targetAgent
+   * @param targetAgent
+   * @param targetItem
+   */
+  public static async stealItem(targetAgent: Agent, targetItem: Item) {
+    const res = await ClientAPI.sendWrapper("steal-item", {
+      agentID: targetAgent.id,
+      itemID: targetItem.id
+    });
+    return res;
+  }
 }

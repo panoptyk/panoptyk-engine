@@ -1052,4 +1052,25 @@ export class Controller {
     info.owner = agent;
     this.giveInfoToAgents(agent.room.getAgents(), info);
   }
+
+  /**
+   * Very basic steal item action that should be upgraded for better gameplay
+   * @param agent
+   * @param targetAgent
+   * @param item
+   */
+  public stealItem(agent: Agent, targetAgent: Agent, item: Item) {
+    this.removeItemsFromAgentInventory([item]);
+    this.addItemsToAgentInventory(agent, [item]);
+    item.addItemTag("stolen");
+    const info = Info.ACTIONS.STOLE.create({
+      agent1: agent,
+      agent2: targetAgent,
+      item,
+      quantity: 1,
+      loc: agent.room,
+      time: util.getPanoptykDatetime()
+    });
+    this.giveInfoToAgents([agent, targetAgent], info);
+  }
 }

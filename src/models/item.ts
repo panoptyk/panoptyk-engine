@@ -17,6 +17,10 @@ export class Item extends IDObject {
   public get quantity(): number {
     return this._quantity;
   }
+  private _itemTags: Set<string>;
+  public get itemTags(): Set<string> {
+    return this._itemTags;
+  }
   private roomID: number;
   private agentID: number;
   public inTransaction: boolean;
@@ -36,6 +40,7 @@ export class Item extends IDObject {
     this._itemName = itemName;
     this._type = type;
     this._quantity = quantity;
+    this._itemTags = new Set<string>();
     this.roomID = room ? room.id : undefined;
     this.agentID = agent ? agent.id : undefined;
 
@@ -62,6 +67,7 @@ export class Item extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
+    i._itemTags = new Set<number>(i._itemTags);
     return i;
   }
 
@@ -71,8 +77,9 @@ export class Item extends IDObject {
    *  may not be privy to.
    */
   public serialize(removePrivateData = false): Item {
-    const safeAgent = Object.assign({}, this);
-    return safeAgent;
+    const safeItem = Object.assign({}, this);
+    (safeItem._itemTags as any) = Array.from(safeItem._itemTags);
+    return safeItem;
   }
 
   toString() {
@@ -115,6 +122,22 @@ export class Item extends IDObject {
 
   get agent(): Agent {
     return this.agentID ? Agent.getByID(this.agentID) : undefined;
+  }
+
+  /**
+   * Server: Add a tag to item
+   * @param tag
+   */
+  public addItemTag(tag: string) {
+    this._itemTags.add(tag);
+  }
+
+  /**
+   * Server: Remove a given tag from item
+   * @param tag
+   */
+  public removeItemTag(tag: string) {
+    this._itemTags.delete(tag);
   }
 
 }
