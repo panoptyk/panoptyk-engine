@@ -21,7 +21,7 @@ export class Faction extends IDObject {
      * @param id id of faction. If undefined, one will be assigned.
      */
     constructor(name: string, type: string, id?: number) {
-        super(name, id);
+        super(Faction.name, id);
         this._factionName = name;
         this._factionType = type;
 
