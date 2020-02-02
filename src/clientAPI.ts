@@ -533,12 +533,25 @@ export class ClientAPI {
   }
 
   /**
-   * Attempt to steal targetItem from targetAgent
+   * Illegal Action: Attempt to steal targetItem from targetAgent
    * @param targetAgent
    * @param targetItem
    */
   public static async stealItem(targetAgent: Agent, targetItem: Item) {
     const res = await ClientAPI.sendWrapper("steal-item", {
+      agentID: targetAgent.id,
+      itemID: targetItem.id
+    });
+    return res;
+  }
+
+  /**
+   * Legal Action: Confiscate illegal/stolen item from targetAgent
+   * @param targetAgent
+   * @param targetItem
+   */
+  public static async confiscateItem(targetAgent: Agent, targetItem: Item) {
+    const res = await ClientAPI.sendWrapper("confiscate-item", {
       agentID: targetAgent.id,
       itemID: targetItem.id
     });

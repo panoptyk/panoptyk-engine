@@ -678,4 +678,18 @@ export class Validate {
     }
     return { status: true, message: "" };
   }
+
+  /**
+   * Validates that item is either illegal or stolen
+   * @param item
+   */
+  public static validate_illegal_item(item: Item) {
+    if (!item.itemTags.has("illegal") && !item.itemTags.has("stolen")) {
+      return {
+        status: false,
+        message: item + " is not illegal!"
+      };
+    }
+    return Validate.successMsg;
+  }
 }

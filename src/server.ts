@@ -43,7 +43,8 @@ import {
   ActionModifyAgentFaction,
   ActionModifyGoldTrade,
   ActionDropGold,
-  ActionStealItem
+  ActionStealItem,
+  ActionConfiscateItem
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -61,7 +62,7 @@ export class Server {
     ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade,
     ActionAskQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo, ActionPassQuestion, ActionCompleteQuest,
     ActionGiveQuest, ActionRequestItemTrade, ActionPassItemRequest, ActionRejectTradeRequest, ActionRejectConversationRequest,
-    ActionModifyAgentFaction, ActionModifyGoldTrade, ActionDropGold, ActionStealItem];
+    ActionModifyAgentFaction, ActionModifyGoldTrade, ActionDropGold, ActionStealItem, ActionConfiscateItem];
 
   constructor(app?: express.Application) {
     this.createApp(app);

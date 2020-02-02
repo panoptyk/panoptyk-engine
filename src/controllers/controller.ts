@@ -1082,4 +1082,25 @@ export class Controller {
     });
     this.giveInfoToAgents([agent, targetAgent], info);
   }
+
+  /**
+   * Confiscate action for police factions to take illegal or stolen item
+   * @param agent
+   * @param targetAgent
+   * @param item
+   */
+  public confiscateItem(agent: Agent, targetAgent: Agent, item: Item) {
+    this.removeItemsFromAgentInventory([item]);
+    this.addItemsToAgentInventory(agent, [item]);
+    item.removeItemTag("stolen");
+    const info = Info.ACTIONS.CONFISCATED.create({
+      agent1: agent,
+      agent2: targetAgent,
+      item,
+      quantity: 1,
+      loc: agent.room,
+      time: util.getPanoptykDatetime()
+    });
+    this.giveInfoToAgents([agent, targetAgent], info);
+  }
 }
