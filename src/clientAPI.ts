@@ -19,7 +19,8 @@ const MODELS: any = {
   Item,
   Trade,
   Conversation,
-  Quest
+  Quest,
+  Faction
 };
 
 export interface UpdatedModels {
@@ -30,6 +31,7 @@ export interface UpdatedModels {
   Trade: Trade[];
   Conversation: Conversation[];
   Quest: Quest[];
+  Faction: Faction[];
 }
 
 const emit = function(
@@ -125,7 +127,8 @@ export class ClientAPI {
         Room: [],
         Trade: [],
         Conversation: [],
-        Quest: []
+        Quest: [],
+        Faction: []
       };
       for (const key in data) {
         for (const model of data[key]) {

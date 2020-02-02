@@ -56,6 +56,12 @@ export class Controller {
         }
       }
     }
+    else if (change instanceof Agent) {
+      // automatically give faction information of agents for now
+      if (change.faction) {
+        updates.add(change.faction);
+      }
+    }
   }
 
   /**
@@ -234,6 +240,9 @@ export class Controller {
   public login(agent: Agent) {
     this.updateChanges(agent, [agent.inventory, agent.knowledge,
       agent.activeAssignedQuests, agent.activeGivenQuests]);
+    if (agent.faction) {
+      this.updateChanges(agent, [agent.faction]);
+    }
     this.addAgentToRoom(agent, agent.room);
   }
 
@@ -1014,7 +1023,7 @@ export class Controller {
   public modifyAgentFaction(targetAgent: Agent, faction: Faction, rank: number) {
     faction.setAgentRank(targetAgent, rank);
     targetAgent.faction = faction;
-    this.updateChanges(targetAgent, [targetAgent]);
+    this.updateChanges(targetAgent, [targetAgent, targetAgent.faction]);
   }
 
   /**
