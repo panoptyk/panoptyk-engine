@@ -556,6 +556,7 @@ export class ClientAPI {
 
   /**
    * Illegal Action: Attempt to steal targetItem from targetAgent
+   * Available to factionType: spy, criminal
    * @param targetAgent
    * @param targetItem
    */
@@ -569,6 +570,7 @@ export class ClientAPI {
 
   /**
    * Legal Action: Confiscate illegal/stolen item from targetAgent
+   * Available to factionType: police
    * @param targetAgent
    * @param targetItem
    */
@@ -591,6 +593,18 @@ export class ClientAPI {
     }
     const res = await ClientAPI.sendWrapper("tell-item-ownership", {
       itemIDs
+    });
+    return res;
+  }
+
+  /**
+   * Legal Action: Arrest targetAgent
+   * Available to factionType: police
+   * @param targetAgent
+   */
+  public static async arrestAgent(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("arrest-agent", {
+      agentID: targetAgent.id
     });
     return res;
   }

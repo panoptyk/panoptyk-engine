@@ -707,4 +707,23 @@ export class Validate {
     }
     return Validate.successMsg;
   }
+
+  public static validate_can_login(username: string) {
+    const agent = Agent.getAgentByName(username);
+    if (agent) {
+      if (agent.agentStatus.has("online")) {
+        return {
+          status: false,
+          message: agent + " is already online!"
+        };
+      }
+      if (agent.agentStatus.has("dead")) {
+        return {
+          status: false,
+          message: agent + " is dead and cannot be played."
+        };
+      }
+    }
+    return Validate.successMsg;
+  }
 }

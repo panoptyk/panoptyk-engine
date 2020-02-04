@@ -28,7 +28,13 @@ export const ActionLogin: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     inputData.socket = socket;
-    const res = Validate.validate_login_username(inputData.username);
+    let res;
+    if (!(res = Validate.validate_login_username(inputData.username)).status) {
+      return res;
+    }
+    if (!(res = Validate.validate_can_login(inputData.username)).status) {
+      return res;
+    }
     return res;
   }
 };

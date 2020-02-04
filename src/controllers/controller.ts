@@ -244,6 +244,7 @@ export class Controller {
    * @param agent
    */
   public login(agent: Agent) {
+    agent.addStatus("online");
     this.updateChanges(agent, [
       agent.inventory,
       agent.knowledge,
@@ -1282,5 +1283,34 @@ export class Controller {
         this.giveInfoToAgents([teller, other], toldInfo);
       }
     }
+  }
+
+  /**
+   * Police arrest action
+   * @param policeAgent
+   * @param targetAgent
+   */
+  public arrestAgent(policeAgent: Agent, targetAgent: Agent) {
+    // arrest currently kills targeted agent
+    targetAgent.addStatus("dead");
+    this.logout(targetAgent);
+
+    const info = Info.ACTIONS.ARRESTED.create({
+      agent1: policeAgent,
+      agent2: targetAgent,
+      loc: policeAgent.room,
+      time: util.getPanoptykDatetime()
+    });
+    this.giveInfoToAgents(policeAgent.room.occupants, info);
+  }
+
+  /**
+   * Logout
+   * @param agent
+   */
+  public logout(agent: Agent) {
+    agent.logout();
+    this.removeAgentFromRoom(agent, true);
+    this.sendUpdates();
   }
 }
