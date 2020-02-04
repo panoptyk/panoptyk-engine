@@ -67,7 +67,7 @@ export class Item extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
-    i._itemTags = new Set<number>(i._itemTags);
+    i._itemTags = new Set<string>(i._itemTags);
     return i;
   }
 

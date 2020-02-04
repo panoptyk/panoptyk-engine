@@ -3,6 +3,7 @@ import { IDObject } from "./idObject";
 import { Room } from "./room";
 import { Item } from "./item";
 import * as _ from "lodash";
+import { Faction } from "./faction";
 
 export interface Ipredicate {
   name: string;
@@ -34,7 +35,7 @@ export interface TALL {
 export interface TAF {
   time: number;
   agent: Agent;
-  faction: string;
+  faction: Faction;
 }
 
 export interface TAA {
@@ -147,8 +148,8 @@ export class Info extends IDObject {
     }
     return this._quantity;
   }
-  private _faction: string[] = [];
-  public get factions(): string[] {
+  private _faction: number[] = [];
+  public get factions(): number[] {
     if (this._reference) {
       return Info.getByID(this._infoID)._faction;
     }
@@ -486,7 +487,7 @@ export class Info extends IDObject {
         const i = new Info(time);
         i._predicate = Info.PREDICATE.TAF.name;
         i._agent[0] = agent ? agent.id : undefined;
-        i._faction[0] = faction;
+        i._faction[0] = faction ? faction.id : undefined;
         switch (type) {
           case "question": {
             i._query = true;
@@ -507,7 +508,7 @@ export class Info extends IDObject {
         return {
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
-          faction: info.factions[0]
+          faction: Faction.getByID(info.factions[0])
         };
       }
     },
