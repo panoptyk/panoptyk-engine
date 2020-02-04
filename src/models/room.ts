@@ -20,6 +20,10 @@ export class Room extends IDObject {
   public get maxOccupants(): number {
     return this._maxOccupants;
   }
+  private _roomTags: Set<string>;
+  public get roomTags(): Set<string> {
+    return this._roomTags;
+  }
 
   /**
    * Room model.
@@ -33,6 +37,7 @@ export class Room extends IDObject {
     this._occupants = new Set<number>();
     this.itemIDs = new Set<number>();
     this.conversationIDs = new Set<number>();
+    this._roomTags = new Set<string>();
     this._maxOccupants = maxOccupants;
 
     logger.log(
@@ -54,6 +59,7 @@ export class Room extends IDObject {
     r._occupants = new Set<number>(r._occupants);
     r.itemIDs = new Set<number>(r.itemIDs);
     r.conversationIDs = new Set<number>(r.conversationIDs);
+    r._roomTags = new Set<string>(r._roomTags);
     return r;
   }
 
@@ -67,6 +73,7 @@ export class Room extends IDObject {
     (safeRoom._occupants as any) = Array.from(safeRoom._occupants);
     (safeRoom.itemIDs as any) = Array.from(safeRoom.itemIDs);
     (safeRoom.conversationIDs as any) = Array.from(safeRoom.conversationIDs);
+    (safeRoom._roomTags as any) = Array.from(safeRoom._roomTags);
     return safeRoom;
   }
 
@@ -220,5 +227,21 @@ export class Room extends IDObject {
    */
   public hasAgent(agent: Agent): boolean {
     return this._occupants.has(agent.id);
+  }
+
+  /**
+   * Server: Add a tag to room
+   * @param tag
+   */
+  public addRoomTag(tag: string) {
+    this._roomTags.add(tag);
+  }
+
+  /**
+   * Server: Remove given tag from room
+   * @param tag
+   */
+  public removeRoomTag(tag: string) {
+    this._roomTags.delete(tag);
   }
 }
