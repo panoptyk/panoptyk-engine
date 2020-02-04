@@ -385,7 +385,7 @@ export class Validate {
    * @param {Agent} toAgent - receiver
    */
   public static validate_agents_in_same_room(fromAgent: Agent, toAgent: Agent) {
-    if (fromAgent.room !== toAgent.room) {
+    if (fromAgent.room.hasAgent(toAgent)) {
       return {
         status: false,
         message:

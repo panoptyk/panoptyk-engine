@@ -1312,7 +1312,6 @@ export class Controller {
    * @param agent
    */
   public logout(agent: Agent) {
-    agent.logout();
     this.removeAgentFromRoom(agent, true);
     this.sendUpdates();
   }
