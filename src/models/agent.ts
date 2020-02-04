@@ -66,6 +66,10 @@ export class Agent extends IDObject {
     }
     return undefined;
   }
+  private _agentStatus: Set<string>;
+  public get agentStatus(): Set<string> {
+    return this._agentStatus;
+  }
 
   // Client-side filter tools
   private _infoToSort: Info[] = [];
@@ -96,6 +100,7 @@ export class Agent extends IDObject {
     this._tradeRequested = new Set<number>();
     this._assignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
+    this._agentStatus = new Set<string>();
 
     logger.log("Agent " + this + " initialized.", 2);
   }
@@ -118,6 +123,7 @@ export class Agent extends IDObject {
     a._tradeRequested = new Set<number>(a._tradeRequested);
     a._assignedQuests = new Set<number>(a._assignedQuests);
     a._givenQuests = new Set<number>(a._givenQuests);
+    a._agentStatus = new Set<string>(a._agentStatus);
     return a;
   }
 
@@ -143,6 +149,7 @@ export class Agent extends IDObject {
     (safeAgent._tradeRequested as any) = Array.from(safeAgent._tradeRequested);
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
+    (safeAgent._agentStatus as any) = Array.from(safeAgent._agentStatus);
     if (removePrivateData && agent !== this) {
       safeAgent._gold = 0;
       safeAgent._inventory = undefined;
@@ -164,25 +171,13 @@ export class Agent extends IDObject {
    * @param {Object} socket - socket.io client socket object.
    */
   static login(username, socket: SocketIO.Socket) {
-    let selAgent: Agent = undefined;
-
-    for (const id in Agent.objects) {
-      const agent = Agent.objects[id];
-      if (agent.agentName === username) {
-        selAgent = agent;
-        break;
-      }
-    }
-
+    let selAgent: Agent = Agent.getAgentByName(username);
     if (selAgent === undefined) {
       selAgent = new Agent(username);
       selAgent.roomID = panoptykSettings.default_room_id;
       selAgent.room.addAgent(selAgent);
     }
-
     selAgent.socket = socket;
-    // TODO server.send.login_complete(selAgent);
-    // TODO server.control.add_agent_to_room(selAgent, server.models.Room.objects[selAgent.room]);
 
     return selAgent;
   }
@@ -191,6 +186,7 @@ export class Agent extends IDObject {
    * Called on agent logout.
    */
   logout() {
+    this.removeStatus("online");
     logger.log("Agent " + this + " logged out.", 2);
     this.socket = undefined;
   }
@@ -216,7 +212,7 @@ export class Agent extends IDObject {
    * @param {string} name - Agent name
    * @returns {Agent/undefined}
    */
-  static getAgentByName(name: string) {
+  static getAgentByName(name: string): Agent {
     for (const id in Agent.objects) {
       const agent: Agent = Agent.objects[id];
       if (agent && agent._agentName === name) {
@@ -528,5 +524,21 @@ export class Agent extends IDObject {
    */
   public modifyGold(amount: number) {
     this._gold += amount;
+  }
+
+  /**
+   * Server
+   * @param status
+   */
+  public addStatus(status: string) {
+    this._agentStatus.add(status);
+  }
+
+  /**
+   * Server
+   * @param status
+   */
+  public removeStatus(status: string) {
+    this._agentStatus.delete(status);
   }
 }

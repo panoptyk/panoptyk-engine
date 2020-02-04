@@ -46,7 +46,8 @@ import {
   ActionDropGold,
   ActionStealItem,
   ActionConfiscateItem,
-  ActionTellItemOwnership
+  ActionTellItemOwnership,
+  ActionArrestAgent
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -103,7 +104,8 @@ export class Server {
     ActionDropGold,
     ActionStealItem,
     ActionConfiscateItem,
-    ActionTellItemOwnership
+    ActionTellItemOwnership,
+    ActionArrestAgent
   ];
 
   constructor(app?: express.Application) {
@@ -220,8 +222,7 @@ export class Server {
         const agent: Agent = Agent.getAgentBySocket(socket);
         if (agent !== undefined) {
           const controller = new Controller();
-          controller.removeAgentFromRoom(agent, true);
-          controller.sendUpdates();
+          controller.logout(agent);
         }
       });
     });
