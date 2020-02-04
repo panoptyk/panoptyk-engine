@@ -1231,7 +1231,10 @@ export class Controller {
       loc: agent.room,
       time: util.getPanoptykDatetime()
     });
-    this.giveInfoToAgents([agent, targetAgent], info);
+    // TODO: base knowledge on steal skill when skill system is added
+    this.giveInfoToAgents([agent], info);
+    const mask = agent.faction.getAgentRank(agent) <= 100 ? { agent1: "mask" } : {};
+    this.giveInfoToAgents([targetAgent], info, mask);
   }
 
   /**
