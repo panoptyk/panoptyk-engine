@@ -708,6 +708,10 @@ export class Validate {
     return Validate.successMsg;
   }
 
+  /**
+   * Validates that the agent is not online or dead
+   * @param username
+   */
   public static validate_can_login(username: string) {
     const agent = Agent.getAgentByName(username);
     if (agent) {
@@ -723,6 +727,20 @@ export class Validate {
           message: agent + " is dead and cannot be played."
         };
       }
+    }
+    return Validate.successMsg;
+  }
+
+  /**
+   * Makes sure agent's movement is not being restricted by other factors
+   * @param agent
+   */
+  public static validate_can_leave(agent: Agent) {
+    if (agent.agentStatus.has("forcedConversation")) {
+      return {
+        status: false,
+        message: agent + " cannot leave forced conversation " + agent.conversation
+      };
     }
     return Validate.successMsg;
   }

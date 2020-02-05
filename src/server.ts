@@ -47,7 +47,8 @@ import {
   ActionStealItem,
   ActionConfiscateItem,
   ActionTellItemOwnership,
-  ActionArrestAgent
+  ActionArrestAgent,
+  ActionInterrogateAgent
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -105,7 +106,8 @@ export class Server {
     ActionStealItem,
     ActionConfiscateItem,
     ActionTellItemOwnership,
-    ActionArrestAgent
+    ActionArrestAgent,
+    ActionInterrogateAgent
   ];
 
   constructor(app?: express.Application) {

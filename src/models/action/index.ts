@@ -31,4 +31,5 @@ export { ActionStealItem } from "./stealItem";
 export { ActionConfiscateItem } from "./confiscateItem";
 export { ActionTellItemOwnership } from "./tellItemOwnership";
 export { ActionArrestAgent } from "./arrestAgent";
+export { ActionInterrogateAgent } from "./interrogateAgent";
 // export {} from "./"; <- future Actions
