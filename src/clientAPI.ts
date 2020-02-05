@@ -608,4 +608,16 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Legal Action: Force conversation with suspect
+   * Available to factionType: police
+   * @param targetAgent
+   */
+  public static async interrogateAgent(targetAgent: Agent) {
+    const res = await ClientAPI.sendWrapper("interrogate-agent", {
+      agentID: targetAgent.id
+    });
+    return res;
+  }
 }

@@ -432,9 +432,8 @@ export class Controller {
       "Removing agent " + agent + " from conversation " + conversation.id,
       2
     );
-
+    agent.removeStatus("forcedConversation");
     this.endAllTradesWithAgent(agent);
-
     agent.leaveConversation();
     conversation.remove_agent(agent);
 
@@ -862,7 +861,7 @@ export class Controller {
    * @param agent sending agent
    * @param toAgent receiving agent
    */
-  public createConversation(room: Room, agent: Agent, toAgent: Agent) {
+  public createConversation(room: Room, agent: Agent, toAgent: Agent, convoType = "normal") {
     const conversation = new Conversation(room);
     conversation.add_agent(agent);
     conversation.add_agent(toAgent);
@@ -873,12 +872,28 @@ export class Controller {
     this.removeAgentsConversationRequests(toAgent);
 
     const time = util.getPanoptykDatetime();
-    const info = Info.ACTIONS.CONVERSE.create({
-      time,
-      agent1: agent,
-      agent2: toAgent,
-      loc: room
-    });
+    let info: Info;
+    switch (convoType) {
+      case "normal": {
+        info = Info.ACTIONS.CONVERSE.create({
+          time,
+          agent1: agent,
+          agent2: toAgent,
+          loc: room
+        });
+        break;
+      }
+      case "interrogation": {
+        toAgent.addStatus("forcedConversation");
+        info = Info.ACTIONS.INTERROGATED.create({
+          time,
+          agent1: agent,
+          agent2: toAgent,
+          loc: room
+        });
+        break;
+      }
+    }
     this.giveInfoToAgents(room.getAgents(), info);
     conversation.info = info;
 

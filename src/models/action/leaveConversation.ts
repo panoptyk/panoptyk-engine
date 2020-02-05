@@ -33,6 +33,9 @@ export const ActionLeaveConversation: Action = {
     if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
       return res;
     }
+    if (!(res = Validate.validate_can_leave(agent)).status) {
+      return res;
+    }
     return Validate.successMsg;
   }
 };

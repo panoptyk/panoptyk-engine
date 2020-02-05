@@ -28,6 +28,9 @@ export const ActionMoveToRoom: Action = {
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
+    if (!(res = Validate.validate_can_leave(agent)).status) {
+      return res;
+    }
     if (!(res = Validate.validate_room_adjacent(agent.room, Room.getByID(inputData.roomID))).status) {
       return res;
     }
