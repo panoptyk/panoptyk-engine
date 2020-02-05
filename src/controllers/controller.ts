@@ -891,6 +891,9 @@ export class Controller {
           agent2: toAgent,
           loc: room
         });
+        // let agent see toAgent's inventory
+        this.updateChanges(agent, [toAgent]);
+        this.updateChanges(agent, toAgent.inventory);
         break;
       }
     }
