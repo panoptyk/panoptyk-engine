@@ -346,7 +346,6 @@ export class Validate {
         message: "Could not find trade with id " + tradeId
       };
     }
-
     return { status: true, message: "", trade };
   }
 
@@ -360,7 +359,6 @@ export class Validate {
     if (!trade || statusOptions.indexOf(trade.resultStatus) === -1) {
       return { status: false, message: "Trade not in correct state", trade };
     }
-
     return { status: true, message: "", trade };
   }
 
@@ -385,7 +383,7 @@ export class Validate {
    * @param {Agent} toAgent - receiver
    */
   public static validate_agents_in_same_room(fromAgent: Agent, toAgent: Agent) {
-    if (fromAgent.room.hasAgent(toAgent)) {
+    if (!fromAgent.room.hasAgent(toAgent)) {
       return {
         status: false,
         message:
@@ -394,7 +392,6 @@ export class Validate {
           toAgent
       };
     }
-
     return { status: true, message: "" };
   }
 
