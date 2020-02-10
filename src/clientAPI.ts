@@ -266,9 +266,9 @@ export class ClientAPI {
    * Leave current conversation
    * @param targetConversation conversation to leave
    */
-  public static async leaveConversation(targetConversation: Conversation) {
+  public static async leaveConversation(conversation: Conversation = ClientAPI.playerAgent.conversation) {
     const res = await ClientAPI.sendWrapper("leave-conversation", {
-      conversationID: targetConversation.id
+      conversationID: conversation.id
     });
     return res;
   }
@@ -299,8 +299,9 @@ export class ClientAPI {
    * Have logged-in agent cancel/reject specified trade
    * @param targetTrade
    */
-  public static async cancelTrade() {
+  public static async cancelTrade(trade: Trade = ClientAPI.playerAgent.trade) {
     const res = await ClientAPI.sendWrapper("cancel-trade", {
+      tradeID: trade.id
     });
     return res;
   }

@@ -365,6 +365,21 @@ export class Validate {
   }
 
   /**
+   * Validates that agent is in the given trade
+   * @param agent
+   * @param trade
+   */
+  public static validate_agent_in_trade(agent: Agent, trade: Trade) {
+    if (trade.agentIni !== agent && trade.agentRec !== agent) {
+      return {
+        status: false,
+        message: agent + " is not in Trade " + trade
+      };
+    }
+    return Validate.successMsg;
+  }
+
+  /**
    * Checks if agents are in the same room
    * @param {Agent} fromAgent - sender
    * @param {Agent} toAgent - receiver
