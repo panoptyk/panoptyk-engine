@@ -1312,7 +1312,10 @@ export class Controller {
    * @param targetAgent
    */
   public arrestAgent(policeAgent: Agent, targetAgent: Agent) {
-    // arrest currently kills targeted agent
+    // arrest currently confiscates all items and kills targeted agent
+    for (const item of targetAgent.inventory) {
+      this.confiscateItem(policeAgent, targetAgent, item);
+    }
     targetAgent.addStatus("dead");
     this.logout(targetAgent);
 
