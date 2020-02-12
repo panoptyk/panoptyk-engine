@@ -485,4 +485,22 @@ public toString() {
     }
     return 0;
   }
+
+  /**
+   * Returns the questions and how many answers an agent has offered in trade
+   * @param agent
+   */
+  public getAnswersOffered(agent: Agent): { qID: number; masked: boolean }[] {
+    let answers: Map<number, AnswerInfo>;
+    if (agent.id === this.initiatorID) {
+      answers = this.initiatorInfo;
+    } else if (agent.id === this.receiverID) {
+      answers = this.receiverInfo;
+    } else {
+      return undefined;
+    }
+    return Array.from(answers.keys()).map(k => {
+      return { qID: k, masked: answers.get(k).maskedInfo === undefined };
+    }) as any;
+  }
 }
