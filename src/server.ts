@@ -49,6 +49,8 @@ import {
 import { ValidationResult, Validate } from "./models/validate";
 
 export class Server {
+  private MIN_TIME_BETWEEN_ACTIONS = 100;
+  private actingSockets: Map<socketIO.Socket, number> = new Map<socketIO.Socket, number>();
   private app: express.Application;
   private server: http.Server;
   private io: socketIO.Server;
@@ -129,6 +131,19 @@ export class Server {
 
       for (const action of this.actions) {
         socket.on(action.name, (data, callback) => {
+          // Enforce action limit
+          if (this.actingSockets.has(socket) &&
+            Date.now() - this.actingSockets.get(socket) < this.MIN_TIME_BETWEEN_ACTIONS
+          ) {
+            callback({
+              status: false,
+              message: "You cannot act more than every " + this.MIN_TIME_BETWEEN_ACTIONS + " milliseconds!"
+            });
+            return;
+          }
+          this.actingSockets.set(socket, Date.now());
+
+          // Process action
           logger.log("Action recieved: " + action.name, LOG.INFO);
           const agent = Agent.getAgentBySocket(socket);
           let res: ValidationResult;
