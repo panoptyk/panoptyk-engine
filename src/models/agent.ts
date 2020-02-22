@@ -191,15 +191,6 @@ export class Agent extends IDObject {
     this.socket = undefined;
   }
 
-  public static logoutAll() {
-    for (const key in Agent.objects) {
-      const agent: Agent = Agent.objects[key];
-      if (agent.socket) {
-        agent.logout();
-      }
-    }
-  }
-
   /**
    * Static function. Find agent associated with a socket.
    * @param {Object} socket - Socket.io object
