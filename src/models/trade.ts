@@ -117,9 +117,25 @@ public toString() {
    * Sanatizes data to be serialized
    * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
    *  may not be privy to.
+   * @param {Agent} agent - agent to customize info for
    */
-  public serialize(removePrivateData = false) {
+  public serialize(removePrivateData = false, agent?: Agent) {
     const safeTrade = Object.assign({}, this);
+    if (agent) {
+      const recInfoCpy = new Map<number, AnswerInfo>();
+      for (const [id, ans] of safeTrade.receiverInfo) {
+        const newID = Info.getByID(id).getAgentsCopy(agent).id;
+        recInfoCpy.set(newID, ans);
+      }
+      safeTrade.receiverInfo = recInfoCpy;
+
+      const iniInfoCpy = new Map<number, AnswerInfo>();
+      for (const [id, ans] of safeTrade.initiatorInfo) {
+        const newID = Info.getByID(id).getAgentsCopy(agent).id;
+        iniInfoCpy.set(newID, ans);
+      }
+      safeTrade.initiatorInfo = iniInfoCpy;
+    }
     (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
     (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
     (safeTrade.initiatorInfo as any) = Array.from(safeTrade.initiatorInfo);
