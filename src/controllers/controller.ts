@@ -286,6 +286,16 @@ export class Controller {
       const mask = { time: "mask" };
       this.giveInfoToAgents([agent], convoInfo, mask);
     }
+
+    for (const item of newRoom.getItems()) {
+      const itemInfo = Info.ACTIONS.LOCATED_IN.create({
+        time: util.getPanoptykDatetime(),
+        item,
+        loc: newRoom,
+        quantity: 1
+      });
+      this.giveInfoToAgents([agent], itemInfo);
+    }
   }
 
   /**

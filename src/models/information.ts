@@ -82,6 +82,13 @@ export interface TAAILQ {
   quantity: number;
 }
 
+export interface TILQ {
+  time: number;
+  item: Item;
+  loc: Room;
+  quantity: number;
+}
+
 export class Info extends IDObject {
   private _time: number;
   public get time(): number {
@@ -737,6 +744,43 @@ export class Info extends IDObject {
           quantity: info.quantities[0]
         };
       }
+    },
+    TILQ: {
+      name: "TILQ", // predicate(Time, Tangible-Item, Location, Quantity)
+      /**
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Tangible-Item, Location, Quantity)
+       */
+      create({ time, item, loc, quantity }: TILQ, type: string): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TILQ.name;
+        i._item[0] = item ? item.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._quantity[0] = quantity;
+        switch (type) {
+          case "question": {
+            i._query = true;
+            break;
+          }
+          case "command": {
+            i._command = true;
+            break;
+          }
+        }
+        return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TILQ {
+        return {
+          time: info.time,
+          item: Item.getByID(info.items[0]),
+          loc: Room.getByID(info.locations[0]),
+          quantity: info.quantities[0]
+        };
+      }
     }
   };
 
@@ -1234,6 +1278,78 @@ export class Info extends IDObject {
       getTerms(info: Info): { action: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.CONFISCATED.name;
+        return terms;
+      }
+    },
+    POSSESSES: {
+      name: "POSSESSES",
+      predicate: Info.PREDICATE.TAILQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   POSSESSES(Time, Agent, Tangible-Item, Location, Quantity)
+       */
+      create(args: TAILQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TAILQ.create(args, type);
+        i._action = Info.ACTIONS.POSSESSES.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        time,
+        agent,
+        item,
+        loc,
+        quantity
+      }: TAILQ): { action: string } & TAILQ {
+        return {
+          action: Info.ACTIONS.POSSESSES.name,
+          time,
+          agent,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TAILQ {
+        const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
+        terms.action = Info.ACTIONS.POSSESSES.name;
+        return terms;
+      }
+    },
+    LOCATED_IN: {
+      name: "LOCATED_IN",
+      predicate: Info.PREDICATE.TILQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   LOCATED_IN(Time, Tangible-Item, Location, Quantity)
+       */
+      create(args: TILQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TILQ.create(args, type);
+        i._action = Info.ACTIONS.LOCATED_IN.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        time,
+        item,
+        loc,
+        quantity
+      }: TILQ): { action: string } & TILQ {
+        return {
+          action: Info.ACTIONS.LOCATED_IN.name,
+          time,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TILQ {
+        const terms: any = Info.PREDICATE.TILQ.getTerms(info);
+        terms.action = Info.ACTIONS.LOCATED_IN.name;
         return terms;
       }
     }
