@@ -57,6 +57,15 @@ export class Agent extends IDObject {
   public set faction(newFaction: Faction) {
     this._faction = newFaction ? newFaction.id : 0;
   }
+  /**
+   * Returns numeric value of agent's rank or undefined if agent is not in a faction
+   */
+  public get factionRank(): number {
+    if (this._faction) {
+      return this.faction.getAgentRank(this);
+    }
+    return undefined;
+  }
 
   // Client-side filter tools
   private _infoToSort: Info[] = [];
@@ -130,12 +139,8 @@ export class Agent extends IDObject {
     (safeAgent._conversationRequested as any) = Array.from(
       safeAgent._conversationRequested
     );
-    (safeAgent._tradeRequests as any) = Array.from(
-      safeAgent._tradeRequests
-    );
-    (safeAgent._tradeRequested as any) = Array.from(
-      safeAgent._tradeRequested
-    );
+    (safeAgent._tradeRequests as any) = Array.from(safeAgent._tradeRequests);
+    (safeAgent._tradeRequested as any) = Array.from(safeAgent._tradeRequested);
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
     if (removePrivateData) {
