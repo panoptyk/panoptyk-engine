@@ -181,6 +181,29 @@ export class Info extends IDObject {
     return this._mask;
   }
 
+  private _agentCopies: Map<number, number> = new Map<number, number>();
+  /**
+   * Server: Gets an agent's personal copy of given information
+   * @param agent
+   */
+  public getAgentsCopy(agent: Agent): Info {
+    if (agent) {
+      if (this._reference) {
+        if (this._owner === agent.id) {
+          return this;
+        }
+        else {
+          const master: Info = Info.getByID(this._infoID);
+          return master.getAgentsCopy(agent);
+        }
+      }
+      else if (this._agentCopies.has(agent.id)) {
+        return Info.getByID(this._agentCopies.get(agent.id));
+      }
+    }
+    return undefined;
+  }
+
   /**
    * Info model.
    * @param {Agent} owner - Agent who owns this info
@@ -268,12 +291,14 @@ export class Info extends IDObject {
    * @param {number} time - Time information was copied
    */
   public makeCopy(owner: Agent, time: number): Info {
-    const i = new Info(time, this._reference ? this._infoID : this.id);
+    const masterCpy: Info = this._reference ? Info.getByID(this._infoID) : this;
+    const i = new Info(time, masterCpy.id);
     i._query = this._query;
     i._command = this._command;
     i._owner = owner.id;
     i._mask = this.mask;
     i._reference = true;
+    masterCpy._agentCopies.set(owner.id, i.id);
     return i;
   }
 
@@ -370,6 +395,7 @@ export class Info extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
+    i._agentCopies = new Map<number, number>(i._agentCopies);
     return i;
   }
 
@@ -384,6 +410,7 @@ export class Info extends IDObject {
       safeObj.setMask(mask);
       Info.applyMask(safeObj, mask);
     }
+    (safeObj._agentCopies as any) = Array.from(safeObj._agentCopies);
     return safeObj;
   }
 
