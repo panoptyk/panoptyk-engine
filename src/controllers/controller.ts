@@ -77,10 +77,10 @@ export class Controller {
         }
         if (name === Info.name) {
           const info: Info = model as Info;
-          payload[name].push(info.serialize());
+          payload[name].push(info.serialize(agent, true));
           if (info.isReference()) {
             const master: Info = Info.getByID(info.infoID);
-            payload[name].push(master.serialize(agent, true, info.mask));
+            payload[name].push(master.serialize(agent, true));
           }
         } else {
           payload[name].push(model.serialize(agent, true));

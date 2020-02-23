@@ -169,8 +169,7 @@ export class Info extends IDObject {
   public get infoRef(): number {
     if (this._replacementInfoID) {
       return this._replacementInfoID;
-    }
-    else if (this._reference) {
+    } else if (this._reference) {
       return Info.getByID(this._infoID)._infoID;
     }
     return this._infoID;
@@ -287,8 +286,8 @@ export class Info extends IDObject {
     i._owner = owner.id;
     i._mask = this.mask;
     i._reference = true;
-    i._agentCopies = masterCpy._agentCopies;
     masterCpy._agentCopies.set(owner.id, i.id);
+    i._agentCopies = masterCpy._agentCopies;
     return i;
   }
 
@@ -339,29 +338,21 @@ export class Info extends IDObject {
       if (mask[key] === "mask") {
         if (key === "time") {
           info._time = undefined;
-        }
-        else if (key === "agent" || key === "agent1") {
+        } else if (key === "agent" || key === "agent1") {
           info._agent[0] = undefined;
-        }
-        else if (key === "agent2") {
+        } else if (key === "agent2") {
           info._agent[1] = undefined;
-        }
-        else if (key === "loc" || key === "loc1") {
+        } else if (key === "loc" || key === "loc1") {
           info._location[0] = undefined;
-        }
-        else if (key === "loc2") {
+        } else if (key === "loc2") {
           info._location[1] = undefined;
-        }
-        else if (key === "faction") {
+        } else if (key === "faction") {
           info._faction = undefined;
-        }
-        else if (key === "quantity") {
+        } else if (key === "quantity") {
           info._quantity = undefined;
-        }
-        else if (key === "info") {
+        } else if (key === "info") {
           info._infoID = undefined;
-        }
-        else if (key === "item") {
+        } else if (key === "item") {
           info._item[0] = undefined;
         }
       }
@@ -394,21 +385,27 @@ export class Info extends IDObject {
    * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(agent?: Agent, removePrivateData = false, mask = {}): Info {
+  public serialize(agent?: Agent, removePrivateData = false): Info {
     const safeObj: Info = _.cloneDeep(this);
+    (safeObj._agentCopies as any) = Array.from(safeObj._agentCopies);
+
     if (removePrivateData) {
+      const mask = this.getAgentsCopy(agent)
+        ? this.getAgentsCopy(agent).mask
+        : {};
+
       safeObj.setMask(mask);
       Info.applyMask(safeObj, mask);
+      safeObj._agentCopies = undefined;
     }
-    (safeObj._agentCopies as any) = Array.from(safeObj._agentCopies);
     return safeObj;
   }
 
-/**
- * Check if info answers question's specified wantedTerms
- * @param question
- * @param wantedTerms
- */
+  /**
+   * Check if info answers question's specified wantedTerms
+   * @param question
+   * @param wantedTerms
+   */
   public isAnswer(question: Info, wantedTerms = {}): boolean {
     if (this.action !== question.action) {
       return false;
@@ -417,8 +414,12 @@ export class Info extends IDObject {
     const answerTerms = this.getTerms();
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if ((questionTerms[key] !== undefined && questionTerms[key] !== answerTerms[key]) ||
-        (key in wantedTerms && (answerTerms[key] === undefined || this._mask[key] === "mask"))) {
+      if (
+        (questionTerms[key] !== undefined &&
+          questionTerms[key] !== answerTerms[key]) ||
+        (key in wantedTerms &&
+          (answerTerms[key] === undefined || this._mask[key] === "mask"))
+      ) {
         return false;
       }
     }
@@ -727,7 +728,10 @@ export class Info extends IDObject {
        * Creates an action that uses this predicate format
        *   predicate(Time, Agent, Agent, Tangible-Item, Location, Quantity)
        */
-      create({ time, agent1, agent2, item, loc, quantity }: TAAILQ, type: string): Info {
+      create(
+        { time, agent1, agent2, item, loc, quantity }: TAAILQ,
+        type: string
+      ): Info {
         const i = new Info(time);
         i._predicate = Info.PREDICATE.TAAILQ.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
@@ -1350,12 +1354,7 @@ export class Info extends IDObject {
       /**
        * create a question object for sending. Untracked/unsaved
        */
-      question({
-        time,
-        item,
-        loc,
-        quantity
-      }: TILQ): { action: string } & TILQ {
+      question({ time, item, loc, quantity }: TILQ): { action: string } & TILQ {
         return {
           action: Info.ACTIONS.LOCATED_IN.name,
           time,
