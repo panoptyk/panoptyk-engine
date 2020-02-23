@@ -55,8 +55,7 @@ export class Controller {
           this.addChange(updates, terms[term]);
         }
       }
-    }
-    else if (change instanceof Agent) {
+    } else if (change instanceof Agent) {
       // automatically give faction information of agents for now
       if (change.faction) {
         updates.add(change.faction);
@@ -78,14 +77,13 @@ export class Controller {
         }
         if (name === Info.name) {
           const info: Info = model as Info;
-          payload[name].push(info.serialize());
+          payload[name].push(info.serialize(agent, true));
           if (info.isReference()) {
             const master: Info = Info.getByID(info.infoID);
-            payload[name].push(master.serialize(true, info.mask));
+            payload[name].push(master.serialize(agent, true));
           }
-        }
-        else {
-          payload[name].push(model.serialize());
+        } else {
+          payload[name].push(model.serialize(agent, true));
         }
       }
       // console.log(payload);
@@ -127,8 +125,7 @@ export class Controller {
       addedItems.push(item);
       if (item.type === "gold") {
         agent.modifyGold(item.quantity);
-      }
-      else {
+      } else {
         agent.addItemInventory(addedItems[addedItems.length - 1]);
         addedItems[addedItems.length - 1].giveToAgent(agent);
       }
@@ -227,10 +224,18 @@ export class Controller {
     this.addAgentToRoom(agent, newRoom);
 
     const time = util.getPanoptykDatetime();
-    const info = Info.ACTIONS.MOVE.create({ time, agent, loc1: oldRoom, loc2: newRoom });
+    const info = Info.ACTIONS.MOVE.create({
+      time,
+      agent,
+      loc1: oldRoom,
+      loc2: newRoom
+    });
     info.owner = agent;
 
-    this.giveInfoToAgents(oldRoom.getAgents().concat(newRoom.getAgents()), info);
+    this.giveInfoToAgents(
+      oldRoom.getAgents().concat(newRoom.getAgents()),
+      info
+    );
   }
 
   /**
@@ -238,8 +243,12 @@ export class Controller {
    * @param agent
    */
   public login(agent: Agent) {
-    this.updateChanges(agent, [agent.inventory, agent.knowledge,
-      agent.activeAssignedQuests, agent.activeGivenQuests]);
+    this.updateChanges(agent, [
+      agent.inventory,
+      agent.knowledge,
+      agent.activeAssignedQuests,
+      agent.activeGivenQuests
+    ]);
     if (agent.faction) {
       this.updateChanges(agent, [agent.faction]);
     }
@@ -276,6 +285,16 @@ export class Controller {
       const convoInfo = convo.info;
       const mask = { time: "mask" };
       this.giveInfoToAgents([agent], convoInfo, mask);
+    }
+
+    for (const item of newRoom.getItems()) {
+      const itemInfo = Info.ACTIONS.LOCATED_IN.create({
+        time: util.getPanoptykDatetime(),
+        item,
+        loc: newRoom,
+        quantity: 1
+      });
+      this.giveInfoToAgents([agent], itemInfo);
     }
   }
 
@@ -509,31 +528,55 @@ export class Controller {
     if (trade.initiatorGold > 0) {
       trade.agentRec.modifyGold(trade.initiatorGold);
       const item: Item = new Item("gold", "gold", trade.initiatorGold); // fake item to represent gold bag
-      generalInfo.push(Info.ACTIONS.GAVE.create({
-        time: util.getPanoptykDatetime(), agent1: trade.agentIni,
-        agent2: trade.agentRec, loc: trade.agentRec.room, item, quantity: trade.initiatorGold
-      }));
+      generalInfo.push(
+        Info.ACTIONS.GAVE.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentIni,
+          agent2: trade.agentRec,
+          loc: trade.agentRec.room,
+          item,
+          quantity: trade.initiatorGold
+        })
+      );
     }
     if (trade.receiverGold > 0) {
       trade.agentIni.modifyGold(trade.receiverGold);
       const item: Item = new Item("gold", "gold", trade.receiverGold); // fake item to represent gold bag
-      generalInfo.push(Info.ACTIONS.GAVE.create({
-        time: util.getPanoptykDatetime(), agent1: trade.agentRec,
-        agent2: trade.agentIni, loc: trade.agentRec.room, item, quantity: trade.receiverGold
-      }));
+      generalInfo.push(
+        Info.ACTIONS.GAVE.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentRec,
+          agent2: trade.agentIni,
+          loc: trade.agentRec.room,
+          item,
+          quantity: trade.receiverGold
+        })
+      );
     }
 
     // complete information trades
     for (const info of trade.infoAnsIni) {
-      generalInfo.push(Info.ACTIONS.TOLD.create(
-        { time: util.getPanoptykDatetime(), agent1: trade.agentIni,
-          agent2: trade.agentRec, loc: trade.agentIni.room, info }));
+      generalInfo.push(
+        Info.ACTIONS.TOLD.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentIni,
+          agent2: trade.agentRec,
+          loc: trade.agentIni.room,
+          info
+        })
+      );
       this.giveInfoToAgents([trade.agentRec], info);
     }
     for (const info of trade.infoAnsRec) {
-      generalInfo.push(Info.ACTIONS.TOLD.create(
-        { time: util.getPanoptykDatetime(), agent1: trade.agentRec,
-          agent2: trade.agentIni, loc: trade.agentRec.room, info }));
+      generalInfo.push(
+        Info.ACTIONS.TOLD.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentRec,
+          agent2: trade.agentIni,
+          loc: trade.agentRec.room,
+          info
+        })
+      );
       this.giveInfoToAgents([trade.agentIni], info);
     }
 
@@ -545,16 +588,28 @@ export class Controller {
 
     // Info on items traded
     for (const item of trade.itemsIni) {
-      generalInfo.push(Info.ACTIONS.GAVE.create({
-        time: util.getPanoptykDatetime(), agent1: trade.agentIni,
-          agent2: trade.agentRec, loc: trade.agentRec.room, item, quantity: 1
-      }));
+      generalInfo.push(
+        Info.ACTIONS.GAVE.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentIni,
+          agent2: trade.agentRec,
+          loc: trade.agentRec.room,
+          item,
+          quantity: 1
+        })
+      );
     }
     for (const item of trade.itemsRec) {
-      generalInfo.push(Info.ACTIONS.GAVE.create({
-        time: util.getPanoptykDatetime(), agent1: trade.agentRec,
-          agent2: trade.agentIni, loc: trade.agentRec.room, item, quantity: 1
-      }));
+      generalInfo.push(
+        Info.ACTIONS.GAVE.create({
+          time: util.getPanoptykDatetime(),
+          agent1: trade.agentRec,
+          agent2: trade.agentIni,
+          loc: trade.agentRec.room,
+          item,
+          quantity: 1
+        })
+      );
     }
 
     for (const info of generalInfo) {
@@ -614,8 +669,7 @@ export class Controller {
     const endTrade = trade.setAgentReady(agent, rstatus);
     if (endTrade) {
       this.performTrade(trade);
-    }
-    else {
+    } else {
       this.updateChanges(trade.agentRec, [trade]);
       this.updateChanges(trade.agentIni, [trade]);
     }
@@ -642,7 +696,12 @@ export class Controller {
    * @param time
    * @param mask complete mask, should include info's mask or bad things will happen
    */
-  private giveInfoToAgentRec(agent: Agent, infoItem: Info, time: number, mask: object): Info {
+  private giveInfoToAgentRec(
+    agent: Agent,
+    infoItem: Info,
+    time: number,
+    mask: object
+  ): Info {
     const existingCopy = agent.getInfoRef(infoItem);
     if (existingCopy === undefined) {
       const cpy = infoItem.makeCopy(agent, time);
@@ -650,13 +709,17 @@ export class Controller {
       // give any embedded info if necessary
       const embeddedInfo: Info = infoItem.getTerms().info;
       if (embeddedInfo !== undefined) {
-        const embeddedCpy = this.giveInfoToAgentRec(agent, embeddedInfo, time, embeddedInfo.mask);
+        const embeddedCpy = this.giveInfoToAgentRec(
+          agent,
+          embeddedInfo,
+          time,
+          embeddedInfo.mask
+        );
         cpy.setReplacementInfo(embeddedCpy);
       }
       this.addInfoToAgentInventory(agent, [cpy]);
       return cpy;
-    }
-    else if (existingCopy.isMasked()) {
+    } else if (existingCopy.isMasked()) {
       // update mask if info would unmask more details
       existingCopy.simplifyMask(mask);
       this.updateChanges(agent, [existingCopy]);
@@ -691,7 +754,11 @@ export class Controller {
    * @param masterInfo
    * @param maskForEmb
    */
-  private distributeMaskedEmbeddedInfo(agents: Agent[], masterInfo: Info, maskForEmb = {}) {
+  private distributeMaskedEmbeddedInfo(
+    agents: Agent[],
+    masterInfo: Info,
+    maskForEmb = {}
+  ) {
     const time = util.getPanoptykDatetime();
     const embInfo: Info = Info.getByID(masterInfo.infoID);
     if (embInfo.isMasked()) {
@@ -862,14 +929,25 @@ export class Controller {
    * @param predicate valid Info question data
    */
   public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
-    const question: Info = Info.ACTIONS[predicate.action].create(predicate, "question");
+    const question: Info = Info.ACTIONS[predicate.action].create(
+      predicate,
+      "question"
+    );
 
     const conversation: Conversation = agent.conversation;
     conversation.logQuestion(question, desiredInfo);
     const relevantAgents = conversation.getAgents();
     for (const other of conversation.getAgents(agent)) {
-      this.giveInfoToAgents(relevantAgents, Info.ACTIONS.ASK.create({time: util.getPanoptykDatetime(),
-        agent1: agent, agent2: other, loc: conversation.room, info: question}));
+      this.giveInfoToAgents(
+        relevantAgents,
+        Info.ACTIONS.ASK.create({
+          time: util.getPanoptykDatetime(),
+          agent1: agent,
+          agent2: other,
+          loc: conversation.room,
+          info: question
+        })
+      );
       this.updateChanges(other, [conversation]);
     }
     this.updateChanges(agent, [conversation]);
@@ -879,7 +957,11 @@ export class Controller {
   /**
    * Agent passes on specified question in conversation
    */
-  public passOnQuestion(agent: Agent, question: Info, conversation: Conversation) {
+  public passOnQuestion(
+    agent: Agent,
+    question: Info,
+    conversation: Conversation
+  ) {
     conversation.passOnQuestion(question, agent);
     for (const member of conversation.getAgents()) {
       this.updateChanges(member, [conversation]);
@@ -893,7 +975,13 @@ export class Controller {
    * @param question Info question
    * @param owner sending agent
    */
-  public addAnswerToTrade(trade: Trade, answer: Info, question: Info, owner: Agent, maskedInfo: string[]) {
+  public addAnswerToTrade(
+    trade: Trade,
+    answer: Info,
+    question: Info,
+    owner: Agent,
+    maskedInfo: string[]
+  ) {
     this.setTradeUnreadyIfReady(trade, trade.agentIni);
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
     // update mask with fields that are already masked by answer
@@ -939,7 +1027,13 @@ export class Controller {
     }
     for (const other of agents) {
       if (other !== agent) {
-        const knowInfo = Info.ACTIONS.TOLD.create({time: util.getPanoptykDatetime(), agent1: agent, agent2: other, loc: agent.room, info});
+        const knowInfo = Info.ACTIONS.TOLD.create({
+          time: util.getPanoptykDatetime(),
+          agent1: agent,
+          agent2: other,
+          loc: agent.room,
+          info
+        });
         this.giveInfoToAgents([other], info, mask);
         this.distributeMaskedEmbeddedInfo(agents, knowInfo, mask);
       }
@@ -952,12 +1046,30 @@ export class Controller {
    * @param toAgent
    * @param predicate valid predicate to construct info
    */
-  public sendQuest(agent: Agent, toAgent: Agent, predicate: any, isQuestion: boolean, deadline: number) {
+  public sendQuest(
+    agent: Agent,
+    toAgent: Agent,
+    predicate: any,
+    isQuestion: boolean,
+    deadline: number
+  ) {
     const type: string = isQuestion ? "question" : "command";
     const query: Info = Info.ACTIONS[predicate.action].create(predicate, type);
-    const questInfo: Info = Info.ACTIONS.QUEST.create({time: util.getPanoptykDatetime(), agent1: agent,
-      agent2: toAgent, loc: agent.room, info: query});
-    const quest: Quest = new Quest(toAgent, agent, query, questInfo, type, deadline);
+    const questInfo: Info = Info.ACTIONS.QUEST.create({
+      time: util.getPanoptykDatetime(),
+      agent1: agent,
+      agent2: toAgent,
+      loc: agent.room,
+      info: query
+    });
+    const quest: Quest = new Quest(
+      toAgent,
+      agent,
+      query,
+      questInfo,
+      type,
+      deadline
+    );
     Agent.addQuest(quest);
     this.updateChanges(toAgent, [toAgent, quest]);
     this.updateChanges(agent, [agent, quest]);
@@ -975,12 +1087,21 @@ export class Controller {
   public closeQuest(agent: Agent, quest: Quest, closeType: string) {
     let closeInfo: Info;
     if (closeType === "COMPLETE") {
-      closeInfo = Info.ACTIONS.QUEST_COMPLETE.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
-        agent2: quest.receiver, loc: agent.room, info: quest.info});
-    }
-    else if (closeType === "FAILED") {
-      closeInfo = Info.ACTIONS.QUEST_FAILED.create({time: util.getPanoptykDatetime(), agent1: quest.giver,
-        agent2: quest.receiver, loc: agent.room, info: quest.info});
+      closeInfo = Info.ACTIONS.QUEST_COMPLETE.create({
+        time: util.getPanoptykDatetime(),
+        agent1: quest.giver,
+        agent2: quest.receiver,
+        loc: agent.room,
+        info: quest.info
+      });
+    } else if (closeType === "FAILED") {
+      closeInfo = Info.ACTIONS.QUEST_FAILED.create({
+        time: util.getPanoptykDatetime(),
+        agent1: quest.giver,
+        agent2: quest.receiver,
+        loc: agent.room,
+        info: quest.info
+      });
     }
     Agent.removeQuest(quest);
     quest.setStatus(closeType);
@@ -1020,7 +1141,11 @@ export class Controller {
    * @param faction
    * @param rank
    */
-  public modifyAgentFaction(targetAgent: Agent, faction: Faction, rank: number) {
+  public modifyAgentFaction(
+    targetAgent: Agent,
+    faction: Faction,
+    rank: number
+  ) {
     faction.setAgentRank(targetAgent, rank);
     targetAgent.faction = faction;
     this.updateChanges(targetAgent, [targetAgent, targetAgent.faction]);

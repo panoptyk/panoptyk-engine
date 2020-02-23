@@ -47,7 +47,7 @@ export class Faction extends IDObject {
      * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
      *  may not be privy to.
      */
-    public serialize(removePrivateData = false) {
+    public serialize(agent?: Agent, removePrivateData = false) {
         const safeFaction = Object.assign({}, this);
         (safeFaction._members as any) = Array.from(safeFaction._members);
         return safeFaction;

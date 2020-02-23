@@ -74,9 +74,14 @@ export class Quest extends IDObject {
      * Sanatizes data to be serialized
      * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
      *  may not be privy to.
+     * @param {Agent} agent - agent to customize info for
      */
-    public serialize(removePrivateData = false) {
+    public serialize(agent?: Agent, removePrivateData = false) {
         const safeQuest = Object.assign({}, this);
+        if (agent) {
+            safeQuest._infoID = this.info.getAgentsCopy(agent).id;
+            safeQuest._taskID = this.task.getAgentsCopy(agent).id;
+        }
         return safeQuest;
     }
 

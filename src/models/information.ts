@@ -82,6 +82,13 @@ export interface TAAILQ {
   quantity: number;
 }
 
+export interface TILQ {
+  time: number;
+  item: Item;
+  loc: Room;
+  quantity: number;
+}
+
 export class Info extends IDObject {
   private _time: number;
   public get time(): number {
@@ -162,8 +169,7 @@ export class Info extends IDObject {
   public get infoRef(): number {
     if (this._replacementInfoID) {
       return this._replacementInfoID;
-    }
-    else if (this._reference) {
+    } else if (this._reference) {
       return Info.getByID(this._infoID)._infoID;
     }
     return this._infoID;
@@ -172,6 +178,18 @@ export class Info extends IDObject {
   private _mask: object = {};
   public get mask(): object {
     return this._mask;
+  }
+
+  private _agentCopies: Map<number, number>;
+  /**
+   * Server: Gets an agent's personal copy of given information
+   * @param agent
+   */
+  public getAgentsCopy(agent: Agent): Info {
+    if (agent && this._agentCopies.has(agent.id)) {
+      return Info.getByID(this._agentCopies.get(agent.id));
+    }
+    return undefined;
   }
 
   /**
@@ -185,6 +203,7 @@ export class Info extends IDObject {
     super(Info.name, id);
     this._time = time;
     this._infoID = infoID;
+    this._agentCopies = new Map<number, number>();
   }
 
   /**
@@ -261,12 +280,15 @@ export class Info extends IDObject {
    * @param {number} time - Time information was copied
    */
   public makeCopy(owner: Agent, time: number): Info {
-    const i = new Info(time, this._reference ? this._infoID : this.id);
+    const masterCpy: Info = this._reference ? Info.getByID(this._infoID) : this;
+    const i = new Info(time, masterCpy.id);
     i._query = this._query;
     i._command = this._command;
     i._owner = owner.id;
     i._mask = this.mask;
     i._reference = true;
+    masterCpy._agentCopies.set(owner.id, i.id);
+    i._agentCopies = masterCpy._agentCopies;
     return i;
   }
 
@@ -317,29 +339,21 @@ export class Info extends IDObject {
       if (mask[key] === "mask") {
         if (key === "time") {
           info._time = undefined;
-        }
-        else if (key === "agent" || key === "agent1") {
+        } else if (key === "agent" || key === "agent1") {
           info._agent[0] = undefined;
-        }
-        else if (key === "agent2") {
+        } else if (key === "agent2") {
           info._agent[1] = undefined;
-        }
-        else if (key === "loc" || key === "loc1") {
+        } else if (key === "loc" || key === "loc1") {
           info._location[0] = undefined;
-        }
-        else if (key === "loc2") {
+        } else if (key === "loc2") {
           info._location[1] = undefined;
-        }
-        else if (key === "faction") {
+        } else if (key === "faction") {
           info._faction = undefined;
-        }
-        else if (key === "quantity") {
+        } else if (key === "quantity") {
           info._quantity = undefined;
-        }
-        else if (key === "info") {
+        } else if (key === "info") {
           info._infoID = undefined;
-        }
-        else if (key === "item") {
+        } else if (key === "item") {
           info._item[0] = undefined;
         }
       }
@@ -363,6 +377,7 @@ export class Info extends IDObject {
     for (const key in json) {
       i[key] = json[key];
     }
+    i._agentCopies = new Map<number, number>(i._agentCopies);
     return i;
   }
 
@@ -371,20 +386,27 @@ export class Info extends IDObject {
    * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false, mask = {}): Info {
+  public serialize(agent?: Agent, removePrivateData = false): Info {
     const safeObj: Info = _.cloneDeep(this);
+    (safeObj._agentCopies as any) = Array.from(safeObj._agentCopies);
+
     if (removePrivateData) {
+      const mask = this.getAgentsCopy(agent)
+        ? this.getAgentsCopy(agent).mask
+        : {};
+
       safeObj.setMask(mask);
       Info.applyMask(safeObj, mask);
+      safeObj._agentCopies = undefined;
     }
     return safeObj;
   }
 
-/**
- * Check if info answers question's specified wantedTerms
- * @param question
- * @param wantedTerms
- */
+  /**
+   * Check if info answers question's specified wantedTerms
+   * @param question
+   * @param wantedTerms
+   */
   public isAnswer(question: Info, wantedTerms = {}): boolean {
     if (this.action !== question.action) {
       return false;
@@ -393,8 +415,12 @@ export class Info extends IDObject {
     const answerTerms = this.getTerms();
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if ((questionTerms[key] !== undefined && questionTerms[key] !== answerTerms[key]) ||
-        (key in wantedTerms && (answerTerms[key] === undefined || this._mask[key] === "mask"))) {
+      if (
+        (questionTerms[key] !== undefined &&
+          questionTerms[key] !== answerTerms[key]) ||
+        (key in wantedTerms &&
+          (answerTerms[key] === undefined || this._mask[key] === "mask"))
+      ) {
         return false;
       }
     }
@@ -703,7 +729,10 @@ export class Info extends IDObject {
        * Creates an action that uses this predicate format
        *   predicate(Time, Agent, Agent, Tangible-Item, Location, Quantity)
        */
-      create({ time, agent1, agent2, item, loc, quantity }: TAAILQ, type: string): Info {
+      create(
+        { time, agent1, agent2, item, loc, quantity }: TAAILQ,
+        type: string
+      ): Info {
         const i = new Info(time);
         i._predicate = Info.PREDICATE.TAAILQ.name;
         i._agent[0] = agent1 ? agent1.id : undefined;
@@ -732,6 +761,43 @@ export class Info extends IDObject {
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
+          item: Item.getByID(info.items[0]),
+          loc: Room.getByID(info.locations[0]),
+          quantity: info.quantities[0]
+        };
+      }
+    },
+    TILQ: {
+      name: "TILQ", // predicate(Time, Tangible-Item, Location, Quantity)
+      /**
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Tangible-Item, Location, Quantity)
+       */
+      create({ time, item, loc, quantity }: TILQ, type: string): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TILQ.name;
+        i._item[0] = item ? item.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._quantity[0] = quantity;
+        switch (type) {
+          case "question": {
+            i._query = true;
+            break;
+          }
+          case "command": {
+            i._command = true;
+            break;
+          }
+        }
+        return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): TILQ {
+        return {
+          time: info.time,
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
           quantity: info.quantities[0]
@@ -1234,6 +1300,73 @@ export class Info extends IDObject {
       getTerms(info: Info): { action: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.CONFISCATED.name;
+        return terms;
+      }
+    },
+    POSSESS: {
+      name: "POSSESS",
+      predicate: Info.PREDICATE.TAILQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   POSSESS(Time, Agent, Tangible-Item, Location, Quantity)
+       */
+      create(args: TAILQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TAILQ.create(args, type);
+        i._action = Info.ACTIONS.POSSESS.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        time,
+        agent,
+        item,
+        loc,
+        quantity
+      }: TAILQ): { action: string } & TAILQ {
+        return {
+          action: Info.ACTIONS.POSSESS.name,
+          time,
+          agent,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TAILQ {
+        const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
+        terms.action = Info.ACTIONS.POSSESS.name;
+        return terms;
+      }
+    },
+    LOCATED_IN: {
+      name: "LOCATED_IN",
+      predicate: Info.PREDICATE.TILQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   LOCATED_IN(Time, Tangible-Item, Location, Quantity)
+       */
+      create(args: TILQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TILQ.create(args, type);
+        i._action = Info.ACTIONS.LOCATED_IN.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ time, item, loc, quantity }: TILQ): { action: string } & TILQ {
+        return {
+          action: Info.ACTIONS.LOCATED_IN.name,
+          time,
+          item,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string } & TILQ {
+        const terms: any = Info.PREDICATE.TILQ.getTerms(info);
+        terms.action = Info.ACTIONS.LOCATED_IN.name;
         return terms;
       }
     }

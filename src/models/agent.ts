@@ -57,6 +57,15 @@ export class Agent extends IDObject {
   public set faction(newFaction: Faction) {
     this._faction = newFaction ? newFaction.id : 0;
   }
+  /**
+   * Returns numeric value of agent's rank or undefined if agent is not in a faction
+   */
+  public get factionRank(): number {
+    if (this._faction) {
+      return this.faction.getAgentRank(this);
+    }
+    return undefined;
+  }
 
   // Client-side filter tools
   private _infoToSort: Info[] = [];
@@ -117,7 +126,7 @@ export class Agent extends IDObject {
    * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false) {
+  public serialize(agent?: Agent, removePrivateData = false) {
     const safeAgent = Object.assign({}, this);
     safeAgent.socket = undefined;
     safeAgent._infoToSort = undefined;
@@ -130,17 +139,17 @@ export class Agent extends IDObject {
     (safeAgent._conversationRequested as any) = Array.from(
       safeAgent._conversationRequested
     );
-    (safeAgent._tradeRequests as any) = Array.from(
-      safeAgent._tradeRequests
-    );
-    (safeAgent._tradeRequested as any) = Array.from(
-      safeAgent._tradeRequested
-    );
+    (safeAgent._tradeRequests as any) = Array.from(safeAgent._tradeRequests);
+    (safeAgent._tradeRequested as any) = Array.from(safeAgent._tradeRequested);
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
-    if (removePrivateData) {
+    if (removePrivateData && agent !== this) {
+      safeAgent._gold = 0;
       safeAgent._inventory = undefined;
       safeAgent._knowledge = undefined;
+      if (this.room !== agent.room) {
+        safeAgent.roomID = 0;
+      }
     }
     return safeAgent;
   }
@@ -184,15 +193,6 @@ export class Agent extends IDObject {
   logout() {
     logger.log("Agent " + this + " logged out.", 2);
     this.socket = undefined;
-  }
-
-  public static logoutAll() {
-    for (const key in Agent.objects) {
-      const agent: Agent = Agent.objects[key];
-      if (agent.socket) {
-        agent.logout();
-      }
-    }
   }
 
   /**

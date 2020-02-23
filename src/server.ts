@@ -181,10 +181,19 @@ export class Server {
   }
 
   private saveModels() {
-    Agent.logoutAll();
     this.models.forEach(model => {
       model.saveAll();
     });
+  }
+
+  public logoutAll() {
+    const controller = new Controller();
+    for (const key in Agent.objects) {
+      const agent: Agent = Agent.objects[key];
+      if (agent.socket) {
+        controller.removeAgentFromRoom(agent, true);
+      }
+    }
   }
 
   public start() {
@@ -193,6 +202,7 @@ export class Server {
     // Sets up "ctrl + c" to stop server
     process.on("SIGINT", () => {
       logger.log("Shutting down", LOG.INFO);
+      this.logoutAll();
       this.saveModels();
       logger.log("Server closed", LOG.INFO);
       process.exit(0);

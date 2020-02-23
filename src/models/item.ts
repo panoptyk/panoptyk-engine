@@ -76,9 +76,17 @@ export class Item extends IDObject {
    * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false): Item {
+  public serialize(agent?: Agent, removePrivateData = false): Item {
     const safeItem = Object.assign({}, this);
     (safeItem._itemTags as any) = Array.from(safeItem._itemTags);
+    if (removePrivateData) {
+      if (this.agent && this.agent !== agent) {
+        safeItem.agentID = 0;
+      }
+      else if (this.room !== agent.room) {
+        safeItem.roomID = 0;
+      }
+    }
     return safeItem;
   }
 
