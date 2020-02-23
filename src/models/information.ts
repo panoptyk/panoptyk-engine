@@ -187,19 +187,8 @@ export class Info extends IDObject {
    * @param agent
    */
   public getAgentsCopy(agent: Agent): Info {
-    if (agent) {
-      if (this._reference) {
-        if (this._owner === agent.id) {
-          return this;
-        }
-        else {
-          const master: Info = Info.getByID(this._infoID);
-          return master.getAgentsCopy(agent);
-        }
-      }
-      else if (this._agentCopies.has(agent.id)) {
-        return Info.getByID(this._agentCopies.get(agent.id));
-      }
+    if (agent && this._agentCopies.has(agent.id)) {
+      return Info.getByID(this._agentCopies.get(agent.id));
     }
     return undefined;
   }
@@ -298,6 +287,7 @@ export class Info extends IDObject {
     i._owner = owner.id;
     i._mask = this.mask;
     i._reference = true;
+    i._agentCopies = masterCpy._agentCopies;
     masterCpy._agentCopies.set(owner.id, i.id);
     return i;
   }
@@ -404,7 +394,7 @@ export class Info extends IDObject {
    * @param removePrivateData {boolean} Determines if public is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false, mask = {}): Info {
+  public serialize(agent?: Agent, removePrivateData = false, mask = {}): Info {
     const safeObj: Info = _.cloneDeep(this);
     if (removePrivateData) {
       safeObj.setMask(mask);
@@ -1308,16 +1298,16 @@ export class Info extends IDObject {
         return terms;
       }
     },
-    POSSESSES: {
-      name: "POSSESSES",
+    POSSESS: {
+      name: "POSSESS",
       predicate: Info.PREDICATE.TAILQ.name,
       /**
        * Creates an action that uses this predicate format
-       *   POSSESSES(Time, Agent, Tangible-Item, Location, Quantity)
+       *   POSSESS(Time, Agent, Tangible-Item, Location, Quantity)
        */
       create(args: TAILQ, type = "normal"): Info {
         const i = Info.PREDICATE.TAILQ.create(args, type);
-        i._action = Info.ACTIONS.POSSESSES.name;
+        i._action = Info.ACTIONS.POSSESS.name;
         return i;
       },
       /**
@@ -1331,7 +1321,7 @@ export class Info extends IDObject {
         quantity
       }: TAILQ): { action: string } & TAILQ {
         return {
-          action: Info.ACTIONS.POSSESSES.name,
+          action: Info.ACTIONS.POSSESS.name,
           time,
           agent,
           item,
@@ -1341,7 +1331,7 @@ export class Info extends IDObject {
       },
       getTerms(info: Info): { action: string } & TAILQ {
         const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
-        terms.action = Info.ACTIONS.POSSESSES.name;
+        terms.action = Info.ACTIONS.POSSESS.name;
         return terms;
       }
     },

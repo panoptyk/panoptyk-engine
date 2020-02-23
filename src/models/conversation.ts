@@ -61,10 +61,13 @@ export class Conversation extends IDObject {
    * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false): Conversation {
+  public serialize(agent?: Agent, removePrivateData = false): Conversation {
     const safeConversation = Object.assign({}, this);
     (safeConversation._agentIDs as any) = Array.from(safeConversation._agentIDs);
     (safeConversation._askedQuestions as any) = Array.from(safeConversation._askedQuestions);
+    if (removePrivateData && !this.contains_agent(agent)) {
+      safeConversation._askedQuestions = undefined;
+    }
     return safeConversation;
   }
 

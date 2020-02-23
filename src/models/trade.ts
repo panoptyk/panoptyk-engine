@@ -119,7 +119,7 @@ public toString() {
    *  may not be privy to.
    * @param {Agent} agent - agent to customize info for
    */
-  public serialize(removePrivateData = false, agent?: Agent) {
+  public serialize(agent?: Agent, removePrivateData = false) {
     const safeTrade = Object.assign({}, this);
     if (agent) {
       const recInfoCpy = new Map<number, AnswerInfo>();

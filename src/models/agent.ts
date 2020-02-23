@@ -126,7 +126,7 @@ export class Agent extends IDObject {
    * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
    *  may not be privy to.
    */
-  public serialize(removePrivateData = false) {
+  public serialize(agent?: Agent, removePrivateData = false) {
     const safeAgent = Object.assign({}, this);
     safeAgent.socket = undefined;
     safeAgent._infoToSort = undefined;
@@ -143,9 +143,13 @@ export class Agent extends IDObject {
     (safeAgent._tradeRequested as any) = Array.from(safeAgent._tradeRequested);
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
-    if (removePrivateData) {
+    if (removePrivateData && agent !== this) {
+      safeAgent._gold = 0;
       safeAgent._inventory = undefined;
       safeAgent._knowledge = undefined;
+      if (this.room !== agent.room) {
+        safeAgent.roomID = 0;
+      }
     }
     return safeAgent;
   }

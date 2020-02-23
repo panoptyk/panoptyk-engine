@@ -1,10 +1,11 @@
 import * as fs from "fs";
 import { panoptykSettings } from "../utilities/util";
 import { logger, LOG } from "../utilities/logger";
+import { Agent } from "./agent";
 
 interface ModelInterface {
   id?: number;
-  serialize(removePrivateData?: boolean): any;
+  serialize(agent?: Agent, removePrivateData?: boolean): any;
 }
 
 export abstract class IDObject implements ModelInterface {
@@ -136,7 +137,7 @@ export abstract class IDObject implements ModelInterface {
     IDObject.getObjectByName(name)[this.id] = this;
   }
 
-  public serialize(removePrivateData?: boolean): any {
+  public serialize(agent?: Agent, removePrivateData = false): any {
     return this;
   }
 }

@@ -76,7 +76,7 @@ export class Quest extends IDObject {
      *  may not be privy to.
      * @param {Agent} agent - agent to customize info for
      */
-    public serialize(removePrivateData = false, agent?: Agent) {
+    public serialize(agent?: Agent, removePrivateData = false) {
         const safeQuest = Object.assign({}, this);
         if (agent) {
             safeQuest._infoID = this.info.getAgentsCopy(agent).id;

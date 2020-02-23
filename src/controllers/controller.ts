@@ -80,16 +80,10 @@ export class Controller {
           payload[name].push(info.serialize());
           if (info.isReference()) {
             const master: Info = Info.getByID(info.infoID);
-            payload[name].push(master.serialize(true, info.mask));
+            payload[name].push(master.serialize(agent, true, info.mask));
           }
-        } else if (name === Quest.name) {
-          const quest = model as Quest;
-          payload[name].push(quest.serialize(true, agent));
-        } else if (name === Trade.name) {
-          const trade = model as Trade;
-          payload[name].push(trade.serialize(true, agent));
         } else {
-          payload[name].push(model.serialize());
+          payload[name].push(model.serialize(agent, true));
         }
       }
       // console.log(payload);
