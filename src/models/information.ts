@@ -180,7 +180,7 @@ export class Info extends IDObject {
     return this._mask;
   }
 
-  private _agentCopies: Map<number, number> = new Map<number, number>();
+  private _agentCopies: Map<number, number>;
   /**
    * Server: Gets an agent's personal copy of given information
    * @param agent
@@ -203,6 +203,7 @@ export class Info extends IDObject {
     super(Info.name, id);
     this._time = time;
     this._infoID = infoID;
+    this._agentCopies = new Map<number, number>();
   }
 
   /**
