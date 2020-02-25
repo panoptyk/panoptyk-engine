@@ -28,4 +28,5 @@ export { ActionModifyGoldTrade } from "./modifyGoldTrade";
 export { ActionDropGold } from "./dropGold";
 export { ActionStealItem } from "./stealItem";
 export { ActionConfiscateItem } from "./confiscateItem";
+export { ActionTellItemOwnership } from "./tellItemOwnership";
 // export {} from "./"; <- future Actions

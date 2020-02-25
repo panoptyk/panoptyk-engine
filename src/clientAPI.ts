@@ -558,4 +558,19 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Legal Action: Tells conversation members that you possess specified items
+   * @param items
+   */
+  public static async tellItemOwnership(items: Item[]) {
+    const itemIDs: number[] = [];
+    for (const item of items) {
+      itemIDs.push(item.id);
+    }
+    const res = await ClientAPI.sendWrapper("tell-item-ownership", {
+      itemIDs
+    });
+    return res;
+  }
 }

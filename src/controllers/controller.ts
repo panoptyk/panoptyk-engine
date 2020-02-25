@@ -1228,4 +1228,34 @@ export class Controller {
     });
     this.giveInfoToAgents([agent, targetAgent], info);
   }
+
+  /**
+   * Teller informs other agents in its conversation that it owns specified items
+   * @param teller
+   * @param items
+   */
+  public tellItemOwnership(teller: Agent, items: Item[]) {
+    for (const item of items) {
+      const time = util.getPanoptykDatetime();
+      const itemInfo = Info.ACTIONS.POSSESS.create({
+        time,
+        agent: teller,
+        item,
+        loc: teller.room,
+        quantity: 1
+      });
+      this.giveInfoToAgents([teller], itemInfo);
+      for (const other of teller.conversation.getAgents(teller)) {
+        this.giveInfoToAgents([other], itemInfo);
+        const toldInfo = Info.ACTIONS.TOLD.create({
+          time,
+          agent1: teller,
+          agent2: other,
+          loc: teller.room,
+          info: itemInfo
+        });
+        this.giveInfoToAgents([teller, other], toldInfo);
+      }
+    }
+  }
 }
