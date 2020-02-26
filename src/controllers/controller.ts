@@ -263,6 +263,7 @@ export class Controller {
           break;
         }
       }
+      agent.modifyGold(5);
     }
     /////////////////////////////////////////////////
     this.addAgentToRoom(agent, agent.room);
