@@ -258,7 +258,7 @@ export class Controller {
     else if (isNew) {
       for (const key in Faction.objects) {
         const faction: Faction = Faction.objects[key];
-        if (faction.factionType === "crime") {
+        if (faction.factionType === "criminal") {
           this.modifyAgentFaction(agent, faction, 101);
           break;
         }
