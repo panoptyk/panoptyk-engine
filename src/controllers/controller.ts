@@ -122,6 +122,7 @@ export class Controller {
     const addedItems: Item[] = [];
 
     for (const item of items) {
+      item.inTransaction = false;
       addedItems.push(item);
       if (item.type === "gold") {
         agent.modifyGold(item.quantity);
@@ -499,9 +500,14 @@ export class Controller {
     trade.agentIni.modifyGold(trade.initiatorGold);
     trade.agentRec.modifyGold(trade.receiverGold);
     trade.setStatus(0);
-    trade.cleanup();
-    this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
-    this.updateChanges(trade.agentRec, [trade, trade.agentIni]);
+    for (const item of trade.itemsIni) {
+      item.inTransaction = false;
+    }
+    for (const item of trade.itemsRec) {
+      item.inTransaction = false;
+    }
+    this.updateChanges(trade.agentIni, [trade, trade.agentIni, trade.itemsIni]);
+    this.updateChanges(trade.agentRec, [trade, trade.agentRec, trade.itemsRec]);
   }
 
   /**
@@ -581,7 +587,6 @@ export class Controller {
     }
 
     trade.setStatus(1);
-    trade.cleanup();
 
     this.updateChanges(trade.agentIni, [trade, trade.agentIni]);
     this.updateChanges(trade.agentRec, [trade, trade.agentRec]);
@@ -632,6 +637,9 @@ export class Controller {
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
     trade.addItems(items, ownerAgent);
+    for (const item of items) {
+      item.inTransaction = true;
+    }
 
     this.updateChanges(trade.agentIni, [trade, items]);
     this.updateChanges(trade.agentRec, [trade, items]);
@@ -652,6 +660,9 @@ export class Controller {
     this.setTradeUnreadyIfReady(trade, trade.agentRec);
 
     trade.removeItems(items, ownerAgent);
+    for (const item of items) {
+      item.inTransaction = false;
+    }
 
     this.updateChanges(trade.agentIni, [trade, items]);
     this.updateChanges(trade.agentRec, [trade, items]);

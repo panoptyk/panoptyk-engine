@@ -227,10 +227,6 @@ public toString() {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
-
-    for (const item of items) {
-      item.inTransaction = true;
-    }
   }
 
   /**
@@ -259,12 +255,10 @@ public toString() {
     if (owner.id === this.initiatorID) {
       items.forEach(item => {
         this.initiatorItemIDs.delete(item.id);
-        item.inTransaction = false;
       });
     } else if (owner.id === this.receiverID) {
       items.forEach(item => {
         this.receiverItemIDs.delete(item.id);
-        item.inTransaction = false;
       });
     } else {
       logger.log("Agent not in trade", 0, "trade.js");
@@ -290,27 +284,6 @@ public toString() {
       logger.log("Agent not in trade", 0, "trade.js");
       return;
     }
-  }
-
-  /**
-   * Unlocks all the items in the trade.
-   */
-  cleanup() {
-    let unlocked = "";
-
-    for (const id of this.initiatorItemIDs) {
-      const item = Item.getByID(id);
-      item.in_transaction = false;
-      unlocked += item.id + " ";
-    }
-
-    for (const id of this.receiverItemIDs) {
-      const item = Item.getByID(id);
-      item.in_transaction = false;
-      unlocked += item.id + " ";
-    }
-
-    logger.log("Unlocked trade " + this + " items [ " + unlocked + "]", 2);
   }
 
   /**
