@@ -1119,8 +1119,8 @@ export class Controller {
    */
   public requestItemTrade(agent: Agent, trade: Trade, item: Item) {
     trade.addRequestedItem(agent, item);
-    this.updateChanges(trade.agentIni, [trade]);
-    this.updateChanges(trade.agentRec, [trade]);
+    this.updateChanges(trade.agentIni, [trade, item]);
+    this.updateChanges(trade.agentRec, [trade, item]);
   }
 
   /**
