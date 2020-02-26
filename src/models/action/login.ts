@@ -17,9 +17,10 @@ export const ActionLogin: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
+    const isNew = Agent.getAgentByName(inputData.username) ? false : true;
     const newAgent = Agent.login(inputData.username, inputData.socket);
     const controller = new Controller();
-    controller.login(newAgent);
+    controller.login(newAgent, isNew);
     logger.log(
       "Event login for agent " + newAgent + " registered.",
       2

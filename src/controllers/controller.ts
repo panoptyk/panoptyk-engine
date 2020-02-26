@@ -243,7 +243,7 @@ export class Controller {
    * Fetches all agent data and adds it to room
    * @param agent
    */
-  public login(agent: Agent) {
+  public login(agent: Agent, isNew = false) {
     agent.addStatus("online");
     this.updateChanges(agent, [
       agent.inventory,
@@ -254,6 +254,17 @@ export class Controller {
     if (agent.faction) {
       this.updateChanges(agent, [agent.faction]);
     }
+    /////////////////////// code for demo ///////////
+    else if (isNew) {
+      for (const key in Faction.objects) {
+        const faction: Faction = Faction.objects[key];
+        if (faction.factionType === "crime") {
+          this.modifyAgentFaction(agent, faction, 101);
+          break;
+        }
+      }
+    }
+    /////////////////////////////////////////////////
     this.addAgentToRoom(agent, agent.room);
   }
 
@@ -861,7 +872,12 @@ export class Controller {
    * @param agent sending agent
    * @param toAgent receiving agent
    */
-  public createConversation(room: Room, agent: Agent, toAgent: Agent, convoType = "normal") {
+  public createConversation(
+    room: Room,
+    agent: Agent,
+    toAgent: Agent,
+    convoType = "normal"
+  ) {
     const conversation = new Conversation(room);
     conversation.add_agent(agent);
     conversation.add_agent(toAgent);
@@ -1251,7 +1267,8 @@ export class Controller {
     });
     // TODO: base knowledge on steal skill when skill system is added
     this.giveInfoToAgents([agent], info);
-    const mask = agent.faction.getAgentRank(agent) <= 100 ? { agent1: "mask" } : {};
+    const mask =
+      agent.faction.getAgentRank(agent) <= 100 ? { agent1: "mask" } : {};
     this.giveInfoToAgents([targetAgent], info, mask);
   }
 
