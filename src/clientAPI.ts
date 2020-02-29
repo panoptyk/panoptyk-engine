@@ -453,12 +453,33 @@ export class ClientAPI {
   }
 
   /**
-   * Completes quest if assigning agent is in current Conversation AND goal satisfies quest parameters
+   * Quest giver marks quest as complete
    * @param quest
-   * @param goal info that fufills the assigned task of the quest
    */
-  public static async completeQuest(quest: Quest, goal: Info) {
-    const res = await ClientAPI.sendWrapper("complete-quest", { questID: quest.id, solutionID: goal.id });
+  public static async completeQuest(quest: Quest) {
+    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "COMPLETE" });
+    return res;
+  }
+
+  /**
+   * Quest giver marks quest as failed
+   * @param quest
+   */
+  public static async failQuest(quest: Quest) {
+    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "FAILED" });
+    return res;
+  }
+
+  /**
+   * Tells quest solution to quest giver when in a conversation with them
+   * @param quest
+   * @param solution
+   */
+  public static async turnInQuestInfo(quest: Quest, solution: Info) {
+    const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
+      solutionID: solution.id,
+      questID: quest.id
+    });
     return res;
   }
 

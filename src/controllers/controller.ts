@@ -1060,12 +1060,14 @@ export class Controller {
   public sendQuest(
     agent: Agent,
     toAgent: Agent,
-    predicate: any,
+    dummyInfo: any,
     isQuestion: boolean,
     deadline: number
   ) {
     const type: string = isQuestion ? "question" : "command";
-    const query: Info = Info.ACTIONS[predicate.action].create(predicate, type);
+    const query: Info = dummyInfo.action
+      ? Info.ACTIONS[dummyInfo.action].create(dummyInfo, type)
+      : Info.PREDICATE[dummyInfo.predicate].create(dummyInfo, type);
     const questInfo: Info = Info.ACTIONS.QUEST.create({
       time: util.getPanoptykDatetime(),
       agent1: agent,
@@ -1120,6 +1122,18 @@ export class Controller {
     this.updateChanges(quest.receiver, [quest.receiver, quest]);
     const relevantAgents = agent.conversation.getAgents();
     this.giveInfoToAgents(relevantAgents, closeInfo);
+  }
+
+  /**
+   * Turn-in a verified info for given quest
+   * @param quest
+   * @param info
+   */
+  public turnInQuestInfo(agent: Agent, quest: Quest, info: Info) {
+    this.tellInfoFreely(agent, info, []);
+    quest.turnInInfo(info);
+    this.updateChanges(quest.giver, [quest]);
+    this.updateChanges(quest.receiver, [quest]);
   }
 
   /**

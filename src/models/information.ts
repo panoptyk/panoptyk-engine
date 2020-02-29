@@ -408,7 +408,7 @@ export class Info extends IDObject {
    * @param wantedTerms
    */
   public isAnswer(question: Info, wantedTerms = {}): boolean {
-    if (this.action !== question.action) {
+    if (question.action && this.action !== question.action) {
       return false;
     }
     const questionTerms = question.getTerms();
@@ -458,8 +458,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAL {
+      getTerms(info: Info): { predicate: string } & TAL {
         return {
+          predicate: Info.PREDICATE.TAL.name,
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
           loc: Room.getByID(info.locations[0])
@@ -494,8 +495,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TALL {
+      getTerms(info: Info): { predicate: string } & TALL {
         return {
+          predicate: Info.PREDICATE.TALL.name,
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
           loc1: Room.getByID(info.locations[0]),
@@ -530,8 +532,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param {info} i information in question
        */
-      getTerms(info: Info): TAF {
+      getTerms(info: Info): { predicate: string } & TAF {
         return {
+          predicate: Info.PREDICATE.TAF.name,
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
           faction: Faction.getByID(info.factions[0])
@@ -565,8 +568,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAA {
+      getTerms(info: Info): { predicate: string } & TAA {
         return {
+          predicate: Info.PREDICATE.TAA.name,
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1])
@@ -600,8 +604,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAK {
+      getTerms(info: Info): { predicate: string } & TAK {
         return {
+          predicate: Info.PREDICATE.TAK.name,
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
           info: Info.getByID(info.infoRef)
@@ -636,8 +641,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAAL {
+      getTerms(info: Info): { predicate: string } & TAAL {
         return {
+          predicate: Info.PREDICATE.TAAL.name,
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
@@ -674,8 +680,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAALK {
+      getTerms(info: Info): { predicate: string } & TAALK {
         return {
+          predicate: Info.PREDICATE.TAALK.name,
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
@@ -713,8 +720,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAILQ {
+      getTerms(info: Info): { predicate: string } & TAILQ {
         return {
+          predicate: Info.PREDICATE.TAILQ.name,
           time: info.time,
           agent: Agent.getByID(info.agents[0]),
           item: Item.getByID(info.items[0]),
@@ -756,8 +764,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TAAILQ {
+      getTerms(info: Info): { predicate: string } & TAAILQ {
         return {
+          predicate: Info.PREDICATE.TAAILQ.name,
           time: info.time,
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
@@ -795,8 +804,9 @@ export class Info extends IDObject {
        * returns labeled object of all the important terms for this predicate type
        * @param i information in question
        */
-      getTerms(info: Info): TILQ {
+      getTerms(info: Info): { predicate: string } & TILQ {
         return {
+          predicate: Info.PREDICATE.TILQ.name,
           time: info.time,
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
@@ -832,7 +842,7 @@ export class Info extends IDObject {
           loc2
         };
       },
-      getTerms(info: Info): { action: string } & TALL {
+      getTerms(info: Info): { action: string, predicate: string } & TALL {
         const terms: any = Info.PREDICATE.TALL.getTerms(info);
         terms.action = Info.ACTIONS.MOVE.name;
         return terms;
@@ -869,7 +879,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAILQ {
         const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
         terms.action = Info.ACTIONS.PICKUP.name;
         return terms;
@@ -906,7 +916,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAILQ {
         const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
         terms.action = Info.ACTIONS.DROP.name;
         return terms;
@@ -935,7 +945,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAK {
+      getTerms(info: Info): { action: string, predicate: string } & TAK {
         const terms: any = Info.PREDICATE.TAK.getTerms(info);
         terms.action = Info.ACTIONS.KNOW.name;
         return terms;
@@ -965,7 +975,7 @@ export class Info extends IDObject {
           loc
         };
       },
-      getTerms(info: Info): { action: string } & TAAL {
+      getTerms(info: Info): { action: string, predicate: string } & TAAL {
         const terms: any = Info.PREDICATE.TAAL.getTerms(info);
         terms.action = Info.ACTIONS.CONVERSE.name;
         return terms;
@@ -995,7 +1005,7 @@ export class Info extends IDObject {
           loc
         };
       },
-      getTerms(info: Info): { action: string } & TAAL {
+      getTerms(info: Info): { action: string, predicate: string } & TAAL {
         const terms: any = Info.PREDICATE.TAAL.getTerms(info);
         terms.action = Info.ACTIONS.GREET.name;
         return terms;
@@ -1032,7 +1042,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAALK {
+      getTerms(info: Info): { action: string, predicate: string } & TAALK {
         const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.ASK.name;
         return terms;
@@ -1069,7 +1079,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAALK {
+      getTerms(info: Info): { action: string, predicate: string } & TAALK {
         const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.TOLD.name;
         return terms;
@@ -1108,7 +1118,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.GAVE.name;
         return terms;
@@ -1145,7 +1155,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAALK {
+      getTerms(info: Info): { action: string, predicate: string } & TAALK {
         const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST.name;
         return terms;
@@ -1182,7 +1192,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAALK {
+      getTerms(info: Info): { action: string, predicate: string } & TAALK {
         const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST_COMPLETE.name;
         return terms;
@@ -1219,7 +1229,7 @@ export class Info extends IDObject {
           info
         };
       },
-      getTerms(info: Info): { action: string } & TAALK {
+      getTerms(info: Info): { action: string, predicate: string } & TAALK {
         const terms: any = Info.PREDICATE.TAALK.getTerms(info);
         terms.action = Info.ACTIONS.QUEST_FAILED.name;
         return terms;
@@ -1258,7 +1268,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.STOLE.name;
         return terms;
@@ -1297,7 +1307,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAAILQ {
         const terms: any = Info.PREDICATE.TAAILQ.getTerms(info);
         terms.action = Info.ACTIONS.CONFISCATED.name;
         return terms;
@@ -1334,7 +1344,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TAILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TAILQ {
         const terms: any = Info.PREDICATE.TAILQ.getTerms(info);
         terms.action = Info.ACTIONS.POSSESS.name;
         return terms;
@@ -1364,7 +1374,7 @@ export class Info extends IDObject {
           quantity
         };
       },
-      getTerms(info: Info): { action: string } & TILQ {
+      getTerms(info: Info): { action: string, predicate: string } & TILQ {
         const terms: any = Info.PREDICATE.TILQ.getTerms(info);
         terms.action = Info.ACTIONS.LOCATED_IN.name;
         return terms;
