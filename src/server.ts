@@ -37,7 +37,8 @@ import {
   ActionGiveQuest,
   ActionRequestItemTrade,
   ActionPassItemRequest,
-  ActionCompleteQuest,
+  ActionCloseQuest,
+  ActionTurnInQuestInfo,
   ActionRejectTradeRequest,
   ActionRejectConversationRequest,
   ActionModifyAgentFaction,
@@ -51,7 +52,10 @@ import { ValidationResult, Validate } from "./models/validate";
 
 export class Server {
   private MIN_TIME_BETWEEN_ACTIONS = 100;
-  private actingSockets: Map<socketIO.Socket, number> = new Map<socketIO.Socket, number>();
+  private actingSockets: Map<socketIO.Socket, number> = new Map<
+    socketIO.Socket,
+    number
+  >();
   private app: express.Application;
   private server: http.Server;
   private io: socketIO.Server;
@@ -60,12 +64,47 @@ export class Server {
   /**
    * List of all models that need to be saved and loaded
    */
-  private models: any[] = [Agent, Room, Info, Item, Conversation, Trade, Quest, Faction];
-  private actions: Action[] = [ActionLogin, ActionMoveToRoom, ActionRequestConversation, ActionDropItems, ActionOfferItemsTrade,
-    ActionLeaveConversation, ActionRequestTrade, ActionCancelTrade, ActionTakeItems, ActionWithdrawItemsTrade, ActionReadyTrade,
-    ActionAskQuestion, ActionOfferAnswerTrade, ActionWithdrawInfoTrade, ActionTellInfo, ActionPassQuestion, ActionCompleteQuest,
-    ActionGiveQuest, ActionRequestItemTrade, ActionPassItemRequest, ActionRejectTradeRequest, ActionRejectConversationRequest,
-    ActionModifyAgentFaction, ActionModifyGoldTrade, ActionDropGold, ActionStealItem, ActionConfiscateItem, ActionTellItemOwnership];
+  private models: any[] = [
+    Agent,
+    Room,
+    Info,
+    Item,
+    Conversation,
+    Trade,
+    Quest,
+    Faction
+  ];
+  private actions: Action[] = [
+    ActionLogin,
+    ActionMoveToRoom,
+    ActionRequestConversation,
+    ActionDropItems,
+    ActionOfferItemsTrade,
+    ActionLeaveConversation,
+    ActionRequestTrade,
+    ActionCancelTrade,
+    ActionTakeItems,
+    ActionWithdrawItemsTrade,
+    ActionReadyTrade,
+    ActionAskQuestion,
+    ActionOfferAnswerTrade,
+    ActionWithdrawInfoTrade,
+    ActionTellInfo,
+    ActionPassQuestion,
+    ActionCloseQuest,
+    ActionTurnInQuestInfo,
+    ActionGiveQuest,
+    ActionRequestItemTrade,
+    ActionPassItemRequest,
+    ActionRejectTradeRequest,
+    ActionRejectConversationRequest,
+    ActionModifyAgentFaction,
+    ActionModifyGoldTrade,
+    ActionDropGold,
+    ActionStealItem,
+    ActionConfiscateItem,
+    ActionTellItemOwnership
+  ];
 
   constructor(app?: express.Application) {
     this.createApp(app);
@@ -85,7 +124,9 @@ export class Server {
   private loadConfig(): void {
     // Read settings
     try {
-      const settings = JSON.parse(fs.readFileSync("panoptyk-settings.json").toString());
+      const settings = JSON.parse(
+        fs.readFileSync("panoptyk-settings.json").toString()
+      );
       for (const key in settings) {
         util.panoptykSettings[key] = settings[key];
       }
@@ -105,7 +146,10 @@ export class Server {
     );
     logger.log("Panoptyk Settings:", LOG.INFO);
     for (const key in util.panoptykSettings) {
-      logger.log(key + ": " + JSON.stringify(util.panoptykSettings[key]), LOG.INFO);
+      logger.log(
+        key + ": " + JSON.stringify(util.panoptykSettings[key]),
+        LOG.INFO
+      );
     }
 
     // Assign port
@@ -133,12 +177,17 @@ export class Server {
       for (const action of this.actions) {
         socket.on(action.name, (data, callback) => {
           // Enforce action limit
-          if (this.actingSockets.has(socket) &&
-            Date.now() - this.actingSockets.get(socket) < this.MIN_TIME_BETWEEN_ACTIONS
+          if (
+            this.actingSockets.has(socket) &&
+            Date.now() - this.actingSockets.get(socket) <
+              this.MIN_TIME_BETWEEN_ACTIONS
           ) {
             callback({
               status: false,
-              message: "You cannot act more than every " + this.MIN_TIME_BETWEEN_ACTIONS + " milliseconds!"
+              message:
+                "You cannot act more than every " +
+                this.MIN_TIME_BETWEEN_ACTIONS +
+                " milliseconds!"
             });
             return;
           }
@@ -148,13 +197,17 @@ export class Server {
           logger.log("Action recieved: " + action.name, LOG.INFO);
           const agent = Agent.getAgentBySocket(socket);
           let res: ValidationResult;
-          if ((res = Validate.validate_key_format(action.formats, data)).status &&
-          (res = Validate.validate_factionType_requirement(action.requiredFactionType, agent)).status) {
+          if (
+            (res = Validate.validate_key_format(action.formats, data)).status &&
+            (res = Validate.validate_factionType_requirement(
+              action.requiredFactionType,
+              agent
+            )).status
+          ) {
             res = action.validate(agent, socket, data);
             if (res.status) {
               action.enact(agent, data);
-            }
-            else {
+            } else {
               logger.log("Action failed to validate: " + res.message, LOG.INFO);
             }
           }

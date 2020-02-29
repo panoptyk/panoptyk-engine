@@ -1125,6 +1125,18 @@ export class Controller {
   }
 
   /**
+   * Turn-in a verified info for given quest
+   * @param quest
+   * @param info
+   */
+  public turnInQuestInfo(quest: Quest, info: Info) {
+    this.tellInfoFreely(quest.giver, info, []);
+    quest.turnInInfo(info);
+    this.updateChanges(quest.giver, [quest]);
+    this.updateChanges(quest.receiver, [quest]);
+  }
+
+  /**
    * Agent requests an item within a trade
    * @param agent
    * @param trade
