@@ -102,11 +102,17 @@ export class Quest extends IDObject {
    */
   public serialize(agent?: Agent, removePrivateData = false) {
     const safeQuest = Object.assign({}, this);
-    (safeQuest._turnedInInfo as any) = Array.from(safeQuest._turnedInInfo);
     if (agent) {
       safeQuest._infoID = this.info.getAgentsCopy(agent).id;
       safeQuest._taskID = this.task.getAgentsCopy(agent).id;
+      const agentTurnedInInfo = new Set<number>();
+      for (const info of this.turnedInInfo) {
+        const newID = info.getAgentsCopy(agent).id;
+        agentTurnedInInfo.add(newID);
+      }
+      safeQuest._turnedInInfo = agentTurnedInInfo;
     }
+    (safeQuest._turnedInInfo as any) = Array.from(safeQuest._turnedInInfo);
     return safeQuest;
   }
 
@@ -141,7 +147,8 @@ export class Quest extends IDObject {
    * @param info
    */
   public turnInInfo(info: Info) {
-    this._turnedInInfo.add(info.id);
+    const infoID = info.isReference() ? info.infoID : info.id;
+    this._turnedInInfo.add(infoID);
   }
 
   /**

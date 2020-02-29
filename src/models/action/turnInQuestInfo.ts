@@ -17,7 +17,7 @@ export const ActionTurnInQuestInfo: Action = {
     const controller = new Controller();
     const solution = Info.getByID(inputData.solutionID);
     const quest: Quest = Quest.getByID(inputData.questID);
-    controller.turnInQuestInfo(quest, solution);
+    controller.turnInQuestInfo(agent, quest, solution);
 
     logger.log(
       "Event turn-in-quest-info " +

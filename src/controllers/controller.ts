@@ -1129,8 +1129,8 @@ export class Controller {
    * @param quest
    * @param info
    */
-  public turnInQuestInfo(quest: Quest, info: Info) {
-    this.tellInfoFreely(quest.giver, info, []);
+  public turnInQuestInfo(agent: Agent, quest: Quest, info: Info) {
+    this.tellInfoFreely(agent, info, []);
     quest.turnInInfo(info);
     this.updateChanges(quest.giver, [quest]);
     this.updateChanges(quest.receiver, [quest]);
