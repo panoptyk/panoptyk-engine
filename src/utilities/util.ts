@@ -23,7 +23,7 @@ export let getPanoptykDatetime = function(offset = -1): number {
   if (offset < 0) {
     offset = panoptykSettings.server_start_date_ms;
   }
-  return Math.floor((irlTime - offset) / 150000);
+  return Math.floor((irlTime - offset) * 24);
 };
 
 const DAYNAMES = [
