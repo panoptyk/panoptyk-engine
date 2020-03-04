@@ -587,7 +587,7 @@ export class Info extends IDObject {
         const i = new Info(time);
         i._predicate = Info.PREDICATE.TAK.name;
         i._agent[0] = agent ? agent.id : undefined;
-        i._infoID = info.isReference() ? info.infoID : info.id;
+        i._infoID = info ? (info._reference ? info._infoID : info.id) : undefined;
         switch (type) {
           case "question": {
             i._query = true;
@@ -663,7 +663,7 @@ export class Info extends IDObject {
         i._agent[0] = agent1 ? agent1.id : undefined;
         i._agent[1] = agent2 ? agent2.id : undefined;
         i._location[0] = loc ? loc.id : undefined;
-        i._infoID = info.isReference() ? info.infoID : info.id;
+        i._infoID = info ? (info._reference ? info._infoID : info.id) : undefined;
         switch (type) {
           case "question": {
             i._query = true;
