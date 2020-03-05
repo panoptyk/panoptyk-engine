@@ -655,6 +655,7 @@ export class Controller {
 
     this.updateChanges(trade.agentIni, [trade, items]);
     this.updateChanges(trade.agentRec, [trade, items]);
+    this.tellItemOwnership(ownerAgent, items);
 
     logger.log("Successfully added items to trade " + trade, 2);
   }
