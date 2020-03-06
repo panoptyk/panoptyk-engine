@@ -28,7 +28,9 @@ export class Agent extends IDObject {
     return Info.getByIDs(Array.from(this._knowledge));
   }
   private _assignedQuests: Set<number>;
+  private _closedAssignedQuests: Set<number>;
   private _givenQuests: Set<number>;
+  private _closedGivenQuests: Set<number>;
   private _conversationID = 0;
   private _conversationRequests: Set<number>;
   private _conversationRequested: Set<number>;
@@ -99,7 +101,9 @@ export class Agent extends IDObject {
     this._tradeRequests = new Set<number>();
     this._tradeRequested = new Set<number>();
     this._assignedQuests = new Set<number>();
+    this._closedAssignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
+    this._closedGivenQuests = new Set<number>();
     this._agentStatus = new Set<string>();
 
     logger.log("Agent " + this + " initialized.", 2);
@@ -122,7 +126,9 @@ export class Agent extends IDObject {
     a._tradeRequests = new Set<number>(a._tradeRequests);
     a._tradeRequested = new Set<number>(a._tradeRequested);
     a._assignedQuests = new Set<number>(a._assignedQuests);
+    a._closedAssignedQuests = new Set<number>(a._closedAssignedQuests);
     a._givenQuests = new Set<number>(a._givenQuests);
+    a._closedGivenQuests = new Set<number>(a._closedGivenQuests);
     a._agentStatus = new Set<string>(a._agentStatus);
     return a;
   }
@@ -148,7 +154,9 @@ export class Agent extends IDObject {
     (safeAgent._tradeRequests as any) = Array.from(safeAgent._tradeRequests);
     (safeAgent._tradeRequested as any) = Array.from(safeAgent._tradeRequested);
     (safeAgent._assignedQuests as any) = Array.from(safeAgent._assignedQuests);
+    (safeAgent._closedAssignedQuests as any) = Array.from(safeAgent._closedAssignedQuests);
     (safeAgent._givenQuests as any) = Array.from(safeAgent._givenQuests);
+    (safeAgent._closedGivenQuests as any) = Array.from(safeAgent._closedGivenQuests);
     (safeAgent._agentStatus as any) = Array.from(safeAgent._agentStatus);
     if (removePrivateData && agent !== this) {
       safeAgent._gold = 0;
@@ -461,12 +469,15 @@ export class Agent extends IDObject {
   }
 
   /**
-   * Server: Removes quest from list of active quests for both agents
+   * Server: Removes quest from list of active quests for both
+   * agents and adds it to closed list
    * @param quest
    */
   public static removeQuest(quest: Quest) {
     quest.receiver._assignedQuests.delete(quest.id);
+    quest.receiver._closedAssignedQuests.add(quest.id);
     quest.giver._givenQuests.delete(quest.id);
+    quest.giver._closedGivenQuests.add(quest.id);
   }
 
   /**
@@ -512,10 +523,24 @@ export class Agent extends IDObject {
   }
 
   /**
+   * Closed Quests that have been assigned to this agent
+   */
+  public get closedAssignedQuests(): Quest[] {
+    return Quest.getByIDs(Array.from(this._closedAssignedQuests));
+  }
+
+  /**
    * Active Quests that have been given out by this agent
    */
   public get activeGivenQuests(): Quest[] {
     return Quest.getByIDs(Array.from(this._givenQuests));
+  }
+
+  /**
+   * Closed Quests that have been given out by this agent
+   */
+  public get closedGivenQuests(): Quest[] {
+    return Quest.getByIDs(Array.from(this._closedGivenQuests));
   }
 
   /**
