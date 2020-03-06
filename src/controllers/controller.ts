@@ -1355,4 +1355,15 @@ export class Controller {
     this.removeAgentFromRoom(agent, true);
     this.sendUpdates();
   }
+
+  /**
+   * Given agent requests amount of gold on their current trade
+   * @param agent
+   * @param amount
+   */
+  public requestGoldTrade(agent: Agent, amount: number) {
+    agent.trade.requestGold(agent, amount);
+    this.updateChanges(agent.trade.agentIni, [agent.trade]);
+    this.updateChanges(agent.trade.agentRec, [agent.trade]);
+  }
 }

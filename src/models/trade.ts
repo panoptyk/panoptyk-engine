@@ -47,6 +47,7 @@ export class Trade extends IDObject {
   public get receiverGold(): number {
     return this._receiverGold;
   }
+  private _requestedGold: Map<number, number>;
 
   /**
    * Trade model.
@@ -78,6 +79,7 @@ export class Trade extends IDObject {
     this._receiverRequestedItems = new Map<number, boolean>();
     this._initiatorGold = 0;
     this._receiverGold = 0;
+    this._requestedGold = new Map<number, number>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -109,6 +111,7 @@ public toString() {
     t.receiverInfo = new Map<number, AnswerInfo>(t.receiverInfo);
     t._initiatorRequestedItems = new Map<number, boolean>(t._initiatorRequestedItems);
     t._receiverRequestedItems = new Map<number, boolean>(t._receiverRequestedItems);
+    t._requestedGold = new Map<number, number>(t._requestedGold);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -142,6 +145,7 @@ public toString() {
     (safeTrade.receiverInfo as any) = Array.from(safeTrade.receiverInfo);
     (safeTrade._initiatorRequestedItems as any) = Array.from(safeTrade._initiatorRequestedItems);
     (safeTrade._receiverRequestedItems as any) = Array.from(safeTrade._receiverRequestedItems);
+    (safeTrade._requestedGold as any) = Array.from(safeTrade._requestedGold);
     return safeTrade;
   }
 
@@ -397,6 +401,23 @@ public toString() {
       }
     }
     return requestMap;
+  }
+
+  /**
+   * Server: Update the amount of gold requested by a given agent
+   * @param agent
+   * @param amount
+   */
+  public requestGold(agent: Agent, amount: number) {
+    this._requestedGold.set(agent.id, amount);
+  }
+
+  /**
+   * Returns the amount of gold requested by the agent
+   * @param agent
+   */
+  public getAgentsRequestedGold(agent: Agent): number {
+    return this._requestedGold.get(agent.id);
   }
 
   /**

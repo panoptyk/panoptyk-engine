@@ -620,4 +620,15 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Legal Action: Request given amount of gold in current trade
+   * @param amount
+   */
+  public static async requestGoldTrade(amount: number) {
+    const res = await ClientAPI.sendWrapper("request-gold-trade", {
+      amount
+    });
+    return res;
+  }
 }
