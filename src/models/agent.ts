@@ -7,7 +7,7 @@ import { Info } from "./information";
 import { Conversation } from "./conversation";
 import { Trade } from "./trade";
 import { Quest } from "./quest";
-import { Faction } from "./faction";
+import { Faction, FactionStatus } from "./faction";
 
 export class Agent extends IDObject {
   private _agentName: string;
@@ -60,9 +60,9 @@ export class Agent extends IDObject {
   /**
    * Returns numeric value of agent's rank or undefined if agent is not in a faction
    */
-  public get factionRank(): number {
-    if (this._faction) {
-      return this.faction.getAgentRank(this);
+  public get factionStatus(): FactionStatus {
+    if (this.faction) {
+      return this.faction.getAgentStatus(this);
     }
     return undefined;
   }

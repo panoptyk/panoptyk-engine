@@ -1171,7 +1171,7 @@ export class Controller {
     faction: Faction,
     rank: number
   ) {
-    faction.setAgentRank(targetAgent, rank);
+    // faction.setAgentRank(targetAgent, rank);
     targetAgent.faction = faction;
     this.updateChanges(targetAgent, [targetAgent, targetAgent.faction]);
   }
