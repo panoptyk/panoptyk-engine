@@ -631,4 +631,16 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Legal Action: Quest giver adds reward to quest
+   * @param quest
+   * @param reward
+   */
+  public static async tellRewardQuest(quest: Quest, reward: any) {
+    const res = await ClientAPI.sendWrapper("tell-reward-quest", {
+      questID: quest.id, reward
+    });
+    return res;
+  }
 }

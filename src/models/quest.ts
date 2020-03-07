@@ -36,6 +36,10 @@ export class Quest extends IDObject {
   public get turnedInInfo(): Info[] {
     return Info.getByIDs(Array.from(this._turnedInInfo));
   }
+  private _offeredRewards: Set<number>;
+  public get offeredRewards(): Info[] {
+    return Info.getByIDs(Array.from(this._offeredRewards));
+  }
 
   /**
    * Quest model
@@ -65,6 +69,7 @@ export class Quest extends IDObject {
     this._deadline = deadline;
     this._infoID = info ? info.id : undefined;
     this._turnedInInfo = new Set<number>();
+    this._offeredRewards = new Set<number>();
 
     logger.log("Quest " + this + " initialized.", 2);
   }
@@ -91,6 +96,7 @@ export class Quest extends IDObject {
       q[key] = json[key];
     }
     q._turnedInInfo = new Set<number>(q._turnedInInfo);
+    q._offeredRewards = new Set<number>(q._offeredRewards);
     return q;
   }
 
@@ -104,6 +110,7 @@ export class Quest extends IDObject {
     const safeQuest = Object.assign({}, this);
     if (agent) {
       safeQuest._infoID = this.info.getAgentsCopy(agent).id;
+      // TODO: make a util that fetches agent copies of a set of Info
       safeQuest._taskID = this.task.getAgentsCopy(agent).id;
       const agentTurnedInInfo = new Set<number>();
       for (const info of this.turnedInInfo) {
@@ -111,8 +118,15 @@ export class Quest extends IDObject {
         agentTurnedInInfo.add(newID);
       }
       safeQuest._turnedInInfo = agentTurnedInInfo;
+      const questOfferedRewards = new Set<number>();
+      for (const info of this.offeredRewards) {
+        const newID = info.getAgentsCopy(agent).id;
+        questOfferedRewards.add(newID);
+      }
+      safeQuest._offeredRewards = questOfferedRewards;
     }
     (safeQuest._turnedInInfo as any) = Array.from(safeQuest._turnedInInfo);
+    (safeQuest._offeredRewards as any) = Array.from(safeQuest._offeredRewards);
     return safeQuest;
   }
 
@@ -149,6 +163,15 @@ export class Quest extends IDObject {
   public turnInInfo(info: Info) {
     const infoID = info.isReference() ? info.infoID : info.id;
     this._turnedInInfo.add(infoID);
+  }
+
+  /**
+   * Server: Add offered reward
+   * @param info
+   */
+  public addReward(info: Info) {
+    const infoID = info.isReference() ? info.infoID : info.id;
+    this._offeredRewards.add(infoID);
   }
 
   /**

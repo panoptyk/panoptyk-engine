@@ -1366,4 +1366,19 @@ export class Controller {
     this.updateChanges(agent.trade.agentIni, [agent.trade]);
     this.updateChanges(agent.trade.agentRec, [agent.trade]);
   }
+
+  /**
+   * Given agent tells reward associated with quest
+   * @param agent
+   * @param quest
+   * @param rawInfo
+   */
+  public addRewardQuest(quest: Quest, rawInfo: any) {
+    // TODO: make new info category for reward?
+    const rewardInfo = Info.ACTIONS[rawInfo.action].create(rawInfo, "command");
+    quest.addReward(rewardInfo);
+    this.giveInfoToAgents([quest.giver, quest.receiver], rewardInfo);
+    this.updateChanges(quest.giver, [quest]);
+    this.updateChanges(quest.receiver, [quest]);
+  }
 }
