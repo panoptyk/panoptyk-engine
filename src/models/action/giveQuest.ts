@@ -11,15 +11,32 @@ export const ActionGiveQuest: Action = {
       receiverID: "number",
       rawInfo: "object",
       isQuestion: "boolean",
-      deadline: "number"
+      deadline: "number",
+      reasonID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const rawInfo = inputData.rawInfo;
     const toAgent = Agent.getByID(inputData.receiverID);
-    const quest = controller.sendQuest(agent, toAgent, rawInfo, inputData.isQuestion, inputData.deadline);
-    logger.log("Event give-quest " + quest + " from agent " + agent + " to agent " + toAgent, 2);
+    const reason = Info.getByID(inputData.reasonID);
+    const quest = controller.sendQuest(
+      agent,
+      toAgent,
+      rawInfo,
+      inputData.isQuestion,
+      inputData.deadline,
+      reason
+    );
+    logger.log(
+      "Event give-quest " +
+        quest +
+        " from agent " +
+        agent +
+        " to agent " +
+        toAgent,
+      2
+    );
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -28,14 +45,20 @@ export const ActionGiveQuest: Action = {
       return res;
     }
     const conversation = agent.conversation;
-    if (!(res = Validate.validate_conversation_exists(agent.room, conversation)).status) {
-        return res;
+    if (
+      !(res = Validate.validate_conversation_exists(agent.room, conversation))
+        .status
+    ) {
+      return res;
     }
-    if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
-        return res;
+    if (
+      !(res = Validate.validate_conversation_has_agent(conversation, agent))
+        .status
+    ) {
+      return res;
     }
-  // TODO: validate that rawInfo is valid
-  // TODO: validate deadline is valid
+    // TODO: validate that rawInfo is valid
+    // TODO: validate deadline is valid
     return Validate.successMsg;
   }
 };

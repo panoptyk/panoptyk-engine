@@ -1099,7 +1099,8 @@ export class Controller {
     toAgent: Agent,
     dummyInfo: any,
     isQuestion: boolean,
-    deadline: number
+    deadline: number,
+    reason?: Info
   ) {
     const type: string = isQuestion ? "question" : "command";
     const query: Info = dummyInfo.action
@@ -1118,7 +1119,8 @@ export class Controller {
       query,
       questInfo,
       type,
-      deadline
+      deadline,
+      reason
     );
     Agent.addQuest(quest);
     this.updateChanges(toAgent, [toAgent, quest]);
@@ -1126,6 +1128,9 @@ export class Controller {
     const relevantAgents = agent.conversation.getAgents();
     this.giveInfoToAgents(relevantAgents, questInfo);
     this.giveInfoToAgents(relevantAgents, query);
+    if (reason) {
+      this.giveInfoToAgents(relevantAgents, reason);
+    }
     return quest;
   }
 
