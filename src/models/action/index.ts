@@ -33,4 +33,5 @@ export { ActionTellItemOwnership } from "./tellItemOwnership";
 export { ActionArrestAgent } from "./arrestAgent";
 export { ActionInterrogateAgent } from "./interrogateAgent";
 export { ActionRequestGoldTrade } from "./requestGoldTrade";
+export { ActionTellRewardQuest } from "./tellRewardQuest";
 // export {} from "./"; <- future Actions

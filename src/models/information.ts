@@ -89,6 +89,14 @@ export interface TILQ {
   quantity: number;
 }
 
+export interface TAALQ {
+  time: number;
+  agent1: Agent;
+  agent2: Agent;
+  loc: Room;
+  quantity: number;
+}
+
 export class Info extends IDObject {
   private _time: number;
   public get time(): number {
@@ -776,6 +784,49 @@ export class Info extends IDObject {
         };
       }
     },
+    TAALQ: {
+      name: "TAALQ", // predicate(Time, Agent, Agent, Location, Quantity)
+      /**
+       * Creates an action that uses this predicate format
+       *   predicate(Time, Agent, Agent, Location, Quantity)
+       */
+      create(
+        { time, agent1, agent2, loc, quantity }: TAALQ,
+        type: string
+      ): Info {
+        const i = new Info(time);
+        i._predicate = Info.PREDICATE.TAALQ.name;
+        i._agent[0] = agent1 ? agent1.id : undefined;
+        i._agent[1] = agent2 ? agent2.id : undefined;
+        i._location[0] = loc ? loc.id : undefined;
+        i._quantity[0] = quantity;
+        switch (type) {
+          case "question": {
+            i._query = true;
+            break;
+          }
+          case "command": {
+            i._command = true;
+            break;
+          }
+        }
+        return i;
+      },
+      /**
+       * returns labeled object of all the important terms for this predicate type
+       * @param i information in question
+       */
+      getTerms(info: Info): { predicate: string } & TAALQ {
+        return {
+          predicate: Info.PREDICATE.TAALQ.name,
+          time: info.time,
+          agent1: Agent.getByID(info.agents[0]),
+          agent2: Agent.getByID(info.agents[1]),
+          loc: Room.getByID(info.locations[0]),
+          quantity: info.quantities[0]
+        };
+      }
+    },
     TILQ: {
       name: "TILQ", // predicate(Time, Tangible-Item, Location, Quantity)
       /**
@@ -1437,6 +1488,74 @@ export class Info extends IDObject {
       getTerms(info: Info): { action: string } & TAAL {
         const terms: any = Info.PREDICATE.TAAL.getTerms(info);
         terms.action = Info.ACTIONS.INTERROGATED.name;
+        return terms;
+      }
+    },
+    PROMOTE: {
+      name: "PROMOTE",
+      predicate: Info.PREDICATE.TAALQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   PROMOTE(Time, Agent, Agent, Location, Quantity)
+       */
+      create(args: TAALQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALQ.create(args, type);
+        i._action = Info.ACTIONS.PROMOTE.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent1, agent2, time, loc, quantity }: TAALQ): { action: string } & TAALQ {
+        return {
+          action: Info.ACTIONS.PROMOTE.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string, predicate: string } & TAALQ {
+        const terms: any = Info.PREDICATE.TAALQ.getTerms(info);
+        terms.action = Info.ACTIONS.PROMOTE.name;
+        return terms;
+      }
+    },
+    PAID: {
+      name: "PAID",
+      predicate: Info.PREDICATE.TAALQ.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   GAVE(Time, Agent, Agent, Location, quantity)
+       */
+      create(args: TAALQ, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALQ.create(args, type);
+        i._action = Info.ACTIONS.PAID.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({
+        agent1,
+        agent2,
+        time,
+        loc,
+        quantity
+      }: TAALQ): { action: string } & TAALQ {
+        return {
+          action: Info.ACTIONS.PAID.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          quantity
+        };
+      },
+      getTerms(info: Info): { action: string, predicate: string } & TAALQ {
+        const terms: any = Info.PREDICATE.TAALQ.getTerms(info);
+        terms.action = Info.ACTIONS.PAID.name;
         return terms;
       }
     }
