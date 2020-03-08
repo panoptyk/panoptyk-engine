@@ -117,7 +117,9 @@ export class Quest extends IDObject {
     const safeQuest = Object.assign({}, this);
     if (agent) {
       safeQuest._infoID = this.info.getAgentsCopy(agent).id;
-      safeQuest._reasonID = this.reasonForQuest.getAgentsCopy(agent).id;
+      safeQuest._reasonID = this._reasonID
+        ? this.reasonForQuest.getAgentsCopy(agent).id
+        : 0;
       // TODO: make a util that fetches agent copies of a set of Info
       safeQuest._taskID = this.task.getAgentsCopy(agent).id;
       const agentTurnedInInfo = new Set<number>();
