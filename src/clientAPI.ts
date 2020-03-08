@@ -478,8 +478,8 @@ export class ClientAPI {
     query: object,
     isQuestion: boolean,
     deadline = 0,
-    reason?: string,
-    rewards?: any[]
+    reason = "",
+    rewards: any[] = []
   ) {
     const res = await ClientAPI.sendWrapper("give-quest", {
       receiverID: toAgent.id,
@@ -560,7 +560,7 @@ export class ClientAPI {
   public static async modifyAgentFaction(
     targetAgent: Agent,
     faction: Faction,
-    rank = 110
+    rank = 0
   ) {
     const res = await ClientAPI.sendWrapper("modify-agent-faction", {
       agentID: targetAgent.id,
