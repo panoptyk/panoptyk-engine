@@ -478,15 +478,16 @@ export class ClientAPI {
     query: object,
     isQuestion: boolean,
     deadline = 0,
-    reason?: Info
+    reason?: string,
+    rewards?: any[]
   ) {
-    const reasonID = reason ? reason.id : 0;
     const res = await ClientAPI.sendWrapper("give-quest", {
       receiverID: toAgent.id,
       rawInfo: query,
       isQuestion,
       deadline,
-      reasonID
+      reason,
+      rewards
     });
     return res;
   }

@@ -1102,7 +1102,8 @@ export class Controller {
     dummyInfo: any,
     isQuestion: boolean,
     deadline: number,
-    reason?: Info
+    reason?: string,
+    rewards?: any[]
   ) {
     const type: string = isQuestion ? "question" : "command";
     const query: Info = dummyInfo.action
@@ -1130,8 +1131,8 @@ export class Controller {
     const relevantAgents = agent.conversation.getAgents();
     this.giveInfoToAgents(relevantAgents, questInfo);
     this.giveInfoToAgents(relevantAgents, query);
-    if (reason) {
-      this.giveInfoToAgents(relevantAgents, reason);
+    for (const reward of rewards) {
+      this.addRewardQuest(quest, reward);
     }
     return quest;
   }
