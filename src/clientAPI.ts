@@ -480,7 +480,7 @@ export class ClientAPI {
     deadline = 0,
     reason?: Info
   ) {
-    const reasonID = reason ? reason.id : undefined;
+    const reasonID = reason ? reason.id : 0;
     const res = await ClientAPI.sendWrapper("give-quest", {
       receiverID: toAgent.id,
       rawInfo: query,
