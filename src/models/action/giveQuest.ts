@@ -12,21 +12,23 @@ export const ActionGiveQuest: Action = {
       rawInfo: "object",
       isQuestion: "boolean",
       deadline: "number",
-      reasonID: "number"
+      reason: "string",
+      rewards: "object"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
     const rawInfo = inputData.rawInfo;
     const toAgent = Agent.getByID(inputData.receiverID);
-    const reason = Info.getByID(inputData.reasonID);
+    const reason = inputData.reason;
     const quest = controller.sendQuest(
       agent,
       toAgent,
       rawInfo,
       inputData.isQuestion,
       inputData.deadline,
-      reason
+      reason,
+      inputData.rewards
     );
     logger.log(
       "Event give-quest " +

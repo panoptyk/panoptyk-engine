@@ -40,9 +40,9 @@ export class Quest extends IDObject {
   public get offeredRewards(): Info[] {
     return Info.getByIDs(Array.from(this._offeredRewards));
   }
-  private _reasonID: number;
-  public get reasonForQuest(): Info {
-    return Info.getByID(this._reasonID);
+  private _reason: string;
+  public get reasonForQuest(): string {
+    return this._reason;
   }
 
   /**
@@ -61,7 +61,7 @@ export class Quest extends IDObject {
     info: Info,
     type: string,
     deadline = 0,
-    reason?: Info,
+    reason?: string,
     status = "ACTIVE",
     id?: number
   ) {
@@ -75,7 +75,7 @@ export class Quest extends IDObject {
     this._infoID = info ? info.id : undefined;
     this._turnedInInfo = new Set<number>();
     this._offeredRewards = new Set<number>();
-    this._reasonID = reason ? reason.id : undefined;
+    this._reason = reason;
 
     logger.log("Quest " + this + " initialized.", 2);
   }
@@ -117,9 +117,6 @@ export class Quest extends IDObject {
     const safeQuest = Object.assign({}, this);
     if (agent) {
       safeQuest._infoID = this.info.getAgentsCopy(agent).id;
-      safeQuest._reasonID = this._reasonID
-        ? this.reasonForQuest.getAgentsCopy(agent).id
-        : 0;
       // TODO: make a util that fetches agent copies of a set of Info
       safeQuest._taskID = this.task.getAgentsCopy(agent).id;
       const agentTurnedInInfo = new Set<number>();
