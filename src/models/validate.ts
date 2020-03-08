@@ -672,7 +672,7 @@ export class Validate {
    * Checks if agent is in a faction and optionally meets given rank requirement
    * @param agent agent to check
    * @param faction
-   * @param rank optional param rank that agent must be <=
+   * @param rank optional param rank that agent must be >=
    */
   public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
     const agentRank = faction.getAgentRank(agent);
@@ -682,7 +682,7 @@ export class Validate {
         message: agent + " is not part of faction " + faction
       };
     }
-    else if (rank !== undefined && agentRank > rank) {
+    else if (rank !== undefined && agentRank < rank) {
       return {
         status: false,
         message: agent + " does not meet rank requirement of " + rank + " in faction " + faction

@@ -261,7 +261,7 @@ export class Controller {
       for (const key in Faction.objects) {
         const faction: Faction = Faction.objects[key];
         if (faction.factionType === "criminal") {
-          this.modifyAgentFaction(agent, faction, 101);
+          this.modifyAgentFaction(agent, faction, 0);
           break;
         }
       }
@@ -1278,7 +1278,7 @@ export class Controller {
     // TODO: base knowledge on steal skill when skill system is added
     this.giveInfoToAgents([agent], info);
     const mask =
-      agent.faction.getAgentRank(agent) <= 100 ? { agent1: "mask" } : {};
+      agent.faction.getAgentRank(agent) >= 10 ? { agent1: "mask" } : {};
     this.giveInfoToAgents([targetAgent], info, mask);
   }
 
@@ -1343,7 +1343,7 @@ export class Controller {
     for (const item of targetAgent.inventory) {
       this.confiscateItem(policeAgent, targetAgent, item);
     }
-    targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank + 10);
+    targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank - 10);
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
 
