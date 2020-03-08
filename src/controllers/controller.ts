@@ -1336,12 +1336,13 @@ export class Controller {
    * @param targetAgent
    */
   public arrestAgent(policeAgent: Agent, targetAgent: Agent) {
-    // arrest currently confiscates all items and kills targeted agent
+    // arrest currently confiscates all items, moves targetAgent to police headquarters and demotes targetAgent
     for (const item of targetAgent.inventory) {
       this.confiscateItem(policeAgent, targetAgent, item);
     }
-    targetAgent.addStatus("dead");
-    this.logout(targetAgent);
+    targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank + 10);
+    this.removeAgentFromRoom(targetAgent, false);
+    this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
 
     const info = Info.ACTIONS.ARRESTED.create({
       agent1: policeAgent,
