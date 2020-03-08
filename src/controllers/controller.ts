@@ -250,7 +250,8 @@ export class Controller {
       agent.knowledge,
       agent.activeAssignedQuests,
       agent.activeGivenQuests,
-      agent.closedGivenQuests
+      agent.closedGivenQuests,
+      agent.closedAssignedQuests
     ]);
     if (agent.faction) {
       this.updateChanges(agent, [agent.faction]);
