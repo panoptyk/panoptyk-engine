@@ -13,6 +13,9 @@ export class Faction extends IDObject {
     return this._factionType;
   }
   private _members: Map<number, number>; // second number is rank
+  public get members(): Agent[] {
+    return Agent.getByIDs(Array.from(this._members.keys()));
+  }
   private _headquarters: number;
   public get headquarters(): Room {
     return Room.getByID(this._headquarters);
