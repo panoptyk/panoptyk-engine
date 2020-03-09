@@ -1343,7 +1343,9 @@ export class Controller {
     for (const item of targetAgent.inventory) {
       this.confiscateItem(policeAgent, targetAgent, item);
     }
-    targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank - 10);
+    if (targetAgent.faction) {
+      targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank - 10);
+    }
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
 
