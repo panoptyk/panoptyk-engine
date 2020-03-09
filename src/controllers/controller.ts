@@ -1102,7 +1102,7 @@ export class Controller {
     dummyInfo: any,
     isQuestion: boolean,
     deadline: number,
-    reason?: string,
+    reason?: Info,
     rewards?: any[]
   ) {
     const type: string = isQuestion ? "question" : "command";
@@ -1133,6 +1133,9 @@ export class Controller {
     this.giveInfoToAgents(relevantAgents, query);
     for (const reward of rewards) {
       this.addRewardQuest(quest, reward);
+    }
+    if (reason) {
+      this.giveInfoToAgents(relevantAgents, reason);
     }
     return quest;
   }
@@ -1338,7 +1341,7 @@ export class Controller {
    * @param policeAgent
    * @param targetAgent
    */
-  public arrestAgent(policeAgent: Agent, targetAgent: Agent) {
+  public arrestAgent(policeAgent: Agent, targetAgent: Agent, reason: Info) {
     // arrest currently confiscates all items, moves targetAgent to police headquarters and demotes targetAgent
     for (const item of targetAgent.inventory) {
       this.confiscateItem(policeAgent, targetAgent, item);
@@ -1353,7 +1356,8 @@ export class Controller {
       agent1: policeAgent,
       agent2: targetAgent,
       loc: policeAgent.room,
-      time: util.getPanoptykDatetime()
+      time: util.getPanoptykDatetime(),
+      info: reason
     });
     this.giveInfoToAgents(policeAgent.room.occupants, info);
   }
