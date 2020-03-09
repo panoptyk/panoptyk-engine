@@ -478,15 +478,16 @@ export class ClientAPI {
     query: object,
     isQuestion: boolean,
     deadline = 0,
-    reason = "",
+    reason?: Info,
     rewards: any[] = []
   ) {
+    const reasonID = reason ? reason.id : 0;
     const res = await ClientAPI.sendWrapper("give-quest", {
       receiverID: toAgent.id,
       rawInfo: query,
       isQuestion,
       deadline,
-      reason,
+      reasonID,
       rewards
     });
     return res;
@@ -652,9 +653,10 @@ export class ClientAPI {
    * Available to factionType: police
    * @param targetAgent
    */
-  public static async arrestAgent(targetAgent: Agent) {
+  public static async arrestAgent(targetAgent: Agent, reason: Info) {
     const res = await ClientAPI.sendWrapper("arrest-agent", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
+      reasonID: reason.id
     });
     return res;
   }

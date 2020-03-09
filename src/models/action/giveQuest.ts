@@ -12,7 +12,7 @@ export const ActionGiveQuest: Action = {
       rawInfo: "object",
       isQuestion: "boolean",
       deadline: "number",
-      reason: "string",
+      reasonID: "number",
       rewards: "object"
     }
   ],
@@ -20,7 +20,7 @@ export const ActionGiveQuest: Action = {
     const controller = new Controller();
     const rawInfo = inputData.rawInfo;
     const toAgent = Agent.getByID(inputData.receiverID);
-    const reason = inputData.reason;
+    const reason: Info = Info.getByID(inputData.reasonID);
     const quest = controller.sendQuest(
       agent,
       toAgent,
