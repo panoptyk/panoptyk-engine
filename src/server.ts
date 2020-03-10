@@ -49,6 +49,7 @@ import {
   ActionTellItemOwnership
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
+import { ActionTurnInQuestItem } from "./models/action/turnInQuestItem";
 
 export class Server {
   private MIN_TIME_BETWEEN_ACTIONS = 100;
@@ -93,6 +94,7 @@ export class Server {
     ActionPassQuestion,
     ActionCloseQuest,
     ActionTurnInQuestInfo,
+    ActionTurnInQuestItem,
     ActionGiveQuest,
     ActionRequestItemTrade,
     ActionPassItemRequest,

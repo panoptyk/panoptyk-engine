@@ -83,11 +83,12 @@ export class Faction extends IDObject {
   public addAgentExp(agent: Agent, exp: number) {
     if (this._members.has(agent.id)) {
       const status = this._members.get(agent.id);
-      const toNextLvl = Faction.expToNextLvl(status.lvl);
+      let toNextLvl = Faction.expToNextLvl(status.lvl);
       status.exp += exp;
-      if (status.exp >= toNextLvl) {
+      while (status.exp >= toNextLvl) {
         status.exp -= toNextLvl;
         status.lvl += 1;
+        toNextLvl = Faction.expToNextLvl(status.lvl);
       }
       this._members.set(agent.id, status);
     }

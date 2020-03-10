@@ -593,6 +593,21 @@ export class Validate {
   }
 
   /**
+   * Checks if given item solves the quest
+   * @param item
+   * @param quest
+   */
+  public static validate_item_satisfies_quest(item: Item, quest: Quest) {
+    if (!quest.canTurnInItem(item)) {
+      return {
+        status: false,
+        message: item + " does not solve " + quest
+      };
+    }
+    return { status: true, message: "" };
+  }
+
+  /**
    * Prevents stupid requests
    * @param agent
    * @param toAgent
@@ -678,17 +693,11 @@ export class Validate {
    * @param rank optional param rank that agent must be <=
    */
   public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
-    const agentRank = faction.getAgentRank(agent);
+    const agentRank = faction.getAgentStatus(agent).lvl;
     if (agentRank === undefined) {
       return {
         status: false,
         message: agent + " is not part of faction " + faction
-      };
-    }
-    else if (rank !== undefined && agentRank > rank) {
-      return {
-        status: false,
-        message: agent + " does not meet rank requirement of " + rank + " in faction " + faction
       };
     }
     return { status: true, message: "" };

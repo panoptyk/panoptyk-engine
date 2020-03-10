@@ -60,6 +60,11 @@ export class Controller {
       if (change.faction) {
         updates.add(change.faction);
       }
+    } else if (change instanceof Item) {
+      // automatically give item master references
+      if (change.id !== change.master.id) {
+        updates.add(change.master);
+      }
     }
   }
 
@@ -1060,35 +1065,50 @@ export class Controller {
   public sendQuest(
     agent: Agent,
     toAgent: Agent,
-    dummyInfo: any,
-    isQuestion: boolean,
+    task: any,
+    item: Item,
+    type: string,
+    amount: number,
     deadline: number
   ) {
-    const type: string = isQuestion ? "question" : "command";
-    const query: Info = dummyInfo.action
-      ? Info.ACTIONS[dummyInfo.action].create(dummyInfo, type)
-      : Info.PREDICATE[dummyInfo.predicate].create(dummyInfo, type);
+    let quest: Quest = undefined;
+    const relevantAgents = agent.conversation.getAgents();
+    if (type === "item") {
+      quest = new Quest(
+        toAgent,
+        agent,
+        undefined,
+        item,
+        type,
+        amount,
+        deadline
+      );
+    } else {
+      const query: Info = task.action
+        ? Info.ACTIONS[task.action].create(task, type)
+        : Info.PREDICATE[task.predicate].create(task, type);
+      quest = new Quest(
+        toAgent,
+        agent,
+        query,
+        undefined,
+        type,
+        amount,
+        deadline
+      );
+      this.giveInfoToAgents(relevantAgents, query);
+    }
     const questInfo: Info = Info.ACTIONS.QUEST.create({
       time: util.getPanoptykDatetime(),
       agent1: agent,
       agent2: toAgent,
       loc: agent.room,
-      info: query
+      quest
     });
-    const quest: Quest = new Quest(
-      toAgent,
-      agent,
-      query,
-      questInfo,
-      type,
-      deadline
-    );
     Agent.addQuest(quest);
     this.updateChanges(toAgent, [toAgent, quest]);
     this.updateChanges(agent, [agent, quest]);
-    const relevantAgents = agent.conversation.getAgents();
     this.giveInfoToAgents(relevantAgents, questInfo);
-    this.giveInfoToAgents(relevantAgents, query);
     return quest;
   }
 
@@ -1105,15 +1125,16 @@ export class Controller {
         agent1: quest.giver,
         agent2: quest.receiver,
         loc: agent.room,
-        info: quest.info
+        quest
       });
+      quest.receiver.faction.addAgentExp(quest.receiver, quest.rewardXP);
     } else if (closeType === "FAILED") {
       closeInfo = Info.ACTIONS.QUEST_FAILED.create({
         time: util.getPanoptykDatetime(),
         agent1: quest.giver,
         agent2: quest.receiver,
         loc: agent.room,
-        info: quest.info
+        quest
       });
     }
     Agent.removeQuest(quest);
@@ -1134,6 +1155,20 @@ export class Controller {
     quest.turnInInfo(info);
     this.updateChanges(quest.giver, [quest]);
     this.updateChanges(quest.receiver, [quest]);
+  }
+
+  /**
+   * Turn-in a verified item for given quest
+   * @param quest
+   * @param info
+   */
+  public turnInQuestItem(agent: Agent, quest: Quest, item: Item) {
+    quest.turnInItem(item);
+    quest.receiver.removeItemInventory(item);
+    quest.giver.addItemInventory(item);
+    item.giveToAgent(quest.giver);
+    this.updateChanges(quest.giver, [quest, quest.giver]);
+    this.updateChanges(quest.receiver, [quest, quest.receiver]);
   }
 
   /**

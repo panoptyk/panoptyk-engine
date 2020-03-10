@@ -5,13 +5,17 @@ import { IDObject } from "./idObject";
 
 export class Item extends IDObject {
 
+  private _master: number;
+  public get master(): Item {
+    return this._master ? Item.getByID(this._master) : this;
+  }
   private _type: string;
   public get type(): string {
-    return this._type;
+    return this.master._type;
   }
   private _itemName: string;
   public get itemName(): string {
-    return this._itemName;
+    return this.master._itemName;
   }
   private _quantity: number;
   public get quantity(): number {
@@ -43,6 +47,7 @@ export class Item extends IDObject {
     this._itemTags = new Set<string>();
     this.roomID = room ? room.id : undefined;
     this.agentID = agent ? agent.id : undefined;
+    this._master = 0;
 
     this.inTransaction = false;
 
@@ -90,8 +95,22 @@ export class Item extends IDObject {
     return safeItem;
   }
 
+  copy(quantity = 1): Item {
+    const i = new Item("", "", quantity);
+    i._master = this.id;
+    return i;
+  }
+
   toString() {
     return this._itemName + ":" + this.type + " (id#" + this.id + ")";
+  }
+
+  /**
+   * Compares if two items share the same master type
+   * @param item item to compare with
+   */
+  sameAs(item: Item): boolean {
+    return this.master.id === item.master.id;
   }
 
   /**

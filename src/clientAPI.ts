@@ -137,14 +137,17 @@ export class ClientAPI {
           // Update seen sets
           switch (key) {
             case "Agent":
-              ClientAPI._seenAgents.add(model.id); break;
+              ClientAPI._seenAgents.add(model.id);
+              break;
             case "Item":
-              ClientAPI._seenItems.add(model.id); break;
+              ClientAPI._seenItems.add(model.id);
+              break;
             case "Room":
-              ClientAPI._seenRooms.add(model.id); break;
-            default: break;
+              ClientAPI._seenRooms.add(model.id);
+              break;
+            default:
+              break;
           }
-
         }
       }
       // Sort new info
@@ -169,7 +172,10 @@ export class ClientAPI {
     });
     ClientAPI.socket.on("connect", () => {
       // auto-reconnection if player was logged-in
-      if (ClientAPI.playerAgentName !== undefined && ClientAPI.playerAgentPassword !== undefined) {
+      if (
+        ClientAPI.playerAgentName !== undefined &&
+        ClientAPI.playerAgentPassword !== undefined
+      ) {
         logger.log("Reconnecting with previous login data", 2);
         emit(ClientAPI.socket, "login", {
           username: ClientAPI.playerAgentName,
@@ -266,7 +272,9 @@ export class ClientAPI {
    * Leave current conversation
    * @param targetConversation conversation to leave
    */
-  public static async leaveConversation(conversation: Conversation = ClientAPI.playerAgent.conversation) {
+  public static async leaveConversation(
+    conversation: Conversation = ClientAPI.playerAgent.conversation
+  ) {
     const res = await ClientAPI.sendWrapper("leave-conversation", {
       conversationID: conversation.id
     });
@@ -378,15 +386,25 @@ export class ClientAPI {
   /**
    * Ask a question in current conversation.
    */
-  public static async askQuestion(question: object, desiredInfo: string[] = []) {
-    const res = await ClientAPI.sendWrapper("ask-question", { question, desiredInfo });
+  public static async askQuestion(
+    question: object,
+    desiredInfo: string[] = []
+  ) {
+    const res = await ClientAPI.sendWrapper("ask-question", {
+      question,
+      desiredInfo
+    });
     return res;
   }
 
   /**
    * Offer an answer to a question as part of a trade.
    */
-  public static async offerAnswerTrade(answer: Info, question: Info, mask: string[] = []) {
+  public static async offerAnswerTrade(
+    answer: Info,
+    question: Info,
+    mask: string[] = []
+  ) {
     const res = await ClientAPI.sendWrapper("offer-answer-trade", {
       answerID: answer.id,
       questionID: question.id,
@@ -409,7 +427,10 @@ export class ClientAPI {
    * Freely give an information item in a conversation.
    */
   public static async tellInfo(info: Info, mask: string[] = []) {
-    const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id, mask});
+    const res = await ClientAPI.sendWrapper("tell-info", {
+      infoID: info.id,
+      mask
+    });
     return res;
   }
 
@@ -417,7 +438,9 @@ export class ClientAPI {
    * Pass on question in current conversation.
    */
   public static async passOnQuestion(question: Info) {
-    const res = await ClientAPI.sendWrapper("pass-question", { infoID: question.id });
+    const res = await ClientAPI.sendWrapper("pass-question", {
+      infoID: question.id
+    });
     return res;
   }
 
@@ -426,7 +449,9 @@ export class ClientAPI {
    * @param item
    */
   public static async requestItemTrade(item: Item) {
-    const res = await ClientAPI.sendWrapper("request-item-trade", { itemID: item.id });
+    const res = await ClientAPI.sendWrapper("request-item-trade", {
+      itemID: item.id
+    });
     return res;
   }
 
@@ -435,7 +460,9 @@ export class ClientAPI {
    * @param item
    */
   public static async passItemRequestTrade(item: Item) {
-    const res = await ClientAPI.sendWrapper("pass-item-request", { itemID: item.id });
+    const res = await ClientAPI.sendWrapper("pass-item-request", {
+      itemID: item.id
+    });
     return res;
   }
 
@@ -443,12 +470,27 @@ export class ClientAPI {
    * Give quest to another toAgent in current Conversation
    * @param toAgent
    * @param query
-   * @param isQuestion
+   * @param type
    * @param deadline OPTIONAL deadline of 0 counts as no deadline
    */
-  public static async giveQuest(toAgent: Agent, query: object, isQuestion: boolean, deadline = 0) {
-    const res = await ClientAPI.sendWrapper("give-quest", { receiverID: toAgent.id, rawInfo: query,
-      isQuestion, deadline});
+  public static async giveQuest(
+    toAgent: Agent,
+    query: object,
+    item: Item,
+    type: string,
+    amount = 1,
+    rewardXP = 0,
+    deadline = 0
+  ) {
+    const res = await ClientAPI.sendWrapper("give-quest", {
+      receiverID: toAgent.id,
+      rawInfo: query,
+      itemID: item.id,
+      type,
+      amount,
+      rewardXP,
+      deadline
+    });
     return res;
   }
 
@@ -457,7 +499,10 @@ export class ClientAPI {
    * @param quest
    */
   public static async completeQuest(quest: Quest) {
-    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "COMPLETE" });
+    const res = await ClientAPI.sendWrapper("close-quest", {
+      questID: quest.id,
+      status: "COMPLETE"
+    });
     return res;
   }
 
@@ -466,7 +511,10 @@ export class ClientAPI {
    * @param quest
    */
   public static async failQuest(quest: Quest) {
-    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "FAILED" });
+    const res = await ClientAPI.sendWrapper("close-quest", {
+      questID: quest.id,
+      status: "FAILED"
+    });
     return res;
   }
 
@@ -477,6 +525,19 @@ export class ClientAPI {
    */
   public static async turnInQuestInfo(quest: Quest, solution: Info) {
     const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
+      solutionID: solution.id,
+      questID: quest.id
+    });
+    return res;
+  }
+
+  /**
+   * Tells quest solution to quest giver when in a conversation with them
+   * @param quest
+   * @param solution
+   */
+  public static async turnInQuestItem(quest: Quest, solution: Item) {
+    const res = await ClientAPI.sendWrapper("turn-in-quest-item", {
       solutionID: solution.id,
       questID: quest.id
     });
@@ -511,7 +572,11 @@ export class ClientAPI {
    * @param faction
    * @param rank
    */
-  public static async modifyAgentFaction(targetAgent: Agent, faction: Faction, rank = 10) {
+  public static async modifyAgentFaction(
+    targetAgent: Agent,
+    faction: Faction,
+    rank = 10
+  ) {
     const res = await ClientAPI.sendWrapper("modify-agent-faction", {
       agentID: targetAgent.id,
       factionID: faction.id,

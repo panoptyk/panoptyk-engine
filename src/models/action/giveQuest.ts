@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent, Trade, Conversation, Info } from "../index";
+import { Agent, Trade, Conversation, Info, Item } from "../index";
 
 export const ActionGiveQuest: Action = {
   name: "give-quest",
@@ -10,15 +10,19 @@ export const ActionGiveQuest: Action = {
     {
       receiverID: "number",
       rawInfo: "object",
-      isQuestion: "boolean",
+      itemID: "number",
+      type: "string",
+      amount: "number",
+      rewardXP: "number",
       deadline: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const rawInfo = inputData.rawInfo;
     const toAgent = Agent.getByID(inputData.receiverID);
-    const quest = controller.sendQuest(agent, toAgent, rawInfo, inputData.isQuestion, inputData.deadline);
+    const item = Item.getByID(inputData.itemID);
+    const quest = controller.sendQuest(agent, toAgent, inputData.rawInfo, item,  inputData.type, inputData.amount, inputData.deadline);
+    quest.setRewardXP(Math.max(0, inputData.rewardXP));
     logger.log("Event give-quest " + quest + " from agent " + agent + " to agent " + toAgent, 2);
     controller.sendUpdates();
   },
