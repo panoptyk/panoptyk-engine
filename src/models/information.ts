@@ -434,6 +434,8 @@ export class Info extends IDObject {
     }
     const questionTerms = question.getTerms();
     const answerTerms = this.getTerms();
+    // ignore predicate
+    questionTerms.predicate = undefined;
     // make sure answer has same known info as question
     for (const key in questionTerms) {
       if (
