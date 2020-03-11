@@ -380,7 +380,12 @@ export class Info extends IDObject {
    * Retrieve relevant terms from this information object
    */
   public getTerms() {
-    return Info.ACTIONS[this.action].getTerms(this);
+    if (this.action) {
+      return Info.ACTIONS[this.action].getTerms(this);
+    }
+    else {
+      return Info.PREDICATE[this.predicate].getTerms(this);
+    }
   }
 
   /**
