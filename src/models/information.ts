@@ -173,6 +173,9 @@ export class Info extends IDObject {
   }
   private _questID?: number;
   public get questID(): number {
+    if (this._reference) {
+      return Info.getByID(this._infoID)._questID;
+    }
     return this._questID;
   }
   private _infoID?: number;
@@ -377,7 +380,12 @@ export class Info extends IDObject {
    * Retrieve relevant terms from this information object
    */
   public getTerms() {
-    return Info.ACTIONS[this.action].getTerms(this);
+    if (this.action) {
+      return Info.ACTIONS[this.action].getTerms(this);
+    } else if (this.predicate) {
+      return Info.PREDICATE[this.predicate].getTerms(this);
+    }
+    return undefined;
   }
 
   /**
@@ -421,11 +429,30 @@ export class Info extends IDObject {
    * @param wantedTerms
    */
   public isAnswer(question: Info, wantedTerms = {}): boolean {
-    if (question.action && this.action !== question.action) {
+    if (question.action && this.action !== question.action || this.isQuery() || this.isCommand()) {
       return false;
     }
     const questionTerms = question.getTerms();
     const answerTerms = this.getTerms();
+    if (!questionTerms.action) {
+      wantedTerms = {};
+      // assumes all only TAL
+      questionTerms.predicate = undefined;
+      if (answerTerms.agent1) {
+        if (questionTerms.agent && questionTerms.agent !== answerTerms.agent1 && questionTerms.agent !== answerTerms.agent2) {
+          return false;
+        } else {
+          questionTerms.agent = undefined;
+        }
+      }
+      if (answerTerms.loc1) {
+        if (questionTerms.loc && questionTerms.loc !== answerTerms.loc1 && questionTerms.loc !== answerTerms.loc2) {
+          return false;
+        } else {
+          questionTerms.loc = undefined;
+        }
+      }
+    }
     // make sure answer has same known info as question
     for (const key in questionTerms) {
       if (

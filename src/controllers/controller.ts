@@ -259,6 +259,8 @@ export class Controller {
       this.updateChanges(agent, [agent.faction]);
     }
     this.addAgentToRoom(agent, agent.room);
+    // inform all agents of master copies of Item
+    this.updateChanges(agent, Item.getMasterItems());
   }
 
   /**

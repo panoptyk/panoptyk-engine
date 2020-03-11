@@ -167,4 +167,19 @@ export class Item extends IDObject {
     this._itemTags.delete(tag);
   }
 
+  public isMaster() {
+    return this.master.id === this.id;
+  }
+
+  public static getMasterItems(): Item[] {
+    const items = [];
+    for (const id in Item.objects) {
+      const item = Item.objects[id];
+      if (item.isMaster()) {
+        items.push(item);
+      }
+    }
+    return items;
+  }
+
 }

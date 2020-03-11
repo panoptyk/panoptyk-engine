@@ -5,6 +5,7 @@ import { Agent } from "./agent";
 export interface FactionStatus {
   factionName: string;
   factionType: string;
+  memberName: string;
   exp: number;
   toNextLevel: number;
   lvl: number;
@@ -14,7 +15,7 @@ export interface FactionStatus {
 export class Faction extends IDObject {
   private static expToNextLvl(lvl: number): number {
     const exponent = 1.5;
-    const baseXP = 10;
+    const baseXP = 100;
     return Math.floor(baseXP * (Math.pow(lvl, exponent)));
   }
   private _factionName: string;
@@ -24,6 +25,10 @@ export class Faction extends IDObject {
   private _factionType: string;
   public get factionType(): string {
     return this._factionType;
+  }
+  private _membersName: string;
+  public get membersName(): string {
+    return this._membersName;
   }
   private _members: Map<number, { lvl: number; exp: number }>; // second number is experience
   private _lvlToName: Map<number, string>;
@@ -137,6 +142,7 @@ export class Faction extends IDObject {
     return {
       factionName: this._factionName,
       factionType: this._factionType,
+      memberName: this._membersName,
       exp: status.exp,
       toNextLevel: Faction.expToNextLvl(status.lvl),
       lvl: status.lvl,
