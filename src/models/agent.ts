@@ -359,6 +359,12 @@ export class Agent extends IDObject {
       this._sortedInfo.byAgent.get(agent).add(info.id);
       this._sortedInfo.byLoc.get(loc).add(info.id);
       this._sortedInfo.byItem.get(item).add(info.id);
+      if (info.agents[1]) {
+        this._sortedInfo.byAgent.get(info.agents[1]).add(info.id);
+      }
+      if (info.locations[1]) {
+        this._sortedInfo.byLoc.get(info.locations[1]).add(info.id);
+      }
     }
   }
   // =============================================================================
