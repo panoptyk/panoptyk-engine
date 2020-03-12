@@ -88,6 +88,10 @@ export class ClientAPI {
   public static get seenItems(): Item[] {
     return Item.getByIDs(Array.from(ClientAPI._seenItems));
   }
+  private static _seenFactions = new Set<number>();
+  public static get seenFactions(): Faction[] {
+    return Faction.getByIDs(Array.from(ClientAPI._seenFactions));
+  }
 
   private static async sendWrapper(event: string, payload: any) {
     if (ClientAPI.initialized && ClientAPI.actionSent) {
@@ -144,6 +148,9 @@ export class ClientAPI {
               break;
             case "Room":
               ClientAPI._seenRooms.add(model.id);
+              break;
+            case "Faction":
+              ClientAPI._seenFactions.add(model.id);
               break;
             default:
               break;
