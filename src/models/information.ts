@@ -438,7 +438,12 @@ export class Info extends IDObject {
     questionTerms.predicate = undefined;
     // make sure answer has same known info as question
     for (const key in questionTerms) {
-      if (
+      if (key === "info" && questionTerms[key] !== undefined) {
+        if (!questionTerms[key].equals(answerTerms[key])) {
+          return false;
+        }
+      }
+      else if (
         (questionTerms[key] !== undefined &&
           questionTerms[key] !== answerTerms[key]) ||
         (key in wantedTerms &&
