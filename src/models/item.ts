@@ -81,7 +81,7 @@ export class Item extends IDObject {
     (safeItem._itemTags as any) = Array.from(safeItem._itemTags);
     if (removePrivateData) {
       if (this.agent && this.agent !== agent) {
-        safeItem.agentID = 0;
+        // safeItem.agentID = 0;
       }
       else if (this.room !== agent.room) {
         safeItem.roomID = 0;
