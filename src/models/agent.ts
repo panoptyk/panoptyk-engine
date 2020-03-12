@@ -160,7 +160,7 @@ export class Agent extends IDObject {
     (safeAgent._agentStatus as any) = Array.from(safeAgent._agentStatus);
     if (removePrivateData && agent !== this) {
       safeAgent._gold = 0;
-      safeAgent._inventory = undefined;
+      // safeAgent._inventory = undefined;
       safeAgent._knowledge = undefined;
       if (this.room !== agent.room) {
         safeAgent.roomID = 0;
