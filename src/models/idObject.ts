@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { panoptykSettings } from "../utilities/util";
+import { SmartJSON } from "../utilities/util2";
 import { logger, LOG } from "../utilities/logger";
 import { Agent } from "./agent";
 
@@ -78,7 +79,7 @@ export abstract class IDObject implements ModelInterface {
     }
     fs.writeFileSync(
       panoptykSettings.data_dir + "/" + this.fileName,
-      JSON.stringify({
+      SmartJSON.stringify({
         objects: data,
         nextID: this.nextID ? this.nextID : 1
       })
@@ -97,7 +98,7 @@ export abstract class IDObject implements ModelInterface {
       logger.log("File " + path + " does not exist to load.", LOG.ERROR);
       return;
     }
-    const json = JSON.parse(data.toString());
+    const json = SmartJSON.parse(data.toString());
     for (const key in json.objects) {
       (this as any).load(json.objects[key]);
     }
