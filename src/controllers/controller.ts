@@ -258,9 +258,10 @@ export class Controller {
     }
     /////////////////////// code for demo ///////////
     else if (isNew) {
+      const desiredFaction = Math.random() < 0.5 ? "criminal" : "police";
       for (const key in Faction.objects) {
         const faction: Faction = Faction.objects[key];
-        if (faction.factionType === "criminal") {
+        if (faction.factionType === desiredFaction) {
           this.modifyAgentFaction(agent, faction, 0);
           break;
         }
