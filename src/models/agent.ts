@@ -66,7 +66,7 @@ export class Agent extends IDObject {
     if (this._faction) {
       return this.faction.getAgentRank(this);
     }
-    return undefined;
+    return 0;
   }
   private _agentStatus: Set<string>;
   public get agentStatus(): Set<string> {
@@ -360,9 +360,15 @@ export class Agent extends IDObject {
       this._sortedInfo.byLoc.get(loc).add(info.id);
       this._sortedInfo.byItem.get(item).add(info.id);
       if (info.agents[1]) {
+        if (!this._sortedInfo.byAgent.has(info.agents[1])) {
+          this._sortedInfo.byAgent.set(info.agents[1], new Set());
+        }
         this._sortedInfo.byAgent.get(info.agents[1]).add(info.id);
       }
       if (info.locations[1]) {
+        if (!this._sortedInfo.byLoc.has(info.locations[1])) {
+          this._sortedInfo.byLoc.set(info.locations[1], new Set());
+        }
         this._sortedInfo.byLoc.get(info.locations[1]).add(info.id);
       }
     }
