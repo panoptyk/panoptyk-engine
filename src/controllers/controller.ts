@@ -1155,6 +1155,52 @@ export class Controller {
         loc: agent.room,
         info: quest.info
       });
+      for (const info of quest.offeredRewards) {
+        const terms = info.getTerms();
+        let rewardInfo: Info;
+        switch (terms.action) {
+          case "PAID":
+            quest.giver.modifyGold(-1 * terms.quantity);
+            quest.receiver.modifyGold(1 * terms.quantity);
+            rewardInfo = Info.ACTIONS.PAID.create({
+              time: util.getPanoptykDatetime(),
+              agent1: quest.giver,
+              agent2: quest.receiver,
+              loc: quest.giver.room,
+              quantity: terms.quantity
+            });
+            break;
+          case "PROMOTE":
+            this.modifyAgentFaction(
+              quest.receiver,
+              quest.giver.faction,
+              quest.receiver.factionRank + terms.quantity
+            );
+            rewardInfo = Info.ACTIONS.PROMOTE.create({
+              time: util.getPanoptykDatetime(),
+              agent1: quest.giver,
+              agent2: quest.receiver,
+              loc: quest.giver.room,
+              quantity: terms.quantity
+            });
+            break;
+          case "GAVE":
+            this.removeItemsFromAgentInventory([terms.item]);
+            this.addItemsToAgentInventory(quest.receiver, [terms.item]);
+            rewardInfo = Info.ACTIONS.GAVE.create({
+              time: util.getPanoptykDatetime(),
+              agent1: quest.giver,
+              agent2: quest.receiver,
+              loc: quest.giver.room,
+              item: terms.item,
+              quantity: 1
+            });
+            break;
+        }
+        if (rewardInfo) {
+          this.giveInfoToAgents([quest.giver, quest.receiver], rewardInfo);
+        }
+      }
     } else if (closeType === "FAILED") {
       closeInfo = Info.ACTIONS.QUEST_FAILED.create({
         time: util.getPanoptykDatetime(),
@@ -1221,7 +1267,10 @@ export class Controller {
   ) {
     faction.setAgentRank(targetAgent, rank);
     targetAgent.faction = faction;
-    this.updateChanges(targetAgent, [targetAgent, targetAgent.faction]);
+    this.updateChanges(targetAgent, [targetAgent]);
+    for (const member of faction.members) {
+      this.updateChanges(member, [faction]);
+    }
   }
 
   /**
@@ -1347,7 +1396,10 @@ export class Controller {
       this.confiscateItem(policeAgent, targetAgent, item);
     }
     if (targetAgent.faction) {
-      targetAgent.faction.setAgentRank(targetAgent, targetAgent.factionRank - 10);
+      targetAgent.faction.setAgentRank(
+        targetAgent,
+        targetAgent.factionRank - 10
+      );
     }
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
