@@ -263,6 +263,7 @@ export class Controller {
         const faction: Faction = Faction.objects[key];
         if (faction.factionType === desiredFaction) {
           this.modifyAgentFaction(agent, faction, 0);
+          agent.putInRoom(faction.headquarters);
           break;
         }
       }
