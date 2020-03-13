@@ -418,7 +418,8 @@ export class Validate {
    * Validates that a valid question can be constructed from parameters
    */
   public static validate_valid_question(predicate: any, mask: string[]) {
-    const type = Info.ACTIONS[predicate.action];
+    let type = Info.ACTIONS[predicate.action];
+    type = !type ? Info.PREDICATE[predicate.predicate] : type;
     if (type === undefined) {
       return {
         status: false,

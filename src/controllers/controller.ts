@@ -1,5 +1,6 @@
 import { logger, LOG } from "../utilities/logger";
 import * as util from "../utilities/util";
+import { SmartJSON } from "../utilities/util2";
 import {
   IDObject,
   Agent,
@@ -93,7 +94,7 @@ export class Controller {
       }
       // console.log(payload);
       if (agent.socket) {
-        agent.socket.emit("updateModels", payload);
+        agent.socket.emit("updateModels", SmartJSON.stringify(payload));
       }
     }
   }
@@ -282,7 +283,8 @@ export class Controller {
       agent,
       newRoom.getAdjacentRooms(),
       newRoom.getAgents(),
-      newRoom.getItems()
+      newRoom.getItems(),
+      newRoom.getConversations()
     ]);
     newRoom.occupants.forEach(occupant => {
       this.updateChanges(occupant, [newRoom, agent]);
@@ -947,7 +949,10 @@ export class Controller {
    * @param predicate valid Info question data
    */
   public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
-    const question: Info = Info.ACTIONS[predicate.action].create(
+    const question: Info = predicate.action ? Info.ACTIONS[predicate.action].create(
+      predicate,
+      "question"
+    ) : Info.PREDICATE[predicate.predicate].create(
       predicate,
       "question"
     );
