@@ -1,4 +1,13 @@
-import { Trade, Item, Room, Agent, Conversation, Info, Quest, Faction } from "./index";
+import {
+  Trade,
+  Item,
+  Room,
+  Agent,
+  Conversation,
+  Info,
+  Quest,
+  Faction
+} from "./index";
 
 export interface ValidationResult {
   status: boolean;
@@ -122,9 +131,7 @@ export class Validate {
    * @param username username provided by client trying to log in
    * @return {Object} {status: boolean, message: string}
    */
-  public static validate_login_username(
-    username: string
-  ): ValidationResult {
+  public static validate_login_username(username: string): ValidationResult {
     if (!username || username.length <= 0) {
       return { status: false, message: "Username invalid" };
     }
@@ -388,10 +395,7 @@ export class Validate {
     if (fromAgent.room !== toAgent.room) {
       return {
         status: false,
-        message:
-          fromAgent +
-          " is not in same room as " +
-          toAgent
+        message: fromAgent + " is not in same room as " + toAgent
       };
     }
 
@@ -423,7 +427,10 @@ export class Validate {
     if (type === undefined) {
       return {
         status: false,
-        message: "Error asking question, " + predicate.action + " is an invalid action!"
+        message:
+          "Error asking question, " +
+          predicate.action +
+          " is an invalid action!"
       };
     }
     // TODO: Validate predicate and mask predicates
@@ -437,14 +444,16 @@ export class Validate {
    * Validates that a valid question is being answered and that the owner of
    * the question is in the conversation.
    */
-  public static validate_can_answer(question: Info, conversation: Conversation) {
+  public static validate_can_answer(
+    question: Info,
+    conversation: Conversation
+  ) {
     if (question === undefined || !question.isQuery()) {
       return {
         status: false,
         message: "Not a valid question to answer!"
       };
-    }
-    else if (!conversation.contains_agent(question.owner)) {
+    } else if (!conversation.contains_agent(question.owner)) {
       return {
         status: false,
         message: "Agent " + question.owner + " is not in your conversation!"
@@ -470,36 +479,10 @@ export class Validate {
    * @param mask
    */
   public static validate_info_is_answer(question: Info, answer: Info) {
-    if (question.action !== answer.action) {
+    if (!answer.isAnswer(question)) {
       return {
         status: false,
-        message: "Answer action does not match question action!"
-      };
-    }
-    const questionTerms = question.getTerms();
-    const answerTerms = answer.getTerms();
-    // make sure answer has same known info as question
-    for (const key in questionTerms) {
-      if (questionTerms[key] !== undefined &&
-        questionTerms[key] !== answerTerms[key]) {
-        return {
-          status: false,
-          message: "Answer " + key + " of " + answerTerms[key] + " does not match the "
-            + key + " of " + questionTerms[key] + " in the question!"
-        };
-      }
-    }
-    // make sure answer adds some unknown info
-    let newInfo = 0;
-    for (const key in answerTerms) {
-        if (questionTerms[key] === undefined) {
-          newInfo += 1;
-        }
-    }
-    if (newInfo < 1) {
-      return {
-        status: false,
-        message: "Answer does not add any new info to question!"
+        message: "Info does not answer the question!"
       };
     }
     return { status: true, message: "" };
@@ -509,37 +492,25 @@ export class Validate {
    * Checks if agent has already answered question with specific answer
    */
   public static validate_answer_not_used(trade: Trade, answer: Info) {
-    const answeringAgent: Agent = answer.owner;
-    const askingAgent: Agent = trade.agentIni === answeringAgent ? trade.agentRec : trade.agentIni;
-    for (const info of answeringAgent.knowledge) {
-      if (info.action === Info.ACTIONS.TOLD.name) {
-        // checks if answering agent has told this answer to asking agent
-        if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === answer.infoID) {
-          return {
-            status: false,
-            message: "You have already told " + askingAgent + " that!"
-          };
-        }
-        // checks if asking agent has told this answer to answering agent
-        else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === answer.infoID) {
-          return {
-            status: false,
-            message: askingAgent + " has already told you that!"
-          };
-        }
-      }
+    if (trade.agentAlreadyOfferedAnswer(answer.owner, answer)) {
+      return { status: false, message: "Answer already given!" };
     }
+
     return { status: true, message: "" };
   }
 
   /**
    * Checks if question has been asked in current conversation
    */
-  public static validate_asked_in_conversation(question: Info, conversation: Conversation) {
+  public static validate_asked_in_conversation(
+    question: Info,
+    conversation: Conversation
+  ) {
     if (!conversation.hasQuestion(question)) {
       return {
         status: false,
-        message: question + " has not been asked on conversation " + conversation
+        message:
+          question + " has not been asked on conversation " + conversation
       };
     }
     return { status: true, message: "" };
@@ -556,7 +527,8 @@ export class Validate {
       if (preds[val] === undefined) {
         return {
           status: false,
-          message: val + " cannot be masked as it does not exist on Info " + info
+          message:
+            val + " cannot be masked as it does not exist on Info " + info
         };
       }
     }
@@ -644,7 +616,11 @@ export class Validate {
    * @param trade
    * @param amount
    */
-  public static validate_trade_gold_change(agent: Agent, trade: Trade, amount: number) {
+  public static validate_trade_gold_change(
+    agent: Agent,
+    trade: Trade,
+    amount: number
+  ) {
     if (trade.getAgentsOfferedGold(agent) + amount < 0) {
       return {
         status: false,
@@ -660,7 +636,11 @@ export class Validate {
    * @param amount
    * @param threshold
    */
-  public static validate_amount_greater_than(obj: string, amount: number, threshold: number) {
+  public static validate_amount_greater_than(
+    obj: string,
+    amount: number,
+    threshold: number
+  ) {
     if (!(amount > threshold)) {
       return {
         status: false,
@@ -675,7 +655,10 @@ export class Validate {
    * @param requiredType
    * @param agent
    */
-  public static validate_factionType_requirement(requiredType: Set<string>, agent: Agent) {
+  public static validate_factionType_requirement(
+    requiredType: Set<string>,
+    agent: Agent
+  ) {
     if (requiredType) {
       if (!agent.faction || !requiredType.has(agent.faction.factionType)) {
         return {
@@ -693,7 +676,11 @@ export class Validate {
    * @param faction
    * @param rank optional param rank that agent must be <=
    */
-  public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
+  public static validate_agent_faction(
+    agent: Agent,
+    faction: Faction,
+    rank?: number
+  ) {
     const agentRank = faction.getAgentStatus(agent).lvl;
     if (agentRank === undefined) {
       return {

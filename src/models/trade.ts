@@ -10,6 +10,11 @@ export interface AnswerInfo {
   maskedInfo: string[];
 }
 
+export interface Request {
+  data: any;
+  pass: boolean;
+}
+
 export class Trade extends IDObject {
   public static result = {
     FAILED: 0,
@@ -18,35 +23,27 @@ export class Trade extends IDObject {
   };
   private static actives: Set<Trade> = new Set();
 
+  // REMOVE BELOW //
   private initiatorID: number;
   private receiverID: number;
-  private conversationID: number;
+  // REMOVE ABOVE //
+  private _agentIDs: Set<number>;
+  private _conversationID: number;
   private _resultStatus: number;
   public get resultStatus(): number {
     return this._resultStatus;
   }
-  private initiatorItemIDs: Set<number>;
-  private initiatorInfo: Map<number, AnswerInfo>;
-  private receiverItemIDs: Set<number>;
-  private receiverInfo: Map<number, AnswerInfo>;
-  private initiatorStatus: boolean;
-  private receiverStatus: boolean;
-  private _initiatorRequestedItems: Map<number, boolean>;
-  public get initiatorRequestedItems(): Map<number, boolean> {
-    return this._initiatorRequestedItems;
-  }
-  private _receiverRequestedItems: Map<number, boolean>;
-  public get receiverRequestedItems(): Map<number, boolean> {
-    return this._receiverRequestedItems;
-  }
-  private _initiatorGold: number;
-  public get initiatorGold(): number {
-    return this._initiatorGold;
-  }
-  private _receiverGold: number;
-  public get receiverGold(): number {
-    return this._receiverGold;
-  }
+
+  private _itemIDs: Map<number, Set<number>>;
+  private _itemRequests: Map<number, Request[]>;
+
+  private _answerIDs: Map<number, Map<number, AnswerInfo[]>>;
+  private _answerRequests: Map<number, Request[]>;
+
+  private _gold: Map<number, number>;
+  private _goldRequest: Map<number, Request[]>;
+
+  private _status: Map<number, boolean>;
 
   /**
    * Trade model.
@@ -65,22 +62,30 @@ export class Trade extends IDObject {
     resultStatus = Trade.result.IN_PROGRESS
   ) {
     super(Trade.name, id);
+    // REMOVE //
     this.initiatorID = initiator ? initiator.id : undefined;
     this.receiverID = receiver ? receiver.id : undefined;
-    this.conversationID = conversation ? conversation.id : undefined;
+    // REMOVE //
+    this._agentIDs = new Set();
+    this._agentIDs.add(this.initiatorID);
+    this._agentIDs.add(this.receiverID);
+    this._conversationID = conversation ? conversation.id : undefined;
     this._resultStatus = resultStatus;
 
-    this.initiatorItemIDs = new Set<number>();
-    this.receiverItemIDs = new Set<number>();
-    this.initiatorInfo = new Map<number, AnswerInfo>();
-    this.receiverInfo = new Map<number, AnswerInfo>();
-    this._initiatorRequestedItems = new Map<number, boolean>();
-    this._receiverRequestedItems = new Map<number, boolean>();
-    this._initiatorGold = 0;
-    this._receiverGold = 0;
+    this._itemIDs = new Map();
+    this._itemRequests = new Map();
+    this._answerIDs = new Map();
+    this._answerRequests = new Map();
+    this._gold = new Map();
+    this._goldRequest = new Map();
+    this._status = new Map();
+    if (initiator && receiver) {
+      this._status.set(initiator.id, false);
+      this._status.set(receiver.id, false);
+      this._gold.set(initiator.id, 0);
+      this._gold.set(receiver.id, 0);
+    }
 
-    this.initiatorStatus = false;
-    this.receiverStatus = false;
     if (this._resultStatus === Trade.result.IN_PROGRESS) {
       Trade.actives.add(this);
     }
@@ -88,9 +93,9 @@ export class Trade extends IDObject {
     logger.log("Trade " + this + " Initialized.", LOG.INFO);
   }
 
-public toString() {
-  return this.id;
-}
+  public toString() {
+    return this.id;
+  }
 
   /**
    * Load a trade JSON into memory.
@@ -103,12 +108,7 @@ public toString() {
     for (const key in json) {
       t[key] = json[key];
     }
-    t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.receiverItemIDs = new Set<number>(t.receiverItemIDs);
-    t.initiatorInfo = new Map<number, AnswerInfo>(t.initiatorInfo);
-    t.receiverInfo = new Map<number, AnswerInfo>(t.receiverInfo);
-    t._initiatorRequestedItems = new Map<number, boolean>(t._initiatorRequestedItems);
-    t._receiverRequestedItems = new Map<number, boolean>(t._receiverRequestedItems);
+
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -120,28 +120,35 @@ public toString() {
    * @param {Agent} agent - agent to customize info for
    */
   public serialize(agent?: Agent, removePrivateData = false) {
-    const safeTrade = Object.assign({}, this);
+    const safeTrade = Object.assign({}, this); // Is not a deep copy
     if (agent) {
-      const recInfoCpy = new Map<number, AnswerInfo>();
-      for (const [id, ans] of safeTrade.receiverInfo) {
-        const newID = Info.getByID(id).getAgentsCopy(agent).id;
-        recInfoCpy.set(newID, ans);
-      }
-      safeTrade.receiverInfo = recInfoCpy;
-
-      const iniInfoCpy = new Map<number, AnswerInfo>();
-      for (const [id, ans] of safeTrade.initiatorInfo) {
-        const newID = Info.getByID(id).getAgentsCopy(agent).id;
-        iniInfoCpy.set(newID, ans);
-      }
-      safeTrade.initiatorInfo = iniInfoCpy;
+      // get agent copy of question IDs
+      const agentSpecificAnswerIDs = new Map();
+      this._answerIDs.forEach((questionMap, agentID) => {
+        agentSpecificAnswerIDs.set(agentID, new Map());
+        questionMap.forEach((answers, qID) => {
+          agentSpecificAnswerIDs
+            .get(agentID)
+            .set((Info.getByID(qID) as Info).getAgentsCopy(agent).id, answers);
+        });
+      });
+      safeTrade._answerIDs = agentSpecificAnswerIDs;
+      // get agent copy of question IDs for requests
+      const agentSpecificAnswerRequests = new Map();
+      this._answerRequests.forEach((reqs, agentID) => {
+        agentSpecificAnswerRequests.set(
+          agentID,
+          reqs.map(req => {
+            return {
+              data: (Info.getByID(req.data) as Info).getAgentsCopy(agent).id,
+              pass: req.pass
+            };
+          })
+        );
+      });
+      safeTrade._answerRequests = agentSpecificAnswerRequests;
     }
-    (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
-    (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
-    (safeTrade.initiatorInfo as any) = Array.from(safeTrade.initiatorInfo);
-    (safeTrade.receiverInfo as any) = Array.from(safeTrade.receiverInfo);
-    (safeTrade._initiatorRequestedItems as any) = Array.from(safeTrade._initiatorRequestedItems);
-    (safeTrade._receiverRequestedItems as any) = Array.from(safeTrade._receiverRequestedItems);
+
     return safeTrade;
   }
 
@@ -150,17 +157,11 @@ public toString() {
    * @param {Agent} agent - agent object.
    * @returns [Item] array of agent's items involved in trade.
    */
-  getAgentItemsData(agent: Agent) {
-    let items: Item[];
+  getAgentItemsData(agent: Agent): Item[] {
+    let items: Item[] = [];
 
-    if (agent.id === this.initiatorID) {
-      items = Item.getByIDs(Array.from(this.initiatorItemIDs));
-    }
-    else if (agent.id === this.receiverID) {
-      items = Item.getByIDs(Array.from(this.receiverItemIDs));
-    }
-    else {
-      logger.log("No matching agent for trade item data.", 0, "trade.js");
+    if (this._itemIDs.has(agent.id)) {
+      items = Item.getByIDs([...this._itemIDs.get(agent.id)]);
     }
 
     return items;
@@ -171,12 +172,11 @@ public toString() {
    * @param agent
    */
   getAgentReadyStatus(agent: Agent): boolean {
-    if (agent.id === this.initiatorID) {
-      return this.initiatorStatus;
+    let status = undefined;
+    if (this._status.has(agent.id)) {
+      status = this._status.get(agent.id);
     }
-    else if (agent.id === this.receiverID) {
-      return this.receiverStatus;
-    }
+    return status;
   }
 
   /**
@@ -204,46 +204,60 @@ public toString() {
    * @param {boolean} rstatus - status. True = ready, false = not ready.
    */
   setAgentReady(agent: Agent, rstatus: boolean): boolean {
-    if (agent.id === this.initiatorID) {
-      this.initiatorStatus = rstatus;
-    } else if (agent.id === this.receiverID) {
-      this.receiverStatus = rstatus;
-    }
+    this._status.set(agent.id, rstatus);
+    return this.allAgentsReady();
+  }
 
-    return this.initiatorStatus && this.receiverStatus;
+  /**
+   * Server: Check if all agents are ready to complete trade
+   * @return {boolean} True = all ready, false = not all ready.
+   */
+  allAgentsReady(): boolean {
+    return Array.from(this._status.values()).reduce((a, b) => a && b, true);
+  }
+
+  /**
+   * Server: clear agent's current offered items, gold, info
+   * @param agent
+   */
+  removeAllOffered(agent: Agent) {
+    this._gold.set(agent.id, 0);
+    this._itemIDs.set(agent.id, new Set());
+    this._answerIDs.set(agent.id, new Map());
   }
 
   /**
    * Add items to one side of the trade.
    * @param {[Object]} items - items to add to trade.
-   * @param {Agent} owner - agent object of agent adding the items.
+   * @param {Agent} agent - agent object of agent adding the items.
    */
-  addItems(items: Item[], owner: Agent) {
-    if (owner.id === this.initiatorID) {
-      items.forEach(item => this.initiatorItemIDs.add(item.id));
-    } else if (owner.id === this.receiverID) {
-      items.forEach(item => this.receiverItemIDs.add(item.id));
-    } else {
-      logger.log("Agent not in trade", 0, "trade.js");
-      return;
+  addItems(items: Item[], agent: Agent) {
+    if (!this._itemIDs.has(agent.id)) {
+      this._itemIDs.set(agent.id, new Set());
     }
+    items.forEach(item => {
+      this._itemIDs.get(agent.id).add(item.id);
+    });
   }
 
   /**
    * Server: Add info to one side of the trade.
    */
-  addInfo(question: Info, answer: Info, owner: Agent, maskedInfo: string[]) {
+  addInfo(question: Info, answer: Info, agent: Agent, maskedInfo: string[]) {
     // Make sure that master copy of question is added to trade (so both agents can access it)
     const qID = question.isReference() ? question.infoID : question.id;
-    const aID = answer.id;
-    if (owner.id === this.initiatorID) {
-      this.initiatorInfo.set(qID, {answerID: aID, maskedInfo});
-    } else if (owner.id === this.receiverID) {
-      this.receiverInfo.set(qID, {answerID: aID, maskedInfo});
-    } else {
-      logger.log("Agent not in trade", 0, "trade.js");
-      return;
+    const aID = answer.isReference() ? answer.infoID : answer.id;
+    if (!this._answerIDs.has(agent.id)) {
+      this._answerIDs.set(agent.id, new Map());
     }
+    const agentAns = this._answerIDs.get(agent.id);
+    if (!agentAns.has(qID)) {
+      agentAns.set(qID, []);
+    }
+    agentAns.get(qID).push({
+      answerID: aID,
+      maskedInfo
+    });
   }
 
   /**
@@ -251,18 +265,11 @@ public toString() {
    * @param {[Object]} items - items to remove from trade.
    * @param {Object} owner - agent object of agent removing the items.
    */
-  removeItems(items: Item[], owner: Agent) {
-    if (owner.id === this.initiatorID) {
-      items.forEach(item => {
-        this.initiatorItemIDs.delete(item.id);
+  removeItems(items: Item[], agent: Agent) {
+    if (this._itemIDs.has(agent.id)) {
+      items.forEach(i => {
+        this._itemIDs.get(agent.id).delete(i.id);
       });
-    } else if (owner.id === this.receiverID) {
-      items.forEach(item => {
-        this.receiverItemIDs.delete(item.id);
-      });
-    } else {
-      logger.log("Agent not in trade", 0, "trade.js");
-      return;
     }
   }
 
@@ -272,18 +279,8 @@ public toString() {
    * @param {Agent} owner - agent object of agent removing the info.
    */
   removeInfo(infos: Info[], owner: Agent) {
-    if (owner.id === this.initiatorID) {
-      infos.forEach(info => {
-        this.initiatorInfo.delete(info.id);
-      });
-    } else if (owner.id === this.receiverID) {
-      infos.forEach(info => {
-        this.receiverInfo.delete(info.id);
-      });
-    } else {
-      logger.log("Agent not in trade", 0, "trade.js");
-      return;
-    }
+    // TODO: what info is being passed to remove question or answer?
+    // NO OP
   }
 
   /**
@@ -295,7 +292,7 @@ public toString() {
     const trades = [];
 
     for (const trade of Trade.actives) {
-      if (trade.initiatorID === agent.id || trade.receiverID === agent.id) {
+      if (trade._agentIDs.has(agent.id)) {
         trades.push(trade);
       }
     }
@@ -312,8 +309,7 @@ public toString() {
     const trades = [];
 
     for (const trade of Trade.actives) {
-      if (trade.initiatorID === agent1.id && trade.receiverID === agent2.id ||
-        trade.initiatorID === agent2.id && trade.receiverID === agent1.id) {
+      if (trade._agentIDs.has(agent1.id) && trade._agentIDs.has(agent2.id)) {
         trades.push(trade);
       }
     }
@@ -321,6 +317,7 @@ public toString() {
     return trades;
   }
 
+  // REMOVE //
   get agentIni(): Agent {
     return Agent.getByID(this.initiatorID);
   }
@@ -330,11 +327,19 @@ public toString() {
   }
 
   get itemsIni(): Item[] {
-    return Item.getByIDs(Array.from(this.initiatorItemIDs));
+    return this.getAgentItemsData(this.agentIni);
   }
 
   get itemsRec(): Item[] {
-    return Item.getByIDs(Array.from(this.receiverItemIDs));
+    return this.getAgentItemsData(this.agentRec);
+  }
+
+  get initiatorGold(): number {
+    return this._gold.get(this.initiatorID);
+  }
+
+  get receiverGold(): number {
+    return this._gold.get(this.receiverID);
   }
 
   /**
@@ -342,8 +347,10 @@ public toString() {
    */
   get infoAnsIni(): Info[] {
     const answers = [];
-    for (const ans of this.initiatorInfo.values()) {
-      answers.push(Info.getByID(ans.answerID));
+    if (this._answerIDs.has(this.initiatorID)) {
+      for (const ans of this._answerIDs.get(this.initiatorID).values()) {
+        answers.push(...Info.getByIDs(ans.map(a => a.answerID)));
+      }
     }
     return answers;
   }
@@ -353,30 +360,58 @@ public toString() {
    */
   get infoAnsRec(): Info[] {
     const answers = [];
-    for (const ans of this.receiverInfo.values()) {
-      answers.push(Info.getByID(ans.answerID));
+    if (this._answerIDs.has(this.receiverID)) {
+      for (const ans of this._answerIDs.get(this.receiverID).values()) {
+        answers.push(...Info.getByIDs(ans.map(a => a.answerID)));
+      }
     }
     return answers;
   }
+  // REMOVE //
 
   get conversation(): Conversation {
-    return Conversation.getByID(this.conversationID);
+    return Conversation.getByID(this._conversationID);
   }
 
+  /**
+   * Get a list of agents for this trade.
+   * @param {Agent} ignoreAgent - do not include this agent object in list. (Optional).
+   * @return {[Agent]}
+   */
+  public getAgents(ignoreAgent?: Agent): Agent[] {
+    const agents = [];
+    for (const id of this._agentIDs) {
+      const agent = Agent.getByID(id);
+      if (agent !== ignoreAgent) {
+        agents.push(agent);
+      }
+    }
+    return agents;
+  }
+
+  // REMOVE //
   get statusIni(): boolean {
-    return this.initiatorStatus;
+    return this._status.get(this.initiatorID);
   }
 
   get statusRec(): boolean {
-    return this.receiverStatus;
+    return this._status.get(this.receiverID);
   }
+  // REMOVE //
 
   public addRequestedItem(agent: Agent, item: Item) {
-    if (agent.id === this.initiatorID) {
-      this._initiatorRequestedItems.set(item.id, false);
+    if (!this._itemRequests.has(agent.id)) {
+      this._itemRequests.set(agent.id, []);
     }
-    else if (agent.id === this.receiverID) {
-      this._receiverRequestedItems.set(item.id, false);
+    if (
+      !this._itemRequests
+        .get(agent.id)
+        .reduce((a, b) => a || b.data === item.id, false)
+    ) {
+      this._itemRequests.get(agent.id).push({
+        data: item.id,
+        pass: false
+      });
     }
   }
 
@@ -386,15 +421,10 @@ public toString() {
    */
   public getAgentsRequestedItems(agent: Agent): Map<Item, boolean> {
     const requestMap = new Map<Item, boolean>();
-    if (agent.id === this.initiatorID) {
-      for (const [id, response] of this._initiatorRequestedItems) {
-        requestMap.set(Item.getByID(id), response);
-      }
-    }
-    else if (agent.id === this.receiverID) {
-      for (const [id, response] of this._receiverRequestedItems) {
-        requestMap.set(Item.getByID(id), response);
-      }
+    if (this._itemRequests.has(agent.id)) {
+      this._itemRequests.get(agent.id).forEach(req => {
+        requestMap.set(Item.getByID(req.data), req.pass);
+      });
     }
     return requestMap;
   }
@@ -405,11 +435,61 @@ public toString() {
    * @param item
    */
   public passOnRequestedItem(agent: Agent, item: Item) {
-    if (agent.id !== this.initiatorID && this._initiatorRequestedItems.has(item.id)) {
-      this._initiatorRequestedItems.set(item.id, true);
+    if (this._itemRequests.has(agent.id)) {
+      for (const req of this._itemRequests.get(agent.id)) {
+        if (req.data === item.id) {
+          req.pass = true;
+          break;
+        }
+      }
     }
-    else if (agent.id !== this.receiverID && this._receiverRequestedItems.has(item.id)) {
-      this._receiverRequestedItems.set(item.id, true);
+  }
+
+  public addRequestedAnswer(agent: Agent, question: Info) {
+    const qID = question.isReference() ? question.infoID : question.id;
+    if (!this._answerRequests.has(agent.id)) {
+      this._answerRequests.set(agent.id, []);
+    }
+    if (
+      !this._answerRequests
+        .get(agent.id)
+        .reduce((a, b) => a || b.data === qID, false)
+    ) {
+      this._answerRequests.get(agent.id).push({
+        data: qID,
+        pass: false
+      });
+    }
+  }
+
+  /**
+   * Returns answer requests for an agent; questions that have been passed are set to true
+   * @param agent
+   */
+  public getAgentsRequestedAnswers(agent: Agent): Map<Info, boolean> {
+    const requestMap = new Map<Info, boolean>();
+    if (this._answerRequests.has(agent.id)) {
+      this._answerRequests.get(agent.id).forEach(req => {
+        requestMap.set(Info.getByID(req.data), req.pass);
+      });
+    }
+    return requestMap;
+  }
+
+  /**
+   * Given agent passes on other agent's answer request to question
+   * @param agent
+   * @param question
+   */
+  public passOnRequestedQuestion(agent: Agent, question: Info) {
+    const qID = question.isReference() ? question.infoID : question.id;
+    if (this._answerRequests.has(agent.id)) {
+      for (const req of this._answerRequests.get(agent.id)) {
+        if (req.data === qID) {
+          req.pass = true;
+          break;
+        }
+      }
     }
   }
 
@@ -419,13 +499,9 @@ public toString() {
    * @param item
    */
   public agentOfferedItem(agent: Agent, item: Item): boolean {
-    if (agent.id === this.initiatorID) {
-      return this.initiatorItemIDs.has(item.id);
-    }
-    else if (agent.id === this.receiverID) {
-      return this.receiverItemIDs.has(item.id);
-    }
-    return false;
+    return (
+      this._itemIDs.has(agent.id) && this._itemIDs.get(agent.id).has(item.id)
+    );
   }
 
   /**
@@ -433,16 +509,24 @@ public toString() {
    * @param agent
    * @param question
    */
-  public agentOfferedAnswer(agent: Agent, info: Info): boolean {
-    if (agent.id === this.initiatorID) {
-      for (const id of this.initiatorInfo.keys()) {
-        if (info.isAnswer(Info.getByID(id))) return true;
-      }
-    }
-    else if (agent.id === this.receiverID) {
-      for (const id of this.receiverInfo.keys()) {
-        if (info.isAnswer(Info.getByID(id))) return true;
-      }
+  public agentOfferedAnswer(agent: Agent, question: Info): boolean {
+    const qID = question.isReference() ? question.infoID : question.id;
+    return (
+      this._answerIDs.has(agent.id) && this._answerIDs.get(agent.id).has(qID)
+    );
+  }
+
+  public agentAlreadyOfferedAnswer(agent: Agent, answer: Info) {
+    const aID = answer.isReference() ? answer.infoID : answer.id;
+    const questions = this._answerIDs.get(agent.id);
+    if (questions) {
+      questions.forEach(answers => {
+        answers.forEach(ans => {
+          if (ans.answerID === aID) {
+            return true;
+          }
+        });
+      });
     }
     return false;
   }
@@ -453,12 +537,11 @@ public toString() {
    * @param amount
    */
   public changeOfferedGold(agent: Agent, amount: number) {
-    if (agent.id === this.initiatorID) {
-      this._initiatorGold += amount;
+    if (!this._gold.has(agent.id)) {
+      this._gold.set(agent.id, 0);
     }
-    else if (agent.id === this.receiverID) {
-      this._receiverGold += amount;
-    }
+    const gold = this._gold.get(agent.id);
+    this._gold.set(agent.id, Math.max(0, gold + amount));
   }
 
   /**
@@ -466,30 +549,34 @@ public toString() {
    * @param agent
    */
   public getAgentsOfferedGold(agent: Agent): number {
-    if (agent.id === this.initiatorID) {
-      return this._initiatorGold;
+    return this._gold.get(agent.id);
+  }
+
+  /**
+   * Returns the items an agent has offered in the trade
+   * @param agent
+   */
+  public getAgentsOfferedItems(agent: Agent): Item[] {
+    if (!this._itemIDs.has(agent.id)) {
+      return [];
     }
-    else if (agent.id === this.receiverID) {
-      return this._receiverGold;
-    }
-    return 0;
+    return Item.getByIDs([...this._itemIDs.get(agent.id)]);
   }
 
   /**
    * Returns the questions and how many answers an agent has offered in trade
    * @param agent
    */
-  public getAnswersOffered(agent: Agent): { qID: number; masked: boolean }[] {
-    let answers: Map<number, AnswerInfo>;
-    if (agent.id === this.initiatorID) {
-      answers = this.initiatorInfo;
-    } else if (agent.id === this.receiverID) {
-      answers = this.receiverInfo;
-    } else {
-      return undefined;
+  public getAnswersOffered(agent: Agent): { qID: number; quantity: number }[] {
+    const answers: { qID: number; quantity: number }[] = [];
+    if (this._answerIDs.has(agent.id)) {
+      this._answerIDs.get(agent.id).forEach((val, key) => {
+        answers.push({
+          qID: key,
+          quantity: val.length
+        });
+      });
     }
-    return Array.from(answers.keys()).map(k => {
-      return { qID: k, masked: answers.get(k).maskedInfo === undefined };
-    }) as any;
+    return answers;
   }
 }
