@@ -303,6 +303,8 @@ export class Controller {
       const convoInfo = convo.info;
       const mask = { time: "mask" };
       this.giveInfoToAgents([agent], convoInfo, mask);
+      this.updateChanges(agent, [convo]);
+      this.updateChanges(agent, convo.getAgents());
     }
 
     for (const item of newRoom.getItems()) {
@@ -435,7 +437,10 @@ export class Controller {
     agent.joinConversation(conversation);
     conversation.add_agent(agent);
 
-    this.updateChanges(agent, [conversation, agent]);
+    // let everyone in room know agent is in conversation
+    for (const occupant of agent.room.occupants) {
+      this.updateChanges(occupant, [conversation, agent]);
+    }
   }
 
   /**
@@ -453,10 +458,9 @@ export class Controller {
     agent.leaveConversation();
     conversation.remove_agent(agent);
 
-    this.updateChanges(agent, [conversation, agent]);
     // let room members know agent is no longer conversing
     agent.room.occupants.forEach(occupant => {
-      this.updateChanges(occupant, [agent]);
+      this.updateChanges(occupant, [conversation, agent]);
     });
 
     // no conversations of 1 or 0 people
