@@ -18,20 +18,20 @@ export const ActionInterrogateAgent: Action = {
 
     controller.removeAgentFromConversationIfIn(toAgent);
     const interrogation = controller.createConversation(
-        agent.room,
-        agent,
-        toAgent,
-        "interrogation"
+      agent.room,
+      agent,
+      toAgent,
+      "interrogation"
     );
     logger.log(
-        "Event interrogate-agent (" +
+      "Event interrogate-agent (" +
         interrogation +
         ") for agent " +
         agent +
         "/" +
         toAgent +
         " registered.",
-        2
+      2
     );
     controller.sendUpdates();
   },
@@ -51,6 +51,12 @@ export const ActionInterrogateAgent: Action = {
       return res;
     }
     if (!(res = Validate.validate_agents_not_conversing([agent])).status) {
+      return res;
+    }
+    if (
+      !(res = Validate.validate_agents_not_in_interrogation([agent, toAgent]))
+        .status
+    ) {
       return res;
     }
     return Validate.successMsg;

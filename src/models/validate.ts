@@ -741,4 +741,20 @@ export class Validate {
     }
     return Validate.successMsg;
   }
+
+  /**
+   * Checks if agents are already in an interrogation
+   * @param {[Agent]} agents
+   */
+  public static validate_agents_not_in_interrogation(agents: Agent[]) {
+    for (const agent of agents) {
+      if (agent.agentStatus.has("forcedConversation")) {
+        return {
+          status: false,
+          message: agent + " is in an interrogation!"
+        };
+      }
+    }
+    return { status: true, message: "" };
+  }
 }
