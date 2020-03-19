@@ -703,4 +703,12 @@ export class ClientAPI {
     });
     return res;
   }
+
+  public static async turnInQuestItem(quest: Quest, item: Item) {
+    const res = await ClientAPI.sendWrapper("turn-in-quest-item", {
+      itemID: item.id,
+      questID: quest.id
+    });
+    return res;
+  }
 }

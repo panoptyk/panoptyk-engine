@@ -1454,4 +1454,21 @@ export class Controller {
     this.updateChanges(quest.giver, [quest]);
     this.updateChanges(quest.receiver, [quest]);
   }
+
+  public turnInQuestItem(agent: Agent, quest: Quest, item: Item) {
+    this.removeItemsFromAgentInventory([item]);
+    this.addItemsToAgentInventory(quest.giver, [item]);
+    const info: Info = Info.ACTIONS.GAVE.create({
+      time: util.getPanoptykDatetime(),
+      agent1: agent,
+      agent2: quest.giver,
+      item,
+      loc: agent.room,
+      quantity: 1
+    });
+    this.giveInfoToAgents([quest.giver, quest.receiver], info);
+    quest.turnInInfo(info);
+    this.updateChanges(quest.giver, [quest]);
+    this.updateChanges(quest.receiver, [quest]);
+  }
 }
