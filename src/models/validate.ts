@@ -757,4 +757,15 @@ export class Validate {
     }
     return { status: true, message: "" };
   }
+
+  public static validate_item_satisfies_quest(item: Item, quest: Quest) {
+    const terms = quest.task.getTerms();
+    if (terms.agent2 !== quest.giver || terms.item !== item) {
+      return {
+        status: false,
+        message: "Unable to turn in " + item + " for " + quest + "!"
+      };
+    }
+    return Validate.successMsg;
+  }
 }
