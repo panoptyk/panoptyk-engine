@@ -46,7 +46,9 @@ import {
   ActionDropGold,
   ActionStealItem,
   ActionConfiscateItem,
-  ActionTellItemOwnership
+  ActionTellItemOwnership,
+  ActionPassInfoRequest,
+  ActionRequestInfoTrade
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 import { ActionTurnInQuestItem } from "./models/action/turnInQuestItem";
@@ -97,7 +99,9 @@ export class Server {
     ActionTurnInQuestItem,
     ActionGiveQuest,
     ActionRequestItemTrade,
+    ActionRequestInfoTrade,
     ActionPassItemRequest,
+    ActionPassInfoRequest,
     ActionRejectTradeRequest,
     ActionRejectConversationRequest,
     ActionModifyAgentFaction,

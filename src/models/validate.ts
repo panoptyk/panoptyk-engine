@@ -441,6 +441,26 @@ export class Validate {
   }
 
   /**
+   * Validates that a valid question can be constructed from id
+   */
+  public static validate_valid_questionID(id: number) {
+    const type = Info.getByID(id);
+    if (type === undefined) {
+      return {
+        status: false,
+        message:
+          "Error asking question from id#" +
+          id +
+          " is an invalid action!"
+      };
+    }
+    return {
+      status: true,
+      message: ""
+    };
+  }
+
+  /**
    * Validates that a valid question is being answered and that the owner of
    * the question is in the conversation.
    */

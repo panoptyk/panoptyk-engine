@@ -2,24 +2,25 @@ import { Action } from "./action";
 import { logger } from "../../utilities/logger";
 import { Validate } from "../validate";
 import { Controller } from "../../controllers/controller";
-import { Agent, Item, Trade } from "../index";
+import { Agent, Trade } from "../index";
+import { Info } from "../information";
 
-export const ActionPassItemRequest: Action = {
-  name: "pass-item-request",
+export const ActionPassInfoRequest: Action = {
+  name: "pass-info-request",
   formats: [
     {
-        itemID: "number"
+        questionID: "number"
     }
   ],
   enact: (agent: Agent, inputData: any) => {
     const controller = new Controller();
-    const item: Item = Item.getByID(inputData.itemID);
+    const question: Info = Info.getByID(inputData.questionID);
     const trade: Trade = agent.trade;
     const otherAgent: Agent = trade.getAgents(agent)[0];
 
-    controller.passOnItemRequest(otherAgent, trade, item);
+    controller.passOnInfoRequest(otherAgent, trade, question);
 
-    logger.log("Event pass-item-request from " + agent + " on " + trade + " registered.", 2);
+    logger.log("Event pass-info-request from " + agent + " on " + trade + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {

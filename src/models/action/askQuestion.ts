@@ -9,6 +9,7 @@ export const ActionAskQuestion: Action = {
   formats: [
     {
       question: "object",
+      questionID: "number",
       desiredInfo: "object"
     }
   ],
@@ -33,7 +34,9 @@ export const ActionAskQuestion: Action = {
         return res;
     }
     const desiredInfo: string[] = inputData.desiredInfo;
-    if (!(res = Validate.validate_valid_question(inputData.question, desiredInfo)).status) {
+    res = Validate.validate_valid_question(inputData.question, desiredInfo);
+    const res2 = Validate.validate_valid_questionID(inputData.questionID);
+    if (!res.status && !res2.status) {
         return res;
     }
     return Validate.successMsg;

@@ -948,14 +948,17 @@ export class Controller {
    * @param agent sending agent
    * @param predicate valid Info question data
    */
-  public askQuestion(agent: Agent, predicate: any, desiredInfo: string[]) {
-    const question: Info = predicate.action ? Info.ACTIONS[predicate.action].create(
-      predicate,
-      "question"
-    ) : Info.PREDICATE[predicate.predicate].create(
-      predicate,
-      "question"
-    );
+  public askQuestion(agent: Agent, predicate: any, desiredInfo: string[], questionID?: number) {
+    let question: Info = Info.getByID(questionID);
+    if (!question) {
+      question = predicate.action ? Info.ACTIONS[predicate.action].create(
+        predicate,
+        "question"
+      ) : Info.PREDICATE[predicate.predicate].create(
+        predicate,
+        "question"
+      );
+    }
 
     const conversation: Conversation = agent.conversation;
     conversation.logQuestion(question, desiredInfo);
@@ -1191,6 +1194,18 @@ export class Controller {
   }
 
   /**
+   * Agent requests an answer to question within a trade
+   * @param agent
+   * @param trade
+   * @param question
+   */
+  public requestInfoTrade(agent: Agent, trade: Trade, question: Info) {
+    trade.addRequestedAnswer(agent, question);
+    this.updateChanges(trade.agentIni, [trade, question]);
+    this.updateChanges(trade.agentRec, [trade, question]);
+  }
+
+  /**
    * Agent passes on item request in current trade
    * @param agent
    * @param trade
@@ -1198,6 +1213,18 @@ export class Controller {
    */
   public passOnItemRequest(agent: Agent, trade: Trade, item: Item) {
     trade.passOnRequestedItem(agent, item);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  /**
+   * Agent passes on item request in current trade
+   * @param agent
+   * @param trade
+   * @param question
+   */
+  public passOnInfoRequest(agent: Agent, trade: Trade, question: Info) {
+    trade.passOnRequestedQuestion(agent, question);
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
   }
