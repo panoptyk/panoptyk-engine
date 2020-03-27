@@ -392,7 +392,7 @@ export class ClientAPI {
     question: any,
     desiredInfo: string[] = []
   ) {
-    const questionID = question.id && question.id > 0 ? question.id : 0;
+    const questionID = (question.id && question.id > 0) ? question.id : 0;
     const res = await ClientAPI.sendWrapper("ask-question", {
       question,
       desiredInfo,

@@ -17,7 +17,7 @@ export const ActionAskQuestion: Action = {
     const controller = new Controller();
     const desiredInfo: string[] = inputData.desiredInfo;
 
-    controller.askQuestion(agent, inputData.question, desiredInfo);
+    controller.askQuestion(agent, inputData.question, desiredInfo, inputData.questionID);
     logger.log("Event ask-question from " + agent + " registered.", 2);
     controller.sendUpdates();
   },

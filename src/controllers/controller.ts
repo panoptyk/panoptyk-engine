@@ -958,6 +958,8 @@ export class Controller {
         predicate,
         "question"
       );
+    } else {
+      question = question.isReference() ? Info.getByID(question.infoID) : question;
     }
 
     const conversation: Conversation = agent.conversation;
