@@ -1471,4 +1471,10 @@ export class Controller {
     this.updateChanges(quest.giver, [quest]);
     this.updateChanges(quest.receiver, [quest]);
   }
+
+  public removeItemRequest(agent: Agent, trade: Trade, item: Item) {
+    trade.removeRequestedItem(agent, item);
+    this.updateChanges(trade.agentIni, [trade, item]);
+    this.updateChanges(trade.agentRec, [trade, item]);
+  }
 }
