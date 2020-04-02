@@ -1203,6 +1203,7 @@ export class Controller {
    */
   public requestInfoTrade(agent: Agent, trade: Trade, question: Info) {
     trade.addRequestedAnswer(agent, question);
+    this.giveInfoToAgents(trade.getAgents(), question);
     this.updateChanges(trade.agentIni, [trade, question]);
     this.updateChanges(trade.agentRec, [trade, question]);
   }
