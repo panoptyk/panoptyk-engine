@@ -384,6 +384,15 @@ public toString() {
     }
   }
 
+  public removeRequestedItem(agent: Agent, item: Item) {
+    if (agent.id === this.initiatorID) {
+      this._initiatorRequestedItems.delete(item.id);
+    }
+    else if (agent.id === this.receiverID) {
+      this._receiverRequestedItems.delete(item.id);
+    }
+  }
+
   /**
    * Returns item requests for an agent; items that have been passed are set to true
    * @param agent

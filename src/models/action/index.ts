@@ -35,4 +35,5 @@ export { ActionInterrogateAgent } from "./interrogateAgent";
 export { ActionRequestGoldTrade } from "./requestGoldTrade";
 export { ActionTellRewardQuest } from "./tellRewardQuest";
 export { ActionTurnInQuestItem } from "./turnInQuestItem";
+export { ActionRemoveItemRequest } from "./removeItemRequest";
 // export {} from "./"; <- future Actions

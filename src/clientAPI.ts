@@ -462,6 +462,13 @@ export class ClientAPI {
     return res;
   }
 
+  public static async removeItemRequest(item: Item) {
+    const res = await ClientAPI.sendWrapper("remove-item-request", {
+      itemID: item.id
+    });
+    return res;
+  }
+
   /**
    * Pass on item request in current trade
    * @param item
