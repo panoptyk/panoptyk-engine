@@ -1407,9 +1407,6 @@ export class Controller {
         targetAgent.factionRank - 10
       );
     }
-    this.removeAgentFromRoom(targetAgent, false);
-    this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
-
     const info = Info.ACTIONS.ARRESTED.create({
       agent1: policeAgent,
       agent2: targetAgent,
@@ -1418,6 +1415,8 @@ export class Controller {
       info: reason
     });
     this.giveInfoToAgents(policeAgent.room.occupants, info);
+    this.removeAgentFromRoom(targetAgent, false);
+    this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
   }
 
   /**
