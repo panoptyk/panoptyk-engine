@@ -1418,7 +1418,7 @@ export class Controller {
     // for scenario
     if (targetAgent.faction) {
       for (const agent of targetAgent.faction.members) {
-        if (agent.factionRank === Infinity) {
+        if (agent.factionRank >= 1000) {
           this.giveInfoToAgents([agent], info);
         }
       }
