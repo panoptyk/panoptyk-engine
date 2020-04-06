@@ -734,4 +734,12 @@ export class ClientAPI {
     });
     return res;
   }
+
+  public static async thankAgent(targetAgent: Agent, reason: Info) {
+    const res = await ClientAPI.sendWrapper("thank-agent", {
+      agentID: targetAgent.id,
+      reasonID: reason.id
+    });
+    return res;
+  }
 }
