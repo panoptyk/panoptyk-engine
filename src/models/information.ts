@@ -1619,6 +1619,37 @@ export class Info extends IDObject {
         terms.action = Info.ACTIONS.PAID.name;
         return terms;
       }
-    }
+    },
+    ASSAULTED: {
+      name: "ASSAULTED",
+      predicate: Info.PREDICATE.TAALI.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   ASSAULTED(Time, Agent, Agent, Location, Info)
+       */
+      create(args: TAALI, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALI.create(args, type);
+        i._action = Info.ACTIONS.ASSAULTED.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent1, agent2, time, loc, info }: TAALI): { action: string } & TAALI {
+        return {
+          action: Info.ACTIONS.ASSAULTED.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAALI {
+        const terms: any = Info.PREDICATE.TAALI.getTerms(info);
+        terms.action = Info.ACTIONS.ASSAULTED.name;
+        return terms;
+      }
+    },
   };
 }

@@ -36,4 +36,5 @@ export { ActionRequestGoldTrade } from "./requestGoldTrade";
 export { ActionTellRewardQuest } from "./tellRewardQuest";
 export { ActionTurnInQuestItem } from "./turnInQuestItem";
 export { ActionRemoveItemRequest } from "./removeItemRequest";
+export { ActionAttackAgent } from "./attackAgent";
 // export {} from "./"; <- future Actions
