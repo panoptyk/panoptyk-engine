@@ -718,4 +718,12 @@ export class ClientAPI {
     });
     return res;
   }
+
+  public static async attackAgent(targetAgent: Agent, reason: Info) {
+    const res = await ClientAPI.sendWrapper("attack-agent", {
+      agentID: targetAgent.id,
+      reasonID: reason.id
+    });
+    return res;
+  }
 }

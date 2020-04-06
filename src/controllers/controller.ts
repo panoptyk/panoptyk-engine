@@ -1415,6 +1415,14 @@ export class Controller {
       info: reason
     });
     this.giveInfoToAgents(policeAgent.room.occupants, info);
+    // for scenario
+    if (targetAgent.faction) {
+      for (const agent of targetAgent.faction.members) {
+        if (agent.factionRank === Infinity) {
+          this.giveInfoToAgents([agent], info);
+        }
+      }
+    }
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, policeAgent.faction.headquarters);
   }
@@ -1475,5 +1483,25 @@ export class Controller {
     trade.removeRequestedItem(agent, item);
     this.updateChanges(trade.agentIni, [trade, item]);
     this.updateChanges(trade.agentRec, [trade, item]);
+  }
+
+  public attackAgent(agent: Agent, targetAgent: Agent, reason: Info) {
+    for (const item of targetAgent.inventory) {
+      this.stealItem(agent, targetAgent, item);
+    }
+    const info = Info.ACTIONS.ASSAULTED.create({
+      agent1: agent,
+      agent2: targetAgent,
+      loc: agent.room,
+      time: util.getPanoptykDatetime(),
+      info: reason
+    });
+    // TODO: base knowledge on steal skill when skill system is added
+    this.giveInfoToAgents([agent], info);
+    const mask =
+      agent.faction.getAgentRank(agent) >= 10 ? { agent1: "mask" } : {};
+    this.giveInfoToAgents(agent.room.occupants, info, mask);
+    this.removeAgentFromRoom(targetAgent, false);
+    this.addAgentToRoom(targetAgent, targetAgent.faction.headquarters);
   }
 }
