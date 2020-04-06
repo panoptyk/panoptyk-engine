@@ -1519,4 +1519,15 @@ export class Controller {
     this.updateChanges(agent, [agent]);
     this.updateChanges(toAgent, [toAgent]);
   }
+
+  public thankAgent(agent: Agent, targetAgent: Agent, reason: Info) {
+    const info = Info.ACTIONS.THANKED.create({
+      agent1: agent,
+      agent2: targetAgent,
+      loc: agent.room,
+      time: util.getPanoptykDatetime(),
+      info: reason
+    });
+    this.giveInfoToAgents([agent, targetAgent], info);
+  }
 }

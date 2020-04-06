@@ -38,4 +38,5 @@ export { ActionTurnInQuestItem } from "./turnInQuestItem";
 export { ActionRemoveItemRequest } from "./removeItemRequest";
 export { ActionAttackAgent } from "./attackAgent";
 export { ActionGiveGold } from "./giveGold";
+export { ActionThankAgent } from "./thankAgent";
 // export {} from "./"; <- future Actions
