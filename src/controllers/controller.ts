@@ -1504,4 +1504,19 @@ export class Controller {
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, targetAgent.faction.headquarters);
   }
+
+  public giveGold(agent: Agent, toAgent: Agent, amount: number) {
+    agent.modifyGold(-1 * amount);
+    toAgent.modifyGold(amount);
+    const payInfo = Info.ACTIONS.PAID.create({
+      agent1: agent,
+      agent2: toAgent,
+      loc: undefined,
+      time: undefined,
+      quantity: amount
+    });
+    this.giveInfoToAgents([agent, toAgent], payInfo);
+    this.updateChanges(agent, [agent]);
+    this.updateChanges(toAgent, [toAgent]);
+  }
 }
