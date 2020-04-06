@@ -1588,7 +1588,7 @@ export class Info extends IDObject {
       predicate: Info.PREDICATE.TAALQ.name,
       /**
        * Creates an action that uses this predicate format
-       *   GAVE(Time, Agent, Agent, Location, quantity)
+       *   PAID(Time, Agent, Agent, Location, quantity)
        */
       create(args: TAALQ, type = "normal"): Info {
         const i = Info.PREDICATE.TAALQ.create(args, type);
@@ -1648,6 +1648,37 @@ export class Info extends IDObject {
       getTerms(info: Info): { action: string } & TAALI {
         const terms: any = Info.PREDICATE.TAALI.getTerms(info);
         terms.action = Info.ACTIONS.ASSAULTED.name;
+        return terms;
+      }
+    },
+    THANKED: {
+      name: "THANKED",
+      predicate: Info.PREDICATE.TAALI.name,
+      /**
+       * Creates an action that uses this predicate format
+       *   THANKED(Time, Agent, Agent, Location, Info)
+       */
+      create(args: TAALI, type = "normal"): Info {
+        const i = Info.PREDICATE.TAALI.create(args, type);
+        i._action = Info.ACTIONS.THANKED.name;
+        return i;
+      },
+      /**
+       * create a question object for sending. Untracked/unsaved
+       */
+      question({ agent1, agent2, time, loc, info }: TAALI): { action: string } & TAALI {
+        return {
+          action: Info.ACTIONS.THANKED.name,
+          agent1,
+          agent2,
+          time,
+          loc,
+          info
+        };
+      },
+      getTerms(info: Info): { action: string } & TAALI {
+        const terms: any = Info.PREDICATE.TAALI.getTerms(info);
+        terms.action = Info.ACTIONS.THANKED.name;
         return terms;
       }
     },

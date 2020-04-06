@@ -726,4 +726,12 @@ export class ClientAPI {
     });
     return res;
   }
+
+  public static async giveGold(targetAgent: Agent, amount: number) {
+    const res = await ClientAPI.sendWrapper("give-gold", {
+      agentID: targetAgent.id,
+      amount
+    });
+    return res;
+  }
 }

@@ -53,7 +53,8 @@ import {
   ActionTellRewardQuest,
   ActionTurnInQuestItem,
   ActionRemoveItemRequest,
-  ActionAttackAgent
+  ActionAttackAgent,
+  ActionGiveGold
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -117,7 +118,8 @@ export class Server {
     ActionTellRewardQuest,
     ActionTurnInQuestItem,
     ActionRemoveItemRequest,
-    ActionAttackAgent
+    ActionAttackAgent,
+    ActionGiveGold
   ];
 
   constructor(app?: express.Application) {
