@@ -1501,6 +1501,14 @@ export class Controller {
     const mask =
       agent.faction.getAgentRank(agent) >= 10 ? { agent1: "mask" } : {};
     this.giveInfoToAgents(agent.room.occupants, info, mask);
+    // for scenario
+    if (targetAgent.faction) {
+      for (const member of targetAgent.faction.members) {
+        if (member.factionRank >= 1000) {
+          this.giveInfoToAgents([member], info, mask);
+        }
+      }
+    }
     this.removeAgentFromRoom(targetAgent, false);
     this.addAgentToRoom(targetAgent, targetAgent.faction.headquarters);
   }
