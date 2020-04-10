@@ -9,22 +9,30 @@ export const ActionLogin: Action = {
   formats: [
     {
       username: "string",
-      password: "string"
+      password: "string",
     },
     {
       username: "string",
-      token: "string"
-    }
+      token: "string",
+    },
+    {
+      username: "string",
+      password: "string",
+      isBot: "boolean",
+    },
+    {
+      username: "string",
+      password: "string",
+      isBot: "boolean",
+      factionID: "number",
+    },
   ],
   enact: (agent: Agent, inputData: any) => {
     const isNew = Agent.getAgentByName(inputData.username) ? false : true;
     const newAgent = Agent.login(inputData.username, inputData.socket);
     const controller = new Controller();
-    controller.login(newAgent, isNew);
-    logger.log(
-      "Event login for agent " + newAgent + " registered.",
-      2
-    );
+    controller.login(newAgent, isNew, inputData.isBot, inputData.factionID);
+    logger.log("Event login for agent " + newAgent + " registered.", 2);
     controller.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
@@ -37,5 +45,5 @@ export const ActionLogin: Action = {
       return res;
     }
     return res;
-  }
+  },
 };
