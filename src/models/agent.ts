@@ -195,6 +195,7 @@ export class Agent extends IDObject {
    */
   logout() {
     this.removeStatus("online");
+    this.removeStatus("bot");
     logger.log("Agent " + this + " logged out.", 2);
     this.socket = undefined;
   }

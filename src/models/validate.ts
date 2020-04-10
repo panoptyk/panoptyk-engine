@@ -19,12 +19,12 @@ export class Validate {
   public static validate_key_format(goodFormats, inputFormat) {
     formatLoop: for (const format of goodFormats) {
       if (Object.keys(format).length !== Object.keys(inputFormat).length) {
-        break formatLoop;
+        continue;
       }
 
       for (const eventName in inputFormat) {
         if (!(eventName in format)) {
-          break formatLoop;
+          continue formatLoop;
         }
       }
 
@@ -35,7 +35,7 @@ export class Validate {
             typeof inputFormat[eventName] === format[eventName]
           )
         ) {
-          break formatLoop;
+          continue formatLoop;
         }
       }
 

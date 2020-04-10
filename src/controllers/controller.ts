@@ -9,7 +9,7 @@ import {
   Item,
   Info,
   Quest,
-  Faction
+  Faction,
 } from "../models/index";
 
 export class Controller {
@@ -229,7 +229,7 @@ export class Controller {
       time,
       agent,
       loc1: oldRoom,
-      loc2: newRoom
+      loc2: newRoom,
     });
     info.owner = agent;
 
@@ -243,28 +243,37 @@ export class Controller {
    * Fetches all agent data and adds it to room
    * @param agent
    */
-  public login(agent: Agent, isNew = false) {
+  public login(agent: Agent, isNew = false, isBot = false, factionID?: number) {
     agent.addStatus("online");
+    if (isBot) {
+      agent.addStatus("bot");
+    }
     this.updateChanges(agent, [
       agent.inventory,
       agent.knowledge,
       agent.activeAssignedQuests,
       agent.activeGivenQuests,
       agent.closedGivenQuests,
-      agent.closedAssignedQuests
+      agent.closedAssignedQuests,
     ]);
     if (agent.faction) {
       this.updateChanges(agent, [agent.faction]);
     }
     /////////////////////// code for demo ///////////
     else if (isNew) {
-      const desiredFaction = Math.random() < 0.5 ? "criminal" : "police";
-      for (const key in Faction.objects) {
-        const faction: Faction = Faction.objects[key];
-        if (faction.factionType === desiredFaction) {
-          this.modifyAgentFaction(agent, faction, 0);
-          agent.putInRoom(faction.headquarters);
-          break;
+      if (factionID) {
+        const faction = Faction.getByID(factionID);
+        this.modifyAgentFaction(agent, faction, 0);
+        agent.putInRoom(faction.headquarters);
+      } else {
+        const desiredFaction = Math.random() < 0.5 ? "criminal" : "police";
+        for (const key in Faction.objects) {
+          const faction: Faction = Faction.objects[key];
+          if (faction.factionType === desiredFaction) {
+            this.modifyAgentFaction(agent, faction, 0);
+            agent.putInRoom(faction.headquarters);
+            break;
+          }
         }
       }
       agent.modifyGold(5);
@@ -292,9 +301,9 @@ export class Controller {
       agent,
       newRoom.getAdjacentRooms(),
       newRoom.getAgents(),
-      newRoom.getItems()
+      newRoom.getItems(),
     ]);
-    newRoom.occupants.forEach(occupant => {
+    newRoom.occupants.forEach((occupant) => {
       this.updateChanges(occupant, [newRoom, agent]);
     });
 
@@ -312,7 +321,7 @@ export class Controller {
         time: util.getPanoptykDatetime(),
         item,
         loc: newRoom,
-        quantity: 1
+        quantity: 1,
       });
       this.giveInfoToAgents([agent], itemInfo);
     }
@@ -352,7 +361,7 @@ export class Controller {
     }
     oldRoom.removeAgent(agent);
     this.updateChanges(agent, [agent, oldRoom]);
-    oldRoom.occupants.forEach(occupant => {
+    oldRoom.occupants.forEach((occupant) => {
       this.updateChanges(occupant, [oldRoom]);
     });
   }
@@ -459,7 +468,7 @@ export class Controller {
     conversation.remove_agent(agent);
 
     // let room members know agent is no longer conversing
-    agent.room.occupants.forEach(occupant => {
+    agent.room.occupants.forEach((occupant) => {
       this.updateChanges(occupant, [conversation, agent]);
     });
 
@@ -561,7 +570,7 @@ export class Controller {
           agent2: trade.agentRec,
           loc: trade.agentRec.room,
           item,
-          quantity: trade.initiatorGold
+          quantity: trade.initiatorGold,
         })
       );
     }
@@ -575,7 +584,7 @@ export class Controller {
           agent2: trade.agentIni,
           loc: trade.agentRec.room,
           item,
-          quantity: trade.receiverGold
+          quantity: trade.receiverGold,
         })
       );
     }
@@ -588,7 +597,7 @@ export class Controller {
           agent1: trade.agentIni,
           agent2: trade.agentRec,
           loc: trade.agentIni.room,
-          info
+          info,
         })
       );
       this.giveInfoToAgents([trade.agentRec], info);
@@ -600,7 +609,7 @@ export class Controller {
           agent1: trade.agentRec,
           agent2: trade.agentIni,
           loc: trade.agentRec.room,
-          info
+          info,
         })
       );
       this.giveInfoToAgents([trade.agentIni], info);
@@ -620,7 +629,7 @@ export class Controller {
           agent2: trade.agentRec,
           loc: trade.agentRec.room,
           item,
-          quantity: 1
+          quantity: 1,
         })
       );
     }
@@ -632,7 +641,7 @@ export class Controller {
           agent2: trade.agentIni,
           loc: trade.agentRec.room,
           item,
-          quantity: 1
+          quantity: 1,
         })
       );
     }
@@ -905,7 +914,7 @@ export class Controller {
           time,
           agent1: agent,
           agent2: toAgent,
-          loc: room
+          loc: room,
         });
         break;
       }
@@ -915,7 +924,7 @@ export class Controller {
           time,
           agent1: agent,
           agent2: toAgent,
-          loc: room
+          loc: room,
         });
         // let agent see toAgent's inventory
         this.updateChanges(agent, [toAgent]);
@@ -947,7 +956,7 @@ export class Controller {
         agent,
         item,
         loc: agent.room,
-        quantity: 1
+        quantity: 1,
       });
       info.owner = agent;
       this.giveInfoToAgents(agent.room.getAgents(), info);
@@ -972,7 +981,7 @@ export class Controller {
         agent,
         item,
         loc: agent.room,
-        quantity: 1
+        quantity: 1,
       });
       info.owner = agent;
       this.giveInfoToAgents(agent.room.getAgents(), info);
@@ -1001,7 +1010,7 @@ export class Controller {
           agent1: agent,
           agent2: other,
           loc: conversation.room,
-          info: question
+          info: question,
         })
       );
       this.updateChanges(other, [conversation]);
@@ -1088,7 +1097,7 @@ export class Controller {
           agent1: agent,
           agent2: other,
           loc: agent.room,
-          info
+          info,
         });
         this.giveInfoToAgents([other], info, mask);
         this.distributeMaskedEmbeddedInfo(agents, knowInfo, mask);
@@ -1120,7 +1129,7 @@ export class Controller {
       agent1: agent,
       agent2: toAgent,
       loc: agent.room,
-      info: query
+      info: query,
     });
     const quest: Quest = new Quest(
       toAgent,
@@ -1159,7 +1168,7 @@ export class Controller {
         agent1: quest.giver,
         agent2: quest.receiver,
         loc: agent.room,
-        info: quest.info
+        info: quest.info,
       });
       for (const info of quest.offeredRewards) {
         const terms = info.getTerms();
@@ -1173,7 +1182,7 @@ export class Controller {
               agent1: quest.giver,
               agent2: quest.receiver,
               loc: quest.giver.room,
-              quantity: terms.quantity
+              quantity: terms.quantity,
             });
             break;
           case "PROMOTE":
@@ -1187,7 +1196,7 @@ export class Controller {
               agent1: quest.giver,
               agent2: quest.receiver,
               loc: quest.giver.room,
-              quantity: terms.quantity
+              quantity: terms.quantity,
             });
             break;
           case "GAVE":
@@ -1199,7 +1208,7 @@ export class Controller {
               agent2: quest.receiver,
               loc: quest.giver.room,
               item: terms.item,
-              quantity: 1
+              quantity: 1,
             });
             break;
         }
@@ -1213,7 +1222,7 @@ export class Controller {
         agent1: quest.giver,
         agent2: quest.receiver,
         loc: agent.room,
-        info: quest.info
+        info: quest.info,
       });
     }
     Agent.removeQuest(quest);
@@ -1309,7 +1318,7 @@ export class Controller {
       agent,
       item,
       loc: agent.room,
-      quantity: amount
+      quantity: amount,
     });
     info.owner = agent;
     this.giveInfoToAgents(agent.room.getAgents(), info);
@@ -1331,7 +1340,7 @@ export class Controller {
       item,
       quantity: 1,
       loc: agent.room,
-      time: util.getPanoptykDatetime()
+      time: util.getPanoptykDatetime(),
     });
     // TODO: base knowledge on steal skill when skill system is added
     this.giveInfoToAgents([agent], info);
@@ -1356,7 +1365,7 @@ export class Controller {
       item,
       quantity: 1,
       loc: agent.room,
-      time: util.getPanoptykDatetime()
+      time: util.getPanoptykDatetime(),
     });
     this.giveInfoToAgents([agent, targetAgent], info);
   }
@@ -1374,7 +1383,7 @@ export class Controller {
         agent: teller,
         item,
         loc: teller.room,
-        quantity: 1
+        quantity: 1,
       });
       this.giveInfoToAgents([teller], itemInfo);
       for (const other of teller.conversation.getAgents(teller)) {
@@ -1384,7 +1393,7 @@ export class Controller {
           agent1: teller,
           agent2: other,
           loc: teller.room,
-          info: itemInfo
+          info: itemInfo,
         });
         this.giveInfoToAgents([teller, other], toldInfo);
       }
@@ -1412,7 +1421,7 @@ export class Controller {
       agent2: targetAgent,
       loc: policeAgent.room,
       time: util.getPanoptykDatetime(),
-      info: reason
+      info: reason,
     });
     this.giveInfoToAgents(policeAgent.room.occupants, info);
     // for scenario
@@ -1471,7 +1480,7 @@ export class Controller {
       agent2: quest.giver,
       item,
       loc: agent.room,
-      quantity: 1
+      quantity: 1,
     });
     this.giveInfoToAgents([quest.giver, quest.receiver], info);
     quest.turnInInfo(info);
@@ -1494,7 +1503,7 @@ export class Controller {
       agent2: targetAgent,
       loc: agent.room,
       time: util.getPanoptykDatetime(),
-      info: reason
+      info: reason,
     });
     // TODO: base knowledge on steal skill when skill system is added
     this.giveInfoToAgents([agent], info);
@@ -1521,7 +1530,7 @@ export class Controller {
       agent2: toAgent,
       loc: undefined,
       time: undefined,
-      quantity: amount
+      quantity: amount,
     });
     this.giveInfoToAgents([agent, toAgent], payInfo);
     this.updateChanges(agent, [agent]);
@@ -1534,7 +1543,7 @@ export class Controller {
       agent2: targetAgent,
       loc: agent.room,
       time: util.getPanoptykDatetime(),
-      info: reason
+      info: reason,
     });
     this.giveInfoToAgents([agent, targetAgent], info);
   }

@@ -57,6 +57,7 @@ export class ClientAPI {
   private static updating: boolean[] = [];
   private static playerAgentName = undefined;
   private static playerAgentPassword = undefined;
+  private static isBot = false;
   private static _playerAgent: Agent = undefined;
   public static get playerAgent(): Agent {
     // No name to use to find agent
@@ -186,7 +187,8 @@ export class ClientAPI {
         logger.log("Reconnecting with previous login data", 2);
         emit(ClientAPI.socket, "login", {
           username: ClientAPI.playerAgentName,
-          password: ClientAPI.playerAgentPassword
+          password: ClientAPI.playerAgentPassword,
+          isBot: ClientAPI.isBot
         });
       }
     });
@@ -228,11 +230,14 @@ export class ClientAPI {
    * @param name username
    * @param password password (should be a hash eventually)
    */
-  public static async login(name: string, password: string) {
+  public static async login(name: string, password: string, isBot = false, factionID?: number) {
+    ClientAPI.isBot = isBot;
     ClientAPI.playerAgentName = name;
     const res = await ClientAPI.sendWrapper("login", {
       username: name,
-      password
+      password,
+      isBot: ClientAPI.isBot,
+      factionID
     });
     // save data for reconnection if successful
     if (res.status) {
