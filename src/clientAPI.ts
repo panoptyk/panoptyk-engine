@@ -1,5 +1,6 @@
 import * as io from "socket.io-client";
 import { logger } from "./utilities/logger";
+import { SmartJSON } from "./utilities/util2";
 import { ValidationResult } from "./models/validate";
 import {
   Agent,
@@ -123,6 +124,7 @@ export class ClientAPI {
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
+      data = SmartJSON.parse(data);
       logger.log("--Model updates recieved--", 2);
       ClientAPI.updating.push(true);
       const updates: UpdatedModels = {

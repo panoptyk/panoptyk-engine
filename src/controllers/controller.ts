@@ -11,6 +11,7 @@ import {
   Quest,
   Faction,
 } from "../models/index";
+import { SmartJSON } from "../utilities/util2";
 
 export class Controller {
   private _updates: Map<Agent, Set<IDObject>>;
@@ -88,7 +89,7 @@ export class Controller {
       }
       // console.log(payload);
       if (agent.socket) {
-        agent.socket.emit("updateModels", payload);
+        agent.socket.emit("updateModels", SmartJSON.stringify(payload));
       }
     }
   }

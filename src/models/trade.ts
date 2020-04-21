@@ -83,8 +83,8 @@ export class Trade extends IDObject {
     this._initiatorGold = 0;
     this._receiverGold = 0;
     this._requestedGold = new Map<number, number>();
-    this._answerIDs = new Map();
-    this._answerRequests = new Map();
+    this._answerIDs = new Map<number, Map<number, AnswerInfo[]>>();
+    this._answerRequests = new Map<number, Request[]>();
 
     this.initiatorStatus = false;
     this.receiverStatus = false;
@@ -110,13 +110,6 @@ public toString() {
     for (const key in json) {
       t[key] = json[key];
     }
-    t.initiatorItemIDs = new Set<number>(t.initiatorItemIDs);
-    t.receiverItemIDs = new Set<number>(t.receiverItemIDs);
-    t._answerIDs = new Map<number, Map<number, AnswerInfo[]>>(t._answerIDs);
-    t._initiatorRequestedItems = new Map<number, boolean>(t._initiatorRequestedItems);
-    t._receiverRequestedItems = new Map<number, boolean>(t._receiverRequestedItems);
-    t._requestedGold = new Map<number, number>(t._requestedGold);
-    t._answerRequests = new Map<number, Request[]>(t._answerRequests);
     t.setStatus(t._resultStatus);
     return t;
   }
@@ -130,16 +123,16 @@ public toString() {
   public serialize(agent?: Agent, removePrivateData = false) {
     const safeTrade = Object.assign({}, this);
     if (agent) {
-      const agentInfoCpy = new Map<number, Map<number, AnswerInfo[]>>();
-      for (const [agentID, ansPair] of safeTrade._answerIDs) {
-        const infoPairs = new Map<number, AnswerInfo[]>();
-        for (const [id, ans] of ansPair) {
-          const newID = Info.getByID(id).getAgentsCopy(agent).id;
-          infoPairs.set(newID, ans);
-        }
-        agentInfoCpy.set(agentID, infoPairs);
-      }
-      safeTrade._answerIDs = agentInfoCpy;
+      const agentSpecificAnswerIDs = new Map();
+      this._answerIDs.forEach((questionMap, agentID) => {
+        agentSpecificAnswerIDs.set(agentID, new Map());
+        questionMap.forEach((answers, qID) => {
+          agentSpecificAnswerIDs
+            .get(agentID)
+            .set((Info.getByID(qID) as Info).getAgentsCopy(agent).id, answers);
+        });
+      });
+      safeTrade._answerIDs = agentSpecificAnswerIDs;
       const agentSpecificAnswerRequests = new Map();
       this._answerRequests.forEach((reqs, agentID) => {
         agentSpecificAnswerRequests.set(
@@ -154,13 +147,6 @@ public toString() {
       });
       safeTrade._answerRequests = agentSpecificAnswerRequests;
     }
-    (safeTrade.initiatorItemIDs as any) = Array.from(safeTrade.initiatorItemIDs);
-    (safeTrade.receiverItemIDs as any) = Array.from(safeTrade.receiverItemIDs);
-    (safeTrade._answerIDs as any) = Array.from(safeTrade._answerIDs);
-    (safeTrade._answerRequests as any) = Array.from(safeTrade._answerRequests);
-    (safeTrade._initiatorRequestedItems as any) = Array.from(safeTrade._initiatorRequestedItems);
-    (safeTrade._receiverRequestedItems as any) = Array.from(safeTrade._receiverRequestedItems);
-    (safeTrade._requestedGold as any) = Array.from(safeTrade._requestedGold);
     return safeTrade;
   }
 
