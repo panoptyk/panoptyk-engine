@@ -39,4 +39,7 @@ export { ActionRemoveItemRequest } from "./removeItemRequest";
 export { ActionAttackAgent } from "./attackAgent";
 export { ActionGiveGold } from "./giveGold";
 export { ActionThankAgent } from "./thankAgent";
+export { ActionRequestInfoTrade } from "./requestInfoTrade";
+export { ActionRemoveInfoRequest } from "./removeInfoRequest";
+export { ActionPassInfoRequest } from "./passInfoRequest";
 // export {} from "./"; <- future Actions

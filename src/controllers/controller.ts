@@ -1547,4 +1547,23 @@ export class Controller {
     });
     this.giveInfoToAgents([agent, targetAgent], info);
   }
+
+  public requestInfoTrade(agent: Agent, trade: Trade, question: Info) {
+    trade.addRequestedAnswer(agent, question);
+    this.giveInfoToAgents([trade.agentIni, trade.agentRec], question);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  public passOnAnswerRequest(agent: Agent, trade: Trade, question: Info) {
+    trade.passOnRequestedQuestion(agent, question);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  public removeAnswerRequest(agent: Agent, trade: Trade, info: Info) {
+    trade.removeRequestedAnswer(agent, info);
+    this.updateChanges(trade.agentIni, [trade, info]);
+    this.updateChanges(trade.agentRec, [trade, info]);
+  }
 }

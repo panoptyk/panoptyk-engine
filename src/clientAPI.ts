@@ -747,4 +747,37 @@ export class ClientAPI {
     });
     return res;
   }
+
+  /**
+   * Request an answer to question in current trade
+   * @param question
+   */
+  public static async requestAnswerTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("request-info-trade", {
+      questionID: question.id
+    });
+    return res;
+  }
+
+  /**
+   * Pass on request to answer question in current trade
+   * @param question
+   */
+  public static async passInfoRequestTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("pass-info-request", {
+      questionID: question.id
+    });
+    return res;
+  }
+
+  /**
+   * Pass on request to answer question in current trade
+   * @param question
+   */
+  public static async removeInfoRequestTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("remove-info-request", {
+      questionID: question.id
+    });
+    return res;
+  }
 }

@@ -55,7 +55,10 @@ import {
   ActionRemoveItemRequest,
   ActionAttackAgent,
   ActionGiveGold,
-  ActionThankAgent
+  ActionThankAgent,
+  ActionRequestInfoTrade,
+  ActionRemoveInfoRequest,
+  ActionPassInfoRequest
 } from "./models/action/index";
 import { ValidationResult, Validate } from "./models/validate";
 
@@ -121,7 +124,10 @@ export class Server {
     ActionRemoveItemRequest,
     ActionAttackAgent,
     ActionGiveGold,
-    ActionThankAgent
+    ActionThankAgent,
+    ActionRequestInfoTrade,
+    ActionRemoveInfoRequest,
+    ActionPassInfoRequest
   ];
 
   constructor(app?: express.Application) {
