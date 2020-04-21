@@ -11,6 +11,7 @@ import {
   Quest,
   Faction,
 } from "../models/index";
+import { SmartJSON } from "../utilities/util2";
 
 export class Controller {
   private _updates: Map<Agent, Set<IDObject>>;
@@ -88,7 +89,7 @@ export class Controller {
       }
       // console.log(payload);
       if (agent.socket) {
-        agent.socket.emit("updateModels", payload);
+        agent.socket.emit("updateModels", SmartJSON.stringify(payload));
       }
     }
   }
@@ -1546,5 +1547,24 @@ export class Controller {
       info: reason,
     });
     this.giveInfoToAgents([agent, targetAgent], info);
+  }
+
+  public requestInfoTrade(agent: Agent, trade: Trade, question: Info) {
+    trade.addRequestedAnswer(agent, question);
+    this.giveInfoToAgents([trade.agentIni, trade.agentRec], question);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  public passOnAnswerRequest(agent: Agent, trade: Trade, question: Info) {
+    trade.passOnRequestedQuestion(agent, question);
+    this.updateChanges(trade.agentIni, [trade]);
+    this.updateChanges(trade.agentRec, [trade]);
+  }
+
+  public removeAnswerRequest(agent: Agent, trade: Trade, info: Info) {
+    trade.removeRequestedAnswer(agent, info);
+    this.updateChanges(trade.agentIni, [trade, info]);
+    this.updateChanges(trade.agentRec, [trade, info]);
   }
 }

@@ -1,5 +1,6 @@
 import * as io from "socket.io-client";
 import { logger } from "./utilities/logger";
+import { SmartJSON } from "./utilities/util2";
 import { ValidationResult } from "./models/validate";
 import {
   Agent,
@@ -123,6 +124,7 @@ export class ClientAPI {
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
     ClientAPI.socket.on("updateModels", data => {
+      data = SmartJSON.parse(data);
       logger.log("--Model updates recieved--", 2);
       ClientAPI.updating.push(true);
       const updates: UpdatedModels = {
@@ -744,6 +746,39 @@ export class ClientAPI {
     const res = await ClientAPI.sendWrapper("thank-agent", {
       agentID: targetAgent.id,
       reasonID: reason.id
+    });
+    return res;
+  }
+
+  /**
+   * Request an answer to question in current trade
+   * @param question
+   */
+  public static async requestAnswerTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("request-info-trade", {
+      questionID: question.id
+    });
+    return res;
+  }
+
+  /**
+   * Pass on request to answer question in current trade
+   * @param question
+   */
+  public static async passInfoRequestTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("pass-info-request", {
+      questionID: question.id
+    });
+    return res;
+  }
+
+  /**
+   * Pass on request to answer question in current trade
+   * @param question
+   */
+  public static async removeInfoRequestTrade(question: Info) {
+    const res = await ClientAPI.sendWrapper("remove-info-request", {
+      questionID: question.id
     });
     return res;
   }
