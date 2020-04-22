@@ -507,17 +507,21 @@ export class Validate {
   public static validate_answer_not_used(trade: Trade, answer: Info) {
     const answeringAgent: Agent = answer.owner;
     const askingAgent: Agent = trade.agentIni === answeringAgent ? trade.agentRec : trade.agentIni;
+    if (trade.agentAlreadyOfferedAnswer(answeringAgent, answer)) {
+      return { status: false, message: "Answer already offered!" };
+    }
+    const aID = answer.isReference() ? answer.infoID : answer.id;
     for (const info of answeringAgent.knowledge) {
       if (info.action === Info.ACTIONS.TOLD.name) {
         // checks if answering agent has told this answer to asking agent
-        if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === answer.infoID) {
+        if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === aID) {
           return {
             status: false,
             message: "You have already told " + askingAgent + " that!"
           };
         }
         // checks if asking agent has told this answer to answering agent
-        else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === answer.infoID) {
+        else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === aID) {
           return {
             status: false,
             message: askingAgent + " has already told you that!"

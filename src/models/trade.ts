@@ -123,16 +123,26 @@ export class Trade extends IDObject {
   public serialize(agent?: Agent, removePrivateData = false) {
     const safeTrade = Object.assign({}, this);
     if (agent) {
-      const agentSpecificAnswerIDs = new Map();
-      this._answerIDs.forEach((questionMap, agentID) => {
-        agentSpecificAnswerIDs.set(agentID, new Map());
-        questionMap.forEach((answers, qID) => {
-          agentSpecificAnswerIDs
-            .get(agentID)
-            .set((Info.getByID(qID) as Info).getAgentsCopy(agent).id, answers);
-        });
-      });
-      safeTrade._answerIDs = agentSpecificAnswerIDs;
+      const agentInfoCpy = new Map<number, Map<number, AnswerInfo[]>>();
+      for (const [agentID, ansPair] of safeTrade._answerIDs) {
+        const infoPairs = new Map<number, AnswerInfo[]>();
+        for (const [id, ans] of ansPair) {
+          const newID = Info.getByID(id).getAgentsCopy(agent).id;
+          const newAns: AnswerInfo[] = [];
+          for (const maskPair of ans) {
+            const agentCpy = (Info.getByID(maskPair.answerID) as Info).getAgentsCopy(agent);
+            if (agentCpy) {
+              newAns.push({answerID: agentCpy.id, maskedInfo: maskPair.maskedInfo});
+            }
+            else {
+              newAns.push(maskPair);
+            }
+          }
+          infoPairs.set(newID, newAns);
+        }
+        agentInfoCpy.set(agentID, infoPairs);
+      }
+      safeTrade._answerIDs = agentInfoCpy;
       const agentSpecificAnswerRequests = new Map();
       this._answerRequests.forEach((reqs, agentID) => {
         agentSpecificAnswerRequests.set(
@@ -279,11 +289,12 @@ export class Trade extends IDObject {
   removeInfo(infos: Info[], owner: Agent) {
     if (this._answerIDs.has(owner.id)) {
       for (const info of infos) {
+        const infoID = info.isReference() ? info.infoID : info.id;
         for (const answers of this._answerIDs.get(owner.id).values()) {
           const targetIdx = answers.findIndex(
-            (ans) => ans.answerID === info.id
+            (ans) => ans.answerID === infoID
           );
-          if (targetIdx) {
+          if (targetIdx > -1) {
             answers.splice(targetIdx, 1);
             break;
           }
@@ -346,9 +357,11 @@ export class Trade extends IDObject {
   }
 
   getAgentsAnswers(agent: Agent) {
-    const answers = [];
-    for (const ans of this._answerIDs.get(agent.id).values()) {
-      answers.concat(ans);
+    const answers: AnswerInfo[] = [];
+    if (this._answerIDs.has(agent.id)) {
+      for (const ans of this._answerIDs.get(agent.id).values()) {
+        answers.push(...ans);
+      }
     }
     return answers;
   }
@@ -358,7 +371,12 @@ export class Trade extends IDObject {
    * Server: Return answers initiator has offered
    */
   get infoAnsIni(): Info[] {
-    return this.getAgentsAnswers(this.agentIni);
+    const ansPairs = this.getAgentsAnswers(this.agentIni);
+    const rawInfo: Info[] = [];
+    for (const ansPair of ansPairs) {
+      rawInfo.push(Info.getByID(ansPair.answerID));
+    }
+    return rawInfo;
   }
 
   /**
@@ -366,7 +384,12 @@ export class Trade extends IDObject {
    * Server: Return answers receiver has offered
    */
   get infoAnsRec(): Info[] {
-    return this.getAgentsAnswers(this.agentRec);
+    const ansPairs = this.getAgentsAnswers(this.agentRec);
+    const rawInfo: Info[] = [];
+    for (const ansPair of ansPairs) {
+      rawInfo.push(Info.getByID(ansPair.answerID));
+    }
+    return rawInfo;
   }
 
   get conversation(): Conversation {
@@ -473,8 +496,8 @@ export class Trade extends IDObject {
     if (this._answerRequests.has(agent.id)) {
       const idx = this._answerRequests
         .get(agent.id)
-        .findIndex((req) => req.data !== qID);
-      if (idx) {
+        .findIndex((req) => req.data === qID);
+      if (idx > -1) {
         this._answerRequests.get(agent.id).splice(idx, 1);
       }
     }
@@ -581,5 +604,20 @@ export class Trade extends IDObject {
       });
     }
     return requestMap;
+  }
+
+  public agentAlreadyOfferedAnswer(agent: Agent, answer: Info): boolean {
+    const aID = answer.isReference() ? answer.infoID : answer.id;
+    const questions = this._answerIDs.get(agent.id);
+    if (questions) {
+      for (const answers of questions.values()) {
+        for (const ans of answers) {
+          if (ans.answerID === aID) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }
