@@ -795,7 +795,7 @@ export class Info extends IDObject {
           agent: Agent.getByID(info.agents[0]),
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
-          quantity: info.quantities[0]
+          quantity: info.quantities[0] ? info.quantities[0] : undefined
         };
       }
     },
@@ -840,7 +840,7 @@ export class Info extends IDObject {
           agent2: Agent.getByID(info.agents[1]),
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
-          quantity: info.quantities[0]
+          quantity: info.quantities[0] ? info.quantities[0] : undefined
         };
       }
     },
@@ -883,7 +883,7 @@ export class Info extends IDObject {
           agent1: Agent.getByID(info.agents[0]),
           agent2: Agent.getByID(info.agents[1]),
           loc: Room.getByID(info.locations[0]),
-          quantity: info.quantities[0]
+          quantity: info.quantities[0] ? info.quantities[0] : undefined
         };
       }
     },
@@ -921,7 +921,7 @@ export class Info extends IDObject {
           time: info.time,
           item: Item.getByID(info.items[0]),
           loc: Room.getByID(info.locations[0]),
-          quantity: info.quantities[0]
+          quantity: info.quantities[0] ? info.quantities[0] : undefined
         };
       }
     }
