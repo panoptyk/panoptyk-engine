@@ -890,6 +890,10 @@ export class Controller {
     this.giveInfoToAgents(room.getAgents(), info);
     conversation.info = info;
 
+    room.getAgents().forEach(a => {
+      this.updateChanges(a, [agent, toAgent, conversation]);
+    });
+
     return conversation;
   }
 
