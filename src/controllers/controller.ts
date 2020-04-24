@@ -1058,7 +1058,7 @@ export class Controller {
       }
     }
     trade.addInfo(question, answer, owner, maskedInfo);
-
+    this.giveInfoToAgents([trade.agentIni, trade.agentRec], question);
     this.updateChanges(trade.agentIni, [trade]);
     this.updateChanges(trade.agentRec, [trade]);
   }
@@ -1412,9 +1412,11 @@ export class Controller {
       this.confiscateItem(policeAgent, targetAgent, item);
     }
     if (targetAgent.faction) {
+      const rankLoss =
+        targetAgent.factionRank > 5 ? 5 : targetAgent.factionRank;
       targetAgent.faction.setAgentRank(
         targetAgent,
-        targetAgent.factionRank - 10
+        targetAgent.factionRank - rankLoss
       );
     }
     const info = Info.ACTIONS.ARRESTED.create({
