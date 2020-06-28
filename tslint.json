@@ -22,7 +22,6 @@
     "curly": [true, "ignore-same-line"],
     "debug-assert": true,
     "indent": [true, "spaces"],
-    "interface-name": [true, "never-prefix"],
     "interface-over-type-literal": true,
     "jsdoc-format": true,
     "next-line": [true, "check-catch", "check-else"],
