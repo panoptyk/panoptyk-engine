@@ -2,8 +2,24 @@ import { logger, LOG } from "../utilities/logger";
 import { panoptykSettings } from "../utilities/util";
 import { IDObject } from "./idObject";
 import { Agent } from "./agent";
+import { BaseModel } from "./Imodel";
 
-export class Faction extends IDObject {
+export class Faction extends BaseModel {
+    displayName(): string {
+        throw new Error("Method not implemented.");
+    }
+    toString(): string {
+        throw new Error("Method not implemented.");
+    }
+    /**
+     * Returns numeric value of agent's rank or undefined if agent is not in faction
+     * Client: A value of undefined may mean that the agent's rank is unknown
+     * @param agent
+     */
+    public getAgentRank(agent: Agent) {
+        return this._members.get(agent.id);
+    }
+}
     private _factionName: string;
     public get factionName(): string {
         return this._factionName;

@@ -1,16 +1,19 @@
-import { logger, LOG } from "../utilities/logger";
-import { Item } from "./item";
-import { IDObject } from "./idObject";
-import { Conversation } from "./conversation";
-import { Agent } from "./agent";
-import { Info } from "./information";
+import { BaseModel } from ".";
+
 
 export interface AnswerInfo {
   answerID: number;
   maskedInfo: string[];
 }
 
-export class Trade extends IDObject {
+export class Trade extends BaseModel {
+  displayName(): string {
+    throw new Error("Method not implemented.");
+  }
+  toString(): string {
+    throw new Error("Method not implemented.");
+  }
+}
   public static result = {
     FAILED: 0,
     SUCCESS: 1,

@@ -1,15 +1,23 @@
-import { logger } from "../utilities/logger";
-import { IDObject } from "./idObject";
-import { Room } from "./room";
-import { Agent } from "./agent";
-import { Info } from "./information";
+import { BaseModel, IModel } from ".";
+import { IDatabase } from "../database/IDatabase";
+
 
 export interface QuestionInfo {
   passers: number[];
   desiredInfo: string[];
 }
 
-export class Conversation extends IDObject {
+export class Conversation extends BaseModel {
+  toJSON(forClient: boolean, context: any): object {
+    throw new Error("Method not implemented.");
+  }
+  displayName(): string {
+    throw new Error("Method not implemented.");
+  }
+  toString(): string {
+    throw new Error("Method not implemented.");
+  }
+}
 
   private roomID: number;
   private _maxAgents: number;

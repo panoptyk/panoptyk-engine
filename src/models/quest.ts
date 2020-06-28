@@ -1,9 +1,13 @@
-import { IDObject } from "./idObject";
-import { logger } from "../utilities/logger";
-import { Agent } from "./agent";
-import { Info } from "./information";
+import { BaseModel } from ".";
 
-export class Quest extends IDObject {
+export class Quest extends BaseModel {
+    displayName(): string {
+        throw new Error("Method not implemented.");
+    }
+    toString(): string {
+        throw new Error("Method not implemented.");
+    }
+}
   private _giverID: number;
   public get giver(): Agent {
     return Agent.getByID(this._giverID);
