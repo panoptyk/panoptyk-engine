@@ -1,5 +1,5 @@
 import { IDatabase } from "./IDatabase";
-import { modelRef, IModel } from "../models/Imodel";
+import { modelRef, IModel } from "../models";
 
 export class FileDatabase implements IDatabase {
   _idMap: Map<string, number> = new Map();

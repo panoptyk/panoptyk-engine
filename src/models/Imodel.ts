@@ -21,7 +21,7 @@ export interface IModel {
    * @param context Additional context for use when creating the safe json
    * @returns The json save version of the model.
    */
-  toJSON(forClient: boolean, context: any): any;
+  toJSON(forClient: boolean, context: any): object;
   /**
    * Load model data from json
    * @param json Json safe version of model
