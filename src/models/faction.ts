@@ -40,14 +40,6 @@ export class Faction extends BaseModel {
     public getAgentRank(agent: Agent) {
         return this._members.get(agent.id);
     }
-      /*
-        * Sever: Add/modify an agent to given rank
-        * @param agent
-        * @param rank
-         */
-    public setAgentRank(agent: Agent, rank: number) {
-        this._members.set(agent.id, rank);
-    }
 
     /**
      * Server: Remove agent from faction
