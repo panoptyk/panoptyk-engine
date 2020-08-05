@@ -98,7 +98,7 @@ export class Agent extends BaseModel {
     this._assignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
 
-    logger.log("Agent " + this + "Initialized.");
+    logger.log("Agent " + this + " Initialized.");
   }
 
   toJSON(forClient: boolean, context: any): object {

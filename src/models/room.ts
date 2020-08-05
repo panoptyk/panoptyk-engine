@@ -36,7 +36,7 @@ export class Room extends BaseModel {
     this._items = new Set<number>();
     this._conversations = new Set<number>();
 
-    logger.log("Room " + this + "Initialized.");
+    logger.log("Room " + this + " Initialized.");
   }
   toJSON(forClient: boolean, context: any): object {
     const safeRoom = Object.assign({}, this);
