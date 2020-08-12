@@ -11,6 +11,22 @@ export class Faction extends BaseModel {
     get factionType(): string {
         return this._factionType;
     }
+    _exp: number;
+    get exp(): number {
+        return this._exp;
+    }
+    _toNextLevel: number;
+    get toNextLevel(): number {
+        return this._toNextLevel;
+    }
+    _level: number;
+    get level(): number {
+        return this._level;
+    }
+    _rankName: string;
+    get rankName(): string {
+        return this._rankName;
+    }
     _members: Map<number, number>;
     displayName(): string {
         return this._factionName;
@@ -41,11 +57,4 @@ export class Faction extends BaseModel {
         return this._members.get(agent.id);
     }
 
-    /**
-     * Server: Remove agent from faction
-     * @param agent
-     */
-    public removeAgent(agent: Agent) {
-        this._members.delete(agent.id);
-    }
 }

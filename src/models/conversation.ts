@@ -4,9 +4,9 @@ import { logger } from "../utilities/logger";
 
 export class Conversation extends BaseModel {
 
-  _room: Room;
-  get roomID(): Room {
-    return this._room;
+  _room: number;
+  get room() {
+    return this.db.retrieveModel(this._room, Room) as Room;
   }
   _agentIDs: Set<number>;
   displayName(): string {
@@ -19,7 +19,7 @@ export class Conversation extends BaseModel {
   constructor(room: Room, id?: number, db?: IDatabase) {
     super(id, db);
 
-    this._room = room;
+    this._room = room.id;
 
     logger.log("Conversation " + this + " Initialized.");
   }

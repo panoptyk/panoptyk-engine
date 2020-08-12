@@ -78,7 +78,7 @@ export class Agent extends BaseModel {
     this._faction = newFaction ? newFaction.id : -1;
   }
   get factionRank(): number {
-    if (this._faction !== -1) {
+    if (this.faction !== null) {
       return this.faction.getAgentRank(this);
     }
     return undefined;
@@ -138,6 +138,14 @@ export class Agent extends BaseModel {
 
   hasItem(item: Item): boolean {
     return this._inventory.has(item.id);
+  }
+
+  hasInfo(info: Info): boolean {
+    return this._knowledge.has(info.id);
+  }
+
+  hasGold(gold: number): boolean {
+    return this._gold >= gold;
   }
 
 }
