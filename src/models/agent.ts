@@ -78,7 +78,7 @@ export class Agent extends BaseModel {
     this._faction = newFaction ? newFaction.id : -1;
   }
   get factionRank(): number {
-    if (this.faction !== null) {
+    if (this.faction) {
       return this.faction.getAgentRank(this);
     }
     return undefined;
