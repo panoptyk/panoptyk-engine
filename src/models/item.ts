@@ -1,151 +1,72 @@
+import { IDatabase } from "../database/IDatabase";
+import { BaseModel, Room, Agent } from ".";
 import { logger, LOG } from "../utilities/logger";
-import { Room } from "./room";
-import { Agent } from "./agent";
-import { IDObject } from "./idObject";
-
-export class Item extends IDObject {
-
-  private _type: string;
-  public get type(): string {
+/**
+ * Item model. Defines the data associated with an item.
+ */
+export class Item extends BaseModel {
+  _type: string;
+  get type(): string {
     return this._type;
   }
-  private _itemName: string;
-  public get itemName(): string {
-    return this._itemName;
-  }
-  private _quantity: number;
-  public get quantity(): number {
+  _itemName: string;
+  _quantity: number;
+  get quantity(): number {
     return this._quantity;
   }
-  private _itemTags: Set<string>;
-  public get itemTags(): Set<string> {
-    return this._itemTags;
+  _room: number;
+  get room(): Room {
+    return this.db.retrieveModel(this._room, Room) as Room;
   }
-  private roomID: number;
-  private agentID: number;
-  public inTransaction: boolean;
+  set room(room: Room) {
+    this._room = room ? room.id : -1;
+  }
+  _agent: number;
+  get agent(): Agent {
+    return this.db.retrieveModel(this._agent, Agent) as Agent;
+  }
+  set agent(agent: Agent) {
+    this._agent = agent ? agent.id : -1;
+  }
+  inTransaction: boolean;
 
   /**
-   * Item model.
-   * @param {string} itemName - item name
-   * @param {string} type - item type. (Default: unique)
-   * @param {number} quantity - number of item. (Default: 1)
-   * @param {Room} room - room object item is in. (Optional).
-   * @param {Agent} agent - agent that owns item. (Optional).
-   * @param {number} id - id of item. If null, one will be assigned.
+   * Create a new Item.
+   * @param name Name of the item.
+   * @param type Type of the item.
+   * @param quantity How many items there are.
+   * @param {Room} room What room is associated with the item.
+   * @param {Agent} agent What agent is associated with the item.
+   * @param id ID for the item.
+   * @param db Database the item is stored in.
    */
-  constructor(itemName: string, type = "unique", quantity = 1, room?: Room, agent?: Agent, id?: number) {
-    super(Item.name, id);
-
-    this._itemName = itemName;
+  constructor(name: string, type = "unique", quantity = 1, room?: Room, agent?: Agent, id?: number, db?: IDatabase) {
+    super(id, db);
+    this._itemName = name;
     this._type = type;
     this._quantity = quantity;
-    this._itemTags = new Set<string>();
-    this.roomID = room ? room.id : undefined;
-    this.agentID = agent ? agent.id : undefined;
+    this.room = room;
+    this.agent = agent;
 
-    this.inTransaction = false;
-
-    if (room) {
-      (Room.getByID(this.roomID) as Room).addItem(this);
-    }
-
-    if (agent) {
-      (Agent.getByID(this.agentID) as Agent).addItemInventory(this);
-    }
-
-    logger.log("Item " + this + " Initialized.", LOG.INFO);
+    logger.log ("Item " + this + " Initialized.");
   }
 
-  /**
-   * Load an item JSON into memory.
-   * @param {JSON} json - serialized item object.
-   */
-  static load(json: Item) {
-    let i = Item.objects[json.id];
-    i = i ? i : new Item(json._itemName, json._type, json._quantity, undefined, undefined, json.id);
-    for (const key in json) {
-      i[key] = json[key];
-    }
-    i._itemTags = new Set<string>(i._itemTags);
-    return i;
-  }
-
-  /**
-   * Sanatizes data to be serialized
-   * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
-   *  may not be privy to.
-   */
-  public serialize(agent?: Agent, removePrivateData = false): Item {
+  toJSON(forClient: boolean, context: any): object {
     const safeItem = Object.assign({}, this);
-    (safeItem._itemTags as any) = Array.from(safeItem._itemTags);
-    if (removePrivateData) {
-      if (this.agent && this.agent !== agent) {
-        safeItem.agentID = 0;
-      }
-      else if (this.room !== agent.room) {
-        safeItem.roomID = 0;
+    if (forClient) {
+      if (context && context.agent instanceof Agent) {
+        // TODO: Remove hidden data
       }
     }
     return safeItem;
   }
 
-  toString() {
-    return this._itemName + ":" + this.type + " (id#" + this.id + ")";
+  displayName(): string {
+    return this._itemName;
   }
 
-  /**
-   * Put item in room.
-   * @param {Room} room - room object to put item in.
-   */
-  putInRoom(room: Room) {
-    this.roomID = room.id;
-  }
-
-  /**
-   * Remove item from its room and send updates.
-   */
-  remove_from_room() {
-    this.roomID = 0;
-  }
-
-  /**
-   * Give this item to an agent.
-   * @param {Agent} agent - agent object to give item to.
-   */
-  giveToAgent(agent: Agent) {
-    this.agentID = agent.id;
-  }
-
-  /**
-   * Take this item from an agent.
-   */
-  takeFromAgent() {
-    this.agentID = 0;
-  }
-
-  get room(): Room {
-    return this.roomID ? Room.getByID(this.roomID) : undefined;
-  }
-
-  get agent(): Agent {
-    return this.agentID ? Agent.getByID(this.agentID) : undefined;
-  }
-
-  /**
-   * Server: Add a tag to item
-   * @param tag
-   */
-  public addItemTag(tag: string) {
-    this._itemTags.add(tag);
-  }
-
-  /**
-   * Server: Remove a given tag from item
-   * @param tag
-   */
-  public removeItemTag(tag: string) {
-    this._itemTags.delete(tag);
+  toString(): string {
+    return this._itemName + ": " + this._type + " (id#" + this.id + ")";
   }
 
 }

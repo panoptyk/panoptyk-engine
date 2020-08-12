@@ -1,78 +1,52 @@
 import { logger, LOG } from "../utilities/logger";
-import { panoptykSettings } from "../utilities/util";
-import { IDObject } from "./idObject";
-import { Agent } from "./agent";
+import { Agent, BaseModel } from ".";
+import { IDatabase } from "../database/IDatabase";
 
-export class Faction extends IDObject {
-    private _factionName: string;
-    public get factionName(): string {
+export class Faction extends BaseModel {
+    _factionName: string;
+    get factionName(): string{
         return this._factionName;
     }
-    private _factionType: string;
-    public get factionType(): string {
+    _factionType: string;
+    get factionType(): string {
         return this._factionType;
     }
-    private _members: Map<number, number>;  // second number is rank
+    _exp: number;
+    get exp(): number {
+        return this._exp;
+    }
+    _toNextLevel: number;
+    get toNextLevel(): number {
+        return this._toNextLevel;
+    }
+    _level: number;
+    get level(): number {
+        return this._level;
+    }
+    _rankName: string;
+    get rankName(): string {
+        return this._rankName;
+    }
+    _members: Map<number, number>;
+    displayName(): string {
+        return this._factionName;
+    }
+    toString(): string {
+        return this.factionName + " (id# " + this.id + ")";
+    }
 
-    /**
-     * Faction model
-     * @param name name of faction.
-     * @param type faction Archetype.
-     * @param id id of faction. If undefined, one will be assigned.
-     */
-    constructor(name: string, type: string, id?: number) {
-        super(Faction.name, id);
+    constructor(name: string, type: string, id?: number, db?: IDatabase) {
+        super(id, db);
+
         this._factionName = name;
         this._factionType = type;
 
-        logger.log("Faction " + this + " initialized.", 2);
+        logger.log("Faction " + this + " Initialized.");
     }
 
-    /**
-     * Load a JSON object into memory.
-     * @param {JSON} json - serialized faction JSON.
-     */
-    static load(json: Faction) {
-        let f: Faction = Faction.objects[json.id];
-        f = f ? f : new Faction(json._factionName, json._factionType, json.id);
-        for (const key in json) {
-            f[key] = json[key];
-        }
-        f._members = new Map<number, number>(f._members);
-        return f;
-    }
-
-    /**
-     * Sanatizes data to be serialized
-     * @param removePrivateData {boolean} Determines if private is removed information that a client/agent
-     *  may not be privy to.
-     */
-    public serialize(agent?: Agent, removePrivateData = false) {
-        const safeFaction = Object.assign({}, this);
-        (safeFaction._members as any) = Array.from(safeFaction._members);
-        return safeFaction;
-    }
-
-    toString() {
-        return this._factionName + " (id#" + this.id + ")";
-    }
-
-    /**
-     * Sever: Add/modify an agent to given rank
-     * @param agent
-     * @param rank
-     */
-    public setAgentRank(agent: Agent, rank: number) {
-        this._members.set(agent.id, rank);
-    }
-
-    /**
-     * Server: Remove agent from faction
-     * @param agent
-     */
-    public removeAgent(agent: Agent) {
-        this._members.delete(agent.id);
-    }
+    toJSON(forClient: boolean, context: any): object {
+        throw new Error("Method not implemented.");
+      }
 
     /**
      * Returns numeric value of agent's rank or undefined if agent is not in faction
@@ -82,4 +56,5 @@ export class Faction extends IDObject {
     public getAgentRank(agent: Agent) {
         return this._members.get(agent.id);
     }
+
 }
