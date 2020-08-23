@@ -39,6 +39,9 @@ export class Agent extends BaseModel {
   get conversation(): Conversation {
     return this.db.retrieveModel(this._conversation, Conversation) as Conversation;
   }
+  set conversation(conversation: Conversation) {
+    this._conversation = conversation ? conversation.id : -1;
+  }
 
   /**
    * Other agents to this agent
