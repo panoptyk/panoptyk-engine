@@ -14,8 +14,8 @@ import {
 } from "../models/index";
 
 export class BaseController {
-  private _updates: Map<Agent, Set<IDObject>>;
-  public get updates(): Map<Agent, Set<IDObject>> {
+  private _updates: Map<Agent, Set<IModel>>;
+  public get updates(): Map<Agent, Set<IModel>> {
     return this._updates;
   }
 
@@ -23,12 +23,12 @@ export class BaseController {
     if (masterController) {
       this._updates = masterController._updates;
     } else {
-      this._updates = new Map<Agent, Set<IDObject>>();
+      this._updates = new Map<Agent, Set<IModel>>();
     }
   }
 
   private updateChanges(agent: Agent, models: IModel[]) {
-    let updates = new Set<IDObject>();
+    let updates = new Set<IModel>();
     if (this._updates.has(agent)) {
       updates = this._updates.get(agent);
     }
