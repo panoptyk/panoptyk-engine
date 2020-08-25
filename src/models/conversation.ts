@@ -1,5 +1,7 @@
-import { BaseModel, Agent, Room } from ".";
 import { IDatabase } from "../database/IDatabase";
+import { BaseModel } from "./Imodel";
+import { Agent } from "./agent";
+import { Room } from "./room";
 import { logger } from "../utilities/logger";
 
 export class Conversation extends BaseModel {

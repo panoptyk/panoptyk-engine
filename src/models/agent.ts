@@ -1,5 +1,12 @@
 import { IDatabase } from "../database/IDatabase";
-import { BaseModel, Room, Item, Info, Faction, Conversation, Trade, Quest } from ".";
+import { BaseModel } from "./Imodel";
+import { Room } from "./room";
+import { Item } from "./item";
+import { Info } from "./information";
+import { Quest } from "./quest";
+import { Conversation } from "./conversation";
+import { Faction } from "./faction";
+import { Trade } from "./trade";
 import { logger } from "../utilities/logger";
 
 

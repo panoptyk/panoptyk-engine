@@ -1,5 +1,8 @@
 import { IDatabase } from "../database/IDatabase";
-import { BaseModel, Agent, Item, Conversation } from ".";
+import { BaseModel } from "./Imodel";
+import { Agent } from "./agent";
+import { Item } from "./item";
+import { Conversation } from "./conversation";
 import { logger } from "../utilities/logger";
 
 /**

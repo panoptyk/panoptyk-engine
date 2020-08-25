@@ -1,5 +1,7 @@
 import { IDatabase } from "../database/IDatabase";
-import { BaseModel, Room, Agent } from ".";
+import { BaseModel } from "./Imodel";
+import { Agent } from "./agent";
+import { Room } from "./room";
 import { logger, LOG } from "../utilities/logger";
 /**
  * Item model. Defines the data associated with an item.

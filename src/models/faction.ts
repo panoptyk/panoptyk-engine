@@ -1,6 +1,7 @@
-import { logger, LOG } from "../utilities/logger";
-import { Agent, BaseModel } from ".";
 import { IDatabase } from "../database/IDatabase";
+import { BaseModel } from "./Imodel";
+import { Agent } from "./agent";
+import { logger, LOG } from "../utilities/logger";
 
 export class Faction extends BaseModel {
     _factionName: string;

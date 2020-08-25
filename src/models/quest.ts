@@ -1,4 +1,4 @@
-import { BaseModel } from ".";
+import { BaseModel } from "./Imodel";
 import { IDatabase } from "../database/IDatabase";
 import { logger } from "../utilities/logger";
 
