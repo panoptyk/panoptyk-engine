@@ -1,7 +1,7 @@
 import { IDatabase } from "./IDatabase";
-import { modelRef, IModel } from "../models";
+import { modelRef, IModel, Item } from "../models";
 
-export class FileDatabase implements IDatabase {
+export class MemoryDatabase implements IDatabase {
   storeModels(models: IModel[]): boolean {
     throw new Error("Method not implemented.");
   }
@@ -17,11 +17,20 @@ export class FileDatabase implements IDatabase {
     this._idMap.set(model.name, id + 1);
     return id;
   }
+  _models: Map<string, Map<number, IModel>> = new Map();
   retrieveModel(id: number, model: modelRef): IModel {
-    throw new Error("Method not implemented.");
+    try {
+      return this._models.get(model.name).get(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
   storeModel(model: IModel): boolean {
-    throw new Error("Method not implemented.");
+    if (!this._models.has(model.constructor.name)) {
+      this._models.set(model.constructor.name, new Map<number, IModel>());
+    }
+    this._models.get(model.constructor.name).set(model.id, model);
+    return true;
   }
   init(): Promise<boolean> {
     throw new Error("Method not implemented.");

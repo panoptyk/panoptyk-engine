@@ -24,13 +24,21 @@ export interface IDatabase {
    * @param model Type of the models to retrive.
    * @returns List of models with matching IDs.
    */
-  retrieveModels(id: number[], model: modelRef): IModel[];
+  retrieveModels(ids: number[], model: modelRef): IModel[];
   /**
    * Store the given model.
    * @param model Model to store.
+   * @param modelType Type of the models to retrive.
    * @returns Was the store successful.
    */
-  storeModel(model: IModel | IModel[]): boolean;
+  storeModel(model: IModel): boolean;
+  /**
+   * Store the given models.
+   * @param model Models to store.
+   * @param modelType Type of the models to retrive.
+   * @returns Was the store successful.
+   */
+  storeModels(models: IModel[]): boolean;
 
   // Normal database functions (async)
   /**
