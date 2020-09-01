@@ -1,17 +1,27 @@
 import { BaseController } from "./baseController";
 import { Agent, Room } from "../models";
-import { AgentController, RoomController } from ".";
+import { AgentManipulator } from "./agentManipulator";
+import { RoomManipulator } from "./roomManipulator";
 
 export class MovementController extends BaseController {
 
     moveAgent(agent: Agent, from: Room, to: Room): void {
-        const ac: AgentController = new AgentController(this);
-        const rc: RoomController = new RoomController(this);
 
-        ac.removeFromRoom(agent, from);
-        rc.removeAgent(from, agent);
-        ac.putInRoom(agent, to);
-        rc.addAgent(to, agent);
+        AgentManipulator.removeFromRoom(agent, from);
+        RoomManipulator.removeAgent(from, agent);
+        AgentManipulator.putInRoom(agent, to);
+        RoomManipulator.addAgent(to, agent);
+
+
+        this.updateChanges(agent, [ agent, from ]);
+        from.occupants.forEach(occupant => {
+            this.updateChanges(occupant, [ from ]);
+        });
+
+        this.updateChanges(agent, [[to], [agent], to.adjacentRooms, to.occupants, to.items ]);
+        to.occupants.forEach(occupant => {
+            this.updateChanges(occupant, [ agent, to ]);
+        });
     }
 
 }

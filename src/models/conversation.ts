@@ -10,7 +10,13 @@ export class Conversation extends BaseModel {
   get room() {
     return this.db.retrieveModel(this._room, Room) as Room;
   }
-  _agentIDs: Set<number>;
+  set room(room: Room) {
+    this._room = room ? room.id : -1;
+  }
+  _participants: Set<number>;
+  get participants() {
+    return this.db.retrieveModels(this.participants, Agent);
+  }
   displayName(): string {
     throw new Error("Method not implemented.");
   }
@@ -31,6 +37,6 @@ export class Conversation extends BaseModel {
   }
 
   containsAgent(agent: Agent): boolean {
-    return this._agentIDs.has(agent.id);
+    return this._participants.has(agent.id);
   }
 }

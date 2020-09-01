@@ -10,12 +10,13 @@ import {
   Info,
   Quest,
   Faction,
-  IModel
+  IModel,
+  BaseModel
 } from "../models/index";
 
 export class BaseController {
-  private _updates: Map<Agent, Set<IModel>>;
-  public get updates(): Map<Agent, Set<IModel>> {
+  _updates: Map<Agent, Set<IModel>>;
+  get updates(): Map<Agent, Set<IModel>> {
     return this._updates;
   }
 
@@ -27,7 +28,7 @@ export class BaseController {
     }
   }
 
-  private updateChanges(agent: Agent, models: IModel[]) {
+  updateChanges(agent: Agent, models: IModel[] | IModel[][]) {
     let updates = new Set<IModel>();
     if (this._updates.has(agent)) {
       updates = this._updates.get(agent);
@@ -51,12 +52,12 @@ export class BaseController {
    * @param updates
    * @param change
    */
-  public addChange(updates: Set<IDObject>, change: any) {
+  addChange(updates: Set<IModel>, change: any) {
     updates.add(change);
     if (change instanceof Info) {
       const terms = change.getTerms();
       for (const term in terms) {
-        if (terms[term] instanceof IDObject) {
+        if (terms[term] instanceof BaseModel) {
           this.addChange(updates, terms[term]);
         }
       }
@@ -72,7 +73,7 @@ export class BaseController {
    * sends update payload to all changed models
    * @param updates Map of updates to send to an agent
    */
-  public sendUpdates() {
+  sendUpdates() {
     for (const [agent, models] of this._updates) {
       const payload = {};
       for (const model of models) {
