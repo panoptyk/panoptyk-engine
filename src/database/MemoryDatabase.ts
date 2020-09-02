@@ -41,7 +41,7 @@ export class MemoryDatabase implements IDatabase {
     return true;
   }
   init(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return;
   }
   save(): Promise<boolean> {
     throw new Error("Method not implemented.");
