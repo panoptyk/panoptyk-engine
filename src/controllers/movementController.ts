@@ -1,7 +1,7 @@
 import { BaseController } from "./baseController";
 import { Agent, Room } from "../models";
-import { AgentManipulator } from "./agentManipulator";
-import { RoomManipulator } from "./roomManipulator";
+import { AgentManipulator } from "../manipulators/agentManipulator";
+import { RoomManipulator } from "../manipulators/roomManipulator";
 
 export class MovementController extends BaseController {
 
