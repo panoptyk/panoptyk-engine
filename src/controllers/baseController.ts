@@ -55,12 +55,12 @@ export class BaseController {
   addChange(updates: Set<IModel>, change: any) {
     updates.add(change);
     if (change instanceof Info) {
-      const terms = change.getTerms();
-      for (const term in terms) {
-        if (terms[term] instanceof BaseModel) {
-          this.addChange(updates, terms[term]);
-        }
-      }
+      // const terms = change.getTerms();
+      // for (const term in terms) {
+      //   if (terms[term] instanceof BaseModel) {
+      //     this.addChange(updates, terms[term]);
+      //   }
+      // }
     } else if (change instanceof Agent) {
       // automatically give faction information of agents for now
       if (change.faction) {
@@ -82,19 +82,20 @@ export class BaseController {
           payload[name] = [];
         }
         if (name === Info.name) {
-          const info: Info = model as Info;
-          payload[name].push(info.serialize(agent, true));
-          if (info.isReference()) {
-            const master: Info = Info.getByID(info.infoID);
-            payload[name].push(master.serialize(agent, true));
-          }
+          // const info: Info = model as Info;
+          // payload[name].push(info.toJSON(true, agent));
+          // if (info.isReference()) {
+          //   const master: Info = Info.getByID(info.id);
+          //   payload[name].push(master.toJSON(true, agent));
+          // }
         } else {
-          payload[name].push(model.serialize(agent, true));
+          payload[name].push(model.toJSON(true, agent));
         }
       }
       // console.log(payload);
-      if (agent.socket) {
-        agent.socket.emit("updateModels", payload);
-      }
+      // if (agent.socket) { TODO: Figure out sockets
+      //   agent.socket.emit("updateModels", payload);
+      // }
     }
   }
+}
