@@ -38,7 +38,7 @@ export interface IDatabase {
    * @param modelType Type of the models to retrive.
    * @returns Was the store successful.
    */
-  storeModels(models: IModel[]): boolean;
+  storeModels(models: IModel[]): boolean[];
 
   // Normal database functions (async)
   /**

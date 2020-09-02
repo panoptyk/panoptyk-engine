@@ -2,11 +2,19 @@ import { IDatabase } from "./IDatabase";
 import { modelRef, IModel, Item } from "../models";
 
 export class MemoryDatabase implements IDatabase {
-  storeModels(models: IModel[]): boolean {
-    throw new Error("Method not implemented.");
+  storeModels(models: IModel[]): boolean[] {
+    const success: boolean[] = [];
+    models.forEach(model => {
+      success.push(this.storeModel(model));
+    });
+    return success;
   }
-  retrieveModels(id: number[], model: modelRef): IModel[] {
-    throw new Error("Method not implemented.");
+  retrieveModels(ids: number[], model: modelRef): IModel[] {
+    const models: IModel[] = [];
+    ids.forEach(id => {
+      models.push(this.retrieveModel(id, model));
+    });
+    return models;
   }
   _idMap: Map<string, number> = new Map();
   getNextID(model: modelRef): number {
