@@ -28,7 +28,7 @@ export class BaseController {
     }
   }
 
-  updateChanges(agent: Agent, models: IModel[] | IModel[][]) {
+  updateChanges(agent: Agent, models: (IModel | IModel [])[]) {
     let updates = new Set<IModel>();
     if (this._updates.has(agent)) {
       updates = this._updates.get(agent);

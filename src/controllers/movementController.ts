@@ -18,7 +18,7 @@ export class MovementController extends BaseController {
             this.updateChanges(occupant, [ from ]);
         });
 
-        this.updateChanges(agent, [[to], [agent], to.adjacentRooms, to.occupants, to.items ]);
+        this.updateChanges(agent, [to, agent, to.adjacentRooms, to.occupants, to.items ]);
         to.occupants.forEach(occupant => {
             this.updateChanges(occupant, [ agent, to ]);
         });
