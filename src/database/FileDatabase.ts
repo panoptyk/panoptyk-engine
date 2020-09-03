@@ -2,6 +2,12 @@ import { IDatabase } from "./IDatabase";
 import { modelRef, IModel } from "../models";
 
 export class FileDatabase implements IDatabase {
+  storeModels(models: IModel[]): boolean {
+    throw new Error("Method not implemented.");
+  }
+  retrieveModels(id: number[], model: modelRef): IModel[] {
+    throw new Error("Method not implemented.");
+  }
   _idMap: Map<string, number> = new Map();
   getNextID(model: modelRef): number {
     if (!this._idMap.has(model.name)) {
