@@ -26,9 +26,9 @@ export class AgentManipulator {
         agent.room = undefined;
     }
 
-    static requestConversation(from: Agent, to: Agent): void {
-        from._conversationRequested.add(to.id);
-        to._conversationRequests.add(from.id);
+    static requestConversation(requester: Agent, requestee: Agent): void {
+        requester._conversationRequested.add(requestee.id);
+        requestee._conversationRequests.add(requester.id);
     }
 
     static removeRequestedCovnersation(requester: Agent, requestee: Agent): void {

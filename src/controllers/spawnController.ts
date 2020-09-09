@@ -1,6 +1,7 @@
 import { BaseController } from "./baseController";
 import { Agent, Item, Room } from "../models";
-import { ItemManipulator, RoomManipulator, AgentManipulator } from "../manipulators";
+import { ItemManipulator, RoomManipulator, AgentManipulator, ConversationManipulator } from "../manipulators";
+import { ConversationController } from "./conversationController";
 
 export class SpawnController extends BaseController {
 
@@ -30,9 +31,23 @@ export class SpawnController extends BaseController {
         room.occupants.forEach(occupant => {
             this.updateChanges(occupant, [ agent, room ]);
         });
+
+        // Give Info -- Time masked conversations, items located
     }
 
     despawnAgent(agent: Agent, room: Room): void {
+        if (agent.conversation !== undefined) { // TODO: Replace undefined with conversation
+            const cc: ConversationController = new ConversationController(this);
+            cc.removeAgentFromConversation(agent.conversation, agent);
+        }
+
+        agent.conversationRequested.forEach(conversation => {
+            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        });
+        agent.conversationRequesters.forEach(conversation => {
+            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        });
+
         AgentManipulator.removeFromRoom(agent);
         RoomManipulator.removeAgent(room, agent);
 
