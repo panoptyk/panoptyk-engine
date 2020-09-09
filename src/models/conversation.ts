@@ -46,6 +46,6 @@ export class Conversation extends BaseModel {
   }
 
   get isFull(): boolean {
-    return this.participants.length < this.maxParticipants;
+    return this._participants.keys.length >= this.maxParticipants;
   }
 }

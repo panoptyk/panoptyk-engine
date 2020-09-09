@@ -82,6 +82,6 @@ export class Room extends BaseModel {
   }
 
   public isFull(): boolean {
-    return this.occupants.length < this.maxOccupants;
+    return this._occupants.keys.length >= this.maxOccupants;
   }
 }
