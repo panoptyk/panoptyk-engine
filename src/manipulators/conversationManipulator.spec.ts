@@ -2,7 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
 import inject from "../utilities/injectables";
-import { Agent, Item, Conversation, Room } from "../models";
+import { Agent, Conversation, Room } from "../models";
 import { ConversationManipulator } from "./conversationManipulator";
 
 describe("Conversation Manipulator", () => {

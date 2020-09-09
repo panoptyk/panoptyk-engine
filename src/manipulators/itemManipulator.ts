@@ -14,7 +14,7 @@ export class ItemManipulator {
         item.agent = agent;
     }
 
-    static takeFromAgent (item: Item, agent: Agent): void {
+    static takeFromAgent (item: Item): void {
         item.agent = undefined;
     }
 
