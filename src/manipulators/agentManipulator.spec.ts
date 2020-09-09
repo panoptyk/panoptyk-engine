@@ -2,9 +2,8 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
 import inject from "../utilities/injectables";
-import { Agent, Item } from "..";
+import { Agent, Item, Room } from "../models";
 import { AgentManipulator } from "./agentManipulator";
-import { Room } from "../models";
 
 
 describe("Agent Manipulator", () => {
@@ -15,8 +14,8 @@ describe("Agent Manipulator", () => {
         inject.db = db;
         agent = new Agent("A");
     });
-    context("Items", () => {
-        it("Adds One", () => {
+    context("Adds Items", () => {
+        it("Once", () => {
             const item1 = new Item("I1");
 
             db.storeModels([agent, item1]);
@@ -25,7 +24,7 @@ describe("Agent Manipulator", () => {
 
             assert.deepEqual(item1, agent.inventory[0]);
         });
-        it("Adds Multiple", () => {
+        it("Multiple Times", () => {
             const item1 = new Item("I1");
             const item2 = new Item("I2");
             const item3 = new Item("I3");
@@ -38,7 +37,9 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers([item1, item2, item3], agent.inventory);
         });
-        it("Removes One", () => {
+    });
+    context("Removes Items", () => {
+        it("Once", () => {
             const item1 = new Item("I1");
 
             db.storeModels([agent, item1]);
@@ -51,7 +52,7 @@ describe("Agent Manipulator", () => {
 
             assert.equal(0, agent.inventory.length);
         });
-        it("Removes One of Multiple", () => {
+        it("Once When Multiple are Present", () => {
             const item1 = new Item("I1");
             const item2 = new Item("I2");
             const item3 = new Item("I3");
@@ -68,7 +69,7 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers([item1, item3], agent.inventory);
         });
-        it("Removes Multiple", () => {
+        it("Multiple Times", () => {
             const item1 = new Item("I1");
             const item2 = new Item("I2");
             const item3 = new Item("I3");
@@ -87,8 +88,8 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([item3], agent.inventory);
         });
     });
-    context("Rooms", () => {
-        it("Puts Agent in Room", () => {
+    context("Moves Agent", () => {
+        it("Into a Room", () => {
             const room1 = new Room("R1", 5);
 
             db.storeModels([agent, room1]);
@@ -97,7 +98,7 @@ describe("Agent Manipulator", () => {
 
             assert.deepEqual(room1, agent.room);
         });
-        it("Puts Agent in Different Room", () => {
+        it("Into a Different Room", () => {
             const room1 = new Room("R1", 5);
             const room2 = new Room("R2", 5);
 
@@ -111,7 +112,7 @@ describe("Agent Manipulator", () => {
 
             assert.deepEqual(room2, agent.room);
         });
-        it("Removes Agent from Room", () => {
+        it("Out of Any Room", () => {
             const room1 = new Room("R1", 5);
 
             db.storeModels([agent, room1]);
@@ -125,8 +126,8 @@ describe("Agent Manipulator", () => {
             assert.equal(-1, agent._room);
         });
     });
-    context("Request Trades", () => {
-        it("Requests One Trade", () => {
+    context("Requests Trades", () => {
+        it("Once", () => {
             const agent2 = new Agent("A2");
 
             db.storeModels([agent, agent2]);
@@ -136,7 +137,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([agent2], agent.tradeRequested);
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
         });
-        it("Requests Multiple Trades", () => {
+        it("Multiple Times", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -152,7 +153,9 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([agent], agent3.tradeRequesters);
             assert.sameDeepMembers([agent], agent4.tradeRequesters);
         });
-        it("Removes One Trade", () => {
+    });
+    context("Removes Trade Requests", () => {
+        it("Once", () => {
             const agent2 = new Agent("A2");
 
             db.storeModels([agent, agent2]);
@@ -167,7 +170,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent.tradeRequested);
             assert.sameDeepMembers([], agent.tradeRequested);
         });
-        it("Removes One of Multiple Trades", () => {
+        it("Once When Multiple are present", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -190,7 +193,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent3.tradeRequesters);
             assert.sameDeepMembers([agent], agent4.tradeRequesters);
         });
-        it("Removes Multiple Trades", () => {
+        it("Multiple Times", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -215,8 +218,8 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent4.tradeRequesters);
         });
     });
-    context("Request Conversations", () => {
-        it("Requests One Conversation", () => {
+    context("Requests Conversations", () => {
+        it("Once", () => {
             const agent2 = new Agent("A2");
 
             db.storeModels([agent, agent2]);
@@ -226,7 +229,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([agent2], agent.conversationRequested);
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
         });
-        it("Requests Multiple Conversations", () => {
+        it("Multiple Times", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -242,7 +245,9 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([agent], agent3.conversationRequesters);
             assert.sameDeepMembers([agent], agent4.conversationRequesters);
         });
-        it("Removes One Conversation", () => {
+    });
+    context("Removes Conversation Requests", () => {
+        it("Once", () => {
             const agent2 = new Agent("A2");
 
             db.storeModels([agent, agent2]);
@@ -257,7 +262,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent.conversationRequested);
             assert.sameDeepMembers([], agent.conversationRequested);
         });
-        it("Removes One of Multiple Conversations", () => {
+        it("When Multiple are Present", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -280,7 +285,7 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent3.conversationRequesters);
             assert.sameDeepMembers([agent], agent4.conversationRequesters);
         });
-        it("Removes Multiple Conversations", () => {
+        it("Multiple Times", () => {
             const agent2 = new Agent("A2");
             const agent3 = new Agent("A3");
             const agent4 = new Agent("A4");
@@ -305,19 +310,19 @@ describe("Agent Manipulator", () => {
             assert.sameDeepMembers([], agent4.conversationRequesters);
         });
     });
-    context("Gold", () => {
-        it("Adds Gold", () => {
+    context("Modifies Gold", () => {
+        it("To Add Gold Once", () => {
             AgentManipulator.modifyGold(agent, 10);
 
             assert.equal(10, agent.gold);
         });
-        it("Adds Gold Multiple Times", () => {
+        it("To Add Gold Multiple Times", () => {
             AgentManipulator.modifyGold(agent, 10);
             AgentManipulator.modifyGold(agent, 10);
 
             assert.equal(20, agent.gold);
         });
-        it("Removes Gold", () => {
+        it("To Remove Gold", () => {
             AgentManipulator.modifyGold(agent, 10);
             AgentManipulator.modifyGold(agent, -5);
 
