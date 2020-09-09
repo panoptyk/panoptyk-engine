@@ -22,7 +22,7 @@ export class AgentManipulator {
         agent.room = room;
     }
 
-    static removeFromRoom(agent: Agent, room: Room): void {
+    static removeFromRoom(agent: Agent): void {
         agent.room = undefined;
     }
 
@@ -43,7 +43,7 @@ export class AgentManipulator {
 
     static removeRequestedTrade(from: Agent, to: Agent): void {
         from._tradeRequested.delete(to.id);
-        to._tradeRequests.delete(to.id);
+        to._tradeRequests.delete(from.id);
     }
 
     static joinConversation(agent: Agent, conversation: Conversation): void {
