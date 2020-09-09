@@ -96,7 +96,7 @@ export class Info extends BaseModel {
   toString(): string {
     throw new Error("Method not implemented.");
   }
-  
+
 }
 // export class Info extends IDObject {
 //   private _time: number;

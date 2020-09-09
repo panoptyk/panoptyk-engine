@@ -30,7 +30,8 @@ export class MemoryDatabase implements IDatabase {
     try {
       return this._models.get(model.name).get(id);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      return undefined;
     }
   }
   storeModel(model: IModel): boolean {

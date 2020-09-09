@@ -10,7 +10,17 @@ export class Conversation extends BaseModel {
   get room() {
     return this.db.retrieveModel(this._room, Room) as Room;
   }
-  _agentIDs: Set<number>;
+  set room(room: Room) {
+    this._room = room ? room.id : -1;
+  }
+  _participants: Set<number>;
+  get participants() {
+    return this.db.retrieveModels([...this._participants], Agent);
+  }
+  _maxParticipants: number;
+  get maxParticipants() {
+    return this._maxParticipants;
+  }
   displayName(): string {
     throw new Error("Method not implemented.");
   }
@@ -22,6 +32,7 @@ export class Conversation extends BaseModel {
     super(id, db);
 
     this._room = room.id;
+    this._participants = new Set<number>();
 
     logger.log("Conversation " + this + " Initialized.");
   }
@@ -31,6 +42,10 @@ export class Conversation extends BaseModel {
   }
 
   containsAgent(agent: Agent): boolean {
-    return this._agentIDs.has(agent.id);
+    return this._participants.has(agent.id);
+  }
+
+  get isFull(): boolean {
+    return this._participants.keys.length >= this.maxParticipants;
   }
 }
