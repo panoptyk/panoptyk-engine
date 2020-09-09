@@ -50,7 +50,7 @@ export class AgentManipulator {
         agent.conversation = conversation;
     }
 
-    static leaveConversation(agent: Agent, conversation: Conversation): void {
+    static leaveConversation(agent: Agent): void {
         agent.conversation = undefined;
     }
 

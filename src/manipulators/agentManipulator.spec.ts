@@ -2,7 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
 import inject from "../utilities/injectables";
-import { Agent, Item, Room } from "../models";
+import { Agent, Item, Room, Conversation } from "../models";
 import { AgentManipulator } from "./agentManipulator";
 
 
@@ -124,6 +124,15 @@ describe("Agent Manipulator", () => {
             AgentManipulator.removeFromRoom(agent);
 
             assert.equal(-1, agent._room);
+            assert.isUndefined(agent.room);
+        });
+        it("When Not In a Room", () => {
+            db.storeModels([agent]);
+
+            AgentManipulator.removeFromRoom(agent);
+
+            assert.equal(-1, agent._room);
+            assert.isUndefined(agent.room);
         });
     });
     context("Requests Trades", () => {
@@ -327,6 +336,58 @@ describe("Agent Manipulator", () => {
             AgentManipulator.modifyGold(agent, -5);
 
             assert.equal(5, agent.gold);
+        });
+    });
+    context("Joins a Conversation", () => {
+        it("Once", () => {
+            const room1: Room = new Room("R1", 5);
+            const conversation1 = new Conversation(room1);
+
+            db.storeModels([agent, room1, conversation1]);
+
+            AgentManipulator.joinConversation(agent, conversation1);
+
+            assert.deepEqual(conversation1, agent.conversation);
+        });
+        it("When Already In a Covnersation", () => {
+            const room1: Room = new Room("R1", 5);
+            const conversation1 = new Conversation(room1);
+            const conversation2 = new Conversation(room1);
+
+            db.storeModels([agent, room1, conversation1, conversation2]);
+
+            AgentManipulator.joinConversation(agent, conversation1);
+
+            assert.deepEqual(conversation1, agent.conversation);
+
+            AgentManipulator.joinConversation(agent, conversation2);
+
+            assert.deepEqual(conversation2, agent.conversation);
+        });
+    });
+    context("Leaves a Covnersation", () => {
+        it("When In One", () => {
+            const room1: Room = new Room("R1", 5);
+            const conversation1 = new Conversation(room1);
+
+            db.storeModels([agent, room1, conversation1]);
+
+            AgentManipulator.joinConversation(agent, conversation1);
+
+            assert.deepEqual(conversation1, agent.conversation);
+
+            AgentManipulator.leaveConversation(agent);
+
+            assert.equal(-1, agent._conversation);
+            assert.isUndefined(agent.conversation);
+        });
+        it("When Not In One", () => {
+            db.storeModels([agent]);
+
+            AgentManipulator.leaveConversation(agent);
+
+            assert.equal(-1, agent._conversation);
+            assert.isUndefined(agent.conversation);
         });
     });
 });
