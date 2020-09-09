@@ -62,6 +62,7 @@ export abstract class BaseModel implements IModel {
     } else {
       this.id = this.db.getNextID(this.constructor as any);
     }
+    db.storeModel(this);
   }
 
   toJSON(forClient: boolean, context: any): object {
