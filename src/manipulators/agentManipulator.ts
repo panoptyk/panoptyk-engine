@@ -31,19 +31,19 @@ export class AgentManipulator {
         to._conversationRequests.add(from.id);
     }
 
-    static removeRequestedCovnersation(from: Agent, to: Agent): void {
-        from._conversationRequested.delete(to.id);
-        to._conversationRequests.delete(from.id);
+    static removeRequestedCovnersation(requester: Agent, requestee: Agent): void {
+        requester._conversationRequested.delete(requestee.id);
+        requestee._conversationRequests.delete(requester.id);
     }
 
-    static requestTrade(from: Agent, to: Agent): void {
-        from._tradeRequested.add(to.id);
-        to._tradeRequests.add(from.id);
+    static requestTrade(requester: Agent, requestee: Agent): void {
+        requester._tradeRequested.add(requestee.id);
+        requestee._tradeRequests.add(requester.id);
     }
 
-    static removeRequestedTrade(from: Agent, to: Agent): void {
-        from._tradeRequested.delete(to.id);
-        to._tradeRequests.delete(from.id);
+    static removeRequestedTrade(requester: Agent, requestee: Agent): void {
+        requester._tradeRequested.delete(requestee.id);
+        requestee._tradeRequests.delete(requester.id);
     }
 
     static joinConversation(agent: Agent, conversation: Conversation): void {

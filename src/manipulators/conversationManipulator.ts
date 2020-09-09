@@ -12,14 +12,4 @@ export class ConversationManipulator {
         agent.conversation = undefined;
     }
 
-    static requestConversation(requester: Agent, requestee: Agent) {
-        requester._conversationRequested.add(requestee.id);
-        requestee._conversationRequests.add(requester.id);
-    }
-
-    static rejectConversation(requester: Agent, requestee: Agent) {
-        requester._conversationRequested.delete(requestee.id);
-        requestee._conversationRequests.delete(requester.id);
-    }
-
 }
