@@ -7,7 +7,7 @@ export class MovementController extends BaseController {
 
     moveAgent(agent: Agent, from: Room, to: Room): void {
 
-        AgentManipulator.removeFromRoom(agent, from);
+        AgentManipulator.removeFromRoom(agent);
         RoomManipulator.removeAgent(from, agent);
         AgentManipulator.putInRoom(agent, to);
         RoomManipulator.addAgent(to, agent);

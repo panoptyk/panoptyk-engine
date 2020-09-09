@@ -35,7 +35,7 @@ export class SpawnController extends BaseController {
     }
 
     despawnAgent(agent: Agent, room: Room) {
-        AgentManipulator.removeFromRoom(agent, room);
+        AgentManipulator.removeFromRoom(agent);
         RoomManipulator.removeAgent(room, agent);
 
         this.updateChanges(agent, [ agent, room ]);
