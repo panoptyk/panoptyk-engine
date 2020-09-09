@@ -4,7 +4,7 @@ import { RoomManipulator, AgentManipulator, ItemManipulator } from "../manipulat
 
 export class InventoryController extends BaseController {
 
-    pickupItem(agent: Agent, item: Item, room: Room) {
+    pickupItem(agent: Agent, item: Item, room: Room): void {
 
         RoomManipulator.removeItem(room, item);
         ItemManipulator.removeFromRoom(item);
@@ -15,7 +15,7 @@ export class InventoryController extends BaseController {
         });
     }
 
-    dropItem(agent: Agent, item: Item, room: Room) {
+    dropItem(agent: Agent, item: Item, room: Room): void {
 
         AgentManipulator.removeItemInventory(agent, item);
         ItemManipulator.putInRoom(item, room);

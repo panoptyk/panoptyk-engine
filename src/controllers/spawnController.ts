@@ -4,7 +4,7 @@ import { ItemManipulator, RoomManipulator, AgentManipulator } from "../manipulat
 
 export class SpawnController extends BaseController {
 
-    spawnItem(item: Item, room: Room) {
+    spawnItem(item: Item, room: Room): void {
         ItemManipulator.putInRoom(item, room);
         RoomManipulator.addItem(room, item);
 
@@ -13,7 +13,7 @@ export class SpawnController extends BaseController {
         });
     }
 
-    despawnItem(item: Item, room: Room) {
+    despawnItem(item: Item, room: Room): void {
         ItemManipulator.removeFromRoom(item);
         RoomManipulator.removeItem(room, item);
 
@@ -22,7 +22,7 @@ export class SpawnController extends BaseController {
         });
     }
 
-    spawnAgent(agent: Agent, room: Room) {
+    spawnAgent(agent: Agent, room: Room): void {
         AgentManipulator.putInRoom(agent, room);
         RoomManipulator.addAgent(room, agent);
 
@@ -32,7 +32,7 @@ export class SpawnController extends BaseController {
         });
     }
 
-    despawnAgent(agent: Agent, room: Room) {
+    despawnAgent(agent: Agent, room: Room): void {
         AgentManipulator.removeFromRoom(agent);
         RoomManipulator.removeAgent(room, agent);
 
