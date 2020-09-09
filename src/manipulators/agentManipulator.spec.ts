@@ -127,7 +127,9 @@ describe("Agent Manipulator", () => {
             assert.isUndefined(agent.room);
         });
         it("When Not In a Room", () => {
-            db.storeModels([agent]);
+            const room1 = new Room("R1", 5);
+
+            db.storeModels([agent, room1]);
 
             AgentManipulator.removeFromRoom(agent);
 
@@ -382,7 +384,10 @@ describe("Agent Manipulator", () => {
             assert.isUndefined(agent.conversation);
         });
         it("When Not In One", () => {
-            db.storeModels([agent]);
+            const room1: Room = new Room("R1", 5);
+            const conversation1 = new Conversation(room1);
+
+            db.storeModels([agent, room1, conversation1]);
 
             AgentManipulator.leaveConversation(agent);
 

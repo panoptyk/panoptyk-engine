@@ -15,7 +15,7 @@ export class Conversation extends BaseModel {
   }
   _participants: Set<number>;
   get participants() {
-    return this.db.retrieveModels(this.participants, Agent);
+    return this.db.retrieveModels([...this._participants], Agent);
   }
   _maxParticipants: number;
   get maxParticipants() {
@@ -32,6 +32,7 @@ export class Conversation extends BaseModel {
     super(id, db);
 
     this._room = room.id;
+    this._participants = new Set<number>();
 
     logger.log("Conversation " + this + " Initialized.");
   }

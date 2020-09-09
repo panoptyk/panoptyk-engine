@@ -59,7 +59,10 @@ export class Agent extends BaseModel {
   }
   _trade = -1;
   get trade(): Trade {
-    throw new Error("Method not implemented.");
+    return this.db.retrieveModel(this._trade, Trade) as Trade;
+  }
+  set trade(trade: Trade) {
+    this._trade = trade ? trade.id : -1;
   }
   /**
    * Other agents to this agent
