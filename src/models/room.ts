@@ -80,4 +80,8 @@ export class Room extends BaseModel {
   public hasAgent(agent: Agent): boolean {
     return this._occupants.has(agent.id);
   }
+
+  public isFull(): boolean {
+    return this.occupants.length < this.maxOccupants;
+  }
 }

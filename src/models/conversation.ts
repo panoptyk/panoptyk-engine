@@ -17,6 +17,10 @@ export class Conversation extends BaseModel {
   get participants() {
     return this.db.retrieveModels(this.participants, Agent);
   }
+  _maxParticipants: number;
+  get maxParticipants() {
+    return this._maxParticipants;
+  }
   displayName(): string {
     throw new Error("Method not implemented.");
   }
@@ -38,5 +42,9 @@ export class Conversation extends BaseModel {
 
   containsAgent(agent: Agent): boolean {
     return this._participants.has(agent.id);
+  }
+
+  get isFull(): boolean {
+    return this.participants.length < this.maxParticipants;
   }
 }

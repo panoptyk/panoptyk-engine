@@ -17,9 +17,7 @@ export class RoomManipulator {
     }
 
     static addAgent(room: Room, agent: Agent): void {
-        if (room.occupants.length < room.maxOccupants) {
-            room._occupants.add(agent.id);
-        }
+        room._occupants.add(agent.id);
     }
 
     static removeAgent(room: Room, agent: Agent): void {
