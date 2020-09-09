@@ -1,8 +1,6 @@
 import { BaseController } from "./baseController";
 import { Agent, Item, Room } from "../models";
-import { RoomManipulator } from "../manipulators/roomManipulator";
-import { AgentManipulator } from "../manipulators/agentManipulator";
-import { ItemManipulator } from "../manipulators/itemManipulator";
+import { RoomManipulator, AgentManipulator, ItemManipulator } from "../manipulators";
 
 export class InventoryController extends BaseController {
 
