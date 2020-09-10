@@ -1,6 +1,6 @@
 export * from "./models/index";
-export *  from "./models/action/index";
-export { ValidationResult } from "./models/validate";
+export *  from "./action/index";
+export { ValidationResult } from "./action/validate";
 export { Server } from "./server";
 export { ClientAPI } from "./clientAPI";
 export { logger, LOG } from "./utilities/logger";

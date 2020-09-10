@@ -47,8 +47,8 @@ import {
   ActionStealItem,
   ActionConfiscateItem,
   ActionTellItemOwnership
-} from "./models/action/index";
-import { ValidationResult, Validate } from "./models/validate";
+} from "./action/index";
+import { ValidationResult, Validate } from "./action/validate";
 
 export class Server {
   private MIN_TIME_BETWEEN_ACTIONS = 100;

@@ -1,6 +1,6 @@
 import * as io from "socket.io-client";
 import { logger } from "./utilities/logger";
-import { ValidationResult } from "./models/validate";
+import { ValidationResult } from "./action/validate";
 import {
   Agent,
   Room,
