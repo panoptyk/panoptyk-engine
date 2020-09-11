@@ -18,7 +18,7 @@
     "build:client": "rollup -c ./rollup.client.config.js",
     "clean": "rm -r -f ./dist",
     "pretest": "mkdir -p data",
-    "test": "ts-mocha -p test.tsconfig.json src/**/*.spec.ts"
+    "test": "ts-mocha -p test.tsconfig.json \"src/**/*.spec.ts\""
   },
   "repository": {
     "type": "git",
