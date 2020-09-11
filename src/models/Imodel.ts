@@ -1,6 +1,5 @@
 import inject from "../utilities/injectables";
 import { IDatabase } from "../database/IDatabase";
-import { FileDatabase } from "../database/FileDatabase";
 
 /**
  * Defines the necessary parameters and functions any Panoptyk game model needs.
@@ -16,17 +15,22 @@ export interface IModel {
    */
   db: IDatabase;
   /**
-   * Provides json safe version of model for serialization and databasing
+   * Provides json safe*- version of model for serialization and databasing
    * @param forClient Is the JSON for a connected client
    * @param context Additional context for use when creating the safe json
-   * @returns The json save version of the model.
+   * @returns The json safe* version of the model.
    */
   toJSON(forClient: boolean, context: any): object;
   /**
    * Load model data from json
-   * @param json Json safe version of model
+   * @param json Json safe* version of model
    */
   fromJSON(json: any): void;
+  /**
+   * checks equivalence of two models
+   * @param model model to check for equality
+   */
+  equals(model: any): boolean;
   /**
    * In-game name of specfic model instance
    */
@@ -62,7 +66,7 @@ export abstract class BaseModel implements IModel {
     } else {
       this.id = this.db.getNextID(this.constructor as any);
     }
-    db.storeModel(this);
+    this.db.storeModel(this);
   }
 
   toJSON(forClient: boolean, context: any): object {
@@ -76,43 +80,9 @@ export abstract class BaseModel implements IModel {
       this[key] = json[key];
     }
   }
+  equals(model: any) {
+    return this === model;
+  }
   abstract displayName(): string;
   abstract toString(): string;
-
 }
-
-// TODO: Turn this into unit test of some sort
-// inject.db = new FileDatabase();
-
-// class ModelA extends BaseModel {
-//   constructor() {
-//     super();
-//     console.log("ModelA#" + this.id + " created");
-//   }
-//   displayName(): string {
-//     throw new Error("Method not implemented.");
-//   }
-//   toString(): string {
-//     throw new Error("Method not implemented.");
-//   }
-// }
-
-// class ModelB extends BaseModel {
-//   constructor() {
-//     super();
-//     console.log("ModelB#" + this.id + " created");
-//   }
-//   displayName(): string {
-//     throw new Error("Method not implemented.");
-//   }
-//   toString(): string {
-//     throw new Error("Method not implemented.");
-//   }
-// }
-
-// new ModelA();
-// new ModelB();
-// new ModelA();
-// new ModelA();
-// new ModelB();
-// new ModelB();
