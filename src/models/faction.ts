@@ -35,6 +35,9 @@ export class Faction extends BaseModel {
     toString(): string {
         return this.factionName + " (id# " + this.id + ")";
     }
+    equals(model: any) {
+        return model instanceof Faction && this.id === model.id;
+      }
 
     constructor(name: string, type: string, id?: number, db?: IDatabase) {
         super(id, db);

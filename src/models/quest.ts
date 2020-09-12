@@ -9,6 +9,9 @@ export class Quest extends BaseModel {
     toString(): string {
       return "Quest(id#" + this.id + ")";
     }
+    equals(model: any) {
+      return model instanceof Quest && this.id === model.id;
+    }
 
     constructor(id?: number, db?: IDatabase){
       super(id, db);

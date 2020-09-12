@@ -56,6 +56,10 @@ export class Room extends BaseModel {
   toString(): string {
     return this._roomName + " (id# " + this.id + ")";
   }
+  equals(model: any) {
+    return model instanceof Room && this.id === model.id;
+  }
+
    /**
     * Check if it's possible to move from this room to target room.
     * @param {Room} room - target room

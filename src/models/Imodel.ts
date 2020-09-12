@@ -27,7 +27,7 @@ export interface IModel {
    */
   fromJSON(json: any): void;
   /**
-   * checks equivalence of two models
+   * checks if two models are the same
    * @param model model to check for equality
    */
   equals(model: any): boolean;

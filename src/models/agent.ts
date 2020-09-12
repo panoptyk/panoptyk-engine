@@ -132,6 +132,9 @@ export class Agent extends BaseModel {
   toString(): string {
     return this._agentName + " (id#" + this.id + ")";
   }
+  equals(model: any) {
+    return model instanceof Agent && this.id === model.id;
+  }
 
   activeConversationRequestTo(other: Agent): boolean {
     return this._conversationRequested.has(other.id);

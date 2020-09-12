@@ -27,6 +27,9 @@ export class Conversation extends BaseModel {
   toString(): string {
     return "Conversation (id#" + this.id + ")";
   }
+  equals(model: any) {
+    return model instanceof Conversation && this.id === model.id;
+  }
 
   constructor(room: Room, id?: number, db?: IDatabase) {
     super(id, db);

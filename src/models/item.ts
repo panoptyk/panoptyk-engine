@@ -71,4 +71,8 @@ export class Item extends BaseModel {
     return this._itemName + ": " + this._type + " (id#" + this.id + ")";
   }
 
+  equals(model: any) {
+    return model instanceof Item && this.id === model.id;
+  }
+
 }
