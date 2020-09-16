@@ -27,7 +27,7 @@ export function roomAdjacent(oldRoom: Room, newRoom: Room): ValidationResult {
   return ValidationSuccess;
 }
 
-export function hasSpace(room: Room): ValidationResult {
+export function roomHasSpace(room: Room): ValidationResult {
   if (room === undefined) {
     return {
       success: false,

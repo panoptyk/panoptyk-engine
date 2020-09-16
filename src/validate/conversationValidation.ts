@@ -33,7 +33,7 @@ export function ConversationInAgentsRoom(conversation: Conversation, room: Room)
  * @param {Object} conversation - conversation object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function hasSpace(conversation: Conversation): ValidationResult {
+export function conversationHasSpace(conversation: Conversation): ValidationResult {
   if (conversation === undefined) {
     return {
       success: false,
