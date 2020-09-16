@@ -10,6 +10,9 @@ import { logger } from "../utilities/logger";
  */
 export class Room extends BaseModel {
   _roomName: string;
+  get roomName(): string {
+    return this._roomName;
+  }
   _adjacentRooms: Set<number>;
   get adjacentRooms(): Room[] {
     return this.db.retrieveModels([...this._adjacentRooms], Room) as Room[];
@@ -73,7 +76,7 @@ export class Room extends BaseModel {
    * Check if room contains specified item
    * @param item
    */
-  public hasItem(item: Item): boolean {
+  hasItem(item: Item): boolean {
     return this._items.has(item.id);
   }
 
@@ -81,11 +84,11 @@ export class Room extends BaseModel {
    * Checks if room contains specified agent
    * @param agent
    */
-  public hasAgent(agent: Agent): boolean {
+  hasAgent(agent: Agent): boolean {
     return this._occupants.has(agent.id);
   }
 
-  public isFull(): boolean {
+  isFull(): boolean {
     return this._occupants.keys.length >= this.maxOccupants;
   }
 }

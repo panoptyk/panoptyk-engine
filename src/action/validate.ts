@@ -1,9 +1,11 @@
-import { Trade, Item, Room, Agent, Conversation, Info, Quest, Faction } from "../models/index";
+import { Trade, Item, Room, Agent, Conversation, Info, Quest, Faction } from "../models";
 
 export interface ValidationResult {
   status: boolean;
   message: string;
 }
+
+
 
 export class Validate {
   public static readonly successMsg: ValidationResult = {
@@ -11,7 +13,7 @@ export class Validate {
     message: ""
   };
   /**
-   * Validate a given dictionary has same keys as one of theprovided ones.
+   * Validate a given dictionary has same keys as one of the provided ones.
    * @param {[Object]} goodFormats - given formats to match to.
    * @param {Object} inputFormat - dictionary being inspected.
    * @return {Object} {status: boolean, message: string}
@@ -134,15 +136,14 @@ export class Validate {
   /**
    * Validate items are in room.
    * @param {Object} room - room items are supposed to be in.
-   * @param {[int]} itemIds - ids of items room is supposed to have.
+   * @param {[Item]} items - items room is supposed to have.
    * @return {Object} {status: boolean, message: string, items:[Object]}
    */
-  public static validate_items_in_room(room: Room, itemIds: number[]) {
-    const items: Item[] = Item.getByIDs(itemIds);
+  public static validate_items_in_room(room: Room, items: Item[]) {
     if (items === undefined) {
       return {
         status: false,
-        message: "No item for id " + JSON.stringify(itemIds)
+        message: "No items"
       };
     }
 
@@ -185,29 +186,29 @@ export class Validate {
    * @param {Object} owner - agent object.
    * @returns {Object} {status: boolean, message: string, trade: [Object]}
    */
-  public static validate_items_in_trade(
-    items: Item[],
-    trade: Trade,
-    owner: Agent
-  ) {
-    if (owner === trade.agentIni) {
-      for (const item of items) {
-        if (trade.itemsIni.indexOf(item) < 0) {
-          return { status: false, message: "Item not in trade" };
-        }
-      }
-    } else if (owner === trade.agentRec) {
-      for (const item of items) {
-        if (trade.itemsRec.indexOf(item) < 0) {
-          return { status: false, message: "Item not in trade" };
-        }
-      }
-    } else {
-      return { status: false, message: "Bad trade" };
-    }
+  // public static validate_items_in_trade(
+  //   items: Item[],
+  //   trade: Trade,
+  //   owner: Agent
+  // ) {
+  //   if (owner === trade.agentIni) {
+  //     for (const item of items) {
+  //       if (trade.itemsIni.indexOf(item) < 0) {
+  //         return { status: false, message: "Item not in trade" };
+  //       }
+  //     }
+  //   } else if (owner === trade.agentRec) {
+  //     for (const item of items) {
+  //       if (trade.itemsRec.indexOf(item) < 0) {
+  //         return { status: false, message: "Item not in trade" };
+  //       }
+  //     }
+  //   } else {
+  //     return { status: false, message: "Bad trade" };
+  //   }
 
-    return { status: true, message: "", trade, items };
-  }
+  //   return { status: true, message: "", trade, items };
+  // }
 
   /**
    * Check if a trade has an agent ready status.
@@ -216,25 +217,25 @@ export class Validate {
    * @param {boolean} rstatus - ready status.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_ready_status(
-    trade: Trade,
-    agent: Agent,
-    rstatus: boolean
-  ) {
-    if (agent === trade.agentIni) {
-      if (trade.statusIni !== rstatus) {
-        return { status: false, message: "Trade ready status already set" };
-      }
-    } else if (agent === trade.agentRec) {
-      if (trade.statusRec !== rstatus) {
-        return { status: false, message: "Trade ready status already set" };
-      }
-    } else {
-      return { status: false, message: "Agent not in trade" };
-    }
+  // public static validate_ready_status(
+  //   trade: Trade,
+  //   agent: Agent,
+  //   rstatus: boolean
+  // ) {
+  //   if (agent === trade.agentIni) {
+  //     if (trade.statusIni !== rstatus) {
+  //       return { status: false, message: "Trade ready status already set" };
+  //     }
+  //   } else if (agent === trade.agentRec) {
+  //     if (trade.statusRec !== rstatus) {
+  //       return { status: false, message: "Trade ready status already set" };
+  //     }
+  //   } else {
+  //     return { status: false, message: "Agent not in trade" };
+  //   }
 
-    return { status: true, message: "", trade };
-  }
+  //   return { status: true, message: "", trade };
+  // }
 
   /**
    * Check if a conversation is in given room.
@@ -262,7 +263,7 @@ export class Validate {
    * @returns {Object} {status: boolean, message: string, conversation: Object}
    */
   public static validate_conversation_has_space(conversation: Conversation) {
-    if (conversation.getAgents().length >= conversation.maxAgents) {
+    if (conversation.isFull()) {
       return { status: false, message: "Conversation is full", conversation };
     }
 
@@ -279,7 +280,7 @@ export class Validate {
     conversation: Conversation,
     agent: Agent
   ) {
-    if (conversation.contains_agent(agent) === undefined) {
+    if (conversation.containsAgent(agent) === undefined) {
       return {
         status: false,
         message: "Agent does not belong to conversation",
@@ -318,37 +319,37 @@ export class Validate {
    * @param {Agent} agent2 - agent object.
    * @returns {Object} {status: boolean, message: string}
    */
-  public static validate_agents_not_already_trading(
-    agent1: Agent,
-    agent2: Agent
-  ) {
-    const shared: Trade[] = Trade.getActiveTradesBetweenAgents(agent1, agent2);
-    if (shared.length > 0) {
-      return {
-        status: false,
-        message: "Agents are sharing an active trade: " + shared[0].id
-      };
-    }
-    return { status: true, message: "Agents are not sharing an active trade" };
-  }
+  // public static validate_agents_not_already_trading(
+  //   agent1: Agent,
+  //   agent2: Agent
+  // ) {
+  //   const shared: Trade[] = Trade.getActiveTradesBetweenAgents(agent1, agent2);
+  //   if (shared.length > 0) {
+  //     return {
+  //       status: false,
+  //       message: "Agents are sharing an active trade: " + shared[0].id
+  //     };
+  //   }
+  //   return { status: true, message: "Agents are not sharing an active trade" };
+  // }
 
   /**
    * Check if a trade exists.
    * @param {int} tradeId - id of trade.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_trade_exists(tradeId: number) {
-    const trade = Trade.getByID(tradeId);
+  // public static validate_trade_exists(tradeId: number) {
+  //   const trade = Trade.getByID(tradeId);
 
-    if (!trade) {
-      return {
-        status: false,
-        message: "Could not find trade with id " + tradeId
-      };
-    }
+  //   if (!trade) {
+  //     return {
+  //       status: false,
+  //       message: "Could not find trade with id " + tradeId
+  //     };
+  //   }
 
-    return { status: true, message: "", trade };
-  }
+  //   return { status: true, message: "", trade };
+  // }
 
   /**
    * Check if a trade has a given status.
@@ -356,28 +357,28 @@ export class Validate {
    * @param {[int]} statusOptions - array of possible statuses.
    * @returns {Object} {status: boolean, message: string, trade: Object}
    */
-  public static validate_trade_status(trade: Trade, statusOptions: number[]) {
-    if (!trade || statusOptions.indexOf(trade.resultStatus) === -1) {
-      return { status: false, message: "Trade not in correct state", trade };
-    }
+  // public static validate_trade_status(trade: Trade, statusOptions: number[]) {
+  //   if (!trade || statusOptions.indexOf(trade.resultStatus) === -1) {
+  //     return { status: false, message: "Trade not in correct state", trade };
+  //   }
 
-    return { status: true, message: "", trade };
-  }
+  //   return { status: true, message: "", trade };
+  // }
 
   /**
    * Validates that agent is in the given trade
    * @param agent
    * @param trade
    */
-  public static validate_agent_in_trade(agent: Agent, trade: Trade) {
-    if (trade.agentIni !== agent && trade.agentRec !== agent) {
-      return {
-        status: false,
-        message: agent + " is not in Trade " + trade
-      };
-    }
-    return Validate.successMsg;
-  }
+  // public static validate_agent_in_trade(agent: Agent, trade: Trade) {
+  //   if (trade.agentIni !== agent && trade.agentRec !== agent) {
+  //     return {
+  //       status: false,
+  //       message: agent + " is not in Trade " + trade
+  //     };
+  //   }
+  //   return Validate.successMsg;
+  // }
 
   /**
    * Checks if agents are in the same room
@@ -416,51 +417,53 @@ export class Validate {
 
   /**
    * Validates that a valid question can be constructed from parameters
+   * TODO
    */
-  public static validate_valid_question(predicate: any, mask: string[]) {
-    const type = Info.ACTIONS[predicate.action];
-    if (type === undefined) {
-      return {
-        status: false,
-        message: "Error asking question, " + predicate.action + " is an invalid action!"
-      };
-    }
-    // TODO: Validate predicate and mask predicates
-    return {
-      status: true,
-      message: ""
-    };
-  }
+  // public static validate_valid_question(predicate: any, mask: string[]) {
+  //   const type = Info.ACTIONS[predicate.action];
+  //   if (type === undefined) {
+  //     return {
+  //       status: false,
+  //       message: "Error asking question, " + predicate.action + " is an invalid action!"
+  //     };
+  //   }
+  //   // TODO: Validate predicate and mask predicates
+  //   return {
+  //     status: true,
+  //     message: ""
+  //   };
+  // }
 
   /**
    * Validates that a valid question is being answered and that the owner of
    * the question is in the conversation.
+   * TODO
    */
-  public static validate_can_answer(question: Info, conversation: Conversation) {
-    if (question === undefined || !question.isQuery()) {
-      return {
-        status: false,
-        message: "Not a valid question to answer!"
-      };
-    }
-    else if (!conversation.contains_agent(question.owner)) {
-      return {
-        status: false,
-        message: "Agent " + question.owner + " is not in your conversation!"
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_can_answer(question: Info, conversation: Conversation) {
+  //   if (question === undefined || !question.isQuery()) {
+  //     return {
+  //       status: false,
+  //       message: "Not a valid question to answer!"
+  //     };
+  //   }
+  //   else if (!conversation.contains_agent(question.owner)) {
+  //     return {
+  //       status: false,
+  //       message: "Agent " + question.owner + " is not in your conversation!"
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
-  public static validate_agent_owns_info(agent: Agent, info: Info) {
-    if (info.owner !== agent) {
-      return {
-        status: false,
-        message: "Cheater! You did not own this information."
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_agent_owns_info(agent: Agent, info: Info) {
+  //   if (info.owner !== agent) {
+  //     return {
+  //       status: false,
+  //       message: "Cheater! You did not own this information."
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if given answer is related to question
@@ -468,129 +471,129 @@ export class Validate {
    * @param answer
    * @param mask
    */
-  public static validate_info_is_answer(question: Info, answer: Info) {
-    if (question.action !== answer.action) {
-      return {
-        status: false,
-        message: "Answer action does not match question action!"
-      };
-    }
-    const questionTerms = question.getTerms();
-    const answerTerms = answer.getTerms();
-    // make sure answer has same known info as question
-    for (const key in questionTerms) {
-      if (questionTerms[key] !== undefined &&
-        questionTerms[key] !== answerTerms[key]) {
-        return {
-          status: false,
-          message: "Answer " + key + " of " + answerTerms[key] + " does not match the "
-            + key + " of " + questionTerms[key] + " in the question!"
-        };
-      }
-    }
-    // make sure answer adds some unknown info
-    let newInfo = 0;
-    for (const key in answerTerms) {
-        if (questionTerms[key] === undefined) {
-          newInfo += 1;
-        }
-    }
-    if (newInfo < 1) {
-      return {
-        status: false,
-        message: "Answer does not add any new info to question!"
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_info_is_answer(question: Info, answer: Info) {
+  //   if (question.action !== answer.action) {
+  //     return {
+  //       status: false,
+  //       message: "Answer action does not match question action!"
+  //     };
+  //   }
+  //   const questionTerms = question.getTerms();
+  //   const answerTerms = answer.getTerms();
+  //   // make sure answer has same known info as question
+  //   for (const key in questionTerms) {
+  //     if (questionTerms[key] !== undefined &&
+  //       questionTerms[key] !== answerTerms[key]) {
+  //       return {
+  //         status: false,
+  //         message: "Answer " + key + " of " + answerTerms[key] + " does not match the "
+  //           + key + " of " + questionTerms[key] + " in the question!"
+  //       };
+  //     }
+  //   }
+  //   // make sure answer adds some unknown info
+  //   let newInfo = 0;
+  //   for (const key in answerTerms) {
+  //       if (questionTerms[key] === undefined) {
+  //         newInfo += 1;
+  //       }
+  //   }
+  //   if (newInfo < 1) {
+  //     return {
+  //       status: false,
+  //       message: "Answer does not add any new info to question!"
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if agent has already answered question with specific answer
    */
-  public static validate_answer_not_used(trade: Trade, answer: Info) {
-    const answeringAgent: Agent = answer.owner;
-    const askingAgent: Agent = trade.agentIni === answeringAgent ? trade.agentRec : trade.agentIni;
-    for (const info of answeringAgent.knowledge) {
-      if (info.action === Info.ACTIONS.TOLD.name) {
-        // checks if answering agent has told this answer to asking agent
-        if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === answer.infoID) {
-          return {
-            status: false,
-            message: "You have already told " + askingAgent + " that!"
-          };
-        }
-        // checks if asking agent has told this answer to answering agent
-        else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === answer.infoID) {
-          return {
-            status: false,
-            message: askingAgent + " has already told you that!"
-          };
-        }
-      }
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_answer_not_used(trade: Trade, answer: Info) {
+  //   const answeringAgent: Agent = answer.owner;
+  //   const askingAgent: Agent = trade.agentIni === answeringAgent ? trade.agentRec : trade.agentIni;
+  //   for (const info of answeringAgent.knowledge) {
+  //     if (info.action === Info.ACTIONS.TOLD.name) {
+  //       // checks if answering agent has told this answer to asking agent
+  //       if (info.agents[1] === askingAgent.id && info.agents[0] === answeringAgent.id && info.infoID === answer.infoID) {
+  //         return {
+  //           status: false,
+  //           message: "You have already told " + askingAgent + " that!"
+  //         };
+  //       }
+  //       // checks if asking agent has told this answer to answering agent
+  //       else if (info.agents[0] === askingAgent.id && info.agents[1] === answeringAgent.id && info.infoID === answer.infoID) {
+  //         return {
+  //           status: false,
+  //           message: askingAgent + " has already told you that!"
+  //         };
+  //       }
+  //     }
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if question has been asked in current conversation
    */
-  public static validate_asked_in_conversation(question: Info, conversation: Conversation) {
-    if (!conversation.hasQuestion(question)) {
-      return {
-        status: false,
-        message: question + " has not been asked on conversation " + conversation
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_asked_in_conversation(question: Info, conversation: Conversation) {
+  //   if (!conversation.hasQuestion(question)) {
+  //     return {
+  //       status: false,
+  //       message: question + " has not been asked on conversation " + conversation
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if given mask can be applied to specified info item
    * @param info info to be masked
    * @param mask mask to be applied
    */
-  public static validate_info_mask(info: Info, mask: string[]) {
-    const preds = info.getTerms();
-    for (const val of mask) {
-      if (preds[val] === undefined) {
-        return {
-          status: false,
-          message: val + " cannot be masked as it does not exist on Info " + info
-        };
-      }
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_info_mask(info: Info, mask: string[]) {
+  //   const preds = info.getTerms();
+  //   for (const val of mask) {
+  //     if (preds[val] === undefined) {
+  //       return {
+  //         status: false,
+  //         message: val + " cannot be masked as it does not exist on Info " + info
+  //       };
+  //     }
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if quest was assigned by given agent
    * @param agent
    * @param quest
    */
-  public static validate_agent_assigned_quest(agent: Agent, quest: Quest) {
-    if (agent !== quest.giver) {
-      return {
-        status: false,
-        message: agent + " did not create quest " + quest
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_agent_assigned_quest(agent: Agent, quest: Quest) {
+  //   if (agent !== quest.giver) {
+  //     return {
+  //       status: false,
+  //       message: agent + " did not create quest " + quest
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Checks if given info solves the quest
    * @param info
    * @param quest
    */
-  public static validate_info_satisfies_quest(info: Info, quest: Quest) {
-    if (!quest.checkSatisfiability(info)) {
-      return {
-        status: false,
-        message: info + " does not solve " + quest
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_info_satisfies_quest(info: Info, quest: Quest) {
+  //   if (!quest.checkSatisfiability(info)) {
+  //     return {
+  //       status: false,
+  //       message: info + " does not solve " + quest
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Prevents stupid requests
@@ -628,15 +631,15 @@ export class Validate {
    * @param trade
    * @param amount
    */
-  public static validate_trade_gold_change(agent: Agent, trade: Trade, amount: number) {
-    if (trade.getAgentsOfferedGold(agent) + amount < 0) {
-      return {
-        status: false,
-        message: "You cannot offer less than zero gold!"
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_trade_gold_change(agent: Agent, trade: Trade, amount: number) {
+  //   if (trade.getAgentsOfferedGold(agent) + amount < 0) {
+  //     return {
+  //       status: false,
+  //       message: "You cannot offer less than zero gold!"
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Validation for events that require a minimum number of an object
@@ -659,17 +662,17 @@ export class Validate {
    * @param requiredType
    * @param agent
    */
-  public static validate_factionType_requirement(requiredType: Set<string>, agent: Agent) {
-    if (requiredType) {
-      if (!agent.faction || !requiredType.has(agent.faction.factionType)) {
-        return {
-          status: false,
-          message: agent + " is not part of a faction able to do that action"
-        };
-      }
-    }
-    return Validate.successMsg;
-  }
+  // public static validate_factionType_requirement(requiredType: Set<string>, agent: Agent) {
+  //   if (requiredType) {
+  //     if (!agent.faction || !requiredType.has(agent.faction.factionType)) {
+  //       return {
+  //         status: false,
+  //         message: agent + " is not part of a faction able to do that action"
+  //       };
+  //     }
+  //   }
+  //   return Validate.successMsg;
+  // }
 
   /**
    * Checks if agent is in a faction and optionally meets given rank requirement
@@ -677,34 +680,34 @@ export class Validate {
    * @param faction
    * @param rank optional param rank that agent must be <=
    */
-  public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
-    const agentRank = faction.getAgentRank(agent);
-    if (agentRank === undefined) {
-      return {
-        status: false,
-        message: agent + " is not part of faction " + faction
-      };
-    }
-    else if (rank !== undefined && agentRank > rank) {
-      return {
-        status: false,
-        message: agent + " does not meet rank requirement of " + rank + " in faction " + faction
-      };
-    }
-    return { status: true, message: "" };
-  }
+  // public static validate_agent_faction(agent: Agent, faction: Faction, rank?: number) {
+  //   const agentRank = faction.getAgentRank(agent);
+  //   if (agentRank === undefined) {
+  //     return {
+  //       status: false,
+  //       message: agent + " is not part of faction " + faction
+  //     };
+  //   }
+  //   else if (rank !== undefined && agentRank > rank) {
+  //     return {
+  //       status: false,
+  //       message: agent + " does not meet rank requirement of " + rank + " in faction " + faction
+  //     };
+  //   }
+  //   return { status: true, message: "" };
+  // }
 
   /**
    * Validates that item is either illegal or stolen
    * @param item
    */
-  public static validate_illegal_item(item: Item) {
-    if (!item.itemTags.has("illegal") && !item.itemTags.has("stolen")) {
-      return {
-        status: false,
-        message: item + " is not illegal!"
-      };
-    }
-    return Validate.successMsg;
-  }
+  // public static validate_illegal_item(item: Item) {
+  //   if (!item.itemTags.has("illegal") && !item.itemTags.has("stolen")) {
+  //     return {
+  //       status: false,
+  //       message: item + " is not illegal!"
+  //     };
+  //   }
+  //   return Validate.successMsg;
+  // }
 }

@@ -12,6 +12,9 @@ export class Item extends BaseModel {
     return this._type;
   }
   _itemName: string;
+  get itemName(): string {
+    return this._itemName;
+  }
   _quantity: number;
   get quantity(): number {
     return this._quantity;
