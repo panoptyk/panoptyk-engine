@@ -1,5 +1,13 @@
 import { PredicateBase } from "./predBase";
-import { maskof, PredicateTerms, serializable} from "./IPredicate";
+import {
+  MASKED,
+  masked,
+  metadata,
+  PredicateTerms,
+  query,
+  QUERY,
+  serializable,
+} from "./IPredicate";
 
 export interface T extends PredicateTerms {
   time: number;
@@ -18,13 +26,11 @@ export class PredicateT extends PredicateBase {
     this._terms.time = time;
   }
 
-  getTerms(mask?: maskof<T>): T {
-    let terms: T = {
+  getTerms(mask?: metadata<T>, asQuery = false): T | masked<T> | query<T> {
+    const terms: T = {
       time: this._terms.time,
     };
 
-    terms = PredicateBase.maskTerms(terms, mask);
-
-    return terms;
+    return PredicateBase.replaceTerms(terms, asQuery ? QUERY : MASKED, mask);
   }
 }

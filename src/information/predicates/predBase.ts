@@ -1,10 +1,13 @@
 import {
   IPredicate,
   PredicateTerms,
-  maskof,
+  metadata,
   serializable,
   MASKED,
   PredicateTerm,
+  masked,
+  query,
+  QUERY,
 } from "./IPredicate";
 import { IModel } from "../../models";
 import { IDatabase } from "../../database/IDatabase";
@@ -16,12 +19,16 @@ import inject from "../../utilities/injectables";
  */
 export abstract class PredicateBase implements IModel, IPredicate {
   // Helper functions
-  static maskTerms<P extends PredicateTerms>(terms: P, mask?: maskof<P>): P {
-    const copyTerms = Object.assign({}, terms);
+  static replaceTerms<P extends PredicateTerms>(
+    terms: P,
+    replace: typeof MASKED | typeof QUERY = MASKED,
+    mask?: metadata<P>
+  ): masked<P> | query<P> {
+    const copyTerms: any = Object.assign({}, terms);
     if (mask) {
       for (const key in mask) {
         if (key in copyTerms && mask[key]) {
-          (copyTerms[key] as any) = MASKED;
+          copyTerms[key] = replace;
         }
       }
     }
@@ -55,7 +62,7 @@ export abstract class PredicateBase implements IModel, IPredicate {
     let copyTerms = Object.assign({}, this._terms);
     if (forClient) {
       if (context.mask) {
-        copyTerms = PredicateBase.maskTerms(copyTerms, context.mask);
+        copyTerms = PredicateBase.replaceTerms(copyTerms, context.mask);
       }
     }
     return copyTerms;
@@ -81,12 +88,12 @@ export abstract class PredicateBase implements IModel, IPredicate {
   // Predicate functionality
   readonly predicateName: string;
   _terms: serializable<PredicateTerms> = {};
-  abstract getTerms(mask?: maskof<PredicateTerms>): PredicateTerms;
+  abstract getTerms(metadata?: metadata<PredicateTerms>, asQuery?: boolean): PredicateTerms;
 
   compare(
     pred: IPredicate,
-    mask?: maskof<PredicateTerms>,
-    otherMask?: maskof<PredicateTerms>
+    mask?: metadata<PredicateTerms>,
+    otherMask?: metadata<PredicateTerms>
   ): "equal" | "not equal" | "superset" | "subset" | "error" {
     const terms = this.getTerms(mask);
     const otherTerms = pred.getTerms(otherMask);
@@ -112,6 +119,52 @@ export abstract class PredicateBase implements IModel, IPredicate {
       }
       return "subset";
     } else if (keys.length > otherKeys.length) {
+      for (const key of otherKeys) {
+        if (!PredicateBase.equalTerms(terms[key], otherTerms[key])) {
+          return "not equal";
+        }
+      }
+      return "superset";
+    }
+
+    return "error";
+  }
+
+  queryCompare(
+    answer: IPredicate,
+    query: metadata<PredicateTerms>,
+  ): "equal" | "not equal" | "superset" | "subset" | "error" {
+    const qTerms = this.getTerms(query, true);
+    const terms = {};
+    for (const key in qTerms) {
+      if (qTerms[key] !== QUERY) {
+        terms[key] = qTerms[key];
+      }
+    }
+    const otherTerms = answer.getTerms();
+
+    const qKeys = Object.keys(qTerms);
+    const keys = Object.keys(terms);
+    const otherKeys = Object.keys(otherTerms);
+
+    if (qKeys.length === otherKeys.length) {
+      if (this.predicateName !== answer.predicateName) {
+        return "not equal";
+      }
+      for (const key of keys) {
+        if (!PredicateBase.equalTerms(terms[key], otherTerms[key])) {
+          return "not equal";
+        }
+      }
+      return "equal";
+    } else if (qKeys.length < otherKeys.length) {
+      for (const key of keys) {
+        if (!PredicateBase.equalTerms(terms[key], otherTerms[key])) {
+          return "not equal";
+        }
+      }
+      return "subset";
+    } else if (qKeys.length > otherKeys.length) {
       for (const key of otherKeys) {
         if (!PredicateBase.equalTerms(terms[key], otherTerms[key])) {
           return "not equal";

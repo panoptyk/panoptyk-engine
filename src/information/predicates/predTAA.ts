@@ -1,4 +1,11 @@
-import { maskof, serializable } from "./IPredicate";
+import {
+  MASKED,
+  masked,
+  metadata,
+  query,
+  QUERY,
+  serializable,
+} from "./IPredicate";
 import { PredicateBase } from "./predBase";
 import { TA } from "./predTA";
 import { Agent } from "../../models";
@@ -22,15 +29,13 @@ export class PredicateTAA extends PredicateBase {
     this._terms.agentB = agentB ? agentB.id : -1;
   }
 
-  getTerms(mask?: maskof<TAA>): TAA {
-    let terms: TAA = {
+  getTerms(mask?: metadata<TAA>, asQuery = false): masked<TAA> | query<TAA> {
+    const terms: TAA = {
       time: this._terms.time,
       agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
-      agentB: this.db.retrieveModel(this._terms.agentB, Agent) as Agent
+      agentB: this.db.retrieveModel(this._terms.agentB, Agent) as Agent,
     };
 
-    terms = PredicateBase.maskTerms(terms, mask);
-
-    return terms;
+    return PredicateBase.replaceTerms(terms, asQuery ? QUERY : MASKED, mask);
   }
 }

@@ -1,4 +1,11 @@
-import { maskof, serializable } from "./IPredicate";
+import {
+  MASKED,
+  masked,
+  metadata,
+  query,
+  QUERY,
+  serializable,
+} from "./IPredicate";
 import { PredicateBase } from "./predBase";
 import { TAR } from "./predTAR";
 import { Agent, Room } from "../../models";
@@ -23,16 +30,14 @@ export class PredicateTARR extends PredicateBase {
     this._terms.roomB = roomB ? roomB.id : -1;
   }
 
-  getTerms(mask?: maskof<TARR>): TARR {
-    let terms: TARR = {
+  getTerms(mask?: metadata<TARR>, asQuery = false): masked<TARR> | query<TARR> {
+    const terms: TARR = {
       time: this._terms.time,
       agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
       room: this.db.retrieveModel(this._terms.room, Room) as Room,
       roomB: this.db.retrieveModel(this._terms.roomB, Room) as Room
     };
 
-    terms = PredicateBase.maskTerms(terms, mask);
-
-    return terms;
+    return PredicateBase.replaceTerms(terms, asQuery ? QUERY : MASKED, mask);
   }
 }

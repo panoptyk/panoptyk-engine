@@ -1,22 +1,25 @@
 import { assert } from "chai";
 import "mocha";
-import { MemoryDatabase } from "../database/MemoryDatabase";
 import inject from "../utilities/injectables";
+import { MemoryDatabase } from "../database/MemoryDatabase";
 import { Agent, Item, Room, Conversation } from "../models";
+import { TA, PredicateTA, TAR, PredicateTAR, QUERY } from "./predicates";
+import { Actions, Query } from "./actionshortcuts";
 import { Information } from "./information";
-import { TA, PredicateTA, TAR, PredicateTAR } from "./predicates";
 
 describe("Information Model", () => {
   let db: MemoryDatabase;
   let agentA: Agent;
   let agentB: Agent;
   let roomA: Room;
+  let roomB: Room;
   beforeEach(() => {
     db = new MemoryDatabase();
     inject.db = db;
     agentA = new Agent("A");
     agentB = new Agent("B");
     roomA = new Room("A", 1);
+    roomB = new Room("B", 1);
   });
   context("ID numbering", () => {
     it("basic creation", () => {
@@ -75,6 +78,49 @@ describe("Information Model", () => {
       assert.equal(info4.id, 7);
       assert.equal(info4c.id, 8);
       assert.equal(info4cc.id, 9);
+    });
+  });
+  context("isAnswer", () => {
+    it("exact", () => {
+      const mov1 = Actions.moved({time: 123, agent: agentA, room: roomA, roomB});
+      const mov2 = Actions.moved({time: 123, agent: agentA, room: roomB, roomB: roomA});
+      const mov1c = mov1.getCopy();
+
+      const movQ = Query.moved({time: 123, agent: agentA, room: roomA, roomB});
+      const movQc = movQ.getCopy();
+      assert.equal(movQ.isAnswer(mov1), true);
+      assert.equal(movQ.isAnswer(mov1c), true);
+      assert.equal(movQc.isAnswer(mov1c), true);
+      assert.equal(movQ.isAnswer(mov2), false);
+    });
+    it("same predicate", () => {
+      const mov1 = Actions.moved({time: 123, agent: agentA, room: roomA, roomB});
+      const mov2 = Actions.moved({time: 123, agent: agentA, room: roomB, roomB: roomA});
+      const mov1c = mov1.getCopy();
+
+      const movQ = Query.moved({time: 123, agent: agentA, room: roomA, roomB: QUERY});
+      const movQ2 = Query.moved({time: 123, agent: agentA, room: QUERY, roomB: QUERY});
+      const movQc = movQ.getCopy();
+
+      assert.equal(movQ.isAnswer(mov1), true);
+      assert.equal(movQ.isAnswer(mov1c), true);
+      assert.equal(movQc.isAnswer(mov1c), true);
+      assert.equal(movQ.isAnswer(mov2), false);
+
+      assert.equal(movQ2.isAnswer(mov1), true);
+      assert.equal(movQ2.isAnswer(mov2), true);
+    });
+    it("different predicate", () => {
+      const mov1 = Actions.moved({time: 123, agent: agentA, room: roomA, roomB});
+      const mov2 = Actions.moved({time: 123, agent: agentB, room: roomB, roomB: roomA});
+      const mov1c = mov1.getCopy();
+
+      const movQ = Query.about.agent(agentA);
+      const movQc = movQ.getCopy();
+      assert.equal(movQ.isAnswer(mov1), true);
+      assert.equal(movQ.isAnswer(mov1c), true);
+      assert.equal(movQc.isAnswer(mov1c), true);
+      assert.equal(movQ.isAnswer(mov2), false);
     });
   });
 });

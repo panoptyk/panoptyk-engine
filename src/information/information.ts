@@ -1,7 +1,7 @@
 import { BaseModel, Agent } from "../models";
 import {
   PredicateBase,
-  maskof,
+  metadata,
   PredicateTerms,
   PredicateT,
   PredicateTA,
@@ -10,8 +10,12 @@ import {
   PredicateTAR,
   PredicateTARR,
   MASKED,
+  QUERY,
+  masked,
+  query,
 } from "./predicates";
 import { IDatabase } from "../database/IDatabase";
+import { urlencoded } from "express";
 
 /**
  * lookup to find correct class to construct when calling fromJSON()
@@ -41,11 +45,11 @@ export class Information<P extends PredicateTerms> extends BaseModel {
    */
   _pred: PredicateBase;
   /**
-   * potential mask of information
+   * potential mask or query of information terms
    */
-  _mask: { action: boolean; predMask: maskof<P> } = {
+  _metadata: { action: boolean; predMetaData: metadata<P> } = {
     action: false,
-    predMask: {},
+    predMetaData: {},
   };
 
   /**
@@ -136,13 +140,12 @@ export class Information<P extends PredicateTerms> extends BaseModel {
   }
 
   isMasked(): boolean {
-    const predMasked = false;
-    for (const key in this._mask.predMask) {
-      if (this._mask.predMask[key]) {
+    for (const key in this._metadata.predMetaData) {
+      if (this._metadata.predMetaData[key]) {
         return true;
       }
     }
-    return this._mask.action;
+    return this._metadata.action;
   }
 
   isMaster(): boolean {
@@ -177,12 +180,33 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     return undefined;
   }
 
-  getTerms(withMask = false): { action: string } & P {
+  getTerms(withMask: false): { action: string } & P;
+  getTerms(withMask: true): { action: string | typeof MASKED } & masked<P>;
+  getTerms(
+    withMask = false
+  ): { action: string | typeof MASKED | typeof QUERY } & (
+    | P
+    | masked<P>
+    | query<P>
+  ) {
+    const master = this.getMasterCopy();
+    if (this.isQuery()) {
+      return master.getQueryTerms();
+    }
+    const terms: any = master._pred.getTerms(
+      withMask ? this._metadata.predMetaData : undefined
+    );
+    terms.action = withMask && this._metadata.action ? MASKED : master._action;
+    return terms;
+  }
+
+  getQueryTerms(): { action: string | typeof QUERY } & query<P> {
     const master = this.getMasterCopy();
     const terms: any = master._pred.getTerms(
-      withMask ? this._mask.predMask : undefined
+      master._metadata.predMetaData,
+      true
     );
-    terms.action = withMask && this._mask.action ? MASKED : master._action;
+    terms.action = master._metadata.action ? QUERY : master._action;
     return terms;
   }
 
@@ -228,11 +252,31 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     );
   }
 
-  isAnswer(answer: Information<PredicateTerms>) {
-    // TODO
+  /**
+   * Checks if provided question is answered by this information
+   * @param question question; must be a query
+   */
+  answers(question: Information<PredicateTerms>): boolean {
+    return question.isAnswer(this);
   }
 
-  answers(question: Information<PredicateTerms>) {
-    // TODO
+  /**
+   * Checks if provided answer is a valid answer to this query
+   * @param answer answer to info; cannot be a query
+   */
+  isAnswer(answer: Information<PredicateTerms>): boolean {
+    const masterQ = this.getMasterCopy();
+    const masterA = answer.getMasterCopy();
+    if (!masterQ.isQuery() || masterA.isQuery()) {
+      return false;
+    }
+    const predCompare = masterQ._pred.queryCompare(
+      masterA._pred,
+      masterQ._metadata.predMetaData
+    );
+    return (
+      (masterQ._metadata.action || masterQ._action === masterA._action) &&
+      (predCompare === "equal" || predCompare === "subset")
+    );
   }
 }

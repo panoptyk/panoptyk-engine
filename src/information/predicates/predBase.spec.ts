@@ -3,10 +3,14 @@ import "mocha";
 import { MemoryDatabase } from "../../database/MemoryDatabase";
 import inject from "../../utilities/injectables";
 import { Agent, Item, Room, Conversation } from "../../models";
-import { MASKED, QUERY } from "./IPredicate";
+import { masked, MASKED, metadata, query, QUERY } from "./IPredicate";
 import { PredicateBase } from "./predBase";
-import { PredicateTAR } from "./predTAR";
-import { PredicateTA } from "./predTA";
+import { T, PredicateT } from "./predT";
+import { TA, PredicateTA } from "./predTA";
+import { TAA, PredicateTAA } from "./predTAA";
+import { TAAR, PredicateTAAR } from "./predTAAR";
+import { TAR, PredicateTAR } from "./predTAR";
+import { TARR, PredicateTARR } from "./predTARR";
 
 describe("PredicateBase", () => {
   let db: MemoryDatabase;
@@ -16,7 +20,7 @@ describe("PredicateBase", () => {
     inject.db = db;
     agent = new Agent("A");
   });
-  context("_equalTerms", () => {
+  context("equalTerms", () => {
     it("Undefined", () => {
       assert.equal(PredicateBase.equalTerms(undefined, undefined), true);
       assert.equal(PredicateBase.equalTerms(agent, undefined), false);
@@ -41,6 +45,112 @@ describe("PredicateBase", () => {
     it("Mixed terms (should never happen)", () => {
       assert.equal(PredicateBase.equalTerms(agent, 2), false);
       assert.equal(PredicateBase.equalTerms(2, agent), false);
+    });
+  });
+
+  context("getTerms", () => {
+    it("PredicateT", () => {
+      const terms: T = { time: 123 };
+      const termsM: masked<T> = { time: MASKED };
+      const termsQ: query<T> = { time: QUERY };
+      const pred1 = new PredicateT(terms);
+      const metaData: metadata<T> = {
+        time: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+    });
+    it("PredicateTA", () => {
+      const terms: TA = { time: 123, agent };
+      const termsM: masked<TA> = { time: MASKED, agent: MASKED };
+      const termsQ: query<TA> = { time: QUERY, agent: QUERY };
+      const pred1 = new PredicateTA(terms);
+      const metaData: metadata<TA> = {
+        time: true,
+        agent: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+    });
+    it("PredicateTAA", () => {
+      const agentB = new Agent("B");
+      const terms: TAA = { time: 123, agent, agentB };
+      const termsM: masked<TAA> = {
+        time: MASKED,
+        agent: MASKED,
+        agentB: MASKED,
+      };
+      const termsQ: query<TAA> = { time: QUERY, agent: QUERY, agentB: QUERY };
+      const pred1 = new PredicateTAA(terms);
+      const metaData: metadata<TAA> = {
+        time: true,
+        agent: true,
+        agentB: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+    });
+    it("PredicateTAA", () => {
+      const room = new Room("rA", 1);
+      const agentB = new Agent("B");
+      const terms: TAAR = { time: 123, agent, agentB, room };
+      const termsM: masked<TAAR> = {
+        time: MASKED,
+        agent: MASKED,
+        agentB: MASKED,
+        room: MASKED,
+      };
+      const termsQ: query<TAAR> = {
+        time: QUERY,
+        agent: QUERY,
+        agentB: QUERY,
+        room: QUERY,
+      };
+      const pred1 = new PredicateTAAR(terms);
+      const metaData: metadata<TAAR> = {
+        time: true,
+        agent: true,
+        agentB: true,
+        room: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+    });
+    it("PredicateTAR", () => {
+      const room = new Room("rA", 1);
+      const terms: TAR = { time: 123, agent, room };
+      const termsM: masked<TAR> = { time: MASKED, agent: MASKED, room: MASKED };
+      const termsQ: query<TAR> = { time: QUERY, agent: QUERY, room: QUERY };
+      const pred1 = new PredicateTAR(terms);
+      const metaData: metadata<TAR> = {
+        time: true,
+        agent: true,
+        room: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+    });
+    it("PredicateTARR", () => {
+      const room = new Room("rA", 1);
+      const roomB = new Room("rB", 1);
+      const terms: TARR = { time: 123, agent, room, roomB };
+      const termsM: masked<TARR> = { time: MASKED, agent: MASKED, room: MASKED, roomB: MASKED };
+      const termsQ: query<TARR> = { time: QUERY, agent: QUERY, room: QUERY, roomB: QUERY };
+      const pred1 = new PredicateTARR(terms);
+      const metaData: metadata<TARR> = {
+        time: true,
+        agent: true,
+        room: true,
+        roomB: true,
+      };
+      assert.deepEqual(pred1.getTerms(), terms);
+      assert.deepEqual(pred1.getTerms(metaData), termsM);
+      assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
     });
   });
 
@@ -71,6 +181,59 @@ describe("PredicateBase", () => {
       const pred1 = new PredicateTAR({ time: 123, agent, room });
       const pred2 = new PredicateTA({ time: 123, agent });
       assert.equal(pred2.compare(pred1), "subset");
+    });
+  });
+
+  context("queryCompare", () => {
+    it("equal", () => {
+      const pred1 = new PredicateTA({ time: 123, agent });
+      const pred1Q1: metadata<TA> = {
+        time: false,
+        agent: false,
+      };
+      const pred2 = new PredicateTA({ time: 123, agent });
+      assert.equal(pred1.queryCompare(pred1, pred1Q1), "equal");
+      assert.equal(pred1.queryCompare(pred2, pred1Q1), "equal");
+      assert.equal(pred2.queryCompare(pred1, pred1Q1), "equal");
+      assert.equal(pred2.queryCompare(pred2, pred1Q1), "equal");
+    });
+    it("not equal", () => {
+      const agentB = new Agent("B");
+      const pred1 = new PredicateTA({ time: 123, agent });
+      const pred1Q1: metadata<TA> = {
+        time: false,
+        agent: false,
+      };
+      const pred2 = new PredicateTA({ time: 123, agent: agentB });
+      assert.equal(pred1.queryCompare(pred2, pred1Q1), "not equal");
+      assert.equal(pred2.queryCompare(pred1, pred1Q1), "not equal");
+    });
+    it("superset", () => {
+      const room = new Room("rA", 1);
+      const pred1 = new PredicateTAR({ time: 123, agent, room });
+      const pred1Q1: metadata<TAR> = {
+        time: false,
+        agent: false,
+        room: false,
+      };
+      const pred1Q2: metadata<TAR> = {
+        time: false,
+        agent: false,
+        room: true,
+      };
+      const pred2 = new PredicateTA({ time: 123, agent });
+      assert.equal(pred1.queryCompare(pred2, pred1Q1), "superset");
+      assert.equal(pred1.queryCompare(pred2, pred1Q2), "superset");
+    });
+    it("subset", () => {
+      const room = new Room("rA", 1);
+      const pred1 = new PredicateTAR({ time: 123, agent, room });
+      const pred2 = new PredicateTA({ time: 123, agent });
+      const pred2Q1: metadata<TA> = {
+        time: false,
+        agent: true,
+      };
+      assert.equal(pred2.queryCompare(pred1, pred2Q1), "subset");
     });
   });
 });
