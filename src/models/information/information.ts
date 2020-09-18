@@ -1,4 +1,5 @@
 import { IDatabase } from "../../database/IDatabase";
+import { logger } from "../../utilities/logger";
 import {
   PredicateFactory,
   PredicateBase,
@@ -11,6 +12,8 @@ import {
 } from "./predicates";
 import { BaseModel } from "../Imodel";
 import { Agent } from "../agent";
+
+export type Info = Information<PredicateTerms>;
 
 /**
  * Information model represents all events occuring in the Panoptyk world
@@ -84,6 +87,8 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     this._action = action;
     this._pred = pred;
     this.owner = owner;
+
+    logger.log(this + " initialized");
   }
 
   toJSON(forClient: boolean, context: any): object {
