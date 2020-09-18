@@ -8,3 +8,4 @@ export * from "./predTAARK";
 export * from "./predTAR";
 export * from "./predTARI";
 export * from "./predTARR";
+export * from "./predFactory";

@@ -1,3 +1,5 @@
+import { IDatabase } from "../../../database/IDatabase";
+import inject from "../../../utilities/injectables";
 import {
   IPredicate,
   PredicateTerms,
@@ -9,9 +11,7 @@ import {
   query,
   QUERY,
 } from "./IPredicate";
-import { IModel } from "../../models";
-import { IDatabase } from "../../database/IDatabase";
-import inject from "../../utilities/injectables";
+import { IModel } from "../../Imodel";
 
 /**
  * Base class for predicates used in information model

@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import "mocha";
-import { MemoryDatabase } from "../../database/MemoryDatabase";
-import inject from "../../utilities/injectables";
-import { Agent, Item, Room, Conversation } from "../../models";
+import { MemoryDatabase } from "../../../database/MemoryDatabase";
+import inject from "../../../utilities/injectables";
+import { Agent, Item, Room } from "../../../models";
 import { masked, MASKED, metadata, query, QUERY } from "./IPredicate";
 import { PredicateBase } from "./predBase";
 import { T, PredicateT } from "./predT";

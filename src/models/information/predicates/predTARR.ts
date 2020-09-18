@@ -7,35 +7,36 @@ import {
   serializable,
 } from "./IPredicate";
 import { PredicateBase } from "./predBase";
-import { TAA } from "./predTAA";
-import { Agent, Room } from "../../models";
+import { TAR } from "./predTAR";
+import { Agent } from "../../agent";
+import { Room } from "../../room";
 
-export interface TAAR extends TAA {
-  room: Room;
+export interface TARR extends TAR {
+  roomB: Room;
 }
 
 /**
  * Creates an action that uses this predicate format
- * TAAR: predicate(Time, Agent, AgentB, Room)
+ * TARR: predicate(Time, Agent, Room, RoomB)
  */
-export class PredicateTAAR extends PredicateBase {
-  predicateName = "TAAR";
-  _terms: serializable<TAAR>;
+export class PredicateTARR extends PredicateBase {
+  predicateName = "TARR";
+  _terms: serializable<TARR>;
 
-  constructor({ time, agent, agentB, room }: TAAR) {
+  constructor({ time, agent, room, roomB }: TARR) {
     super();
     this._terms.time = time;
     this._terms.agent = agent ? agent.id : -1;
-    this._terms.agentB = agentB ? agentB.id : -1;
     this._terms.room = room ? room.id : -1;
+    this._terms.roomB = roomB ? roomB.id : -1;
   }
 
-  getTerms(mask?: metadata<TAAR>, asQuery = false): masked<TAAR> | query<TAAR> {
-    const terms: TAAR = {
+  getTerms(mask?: metadata<TARR>, asQuery = false): masked<TARR> | query<TARR> {
+    const terms: TARR = {
       time: this._terms.time,
       agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
-      agentB: this.db.retrieveModel(this._terms.agentB, Agent) as Agent,
       room: this.db.retrieveModel(this._terms.room, Room) as Room,
+      roomB: this.db.retrieveModel(this._terms.roomB, Room) as Room
     };
 
     return PredicateBase.replaceTerms(terms, asQuery ? QUERY : MASKED, mask);

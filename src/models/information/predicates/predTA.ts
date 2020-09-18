@@ -8,7 +8,7 @@ import {
 } from "./IPredicate";
 import { PredicateBase } from "./predBase";
 import { T } from "./predT";
-import { Agent } from "../../models";
+import { Agent } from "../../agent";
 
 export interface TA extends T {
   agent: Agent;

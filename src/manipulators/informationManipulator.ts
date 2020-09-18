@@ -1,4 +1,4 @@
-import { PredicateTerms, Information, metadata, query } from "../information";
+import { PredicateTerms, Information, metadata, query } from "../models/information";
 
 export class InformationManipulator {
   /**

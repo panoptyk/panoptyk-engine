@@ -1,4 +1,3 @@
-import { Agent, Info } from "../models";
 import {
   T,
   TA,
@@ -22,7 +21,8 @@ import {
   PredicateTerms,
 } from "./predicates";
 import { Information } from "./information";
-import { InformationManipulator } from "../manipulators/informationManipulator";
+import { InformationManipulator } from "../../manipulators/informationManipulator";
+import { Agent } from "../agent";
 
 function splitQuery<P extends PredicateTerms>(
   query: query<P>

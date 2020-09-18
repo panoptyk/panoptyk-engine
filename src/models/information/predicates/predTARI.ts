@@ -8,7 +8,9 @@ import {
 } from "./IPredicate";
 import { PredicateBase } from "./predBase";
 import { TAR } from "./predTAR";
-import { Agent, Room, Item } from "../../models";
+import { Agent } from "../../agent";
+import { Room } from "../../room";
+import { Item } from "../../item";
 
 export interface TARI extends TAR {
   item: Item;

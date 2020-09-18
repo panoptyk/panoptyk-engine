@@ -1,5 +1,6 @@
-import { BaseModel, Agent } from "../models";
+import { IDatabase } from "../../database/IDatabase";
 import {
+  PredicateFactory,
   PredicateBase,
   metadata,
   PredicateTerms,
@@ -8,8 +9,8 @@ import {
   masked,
   query,
 } from "./predicates";
-import { PredicateFactory } from "./predicates/predFactory";
-import { IDatabase } from "../database/IDatabase";
+import { BaseModel } from "../Imodel";
+import { Agent } from "../agent";
 
 /**
  * Information model represents all events occuring in the Panoptyk world

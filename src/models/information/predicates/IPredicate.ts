@@ -1,4 +1,4 @@
-import { IModel } from "../../models";
+import { IModel } from "../../Imodel";
 
 export interface IPredicate {
   readonly predicateName: string;

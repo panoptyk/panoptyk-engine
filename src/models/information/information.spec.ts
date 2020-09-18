@@ -1,8 +1,8 @@
 import { assert, expect } from "chai";
 import "mocha";
-import inject from "../utilities/injectables";
-import { MemoryDatabase } from "../database/MemoryDatabase";
-import { Agent, Item, Room } from "../models";
+import inject from "../../utilities/injectables";
+import { MemoryDatabase } from "../../database/MemoryDatabase";
+import { Agent, Item, Room } from "..";
 import {
   T,
   TA,
@@ -26,7 +26,7 @@ import {
 } from "./predicates";
 import { Actions, Query } from "./actionshortcuts";
 import { Information } from "./information";
-import { InformationManipulator } from "../manipulators/informationManipulator";
+import { InformationManipulator } from "../../manipulators/informationManipulator";
 
 describe("Information Model", () => {
   let db: MemoryDatabase;
