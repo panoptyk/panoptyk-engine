@@ -59,13 +59,13 @@ export abstract class PredicateBase implements IModel, IPredicate {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    let copyTerms = Object.assign({}, this._terms);
+    let json: any  = Object.assign({}, this._terms);
     if (forClient) {
       if (context.mask) {
-        copyTerms = PredicateBase.replaceTerms(copyTerms, context.mask);
+        json = PredicateBase.replaceTerms(json, context.mask);
       }
     }
-    return copyTerms;
+    return json;
   }
   fromJSON(json: any): void {
     for (const key in json) {

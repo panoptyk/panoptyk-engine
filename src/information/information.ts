@@ -3,33 +3,13 @@ import {
   PredicateBase,
   metadata,
   PredicateTerms,
-  PredicateT,
-  PredicateTA,
-  PredicateTAA,
-  PredicateTAAR,
-  PredicateTAR,
-  PredicateTARR,
   MASKED,
   QUERY,
   masked,
   query,
 } from "./predicates";
+import { PredicateFactory } from "./predicates/predFactory";
 import { IDatabase } from "../database/IDatabase";
-import { urlencoded } from "express";
-
-/**
- * lookup to find correct class to construct when calling fromJSON()
- */
-export const PredicateConstructor: {
-  [key: string]: new (...args: any[]) => PredicateBase;
-} = {
-  T: PredicateT,
-  TA: PredicateTA,
-  TAA: PredicateTAA,
-  TAAR: PredicateTAAR,
-  TAR: PredicateTAR,
-  TARR: PredicateTARR,
-};
 
 /**
  * Information model represents all events occuring in the Panoptyk world
@@ -113,7 +93,9 @@ export class Information<P extends PredicateTerms> extends BaseModel {
       }
     }
     if (this.isMaster()) {
-      safeInfo._pred = this._pred.toJSON(forClient, context) as any;
+      safeInfo._pred = {} as any;
+      safeInfo._pred._terms = this._pred.toJSON(forClient, context) as any;
+      (safeInfo._pred as any).predicateName = this._pred.predicateName;
     }
     return safeInfo;
   }
@@ -126,8 +108,8 @@ export class Information<P extends PredicateTerms> extends BaseModel {
       this[key] = json[key];
     }
     if (this.isMaster()) {
-      const pred = new PredicateConstructor[this._pred.predicateName]({});
-      pred.fromJSON(this._pred);
+      const pred = PredicateFactory[json._pred.predicateName]({});
+      pred.fromJSON(json._pred._terms);
       this._pred = pred;
     }
   }
