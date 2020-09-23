@@ -1,13 +1,13 @@
 import { logger, LOG } from "../utilities/logger";
 import * as util from "../utilities/util";
 import {
-  IDObject,
   Agent,
   Conversation,
   Trade,
   Room,
   Item,
   Info,
+  Information,
   Quest,
   Faction,
   IModel,
@@ -54,7 +54,7 @@ export class BaseController {
    */
   addChange(updates: Set<IModel>, change: any) {
     updates.add(change);
-    if (change instanceof Info) {
+    if (change instanceof Information) {
       // const terms = change.getTerms();
       // for (const term in terms) {
       //   if (terms[term] instanceof BaseModel) {
@@ -81,7 +81,7 @@ export class BaseController {
         if (!payload[name]) {
           payload[name] = [];
         }
-        if (name === Info.name) {
+        if (name === Information.name) {
           // const info: Info = model as Info;
           // payload[name].push(info.toJSON(true, agent));
           // if (info.isReference()) {

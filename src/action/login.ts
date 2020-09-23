@@ -2,7 +2,7 @@ import { Action } from "./action";
 import { logger } from "../utilities/logger";
 import { Validate } from "./validate";
 import { Agent } from "../models/agent";
-import { Controller } from "../../controllers/controller";
+import { ConnectionController } from "../controllers";
 
 export const ActionLogin: Action = {
   name: "login",
@@ -17,14 +17,9 @@ export const ActionLogin: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    const newAgent = Agent.login(inputData.username, inputData.socket);
-    const controller = new Controller();
-    controller.login(newAgent);
-    logger.log(
-      "Event login for agent " + newAgent + " registered.",
-      2
-    );
-    controller.sendUpdates();
+    const cc: ConnectionController = new ConnectionController();
+    cc.login(inputData.username, inputData.socket);
+    cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     inputData.socket = socket;

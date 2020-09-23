@@ -1,10 +1,25 @@
+import { Socket } from "socket.io";
+import { inject } from "../utilities";
 import { BaseController } from "./baseController";
-import { Agent } from "../models";
 import { SpawnController } from "./spawnController";
+import { Agent, Room } from "../models";
+import { panoptykSettings } from "../utilities/util";
+import { logger } from "../utilities/logger";
 
 export class ConnectionController extends BaseController {
 
-    login(agent: Agent) {
+    login(username: string, socket: Socket): boolean {
+        const agents: Agent[] = inject.db.matchModel({ _agentName: username }, Agent) as Agent[];
+
+        let agent: Agent = undefined;
+        if (agents.length === 1) {
+            agent = agents[0];
+        } else if (agents.length === 0) {
+            agent = this.createAgent(username);
+        } else {
+            return false;
+        }
+
         const sc: SpawnController = new SpawnController(this);
 
         this.updateChanges(agent, [ agent.inventory, agent.knowledge, agent.activeAssignedQuests, agent.activeGivenQuests]);
@@ -13,6 +28,19 @@ export class ConnectionController extends BaseController {
         }
 
         sc.spawnAgent(agent, agent.room);
+
+        logger.log(
+            agent + " logged in",
+            2
+        );
+
+        return true;
+    }
+
+    createAgent(name: string): Agent {
+        const agent: Agent = new Agent(name);
+        agent.room = inject.db.retrieveModel(panoptykSettings.default_room_id, Room) as Room;
+        return agent;
     }
 
 }

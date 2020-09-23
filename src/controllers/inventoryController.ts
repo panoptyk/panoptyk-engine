@@ -21,6 +21,14 @@ export class InventoryController extends BaseController {
         });
     }
 
+    pickupItems(agent: Agent, items: Item[], room: Room): void {
+
+        items.forEach(item => {
+            this.pickupItem(agent, item, room);
+        });
+
+    }
+
     dropItem(agent: Agent, item: Item, room: Room): void {
 
         AgentManipulator.removeItemInventory(agent, item);
@@ -30,6 +38,14 @@ export class InventoryController extends BaseController {
         room.occupants.forEach(occupant => {
             this.updateChanges(occupant, [ agent, item, room ]);
         });
+    }
+
+    dropItems(agent: Agent, items: Item[], room: Room): void {
+
+        items.forEach(item => {
+            this.dropItem(agent, item, room);
+        });
+
     }
 
 }

@@ -50,5 +50,26 @@ export class MemoryDatabase implements IDatabase {
   load(): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
+  matchModel(query: object, model: modelRef): IModel[] {
+    const matches: IModel[] = [];
+    let models: IModel[];
+    try {
+      models = [...this._models.get(model.name).values()];
+      models.forEach((m: IModel) => {
+        let isMatch = true;
+        for (const key in query) {
+          if (query[key] instanceof Object && query[key].equals) {
+            isMatch = isMatch && query[key].equals((m as any)[key]);
+          } else {
+            isMatch = isMatch &&  query[key] === (m as any)[key];
+          }
+        }
+        if (isMatch) {
+          matches.push(m);
+        }
+      });
+    } catch (error) { }
+    return matches;
+  }
 
 }

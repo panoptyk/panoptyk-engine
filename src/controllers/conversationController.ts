@@ -5,7 +5,7 @@ import { ConversationManipulator, AgentManipulator, RoomManipulator } from "../m
 export class ConversationController extends BaseController {
 
     addAgentToConversation(conversation: Conversation, agent: Agent): void {
-        if (agent.conversation !== undefined) { // TODO: Replace undefined with conversation
+        if (!agent.conversation.equals(conversation)) {
             this.removeAgentFromConversation(agent.conversation, agent);
         }
 

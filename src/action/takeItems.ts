@@ -1,8 +1,9 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
 import { Validate } from "./validate";
-import { Controller } from "../../controllers/controller";
+import { InventoryController } from "../controllers";
 import { Agent, Room, Item } from "../models/index";
+import { inject } from "../utilities";
 
 export const ActionTakeItems: Action = {
   name: "take-items",
@@ -12,10 +13,10 @@ export const ActionTakeItems: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    const controller = new Controller();
-    const items: Item[] = Item.getByIDs(inputData.itemIDs);
+    const ic: InventoryController = new InventoryController();
+    const items: Item[] = inject.db.retrieveModels(inputData.itemIDs, Item) as Item[];
 
-    controller.pickUpItems(agent, items);
+    ic.pickupItems(agent, items, agent.room);
 
     const itemNames = [];
     for (const item of items) {
@@ -24,7 +25,7 @@ export const ActionTakeItems: Action = {
     logger.log("Event take-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
       + agent + " registered.", 2);
 
-    controller.sendUpdates();
+    ic.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;

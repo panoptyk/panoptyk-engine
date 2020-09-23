@@ -1,8 +1,9 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
 import { Validate } from "./validate";
-import { Controller } from "../../controllers/controller";
+import { ConversationController } from "../controllers";
 import { Agent } from "../models/agent";
+import { inject } from "../utilities";
 
 export const ActionRejectConversationRequest: Action = {
   name: "reject-conversation-request",
@@ -11,33 +12,33 @@ export const ActionRejectConversationRequest: Action = {
       agentID: "number"
     }
   ],
-  enact: (agent: Agent, inputData: any) => {
-    const controller = new Controller();
-    const toAgent: Agent = Agent.getByID(inputData.agentID);
-    controller.removeConversationRequest(agent, toAgent);
+  enact: (requester: Agent, inputData: any) => {
+    const cc: ConversationController = new ConversationController();
+    const requestee: Agent = inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    cc.rejectConversation(requester, requestee);
     logger.log(
     "Event reject-conversation-request from (" +
-        agent +
+        requester +
         ") to agent " +
-        toAgent +
+        requestee +
         " registered.",
     2
     );
-    controller.sendUpdates();
+    cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
       return res;
     }
-    const toAgent = Agent.getByID(inputData.agentID);
-    if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
+    const requestee: Agent = inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    if (!(res = Validate.validate_agent_logged_in(requestee)).status) {
       return res;
     }
-    if (!(res = Validate.validate_agents_in_same_room(agent, toAgent)).status) {
+    if (!(res = Validate.validate_agents_in_same_room(agent, requestee)).status) {
       return res;
     }
-    if (!(res = Validate.validate_agents_not_conversing([agent, toAgent])).status) {
+    if (!(res = Validate.validate_agents_not_conversing([agent, requestee])).status) {
       return res;
     }
     return Validate.successMsg;
