@@ -141,7 +141,6 @@ export function notInConversation(agents: Agent[]): ValidationResult {
 
 /**
  * Prevents stupid requests
- * TODO replace with .equals
  * @param agent1
  * @param agent2
  */
@@ -154,7 +153,7 @@ export function differentAgents(agent1: Agent, agent2: Agent): ValidationResult 
     };
   }
 
-  if (agent1 === agent2) {
+  if (agent1.equals(agent2)) {
     return {
       success: false,
       errorCode: ValidationError.AgentIdentical,
