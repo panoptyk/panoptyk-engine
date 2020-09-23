@@ -12,6 +12,9 @@ import { logger } from "../utilities/logger";
 
 export class Agent extends BaseModel {
   _agentName: string;
+  get agentName(): string {
+    return this._agentName;
+  }
   _room: number;
   get room() {
     return this.db.retrieveModel(this._room, Room) as Room;
