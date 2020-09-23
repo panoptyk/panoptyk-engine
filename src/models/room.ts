@@ -3,7 +3,7 @@ import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { Item } from "./item";
 import { Conversation } from "./conversation";
-import { logger } from "../utilities/logger";
+import { logger } from "../utilities";
 
 /**
  * Room model. Defines the data associated with a room.
@@ -42,7 +42,7 @@ export class Room extends BaseModel {
     this._items = new Set<number>();
     this._conversations = new Set<number>();
 
-    logger.log("Room " + this + " Initialized.");
+    logger.log("Room " + this + " Initialized.", "ROOM");
   }
   toJSON(forClient: boolean, context: any): object {
     const safeRoom = Object.assign({}, this);

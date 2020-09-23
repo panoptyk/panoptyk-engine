@@ -1,7 +1,7 @@
 import { IDatabase } from "../database/IDatabase";
 import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
-import { logger, LOG } from "../utilities/logger";
+import { logger } from "../utilities";
 
 export class Faction extends BaseModel {
     _factionName: string;
@@ -45,7 +45,7 @@ export class Faction extends BaseModel {
         this._factionName = name;
         this._factionType = type;
 
-        logger.log("Faction " + this + " Initialized.");
+        logger.log("Faction " + this + " Initialized.", "FACTION");
     }
 
     toJSON(forClient: boolean, context: any): object {

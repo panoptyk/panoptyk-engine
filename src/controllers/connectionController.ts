@@ -1,10 +1,8 @@
 import { Socket } from "socket.io";
-import { inject } from "../utilities";
+import { logger, LOG, inject } from "../utilities";
 import { BaseController } from "./baseController";
 import { SpawnController } from "./spawnController";
 import { Agent, Room } from "../models";
-import { panoptykSettings } from "../utilities/util";
-import { logger } from "../utilities/logger";
 
 export class ConnectionController extends BaseController {
 
@@ -31,7 +29,8 @@ export class ConnectionController extends BaseController {
 
         logger.log(
             agent + " logged in",
-            2
+            "CONTROL",
+            LOG.INFO
         );
 
         return true;
@@ -39,7 +38,7 @@ export class ConnectionController extends BaseController {
 
     createAgent(name: string): Agent {
         const agent: Agent = new Agent(name);
-        agent.room = inject.db.retrieveModel(panoptykSettings.default_room_id, Room) as Room;
+        agent.room = inject.db.retrieveModel(inject.settingsManager.settings.default_room_id, Room) as Room;
         return agent;
     }
 

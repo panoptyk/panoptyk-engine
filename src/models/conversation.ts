@@ -2,7 +2,7 @@ import { IDatabase } from "../database/IDatabase";
 import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { Room } from "./room";
-import { logger } from "../utilities/logger";
+import { logger } from "../utilities";
 
 export class Conversation extends BaseModel {
 
@@ -37,7 +37,7 @@ export class Conversation extends BaseModel {
     this._room = room.id;
     this._participants = new Set<number>();
 
-    logger.log("Conversation " + this + " Initialized.");
+    logger.log("Conversation " + this + " Initialized.", "CONVO");
   }
 
   toJSON(forClient: boolean, context: any): object {

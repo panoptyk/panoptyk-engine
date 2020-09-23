@@ -7,7 +7,7 @@ import { Quest } from "./quest";
 import { Conversation } from "./conversation";
 import { Faction } from "./faction";
 import { Trade } from "./trade";
-import { logger } from "../utilities/logger";
+import { logger } from "../utilities";
 
 
 export class Agent extends BaseModel {
@@ -114,7 +114,7 @@ export class Agent extends BaseModel {
     this._assignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
 
-    logger.log("Agent " + this + " Initialized.");
+    logger.log("Agent " + this + " Initialized.", "AGENT");
   }
 
   toJSON(forClient: boolean, context: any): object {
