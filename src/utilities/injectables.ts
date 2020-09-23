@@ -13,9 +13,9 @@ class Injectables {
     return Injectables._instance;
   }
   db: IDatabase;
-  settings: PanoptykSettings;
+  settingsManager: PanoptykSettings;
   constructor() {
-
+    this.settingsManager = new PanoptykSettings();
   }
 }
 

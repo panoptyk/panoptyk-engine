@@ -11,11 +11,11 @@ export class Logger {
   static logLevels = {
     "-1": " CLIENT",
     "0": " ERROR ",
-    "1": "WARNING",
+    "1": "WARN",
     "2": "  INFO ",
     CLIENT: -1,
     ERROR: 0,
-    WARNING: 1,
+    WARN: 1,
     INFO: 2
   };
 
@@ -24,10 +24,10 @@ export class Logger {
    * @param {string} msg - message to log.
    * @param {int} logLevel - level of message importance.
    */
-  public log(msg, logLevel = 0, file?: string) {
+  public log(msg, tag = "", logLevel = 2, file?: string) {
     if (logLevel <= this.logLevel) {
       const prefix =
-        "[" + new Date() + "]═[" + Logger.logLevels[logLevel] + "]\t";
+        "[" + new Date() + "][" + Logger.logLevels[logLevel] + "]\t[" + tag + "]\t";
       const fullMsg = prefix + msg;
       if (fs && fs.appendFileSync && file) {
         fs.appendFileSync(file, fullMsg + "\n");
@@ -39,8 +39,8 @@ export class Logger {
     }
   }
 
-  public clientLog(msg, file?: string) {
-    this.log(msg, Logger.logLevels.CLIENT, file);
+  public clientLog(msg, tag = "", file?: string) {
+    this.log(msg, tag, Logger.logLevels.CLIENT, file);
   }
 
   // TODO: add ability to change settings & load from settings.json file

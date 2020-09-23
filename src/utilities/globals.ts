@@ -1,3 +1,3 @@
-import socketIO from "socket.io";
+import { Socket } from "socket.io";
 
-export const socketAgentMap = new Map<SocketIO.Socket, number>();
+export const socketAgentMap = new Map<Socket, number>();
