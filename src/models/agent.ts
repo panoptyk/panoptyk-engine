@@ -2,7 +2,7 @@ import { IDatabase } from "../database/IDatabase";
 import { BaseModel } from "./Imodel";
 import { Room } from "./room";
 import { Item } from "./item";
-import { Info } from "./information";
+import { Info, Information } from "./information";
 import { Quest } from "./quest";
 import { Conversation } from "./conversation";
 import { Faction } from "./faction";
@@ -25,7 +25,7 @@ export class Agent extends BaseModel {
   }
   _knowledge: Set<number>;
   get knowledge(): Info[] {
-    return this.db.retrieveModels([...this._knowledge], Info) as Info[];
+    return this.db.retrieveModels([...this._knowledge], Information) as Info[];
   }
   _assignedQuests: Set<number>;
   get activeAssignedQuests(): Quest[] {
