@@ -8,7 +8,7 @@ export class Logger {
     }
   }
 
-  public static logLevels = {
+  static logLevels = {
     "-1": " CLIENT",
     "0": " ERROR ",
     "1": "WARNING",
@@ -18,31 +18,6 @@ export class Logger {
     WARNING: 1,
     INFO: 2
   };
-
-  // DEPRECATED LOG CODE:
-  // log(msg, logLevel = 0, file?) {
-  //   if (logLevel <= this.logLevel) {
-  //     const prefix = "[" + (new Date()).toISOString()
-  //       .replace(/T/, " ").replace(/\..+/, "") + "]═["
-  //       + Logger.logLevels[logLevel] + "]══";
-
-  //     msg = prefix + (prefix.length + msg.length >= this.logLineLen ?
-  //       "╦═╡ " : "══╡ ") + msg;
-
-  //     msg = msg.replace(new RegExp("(.{" + this.logLineLen + "})", "g"),
-  //       "$1\n                                 ╠══╡ ");
-
-  //     const index = msg.lastIndexOf("╠");
-  //     if (index > 0) {
-  //       msg = msg.substr(0, index) + "╚" + msg.substr(index + 1);
-  //     }
-
-  //     if (file) {
-  //       msg += " [" + file + "]";
-  //     }
-  //     console.log(msg);
-  //   }
-  // }
 
   /**
    * Log a message at specified important level.
@@ -54,7 +29,7 @@ export class Logger {
       const prefix =
         "[" + new Date() + "]═[" + Logger.logLevels[logLevel] + "]\t";
       const fullMsg = prefix + msg;
-      if (fs.appendFileSync && file) {
+      if (fs && fs.appendFileSync && file) {
         fs.appendFileSync(file, fullMsg + "\n");
       } else if (this.writeFile) {
         this.writeFile.write(fullMsg + "\n");
@@ -74,7 +49,7 @@ export class Logger {
   }
 
   public setLogFile(file: string) {
-    if (!(fs.createWriteStream)) {
+    if (!(fs && fs.createWriteStream)) {
       return;
     }
     if (this.writeFile) {

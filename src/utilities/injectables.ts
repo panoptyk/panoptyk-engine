@@ -1,4 +1,5 @@
 import { IDatabase } from "../database/IDatabase";
+import { PanoptykSettings } from "./panoptykSettings";
 
 /**
  * Insertion point for D.I.
@@ -12,6 +13,7 @@ class Injectables {
     return Injectables._instance;
   }
   db: IDatabase;
+  settings: PanoptykSettings;
   constructor() {
 
   }
