@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
+import * as Validate from "../validate";
 import { InventoryController } from "../controllers";
 import { Agent, Item, Room } from "../models/index";
 import { inject } from "../utilities";
@@ -23,25 +23,25 @@ export const ActionDropItems: Action = {
       itemNames.push(item.itemName);
     }
     logger.log("Event drop-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
-      + agent.agentName + " registered.", 2);
+      + agent.agentName + " registered.", "ACTION");
 
     ic.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    if (!(res = Validate.validate_array_types(inputData.itemIDs, "number")).status) {
+    if (!(res = Validate.arrayTypes(inputData.itemIDs, "number")).success) {
       return res;
     }
     const items: Item[] = inject.db.retrieveModels(inputData.itemID, Item) as Item[];
-    if (!(res = Validate.validate_agent_owns_items(agent, items)).status) {
+    if (!(res = Validate.ownsItems(agent, items)).success) {
       return res;
     }
-    if (!(res = Validate.validate_items_not_in_transaction(items)).status) {
+    if (!(res = Validate.notInTransaction(items)).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };

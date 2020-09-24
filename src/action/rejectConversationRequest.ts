@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
+import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
 import { Agent } from "../models/agent";
 import { inject } from "../utilities";
@@ -22,25 +22,25 @@ export const ActionRejectConversationRequest: Action = {
         ") to agent " +
         requestee +
         " registered.",
-    2
+    "ACTION"
     );
     cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
     const requestee: Agent = inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
-    if (!(res = Validate.validate_agent_logged_in(requestee)).status) {
+    if (!(res = Validate.loggedIn(requestee)).success) {
       return res;
     }
-    if (!(res = Validate.validate_agents_in_same_room(agent, requestee)).status) {
+    if (!(res = Validate.sameRoom([ agent, requestee ])).success) {
       return res;
     }
-    if (!(res = Validate.validate_agents_not_conversing([agent, requestee])).status) {
+    if (!(res = Validate.notInConversation([ agent, requestee ])).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };

@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
+import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
 import { Conversation } from "../models/conversation";
 import { Agent } from "../models/agent";
@@ -19,22 +19,22 @@ export const ActionJoinConversation: Action = {
 
     cc.addAgentToConversation(conversation, agent);
 
-    logger.log("Event join-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", 2);
+    logger.log("Event join-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", "ACTION");
 
     cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
     const conversation: Conversation = inject.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
-    if (!(res = Validate.validate_conversation_exists(agent.room, conversation)).status) {
+    if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
       return res;
     }
-    if (!(res = Validate.validate_conversation_has_space(conversation)).status) {
+    if (!(res = Validate.conversationHasSpace(conversation)).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };

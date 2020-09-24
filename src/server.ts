@@ -2,84 +2,37 @@ import * as fs from "fs";
 import express from "express";
 import http from "http";
 import socketIO from "socket.io";
-import { logger, LOG, inject, PanoptykSettings } from "./utilities";
-import { Controller } from "./controllers/controller";
+import { ConnectionController } from "./controllers";
 import {
-  Agent,
-  Room,
-  Info,
-  Information,
-  Item,
-  Conversation,
-  Trade,
-  Quest,
-  Faction,
-} from "./models/index";
+  logger,
+  LOG,
+  inject,
+  PanoptykSettings,
+  SocketAgentMap,
+} from "./utilities";
+import { Agent } from "./models";
 import {
   Action,
   ActionLogin,
   ActionMoveToRoom,
   ActionRequestConversation,
   ActionLeaveConversation,
-  ActionRequestTrade,
-  ActionCancelTrade,
   ActionTakeItems,
   ActionDropItems,
-  ActionOfferItemsTrade,
-  ActionWithdrawItemsTrade,
-  ActionReadyTrade,
-  ActionAskQuestion,
-  ActionOfferAnswerTrade,
-  ActionWithdrawInfoTrade,
-  ActionTellInfo,
-  ActionPassQuestion,
-  ActionGiveQuest,
-  ActionRequestItemTrade,
-  ActionPassItemRequest,
-  ActionCloseQuest,
-  ActionTurnInQuestInfo,
-  ActionRejectTradeRequest,
   ActionRejectConversationRequest,
-  ActionModifyAgentFaction,
-  ActionModifyGoldTrade,
-  ActionDropGold,
-  ActionStealItem,
-  ActionConfiscateItem,
-  ActionTellItemOwnership,
+  ActionJoinConversation,
 } from "./action/index";
-import { ValidationError, ValidationResult } from "./validate";
 import * as Validate from "./validate";
 
 const defaultActions: Action[] = [
   ActionLogin,
   ActionMoveToRoom,
-  ActionRequestConversation,
   ActionDropItems,
-  ActionOfferItemsTrade,
-  ActionLeaveConversation,
-  ActionRequestTrade,
-  ActionCancelTrade,
   ActionTakeItems,
-  ActionWithdrawItemsTrade,
-  ActionReadyTrade,
-  ActionAskQuestion,
-  ActionOfferAnswerTrade,
-  ActionWithdrawInfoTrade,
-  ActionTellInfo,
-  ActionPassQuestion,
-  ActionCloseQuest,
-  ActionTurnInQuestInfo,
-  ActionGiveQuest,
-  ActionRequestItemTrade,
-  ActionPassItemRequest,
-  ActionRejectTradeRequest,
+  ActionRequestConversation,
   ActionRejectConversationRequest,
-  ActionModifyAgentFaction,
-  ActionModifyGoldTrade,
-  ActionDropGold,
-  ActionStealItem,
-  ActionConfiscateItem,
-  ActionTellItemOwnership,
+  ActionJoinConversation,
+  ActionLeaveConversation,
 ];
 
 const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms
@@ -155,7 +108,7 @@ export class Server {
    * This file should not need to be modified. To add new events, create new
    * event files in models/events
    */
-  private listen(): void {
+  _listen(): void {
     // Assign port
     this._port = inject.settingsManager.settings.port;
 
@@ -168,80 +121,108 @@ export class Server {
       logger.log("Web client Connected", "SERVER");
 
       for (const action of this._actions) {
-        socket.on(action.name, (data, callback: (res: ValidationResult) => void) => {
-          // Enforce action limit
-          const now = Date.now();
-          if (
-            this._timeSinceLastMsg.has(socket) &&
-            now - this._timeSinceLastMsg.get(socket) <
-              this._timeBetweenActions
-          ) {
-            callback({
-              success: false,
-              errorCode: ValidationError.TooManyActions,
-              message:
-                "You can only act once every " +
-                this._timeBetweenActions +
-                " milliseconds!",
-            });
-            return;
-          }
-          this._timeSinceLastMsg.set(socket, now);
-
-          // Process action
-          logger.log("Action recieved: " + action.name, "SERVER");
-          // const agent = Agent.getAgentBySocket(socket); TODO
-          let res: ValidationResult;
-          if (
-            (res = Validate.keyFormat(action.formats, data)).success // TODO &&
-            // (res = Validate.factionType_requirement(
-            //   action.requiredFactionType,
-            //   agent
-            // )).success
-          ) {
-            res = action.validate(agent, socket, data);
-            if (res.success) {
-              action.enact(agent, data);
-            } else {
-              logger.log("Action failed to validate: " + res.message, "SERVER", LOG.WARN);
+        socket.on(
+          action.name,
+          (data, callback: (res: Validate.ValidationResult) => void) => {
+            // Enforce action limit
+            const now = Date.now();
+            if (
+              this._timeSinceLastMsg.has(socket) &&
+              now - this._timeSinceLastMsg.get(socket) <
+                this._timeBetweenActions
+            ) {
+              callback({
+                success: false,
+                errorCode: Validate.ValidationError.TooManyActions,
+                message:
+                  "You can only act once every " +
+                  this._timeBetweenActions +
+                  " milliseconds!",
+              });
+              return;
             }
+            this._timeSinceLastMsg.set(socket, now);
+
+            // Process action
+            logger.log("Action recieved: " + action.name, "SERVER");
+            const agent = SocketAgentMap.getAgentFromSocket(socket);
+            let res: Validate.ValidationResult;
+            if (
+              (res = Validate.keyFormat(action.formats, data)).success // TODO &&
+              // (res = Validate.factionType_requirement(
+              //   action.requiredFactionType,
+              //   agent
+              // )).success
+            ) {
+              res = action.validate(agent, socket, data);
+              if (res.success) {
+                action.enact(agent, data);
+              } else {
+                logger.log(
+                  "Action failed to validate: " + res.message,
+                  "SERVER",
+                  LOG.WARN
+                );
+              }
+            }
+            callback(res);
           }
-          callback(res);
-        });
+        );
       }
 
       socket.on("disconnect", (data) => {
         logger.log("Client disconnected", "SERVER");
-        // TODO
+        const agent = SocketAgentMap.getAgentFromSocket(socket);
+        if (agent) {
+          const cc: ConnectionController = new ConnectionController();
+          cc.logout(agent);
+        }
+        SocketAgentMap.removeAgentSocket(socket, agent);
       });
     });
   }
 
-  private loadModels() {
-    // TODO
+  async _loadModels() {
+    return inject.db.load();
   }
 
-  private saveModels() {
-    // TODO
+  async _saveModels() {
+    return await inject.db.save();
   }
 
-  public logoutAll() {
-    // TODO
+  _logoutAll() {
+    const agents: Agent[] = inject.db.retrieveModels(
+      [...SocketAgentMap._agentSocket.keys()],
+      Agent
+    ) as Agent[];
+    agents.forEach((agent) => {
+      if (agent) {
+        const cc: ConnectionController = new ConnectionController();
+        cc.logout(agent);
+      }
+    });
   }
 
-  public start() {
-    this.loadModels();
+  start() {
+    let loaded = false;
+    this._loadModels().finally(() => {
+      console.log("in finally");
+      loaded = true;
+    });
 
     // Sets up "ctrl + c" to stop server
     process.on("SIGINT", () => {
       logger.log("Shutting down...", "SERVER");
-      this.logoutAll();
-      this.saveModels();
+      this._logoutAll();
+      let done = false;
+      this._saveModels().finally(() => {
+        done = true;
+      });
       logger.log("Server closed", "SERVER");
       process.exit(0);
     });
 
     // Start http server
-    this.listen();
+    this._listen();
   }
 }

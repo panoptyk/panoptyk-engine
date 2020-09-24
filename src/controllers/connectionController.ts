@@ -36,6 +36,12 @@ export class ConnectionController extends BaseController {
         return true;
     }
 
+    logout(agent: Agent) {
+        const sc: SpawnController = new SpawnController(this);
+
+        sc.despawnAgent(agent, agent.room);
+    }
+
     createAgent(name: string): Agent {
         const agent: Agent = new Agent(name);
         agent.room = inject.db.retrieveModel(inject.settingsManager.settings.default_room_id, Room) as Room;

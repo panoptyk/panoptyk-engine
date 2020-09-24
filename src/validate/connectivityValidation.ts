@@ -24,7 +24,7 @@ export function loggedIn(agent: Agent): ValidationResult {
  * @param username username provided by client trying to log in
  * @return {Object} {status: boolean, message: string}
  */
-export function validate_login_username(username: string): ValidationResult {
+export function loginUsername(username: string): ValidationResult {
   if (!username || username.length <= 0) {
     return {
       success: false,

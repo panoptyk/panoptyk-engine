@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
+import * as Validate from "../validate";
 import { Agent } from "../models/agent";
 import { ConnectionController } from "../controllers";
 
@@ -23,7 +23,7 @@ export const ActionLogin: Action = {
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     inputData.socket = socket;
-    const res = Validate.validate_login_username(inputData.username);
+    const res = Validate.loginUsername(inputData.username);
     return res;
   }
 };

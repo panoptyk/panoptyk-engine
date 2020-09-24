@@ -23,7 +23,7 @@ export class InformationManipulator {
     mask: { action: boolean; predMetaData: metadata<P> }
   ): void {
     const curMask = info._metadata;
-    curMask.action &&= mask.action;
+    curMask.action =  curMask.action && mask.action;
     for (const key in curMask.predMetaData) {
       curMask.predMetaData[key] =
         curMask.predMetaData[key] && mask.predMetaData[key];

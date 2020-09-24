@@ -29,9 +29,9 @@ export class Logger {
       const prefix =
         "[" + new Date() + "][" + Logger.logLevels[logLevel] + "]\t[" + tag + "]\t";
       const fullMsg = prefix + msg;
-      if (fs && fs.appendFileSync && file) {
+      if (false && fs && fs.appendFileSync && file) {
         fs.appendFileSync(file, fullMsg + "\n");
-      } else if (this.writeFile) {
+      } else if (false && this.writeFile) {
         this.writeFile.write(fullMsg + "\n");
       } else {
         console.log(prefix + msg);

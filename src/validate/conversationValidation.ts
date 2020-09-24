@@ -8,7 +8,7 @@ import { Conversation, Room, Agent } from "../models";
  * @param {Object} conversation - conversation object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function ConversationInAgentsRoom(conversation: Conversation, room: Room): ValidationResult {
+export function conversationInAgentsRoom(conversation: Conversation, room: Room): ValidationResult {
   if (room === undefined || conversation === undefined) {
     return {
       success: false,

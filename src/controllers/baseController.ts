@@ -1,4 +1,4 @@
-import { logger, LOG, socketAgentMap } from "../utilities";
+import { logger, LOG, SocketAgentMap, SmartJSON } from "../utilities";
 import {
   Agent,
   Conversation,
@@ -93,9 +93,11 @@ export class BaseController {
           payload[name].push(model.toJSON(true, { agent }));
         }
       }
-      // if (agent.socket) { TODO: Figure out sockets
-      //   agent.socket.emit("updateModels", payload);
-      // }
+
+      const socket = SocketAgentMap.getSocketFromAgent(agent);
+      if (socket) {
+        socket.emit("updateModels", SmartJSON.stringify(payload));
+      }
     }
   }
 

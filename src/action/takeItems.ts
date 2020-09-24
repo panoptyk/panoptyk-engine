@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
+import * as Validate from "../validate";
 import { InventoryController } from "../controllers";
 import { Agent, Room, Item } from "../models/index";
 import { inject } from "../utilities";
@@ -23,19 +23,20 @@ export const ActionTakeItems: Action = {
       itemNames.push(item.itemName);
     }
     logger.log("Event take-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
-      + agent + " registered.", 2);
+      + agent + " registered.", "ACTION");
 
     ic.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
     // check if item in room
-    if (!(res = Validate.validate_items_in_room(agent.room, inputData.itemIDs)).status) {
+    const items: Item[] = inject.db.retrieveModels(inputData.itemIDs, Item) as Item[];
+    if (!(res = Validate.inRoom(items, agent.room)).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };
