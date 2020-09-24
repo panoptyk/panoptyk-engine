@@ -1,20 +1,19 @@
 import * as fs from "fs";
-import * as util from "./utilities/util";
 import express from "express";
 import http from "http";
 import socketIO from "socket.io";
+import { logger, LOG, inject, PanoptykSettings } from "./utilities";
 import { Controller } from "./controllers/controller";
-import { logger, LOG } from "./utilities/logger";
 import {
   Agent,
   Room,
   Info,
+  Information,
   Item,
   Conversation,
   Trade,
-  IDObject,
   Quest,
-  Faction
+  Faction,
 } from "./models/index";
 import {
   Action,
@@ -46,118 +45,109 @@ import {
   ActionDropGold,
   ActionStealItem,
   ActionConfiscateItem,
-  ActionTellItemOwnership
+  ActionTellItemOwnership,
 } from "./action/index";
-import { ValidationResult, Validate } from "./action/validate";
+import { ValidationError, ValidationResult } from "./validate";
+import * as Validate from "./validate";
+
+const defaultActions: Action[] = [
+  ActionLogin,
+  ActionMoveToRoom,
+  ActionRequestConversation,
+  ActionDropItems,
+  ActionOfferItemsTrade,
+  ActionLeaveConversation,
+  ActionRequestTrade,
+  ActionCancelTrade,
+  ActionTakeItems,
+  ActionWithdrawItemsTrade,
+  ActionReadyTrade,
+  ActionAskQuestion,
+  ActionOfferAnswerTrade,
+  ActionWithdrawInfoTrade,
+  ActionTellInfo,
+  ActionPassQuestion,
+  ActionCloseQuest,
+  ActionTurnInQuestInfo,
+  ActionGiveQuest,
+  ActionRequestItemTrade,
+  ActionPassItemRequest,
+  ActionRejectTradeRequest,
+  ActionRejectConversationRequest,
+  ActionModifyAgentFaction,
+  ActionModifyGoldTrade,
+  ActionDropGold,
+  ActionStealItem,
+  ActionConfiscateItem,
+  ActionTellItemOwnership,
+];
+
+const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms
 
 export class Server {
-  private MIN_TIME_BETWEEN_ACTIONS = 100;
-  private actingSockets: Map<socketIO.Socket, number> = new Map<
+  _timeBetweenActions = MIN_TIME_BETWEEN_ACTIONS;
+  get timeBetweenActions() {
+    return this._timeBetweenActions;
+  }
+  set timeBetweenActions(t: number) {
+    this._timeBetweenActions = t;
+  }
+  _timeSinceLastMsg: Map<socketIO.Socket, number> = new Map<
     socketIO.Socket,
     number
   >();
-  private app: express.Application;
-  private server: http.Server;
-  private io: socketIO.Server;
-  private port: string | number;
+  _app: express.Application;
+  _server: http.Server;
+  _io: socketIO.Server;
+  _port: string | number;
 
-  /**
-   * List of all models that need to be saved and loaded
-   */
-  private models: any[] = [
-    Agent,
-    Room,
-    Info,
-    Item,
-    Conversation,
-    Trade,
-    Quest,
-    Faction
-  ];
-  private actions: Action[] = [
-    ActionLogin,
-    ActionMoveToRoom,
-    ActionRequestConversation,
-    ActionDropItems,
-    ActionOfferItemsTrade,
-    ActionLeaveConversation,
-    ActionRequestTrade,
-    ActionCancelTrade,
-    ActionTakeItems,
-    ActionWithdrawItemsTrade,
-    ActionReadyTrade,
-    ActionAskQuestion,
-    ActionOfferAnswerTrade,
-    ActionWithdrawInfoTrade,
-    ActionTellInfo,
-    ActionPassQuestion,
-    ActionCloseQuest,
-    ActionTurnInQuestInfo,
-    ActionGiveQuest,
-    ActionRequestItemTrade,
-    ActionPassItemRequest,
-    ActionRejectTradeRequest,
-    ActionRejectConversationRequest,
-    ActionModifyAgentFaction,
-    ActionModifyGoldTrade,
-    ActionDropGold,
-    ActionStealItem,
-    ActionConfiscateItem,
-    ActionTellItemOwnership
-  ];
+  _actions: Action[] = [];
 
   constructor(app?: express.Application) {
-    this.createApp(app);
-    this.loadConfig();
-    this.createServer();
-    this.sockets();
+    this._actions = defaultActions;
+    this._createApp(app);
+    this._loadConfig();
+    this._createServer();
+    this._makeSockets();
   }
 
-  private createApp(app?: express.Application): void {
-    this.app = app ? app : express();
+  _createApp(app?: express.Application): void {
+    this._app = app ? app : express();
   }
 
-  private createServer(): void {
-    this.server = http.createServer(this.app);
+  _createServer(): void {
+    this._server = http.createServer(this._app);
   }
 
-  private loadConfig(): void {
+  _makeSockets(): void {
+    this._io = socketIO(this._server);
+  }
+
+  _loadConfig(): void {
+    const settingsM = inject.settingsManager;
     // Read settings
     try {
-      const settings = JSON.parse(
+      const json = JSON.parse(
         fs.readFileSync("panoptyk-settings.json").toString()
       );
-      for (const key in settings) {
-        util.panoptykSettings[key] = settings[key];
-      }
-      logger.log("Panoptyk settings loaded", LOG.INFO);
+      settingsM.setSettings(json);
+      logger.log("Panoptyk settings loaded...", "SERVER");
     } catch (err) {
-      logger.log("No panoptyk settings found... creating one.", LOG.INFO);
+      logger.log("No panoptyk settings found... creating one.", "SERVER");
       fs.writeFileSync(
         "panoptyk-settings.json",
-        JSON.stringify(util.panoptykSettings)
+        JSON.stringify(PanoptykSettings.default)
       );
     }
-    // Calc UTC offset(ms)
-    util.panoptykSettings.server_start_date_ms = Date.UTC(
-      util.panoptykSettings.server_start_date.year,
-      util.panoptykSettings.server_start_date.month - 1, // Month is on a 0 to 11 scale
-      util.panoptykSettings.server_start_date.day
-    );
-    logger.log("Panoptyk Settings:", LOG.INFO);
-    for (const key in util.panoptykSettings) {
+
+    // Report settings
+    logger.log("Panoptyk Settings:", "SERVER");
+    for (const key in settingsM.settings) {
       logger.log(
-        key + ": " + JSON.stringify(util.panoptykSettings[key]),
-        LOG.INFO
+        key + ": " + JSON.stringify(settingsM.settings[key]),
+        "SERVER"
       );
     }
-
-    // Assign port
-    this.port = util.panoptykSettings.port;
-  }
-
-  private sockets(): void {
-    this.io = socketIO(this.server);
   }
 
   /**
@@ -166,88 +156,77 @@ export class Server {
    * event files in models/events
    */
   private listen(): void {
-    this.server.listen(this.port, () => {
-      logger.log("Starting server on port " + this.port, LOG.INFO);
+    // Assign port
+    this._port = inject.settingsManager.settings.port;
+
+    this._server.listen(this._port, () => {
+      logger.log("Starting server on port " + this._port, "SERVER");
     });
 
     // Adds hook to set up all action hooks for each client
-    this.io.on("connection", socket => {
-      logger.log("Client Connected", LOG.INFO);
+    this._io.on("connection", (socket) => {
+      logger.log("Web client Connected", "SERVER");
 
-      for (const action of this.actions) {
-        socket.on(action.name, (data, callback) => {
+      for (const action of this._actions) {
+        socket.on(action.name, (data, callback: (res: ValidationResult) => void) => {
           // Enforce action limit
+          const now = Date.now();
           if (
-            this.actingSockets.has(socket) &&
-            Date.now() - this.actingSockets.get(socket) <
-              this.MIN_TIME_BETWEEN_ACTIONS
+            this._timeSinceLastMsg.has(socket) &&
+            now - this._timeSinceLastMsg.get(socket) <
+              this._timeBetweenActions
           ) {
             callback({
-              status: false,
+              success: false,
+              errorCode: ValidationError.TooManyActions,
               message:
-                "You cannot act more than every " +
-                this.MIN_TIME_BETWEEN_ACTIONS +
-                " milliseconds!"
+                "You can only act once every " +
+                this._timeBetweenActions +
+                " milliseconds!",
             });
             return;
           }
-          this.actingSockets.set(socket, Date.now());
+          this._timeSinceLastMsg.set(socket, now);
 
           // Process action
-          logger.log("Action recieved: " + action.name, LOG.INFO);
-          const agent = Agent.getAgentBySocket(socket);
+          logger.log("Action recieved: " + action.name, "SERVER");
+          // const agent = Agent.getAgentBySocket(socket); TODO
           let res: ValidationResult;
           if (
-            (res = Validate.validate_key_format(action.formats, data)).status &&
-            (res = Validate.validate_factionType_requirement(
-              action.requiredFactionType,
-              agent
-            )).status
+            (res = Validate.keyFormat(action.formats, data)).success // TODO &&
+            // (res = Validate.factionType_requirement(
+            //   action.requiredFactionType,
+            //   agent
+            // )).success
           ) {
             res = action.validate(agent, socket, data);
-            if (res.status) {
+            if (res.success) {
               action.enact(agent, data);
             } else {
-              logger.log("Action failed to validate: " + res.message, LOG.INFO);
+              logger.log("Action failed to validate: " + res.message, "SERVER", LOG.WARN);
             }
           }
           callback(res);
         });
       }
 
-      socket.on("disconnect", data => {
-        logger.log("Client disconnected", LOG.INFO);
-        const agent: Agent = Agent.getAgentBySocket(socket);
-        if (agent !== undefined) {
-          const controller = new Controller();
-          controller.removeAgentFromRoom(agent, true);
-          controller.sendUpdates();
-        }
+      socket.on("disconnect", (data) => {
+        logger.log("Client disconnected", "SERVER");
+        // TODO
       });
     });
   }
 
   private loadModels() {
-    util.makeDir(util.panoptykSettings.data_dir); // <- Should suffice
-    this.models.forEach(model => {
-      model.loadAll();
-    });
+    // TODO
   }
 
   private saveModels() {
-    this.models.forEach(model => {
-      model.saveAll();
-    });
+    // TODO
   }
 
   public logoutAll() {
-    const controller = new Controller();
-    for (const key in Agent.objects) {
-      const agent: Agent = Agent.objects[key];
-      if (agent.socket) {
-        controller.removeAgentFromRoom(agent, true);
-      }
-    }
+    // TODO
   }
 
   public start() {
@@ -255,10 +234,10 @@ export class Server {
 
     // Sets up "ctrl + c" to stop server
     process.on("SIGINT", () => {
-      logger.log("Shutting down", LOG.INFO);
+      logger.log("Shutting down...", "SERVER");
       this.logoutAll();
       this.saveModels();
-      logger.log("Server closed", LOG.INFO);
+      logger.log("Server closed", "SERVER");
       process.exit(0);
     });
 

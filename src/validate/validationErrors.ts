@@ -8,6 +8,7 @@ export const ValidationError = Object.freeze({
     Keys: 2 as 2,
     Types: 3 as 3,
     NotEnough: 4 as 4,
+    TooManyActions: 5 as 5,
     Username: 100 as 100,
     RoomMovement: 200 as 200,
     RoomFull: 201 as 201,

@@ -4,5 +4,5 @@ export * from "./connectivityValidation";
 export * from "./conversationValidation";
 export * from "./itemValidation";
 export * from "./roomValidation";
-export { ValidationResult } from "./validationResults";
+export { ValidationResult, ValidationSuccess } from "./validationResults";
 export { ValidationError } from "./validationErrors";
