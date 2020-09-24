@@ -1,5 +1,4 @@
-import { logger, LOG } from "../utilities/logger";
-import * as util from "../utilities/util";
+import { logger, LOG, socketAgentMap } from "../utilities";
 import {
   Agent,
   Conversation,
@@ -11,8 +10,11 @@ import {
   Quest,
   Faction,
   IModel,
-  BaseModel
+  BaseModel,
 } from "../models/index";
+import { metadata, PredicateTerms } from "../models/information";
+import { InformationManipulator } from "../manipulators/informationManipulator";
+import { AgentManipulator } from "../manipulators";
 
 export class BaseController {
   _updates: Map<Agent, Set<IModel>>;
@@ -28,7 +30,7 @@ export class BaseController {
     }
   }
 
-  updateChanges(agent: Agent, models: (IModel | IModel [])[]) {
+  updateChanges(agent: Agent, models: (IModel | IModel[])[]) {
     let updates = new Set<IModel>();
     if (this._updates.has(agent)) {
       updates = this._updates.get(agent);
@@ -52,15 +54,18 @@ export class BaseController {
    * @param updates
    * @param change
    */
-  addChange(updates: Set<IModel>, change: any) {
+  addChange(updates: Set<IModel>, change: IModel) {
     updates.add(change);
     if (change instanceof Information) {
-      // const terms = change.getTerms();
-      // for (const term in terms) {
-      //   if (terms[term] instanceof BaseModel) {
-      //     this.addChange(updates, terms[term]);
-      //   }
-      // }
+      updates.add(change.getMasterCopy());
+      // Include information terms if they are an IModel
+      const terms = change.getTerms(true) as PredicateTerms;
+      for (const key in terms) {
+        const term = terms[key];
+        if (term instanceof Object) {
+          this.addChange(updates, term);
+        }
+      }
     } else if (change instanceof Agent) {
       // automatically give faction information of agents for now
       if (change.faction) {
@@ -82,20 +87,85 @@ export class BaseController {
           payload[name] = [];
         }
         if (name === Information.name) {
-          // const info: Info = model as Info;
-          // payload[name].push(info.toJSON(true, agent));
-          // if (info.isReference()) {
-          //   const master: Info = Info.getByID(info.id);
-          //   payload[name].push(master.toJSON(true, agent));
-          // }
+          const info: Info = model as Info;
+          payload[name].push(info.toJSON(true, { agent }));
         } else {
-          payload[name].push(model.toJSON(true, agent));
+          payload[name].push(model.toJSON(true, { agent }));
         }
       }
-      // console.log(payload);
       // if (agent.socket) { TODO: Figure out sockets
       //   agent.socket.emit("updateModels", payload);
       // }
     }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  //                 Info giving/dispersal                                   //
+  // *located in base controller as its used everywhere                     //
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * gives every agent in a room their own copy of information
+   * @param info master copy of information
+   * @param room room of occupants to disperse info to
+   */
+  disperseInfo(info: Info, room: Room) {
+    const occupants = room.occupants;
+    occupants.forEach((agent) => {
+      // could determine whether agent gets the info or partial...
+      this.giveInfoToAgent(info, agent);
+    });
+  }
+
+  /**
+   * gives every agent their own copy of information with optional mask
+   *  shortcut to give infor to multiple agents
+   * @param info master copy of information
+   * @param agents agents to recieve info
+   * @param mask optional mask of the info given to ALL agents
+   */
+  giveInfoToAgents(
+    info: Info,
+    agents: Agent[],
+    mask?: { action: boolean; predMetaData: metadata<PredicateTerms> }
+  ) {
+    agents.forEach((agent) => {
+      this.giveInfoToAgent(info, agent, mask);
+    });
+  }
+
+  /**
+   * gives agent their own copy of information with optional mask
+   * @param info master copy of information
+   * @param agent agent to recieve info
+   * @param mask optional mask of the info given to agent
+   */
+  giveInfoToAgent(
+    info: Info,
+    agent: Agent,
+    mask?: { action: boolean; predMetaData: metadata<PredicateTerms> }
+  ) {
+    let existingCopy = info.getMasterCopy().getAgentCopy(agent);
+    if (existingCopy) {
+      // potentially consolidate a mask
+      InformationManipulator.consolidateMask(existingCopy, mask);
+    } else {
+      // make a copy and give it
+      const copy = info.getCopy(agent);
+      InformationManipulator.setMask(copy, mask);
+      AgentManipulator.addInfo(agent, copy);
+      existingCopy = copy;
+    }
+    // hook to give agent any "embedded" info
+    //  info in the predicate of this info
+    const terms = existingCopy.getTerms(true);
+    for (const key in terms) {
+      const term = terms[key];
+      if (term instanceof Information) {
+        this.giveInfoToAgent(term, agent); // shouldn't have a mask
+      }
+    }
+    // register info as change
+    this.updateChanges(agent, [existingCopy]);
   }
 }
