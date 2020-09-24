@@ -2,7 +2,7 @@ import { IDatabase } from "../database/IDatabase";
 import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { Room } from "./room";
-import { logger, LOG } from "../utilities/logger";
+import { logger } from "../utilities";
 /**
  * Item model. Defines the data associated with an item.
  */
@@ -12,6 +12,9 @@ export class Item extends BaseModel {
     return this._type;
   }
   _itemName: string;
+  get itemName(): string {
+    return this._itemName;
+  }
   _quantity: number;
   get quantity(): number {
     return this._quantity;
@@ -50,7 +53,7 @@ export class Item extends BaseModel {
     this.room = room;
     this.agent = agent;
 
-    logger.log ("Item " + this + " Initialized.");
+    logger.log ("Item " + this + " Initialized.", "ITEM");
   }
 
   toJSON(forClient: boolean, context: any): object {

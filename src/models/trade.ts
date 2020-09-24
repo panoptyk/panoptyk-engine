@@ -1,6 +1,6 @@
 import { BaseModel } from "./Imodel";
 import { IDatabase } from "../database/IDatabase";
-import { logger } from "../utilities/logger";
+import { logger } from "../utilities";
 
 export interface AnswerInfo {
   answerID: number;
@@ -21,7 +21,7 @@ export class Trade extends BaseModel {
   constructor(id?: number, db?: IDatabase) {
     super(id, db);
 
-    logger.log("Trade " + this + " Initialized");
+    logger.log("Trade " + this + " Initialized", "TRADE");
   }
 
   toJSON(forClient: boolean, context: any): object {

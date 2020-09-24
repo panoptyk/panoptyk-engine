@@ -1,9 +1,10 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
-import { Controller } from "../../controllers/controller";
+import * as Validate from "../validate";
+import { ConversationController } from "../controllers";
 import { Conversation } from "../models/conversation";
 import { Agent } from "../models/agent";
+import { inject } from "../utilities";
 
 export const ActionLeaveConversation: Action = {
   name: "leave-conversation",
@@ -13,26 +14,26 @@ export const ActionLeaveConversation: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    const controller = new Controller();
-    const conversation: Conversation = Conversation.getByID(inputData.conversationID);
+    const cc: ConversationController = new ConversationController();
+    const conversation: Conversation = inject.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
 
-    controller.removeAgentFromConversation(conversation, agent);
+    cc.removeAgentFromConversation(conversation, agent);
 
-    logger.log("Event leave-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", 2);
-    controller.sendUpdates();
+    logger.log("Event leave-conversation (" + conversation + ") for agent " + agent.agentName + " registered.", "ACTION");
+    cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const conversation =  Conversation.getByID(inputData.conversationID);
-    if (!(res = Validate.validate_conversation_exists(agent.room, conversation)).status) {
+    const conversation: Conversation = inject.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
+    if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room).success)) {
       return res;
     }
-    if (!(res = Validate.validate_conversation_has_agent(conversation, agent)).status) {
+    if (!(res = Validate.hasAgent(conversation, agent)).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };

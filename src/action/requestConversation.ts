@@ -1,8 +1,9 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
-import { Controller } from "../../controllers/controller";
+import * as Validate from "../validate";
+import { ConversationController } from "../controllers";
 import { Agent } from "../models/agent";
+import { inject } from "../utilities";
 
 export const ActionRequestConversation: Action = {
   name: "request-conversation",
@@ -11,61 +12,61 @@ export const ActionRequestConversation: Action = {
       agentID: "number"
     }
   ],
-  enact: (agent: Agent, inputData: any) => {
-    const controller = new Controller();
-    const toAgent: Agent = Agent.getByID(inputData.agentID);
+  enact: (requester: Agent, inputData: any) => {
+    const cc: ConversationController = new ConversationController();
+    const requestee: Agent = inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
 
     // if other agent has not requested a conversation
-    if (agent.conversationRequesters.indexOf(toAgent) === -1) {
-      controller.requestConversation(agent, toAgent);
+    if (requester.conversationRequesters.indexOf(requestee) === -1) {
+      cc.requestConversation(requester, requestee);
       logger.log(
         "Event request-conversation from (" +
-          agent +
+          requester +
           ") to agent " +
-          toAgent +
+          requestee +
           " registered.",
-        2
+        "ACTION"
       );
     }
     // accept conversation request from other agent
     else {
-      const conversation = controller.createConversation(
-        agent.room,
-        agent,
-        toAgent
+      const conversation = cc.createConversation(
+        requester.room,
+        requester,
+        requestee
       );
       logger.log(
         "Event accept-conversation (" +
           conversation +
           ") for agent " +
-          agent +
+          requester +
           "/" +
-          toAgent +
+          requestee +
           " registered.",
-        2
+        "ACTION"
       );
     }
 
-    controller.sendUpdates();
+    cc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const toAgent = Agent.getByID(inputData.agentID);
-    if (!(res = Validate.validate_not_same_agent(agent, toAgent)).status) {
+    const requestee: Agent = inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    if (!(res = Validate.differentAgents(agent, requestee)).success) {
       return res;
     }
-    if (!(res = Validate.validate_agent_logged_in(toAgent)).status) {
+    if (!(res = Validate.loggedIn(requestee)).success) {
       return res;
     }
-    if (!(res = Validate.validate_agents_in_same_room(agent, toAgent)).status) {
+    if (!(res = Validate.sameRoom([ agent, requestee ])).success) {
       return res;
     }
-    if (!(res = Validate.validate_agents_not_conversing([agent, toAgent])).status) {
+    if (!(res = Validate.notInConversation([ agent, requestee ])).success) {
       return res;
     }
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };

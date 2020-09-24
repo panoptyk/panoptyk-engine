@@ -3,13 +3,16 @@ import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { Item } from "./item";
 import { Conversation } from "./conversation";
-import { logger } from "../utilities/logger";
+import { logger } from "../utilities";
 
 /**
  * Room model. Defines the data associated with a room.
  */
 export class Room extends BaseModel {
   _roomName: string;
+  get roomName(): string {
+    return this._roomName;
+  }
   _adjacentRooms: Set<number>;
   get adjacentRooms(): Room[] {
     return this.db.retrieveModels([...this._adjacentRooms], Room) as Room[];
@@ -39,7 +42,7 @@ export class Room extends BaseModel {
     this._items = new Set<number>();
     this._conversations = new Set<number>();
 
-    logger.log("Room " + this + " Initialized.");
+    logger.log("Room " + this + " Initialized.", "ROOM");
   }
   toJSON(forClient: boolean, context: any): object {
     const safeRoom = Object.assign({}, this);
@@ -73,7 +76,7 @@ export class Room extends BaseModel {
    * Check if room contains specified item
    * @param item
    */
-  public hasItem(item: Item): boolean {
+  hasItem(item: Item): boolean {
     return this._items.has(item.id);
   }
 
@@ -81,11 +84,11 @@ export class Room extends BaseModel {
    * Checks if room contains specified agent
    * @param agent
    */
-  public hasAgent(agent: Agent): boolean {
+  hasAgent(agent: Agent): boolean {
     return this._occupants.has(agent.id);
   }
 
-  public isFull(): boolean {
+  isFull(): boolean {
     return this._occupants.keys.length >= this.maxOccupants;
   }
 }

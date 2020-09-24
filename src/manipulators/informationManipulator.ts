@@ -1,4 +1,9 @@
-import { PredicateTerms, Information, metadata, query } from "../models/information";
+import {
+  PredicateTerms,
+  Information,
+  metadata,
+  query,
+} from "../models/information";
 
 export class InformationManipulator {
   /**
@@ -11,6 +16,19 @@ export class InformationManipulator {
     mask: { action: boolean; predMetaData: metadata<P> }
   ): void {
     info._metadata = mask;
+  }
+
+  static consolidateMask<P extends PredicateTerms>(
+    info: Information<P>,
+    mask: { action: boolean; predMetaData: metadata<P> }
+  ): void {
+    const curMask = info._metadata;
+    curMask.action =  curMask.action && mask.action;
+    for (const key in curMask.predMetaData) {
+      curMask.predMetaData[key] =
+        curMask.predMetaData[key] && mask.predMetaData[key];
+    }
+    InformationManipulator.setMask(info, curMask);
   }
 
   /**

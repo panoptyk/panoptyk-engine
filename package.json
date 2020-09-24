@@ -19,7 +19,8 @@
     "clean": "rm -r -f ./dist",
     "pretest": "mkdir -p data",
     "test": "ts-mocha -p test.tsconfig.json \"src/**/*.spec.ts\"",
-    "test_file": "ts-mocha -p test.tsconfig.json "
+    "test_file": "ts-mocha -p test.tsconfig.json ",
+    "test-server": "ts-node --project ./tsconfig.json ./src/testServer.ts"
   },
   "repository": {
     "type": "git",
@@ -43,7 +44,7 @@
     "rollup": "^1.23.1",
     "rollup-plugin-typescript2": "^0.24.3",
     "ts-mocha": "^6.0.0",
-    "ts-node": "^8.3.0",
+    "ts-node": "^8.10.2",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3"
   },

@@ -8,55 +8,30 @@ export class Logger {
     }
   }
 
-  public static logLevels = {
+  static logLevels = {
     "-1": " CLIENT",
     "0": " ERROR ",
-    "1": "WARNING",
+    "1": "WARN",
     "2": "  INFO ",
     CLIENT: -1,
     ERROR: 0,
-    WARNING: 1,
+    WARN: 1,
     INFO: 2
   };
-
-  // DEPRECATED LOG CODE:
-  // log(msg, logLevel = 0, file?) {
-  //   if (logLevel <= this.logLevel) {
-  //     const prefix = "[" + (new Date()).toISOString()
-  //       .replace(/T/, " ").replace(/\..+/, "") + "]═["
-  //       + Logger.logLevels[logLevel] + "]══";
-
-  //     msg = prefix + (prefix.length + msg.length >= this.logLineLen ?
-  //       "╦═╡ " : "══╡ ") + msg;
-
-  //     msg = msg.replace(new RegExp("(.{" + this.logLineLen + "})", "g"),
-  //       "$1\n                                 ╠══╡ ");
-
-  //     const index = msg.lastIndexOf("╠");
-  //     if (index > 0) {
-  //       msg = msg.substr(0, index) + "╚" + msg.substr(index + 1);
-  //     }
-
-  //     if (file) {
-  //       msg += " [" + file + "]";
-  //     }
-  //     console.log(msg);
-  //   }
-  // }
 
   /**
    * Log a message at specified important level.
    * @param {string} msg - message to log.
    * @param {int} logLevel - level of message importance.
    */
-  public log(msg, logLevel = 0, file?: string) {
+  public log(msg, tag = "", logLevel = 2, file?: string) {
     if (logLevel <= this.logLevel) {
       const prefix =
-        "[" + new Date() + "]═[" + Logger.logLevels[logLevel] + "]\t";
+        "[" + new Date() + "][" + Logger.logLevels[logLevel] + "]\t[" + tag + "]\t";
       const fullMsg = prefix + msg;
-      if (fs.appendFileSync && file) {
+      if (false && fs && fs.appendFileSync && file) {
         fs.appendFileSync(file, fullMsg + "\n");
-      } else if (this.writeFile) {
+      } else if (false && this.writeFile) {
         this.writeFile.write(fullMsg + "\n");
       } else {
         console.log(prefix + msg);
@@ -64,8 +39,8 @@ export class Logger {
     }
   }
 
-  public clientLog(msg, file?: string) {
-    this.log(msg, Logger.logLevels.CLIENT, file);
+  public clientLog(msg, tag = "", file?: string) {
+    this.log(msg, tag, Logger.logLevels.CLIENT, file);
   }
 
   // TODO: add ability to change settings & load from settings.json file
@@ -74,7 +49,7 @@ export class Logger {
   }
 
   public setLogFile(file: string) {
-    if (!(fs.createWriteStream)) {
+    if (!(fs && fs.createWriteStream)) {
       return;
     }
     if (this.writeFile) {

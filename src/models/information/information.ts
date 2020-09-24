@@ -1,5 +1,5 @@
 import { IDatabase } from "../../database/IDatabase";
-import { logger } from "../../utilities/logger";
+import { logger } from "../../utilities/";
 import {
   PredicateFactory,
   PredicateBase,
@@ -88,7 +88,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     this._pred = pred;
     this.owner = owner;
 
-    logger.log(this + " initialized");
+    logger.log(this + " initialized", "INFO");
   }
 
   toJSON(forClient: boolean, context: any): object {

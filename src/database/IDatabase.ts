@@ -40,6 +40,8 @@ export interface IDatabase {
    */
   storeModels(models: IModel[]): boolean[];
 
+  matchModel(query: object, model: modelRef): IModel[];
+
   // Normal database functions (async)
   /**
    * Place to initialize database

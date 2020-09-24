@@ -1,9 +1,10 @@
 import { Action } from "./action";
 import { logger } from "../utilities/logger";
-import { Validate } from "./validate";
-import { Controller } from "../../controllers/controller";
+import * as Validate from "../validate";
+import { MovementController } from "../controllers";
 import { Room } from "../models/room";
 import { Agent } from "../models/agent";
+import { inject } from "../utilities";
 
 export const ActionMoveToRoom: Action = {
   name: "move-to-room",
@@ -13,28 +14,29 @@ export const ActionMoveToRoom: Action = {
     }
   ],
   enact: (agent: Agent, inputData: any) => {
-    const controller = new Controller();
+    const mc: MovementController = new MovementController();
     const oldRoom = agent.room;
-    const newRoom = Room.getByID(inputData.roomID);
+    const newRoom: Room = inject.db.retrieveModel(inputData.roomID, Room) as Room;
 
-    controller.moveAgentToRoom(agent, newRoom);
+    mc.moveAgent(agent, oldRoom, newRoom);
 
     logger.log("Event move-to-room (" + oldRoom + "->"
-      + newRoom  + ") for agent " + agent + " registered.", 2);
-    controller.sendUpdates();
+      + newRoom  + ") for agent " + agent + " registered.", "ACTION");
+    mc.sendUpdates();
   },
   validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
-    if (!(res = Validate.validate_agent_logged_in(agent)).status) {
+    if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    if (!(res = Validate.validate_room_adjacent(agent.room, Room.getByID(inputData.roomID))).status) {
+    const newRoom: Room = inject.db.retrieveModel(inputData.roomID, Room) as Room;
+    if (!(res = Validate.roomAdjacent(agent.room, newRoom).success)) {
       return res;
     }
-    if (!(res = Validate.validate_room_has_space(Room.getByID(inputData.roomID))).status) {
+    if (!(res = Validate.roomHasSpace(newRoom).success)) {
       return res;
     }
 
-    return Validate.successMsg;
+    return Validate.ValidationSuccess;
   }
 };
