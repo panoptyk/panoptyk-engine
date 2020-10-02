@@ -1,0 +1,36 @@
+{
+  "name": "@panoptyk/server",
+  "version": "0.0.0",
+  "description": "TODO",
+  "homepage": "https://github.com/panoptyk/panoptyk-engine/tree/master/packages/server#readme",
+  "author": "",
+  "license": "ISC",
+  "main": "lib/server.js",
+  "typings": "lib/server.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "clean": "rm -rf ./lib",
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panoptyk/panoptyk-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/panoptyk/panoptyk-engine/issues"
+  },
+  "dependencies": {
+    "socket.io": "^2.3.0"
+  }
+}

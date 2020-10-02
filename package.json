@@ -1,20 +1,11 @@
 {
-  "name": "panoptyk-engine",
-  "version": "0.2.0",
+  "name": "panoptyk-monorepo",
+  "version": "",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
-    "dist/"
-  ],
   "scripts": {
     "pretest": "mkdir -p data",
     "test": "ts-mocha -p test.tsconfig.json \"src/**/*.spec.ts\"",
-    "test_file": "ts-mocha -p test.tsconfig.json ",
-    "test-server": "ts-node --project ./tsconfig.json ./src/testServer.ts"
+    "test_file": "ts-mocha -p test.tsconfig.json "
   },
   "repository": {
     "type": "git",
@@ -27,13 +18,14 @@
   },
   "homepage": "https://github.com/panoptyk/panoptyk-engine#readme",
   "devDependencies": {
-    "@types/node": "^12.6.2",
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.7",
     "@types/express": "^4.17.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.6.2",
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.32",
     "chai": "^4.2.0",
+    "lerna": "^3.22.1",
     "mocha": "^6.1.4",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.10.2",

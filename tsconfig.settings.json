@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
-    "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es5",
     "module": "commonjs",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "removeComments": false,
-    "esModuleInterop": true, 
-    "outDir": "./build",
-    "declarationDir": "./build",
-    "rootDir": "./src",
+    "target": "es6",
+    "downlevelIteration": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "lib":[
+      "ES6"
+    ],
     "typeRoots": [
       "node_modules/@types",
       "types"
     ]
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
