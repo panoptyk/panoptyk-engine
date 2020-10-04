@@ -17,11 +17,12 @@
     "access": "public"
   },
   "scripts": {
-    "prebuild": "npm run clean",
-    "build": "tsc",
+    "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib",
+    "compile": "tsc -p tsconfig.build.json",
     "tsc": "tsc",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "testt": "../../node_modules/.bin/ts-mocha -p tsconfig.build.json \"src/**/*.spec.ts\""
   },
   "repository": {
     "type": "git",

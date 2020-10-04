@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.build.json",
+
+  "compilerOptions": {
+    "baseUrl": "./packages",
+    "outDir": "./lib",
+    "paths": {
+      "@panoptyk/*": ["*", "*/src"],
+    }
+  }
+}
