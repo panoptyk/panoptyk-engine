@@ -21,7 +21,8 @@
     "clean": "rm -rf ./lib",
     "compile": "tsc -p tsconfig.build.json",
     "tsc": "tsc",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "../../node_modules/.bin/ts-mocha -p tsconfig.build.json \"src/**/*.spec.ts\"",
+    "lint": "../../node_modules/.bin/tslint -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",

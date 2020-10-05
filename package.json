@@ -3,9 +3,9 @@
   "version": "",
   "description": "",
   "scripts": {
-    "pretest": "mkdir -p data",
-    "test": "ts-mocha -p test.tsconfig.json \"src/**/*.spec.ts\"",
-    "test_file": "ts-mocha -p test.tsconfig.json "
+    "test": "lerna run --stream test",
+    "lint": "lerna run --stream lint",
+    "test_file": "ts-mocha -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
