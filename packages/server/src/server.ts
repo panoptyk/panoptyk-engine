@@ -1,6 +1,6 @@
 import * as fs from "fs";
-import express from "express";
 import http from "http";
+import express from "express";
 import socketIO from "socket.io";
 import { Util, Agent } from "@panoptyk/core";
 import {
