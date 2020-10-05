@@ -1,6 +1,6 @@
+import { Agent } from "@panoptyk/core";
 import { ValidationResult, ValidationSuccess } from "./validationResults";
 import { ValidationError } from "./validationErrors";
-import { Agent } from "../models";
 
 /**
  * Validate that an agent is logged in.

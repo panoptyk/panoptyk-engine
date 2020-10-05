@@ -1,6 +1,6 @@
+import { Room } from "@panoptyk/core";
 import { ValidationResult, ValidationSuccess } from "./validationResults";
 import { ValidationError } from "./validationErrors";
-import { Room } from "../models";
 
 /**
  * Validate one room is adjacent to another.

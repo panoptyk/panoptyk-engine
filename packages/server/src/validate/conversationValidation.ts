@@ -1,6 +1,6 @@
+import { Conversation, Room, Agent } from "@panoptyk/core";
 import { ValidationResult, ValidationSuccess } from "./validationResults";
 import { ValidationError } from "./validationErrors";
-import { Conversation, Room, Agent } from "../models";
 
 /**
  * Check if a conversation is in given room.

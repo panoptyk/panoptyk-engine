@@ -1,6 +1,6 @@
+import { Agent, Item } from "@panoptyk/core";
 import { ValidationResult, ValidationSuccess } from "./validationResults";
 import { ValidationError } from "./validationErrors";
-import { Agent, Item } from "../models";
 
 /**
  * Validate agent owns list of items.

@@ -1,6 +1,6 @@
+import { Item, Room } from "@panoptyk/core";
 import { ValidationResult, ValidationSuccess } from "./validationResults";
 import { ValidationError } from "./validationErrors";
-import { Item, Room } from "../models";
 
 /**
  * Make sure an item is not locked.

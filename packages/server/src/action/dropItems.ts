@@ -1,9 +1,7 @@
+import { Util, Agent, Item } from "@panoptyk/core";
 import { Action } from "./action";
-import { logger } from "../utilities/logger";
 import * as Validate from "../validate";
 import { InventoryController } from "../controllers";
-import { Models.Agent, Item, Room } from "../models/index";
-import { inject } from "../utilities";
 
 export const ActionDropItems: Action = {
   name: "drop-items",
@@ -12,9 +10,9 @@ export const ActionDropItems: Action = {
       itemIDs: "object"
     }
   ],
-  enact: (agent: Models.Agent, inputData: any) => {
+  enact: (agent: Agent, inputData: any) => {
     const ic: InventoryController = new InventoryController();
-    const items: Item[] = inject.db.retrieveModels(inputData.itemID, Item) as Item[];
+    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemID, Item) as Item[];
 
     ic.dropItems(agent, items, agent.room);
 
@@ -22,12 +20,12 @@ export const ActionDropItems: Action = {
     for (const item of items) {
       itemNames.push(item.itemName);
     }
-    logger.log("Event drop-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
+    Util.logger.log("Event drop-items (" + JSON.stringify(inputData.itemIDs) + ") for agent "
       + agent.agentName + " registered.", "ACTION");
 
     ic.sendUpdates();
   },
-  validate: (agent: Models.Agent, socket: any, inputData: any) => {
+  validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
@@ -35,7 +33,7 @@ export const ActionDropItems: Action = {
     if (!(res = Validate.arrayTypes(inputData.itemIDs, "number")).success) {
       return res;
     }
-    const items: Item[] = inject.db.retrieveModels(inputData.itemID, Item) as Item[];
+    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemID, Item) as Item[];
     if (!(res = Validate.ownsItems(agent, items)).success) {
       return res;
     }

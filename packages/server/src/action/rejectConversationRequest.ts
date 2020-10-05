@@ -1,9 +1,7 @@
+import { Util, Agent, Room, Item } from "@panoptyk/core";
 import { Action } from "./action";
-import { logger } from "../utilities/logger";
 import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
-import { Models.Agent } from "../models/agent";
-import { inject } from "../utilities";
 
 export const ActionRejectConversationRequest: Action = {
   name: "reject-conversation-request",
@@ -12,11 +10,11 @@ export const ActionRejectConversationRequest: Action = {
       agentID: "number"
     }
   ],
-  enact: (requester: Models.Agent, inputData: any) => {
+  enact: (requester: Agent, inputData: any) => {
     const cc: ConversationController = new ConversationController();
-    const requestee: Models.Agent = inject.db.retrieveModel(inputData.agentID, Models.Agent) as Models.Agent;
+    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
     cc.rejectConversation(requester, requestee);
-    logger.log(
+    Util.logger.log(
     "Event reject-conversation-request from (" +
         requester +
         ") to agent " +
@@ -26,12 +24,12 @@ export const ActionRejectConversationRequest: Action = {
     );
     cc.sendUpdates();
   },
-  validate: (agent: Models.Agent, socket: any, inputData: any) => {
+  validate: (agent: Agent, socket: any, inputData: any) => {
     let res;
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const requestee: Models.Agent = inject.db.retrieveModel(inputData.agentID, Models.Agent) as Models.Agent;
+    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
     if (!(res = Validate.loggedIn(requestee)).success) {
       return res;
     }
