@@ -3,7 +3,7 @@
   "version": "",
   "description": "",
   "scripts": {
-    "pretest": "lerna run -- stream build",
+    "pretest": "lerna run --stream build",
     "test": "lerna run --stream test",
     "lint": "lerna run --stream lint",
     "lerna": "lerna",
