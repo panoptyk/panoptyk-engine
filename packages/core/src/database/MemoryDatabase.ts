@@ -1,7 +1,5 @@
-import * as fs from "fs";
 import { IDatabase } from "./IDatabase";
 import { modelRef, IModel } from "../models";
-import { SmartJSON } from "../utilities";
 
 export class MemoryDatabase implements IDatabase {
   storeModels(models: IModel[]): boolean[] {
@@ -48,23 +46,11 @@ export class MemoryDatabase implements IDatabase {
     return Promise.resolve(true);
   }
   save(): Promise<boolean> {
-    fs.writeFileSync(
-      "game.dat.json",
-      SmartJSON.stringify({ _idmap: this._idMap, _models: this._models })
-    );
     return Promise.resolve(true);
   }
   load(): Promise<boolean> {
     return new Promise((resolve) => {
-      console.log("before read");
-      const file = fs.readFileSync("game.dat.json").toString();
-      console.log("past read");
-      const json = SmartJSON.parse(file);
-      console.log("past parse");
-      this._idMap = json._idMap;
-      this._models = json._models;
       resolve(true);
-      console.log("past resolve");
       return;
     });
   }

@@ -1,6 +1,10 @@
-import { Item, Room } from "@panoptyk/core";
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import {
+  Item,
+  Room,
+  ValidationResult,
+  ValidationSuccess,
+  ValidationError,
+} from "@panoptyk/core";
 
 /**
  * Make sure an item is not locked.
@@ -11,7 +15,7 @@ export function notInTransaction(items: Item[]): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: items"
+      message: "Undefined Inputs: items",
     };
   }
 
@@ -20,7 +24,7 @@ export function notInTransaction(items: Item[]): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.UndefinedInputs,
-        message: "Item list contains undefined elements"
+        message: "Item list contains undefined elements",
       };
     }
 
@@ -28,7 +32,7 @@ export function notInTransaction(items: Item[]): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.ItemInTransaction,
-        message: "Item (" + item + ") is currently in transaction"
+        message: "Item (" + item + ") is currently in transaction",
       };
     }
   }
@@ -41,7 +45,7 @@ export function inRoom(items: Item[], room: Room): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: items"
+      message: "Undefined Inputs: items",
     };
   }
 
@@ -50,7 +54,7 @@ export function inRoom(items: Item[], room: Room): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.UndefinedInputs,
-        message: "Item list contains undefined elements"
+        message: "Item list contains undefined elements",
       };
     }
 
@@ -58,7 +62,7 @@ export function inRoom(items: Item[], room: Room): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.ItemNotInRoom,
-        message: "Item (" + item + ") is not in Room: (" + room + ")"
+        message: "Item (" + item + ") is not in Room: (" + room + ")",
       };
     }
   }

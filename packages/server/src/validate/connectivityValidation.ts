@@ -1,6 +1,9 @@
-import { Agent } from "@panoptyk/core";
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import {
+  Agent,
+  ValidationResult,
+  ValidationSuccess,
+  ValidationError,
+} from "@panoptyk/core";
 
 /**
  * Validate that an agent is logged in.
@@ -12,7 +15,7 @@ export function loggedIn(agent: Agent): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: agent"
+      message: "Undefined Inputs: agent",
     };
   }
 
@@ -29,7 +32,7 @@ export function loginUsername(username: string): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.Username,
-      message: "Invalid username (" + username + ")"
+      message: "Invalid username (" + username + ")",
     };
   }
 

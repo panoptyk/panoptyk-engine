@@ -1,40 +1,22 @@
 import * as io from "socket.io-client";
-import { logger } from "./utilities/logger";
-import { ValidationResult } from "./action/validate";
 import {
+  Util,
+  ValidationResult,
   Agent,
   Room,
   Info,
+  Information,
   Trade,
   Item,
   Conversation,
   Quest,
-  Faction
-} from "./models/index";
+  Faction,
+  ValidationError,
+  MemoryDatabase,
+} from "@panoptyk/core";
+import { UpdatedModels, updateModelsInMem } from "./communication/updateModels";
 
-const MODELS: any = {
-  Agent,
-  Room,
-  Info,
-  Item,
-  Trade,
-  Conversation,
-  Quest,
-  Faction
-};
-
-export interface UpdatedModels {
-  Info: Info[];
-  Room: Room[];
-  Agent: Agent[];
-  Item: Item[];
-  Trade: Trade[];
-  Conversation: Conversation[];
-  Quest: Quest[];
-  Faction: Faction[];
-}
-
-const emit = function(
+const emit = function (
   socket: SocketIOClient.Socket,
   event: string,
   payload: any
@@ -72,35 +54,42 @@ export class ClientAPI {
       return ClientAPI._playerAgent;
     }
     // Search for player agent
-    return (ClientAPI._playerAgent = Agent.getAgentByName(
-      ClientAPI.playerAgentName
-    ));
+    const match = Util.inject.db.matchModel(
+      { _agentName: ClientAPI.playerAgentName },
+      Agent
+    );
+    if (match.length === 1) {
+      ClientAPI._playerAgent = match[0] as Agent;
+    }
+    return ClientAPI._playerAgent;
   }
   private static _seenAgents = new Set<number>();
   public static get seenAgents(): Agent[] {
-    return Agent.getByIDs(Array.from(ClientAPI._seenAgents));
+    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenAgents), Agent) as Agent[];
   }
   private static _seenRooms = new Set<number>();
   public static get seenRooms(): Room[] {
-    return Room.getByIDs(Array.from(ClientAPI._seenRooms));
+    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenRooms), Room) as Room[];
   }
   private static _seenItems = new Set<number>();
   public static get seenItems(): Item[] {
-    return Item.getByIDs(Array.from(ClientAPI._seenItems));
+    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenItems), Item) as Item[];
   }
 
+  // sends communication to Panoptyk server
   private static async sendWrapper(event: string, payload: any) {
     if (ClientAPI.initialized && ClientAPI.actionSent) {
       const res: ValidationResult = {
-        status: false,
-        message: "Please wait for action to complete!"
+        success: false,
+        errorCode: ValidationError.None,
+        message: "Please wait for action to complete!",
       };
       throw res;
     }
     ClientAPI.actionSent = true;
     const res = await emit(ClientAPI.socket, event, payload);
     ClientAPI.actionSent = false;
-    if (res.status) {
+    if (res.success) {
       return res;
     } else {
       throw res;
@@ -112,49 +101,16 @@ export class ClientAPI {
    * @param ipAddress address of panoptyk game server
    */
   public static init(ipAddress = "http://localhost:8080", mode = 0) {
+    Util.inject.db = new MemoryDatabase();
     if (mode === 0) {
-      logger.silence();
+      Util.logger.silence();
     }
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
-    ClientAPI.socket.on("updateModels", data => {
-      logger.log("--Model updates recieved--", 2);
+    ClientAPI.socket.on("updateModels", (data) => {
+      Util.logger.log("--Model updates recieved--", "CLIENT", 2);
       ClientAPI.updating.push(true);
-      const updates: UpdatedModels = {
-        Agent: [],
-        Info: [],
-        Item: [],
-        Room: [],
-        Trade: [],
-        Conversation: [],
-        Quest: [],
-        Faction: []
-      };
-      for (const key in data) {
-        for (const model of data[key]) {
-          MODELS[key].load(model);
-          updates[key].push(MODELS[key].getByID(model.id));
-          // Update seen sets
-          switch (key) {
-            case "Agent":
-              ClientAPI._seenAgents.add(model.id); break;
-            case "Item":
-              ClientAPI._seenItems.add(model.id); break;
-            case "Room":
-              ClientAPI._seenRooms.add(model.id); break;
-            default: break;
-          }
-
-        }
-      }
-      // Sort new info
-      const agent = ClientAPI.playerAgent;
-      if (agent) {
-        updates.Info.forEach(i => {
-          agent.addInfoToBeSorted(i);
-        });
-        agent.sortInfo();
-      }
+      const updates = updateModelsInMem(data);
 
       ClientAPI.updating.pop();
       // alert listeners if there are no more incoming updates
@@ -167,16 +123,9 @@ export class ClientAPI {
         updates[key] = undefined;
       }
     });
-    ClientAPI.socket.on("connect", () => {
-      // auto-reconnection if player was logged-in
-      if (ClientAPI.playerAgentName !== undefined && ClientAPI.playerAgentPassword !== undefined) {
-        logger.log("Reconnecting with previous login data", 2);
-        emit(ClientAPI.socket, "login", {
-          username: ClientAPI.playerAgentName,
-          password: ClientAPI.playerAgentPassword
-        });
-      }
-    });
+
+
+    ClientAPI.socket.on("connect", () => { });
     ClientAPI.initialized = true;
   }
 
@@ -219,10 +168,10 @@ export class ClientAPI {
     ClientAPI.playerAgentName = name;
     const res = await ClientAPI.sendWrapper("login", {
       username: name,
-      password
+      password,
     });
     // save data for reconnection if successful
-    if (res.status) {
+    if (res.success) {
       ClientAPI.playerAgentPassword = password;
     }
     return res;
@@ -235,7 +184,7 @@ export class ClientAPI {
    */
   public static async moveToRoom(room: Room) {
     const res = await ClientAPI.sendWrapper("move-to-room", {
-      roomID: room.id
+      roomID: room.id,
     });
     return res;
   }
@@ -246,7 +195,7 @@ export class ClientAPI {
    */
   public static async requestConversation(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("request-conversation", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -257,7 +206,7 @@ export class ClientAPI {
    */
   public static async acceptConversation(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("request-conversation", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -266,9 +215,11 @@ export class ClientAPI {
    * Leave current conversation
    * @param targetConversation conversation to leave
    */
-  public static async leaveConversation(conversation: Conversation = ClientAPI.playerAgent.conversation) {
+  public static async leaveConversation(
+    conversation: Conversation = ClientAPI.playerAgent.conversation
+  ) {
     const res = await ClientAPI.sendWrapper("leave-conversation", {
-      conversationID: conversation.id
+      conversationID: conversation.id,
     });
     return res;
   }
@@ -279,7 +230,7 @@ export class ClientAPI {
    */
   public static async requestTrade(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("request-trade", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -290,7 +241,7 @@ export class ClientAPI {
    */
   public static async acceptTrade(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("request-trade", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -301,7 +252,7 @@ export class ClientAPI {
    */
   public static async cancelTrade(trade: Trade = ClientAPI.playerAgent.trade) {
     const res = await ClientAPI.sendWrapper("cancel-trade", {
-      tradeID: trade.id
+      tradeID: trade.id,
     });
     return res;
   }
@@ -316,7 +267,7 @@ export class ClientAPI {
       itemIDs.push(item.id);
     }
     const res = await ClientAPI.sendWrapper("offer-items-trade", {
-      itemIDs
+      itemIDs,
     });
     return res;
   }
@@ -332,7 +283,7 @@ export class ClientAPI {
       itemIDs.push(item.id);
     }
     const res = await ClientAPI.sendWrapper("withdraw-items-trade", {
-      itemIDs
+      itemIDs,
     });
     return res;
   }
@@ -344,7 +295,7 @@ export class ClientAPI {
    */
   public static async setTradeReadyStatus(status: boolean) {
     const res = await ClientAPI.sendWrapper("ready-trade", {
-      readyStatus: status
+      readyStatus: status,
     });
     return res;
   }
@@ -378,19 +329,29 @@ export class ClientAPI {
   /**
    * Ask a question in current conversation.
    */
-  public static async askQuestion(question: object, desiredInfo: string[] = []) {
-    const res = await ClientAPI.sendWrapper("ask-question", { question, desiredInfo });
+  public static async askQuestion(
+    question: object,
+    desiredInfo: string[] = []
+  ) {
+    const res = await ClientAPI.sendWrapper("ask-question", {
+      question,
+      desiredInfo,
+    });
     return res;
   }
 
   /**
    * Offer an answer to a question as part of a trade.
    */
-  public static async offerAnswerTrade(answer: Info, question: Info, mask: string[] = []) {
+  public static async offerAnswerTrade(
+    answer: Info,
+    question: Info,
+    mask: string[] = []
+  ) {
     const res = await ClientAPI.sendWrapper("offer-answer-trade", {
       answerID: answer.id,
       questionID: question.id,
-      mask
+      mask,
     });
     return res;
   }
@@ -400,7 +361,7 @@ export class ClientAPI {
    */
   public static async withdrawInfoTrade(info: Info) {
     const res = await ClientAPI.sendWrapper("withdraw-info-trade", {
-      infoID: info.id
+      infoID: info.id,
     });
     return res;
   }
@@ -409,7 +370,10 @@ export class ClientAPI {
    * Freely give an information item in a conversation.
    */
   public static async tellInfo(info: Info, mask: string[] = []) {
-    const res = await ClientAPI.sendWrapper("tell-info", {infoID: info.id, mask});
+    const res = await ClientAPI.sendWrapper("tell-info", {
+      infoID: info.id,
+      mask,
+    });
     return res;
   }
 
@@ -417,7 +381,9 @@ export class ClientAPI {
    * Pass on question in current conversation.
    */
   public static async passOnQuestion(question: Info) {
-    const res = await ClientAPI.sendWrapper("pass-question", { infoID: question.id });
+    const res = await ClientAPI.sendWrapper("pass-question", {
+      infoID: question.id,
+    });
     return res;
   }
 
@@ -426,7 +392,9 @@ export class ClientAPI {
    * @param item
    */
   public static async requestItemTrade(item: Item) {
-    const res = await ClientAPI.sendWrapper("request-item-trade", { itemID: item.id });
+    const res = await ClientAPI.sendWrapper("request-item-trade", {
+      itemID: item.id,
+    });
     return res;
   }
 
@@ -435,7 +403,9 @@ export class ClientAPI {
    * @param item
    */
   public static async passItemRequestTrade(item: Item) {
-    const res = await ClientAPI.sendWrapper("pass-item-request", { itemID: item.id });
+    const res = await ClientAPI.sendWrapper("pass-item-request", {
+      itemID: item.id,
+    });
     return res;
   }
 
@@ -446,9 +416,18 @@ export class ClientAPI {
    * @param isQuestion
    * @param deadline OPTIONAL deadline of 0 counts as no deadline
    */
-  public static async giveQuest(toAgent: Agent, query: object, isQuestion: boolean, deadline = 0) {
-    const res = await ClientAPI.sendWrapper("give-quest", { receiverID: toAgent.id, rawInfo: query,
-      isQuestion, deadline});
+  public static async giveQuest(
+    toAgent: Agent,
+    query: object,
+    isQuestion: boolean,
+    deadline = 0
+  ) {
+    const res = await ClientAPI.sendWrapper("give-quest", {
+      receiverID: toAgent.id,
+      rawInfo: query,
+      isQuestion,
+      deadline,
+    });
     return res;
   }
 
@@ -457,7 +436,10 @@ export class ClientAPI {
    * @param quest
    */
   public static async completeQuest(quest: Quest) {
-    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "COMPLETE" });
+    const res = await ClientAPI.sendWrapper("close-quest", {
+      questID: quest.id,
+      status: "COMPLETE",
+    });
     return res;
   }
 
@@ -466,7 +448,10 @@ export class ClientAPI {
    * @param quest
    */
   public static async failQuest(quest: Quest) {
-    const res = await ClientAPI.sendWrapper("close-quest", { questID: quest.id, status: "FAILED" });
+    const res = await ClientAPI.sendWrapper("close-quest", {
+      questID: quest.id,
+      status: "FAILED",
+    });
     return res;
   }
 
@@ -478,7 +463,7 @@ export class ClientAPI {
   public static async turnInQuestInfo(quest: Quest, solution: Info) {
     const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
       solutionID: solution.id,
-      questID: quest.id
+      questID: quest.id,
     });
     return res;
   }
@@ -489,7 +474,7 @@ export class ClientAPI {
    */
   public static async rejectConversation(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("reject-conversation-request", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -500,7 +485,7 @@ export class ClientAPI {
    */
   public static async rejectTrade(targetAgent: Agent) {
     const res = await ClientAPI.sendWrapper("reject-trade-request", {
-      agentID: targetAgent.id
+      agentID: targetAgent.id,
     });
     return res;
   }
@@ -511,11 +496,15 @@ export class ClientAPI {
    * @param faction
    * @param rank
    */
-  public static async modifyAgentFaction(targetAgent: Agent, faction: Faction, rank = 10) {
+  public static async modifyAgentFaction(
+    targetAgent: Agent,
+    faction: Faction,
+    rank = 10
+  ) {
     const res = await ClientAPI.sendWrapper("modify-agent-faction", {
       agentID: targetAgent.id,
       factionID: faction.id,
-      rank
+      rank,
     });
     return res;
   }
@@ -526,7 +515,7 @@ export class ClientAPI {
    */
   public static async addGoldToTrade(amount: number) {
     const res = await ClientAPI.sendWrapper("modify-gold-trade", {
-      amount
+      amount,
     });
     return res;
   }
@@ -538,7 +527,7 @@ export class ClientAPI {
   public static async removeGoldfromTrade(amount: number) {
     amount *= -1;
     const res = await ClientAPI.sendWrapper("modify-gold-trade", {
-      amount
+      amount,
     });
     return res;
   }
@@ -549,49 +538,9 @@ export class ClientAPI {
    */
   public static async dropGold(amount: number) {
     const res = await ClientAPI.sendWrapper("drop-gold", {
-      amount
+      amount,
     });
     return res;
   }
 
-  /**
-   * Illegal Action: Attempt to steal targetItem from targetAgent
-   * @param targetAgent
-   * @param targetItem
-   */
-  public static async stealItem(targetAgent: Agent, targetItem: Item) {
-    const res = await ClientAPI.sendWrapper("steal-item", {
-      agentID: targetAgent.id,
-      itemID: targetItem.id
-    });
-    return res;
-  }
-
-  /**
-   * Legal Action: Confiscate illegal/stolen item from targetAgent
-   * @param targetAgent
-   * @param targetItem
-   */
-  public static async confiscateItem(targetAgent: Agent, targetItem: Item) {
-    const res = await ClientAPI.sendWrapper("confiscate-item", {
-      agentID: targetAgent.id,
-      itemID: targetItem.id
-    });
-    return res;
-  }
-
-  /**
-   * Legal Action: Tells conversation members that you possess specified items
-   * @param items
-   */
-  public static async tellItemOwnership(items: Item[]) {
-    const itemIDs: number[] = [];
-    for (const item of items) {
-      itemIDs.push(item.id);
-    }
-    const res = await ClientAPI.sendWrapper("tell-item-ownership", {
-      itemIDs
-    });
-    return res;
-  }
 }

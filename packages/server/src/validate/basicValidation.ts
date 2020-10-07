@@ -1,5 +1,4 @@
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import { ValidationResult, ValidationSuccess, ValidationError } from "@panoptyk/core";
 
 /**
  * Validate a given dictionary has same keys as one of the provided ones.

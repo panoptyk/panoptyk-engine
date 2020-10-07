@@ -1,7 +1,8 @@
-import { Util, MemoryDatabase } from "@panoptyk/core";
+import { Util } from "@panoptyk/core";
+import { MemorySaveLoadDatabase } from "./database/MemorySaveLoadDatabase";
 import { Server } from "./server";
 
-Util.inject.db = new MemoryDatabase();
+Util.inject.db = new MemorySaveLoadDatabase();
 
 const server = new Server();
 

@@ -4,7 +4,7 @@
   "description": "TODO",
   "homepage": "https://github.com/panoptyk/panoptyk-engine/tree/master/packages/client#readme",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {

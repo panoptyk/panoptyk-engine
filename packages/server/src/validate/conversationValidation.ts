@@ -1,6 +1,11 @@
-import { Conversation, Room, Agent } from "@panoptyk/core";
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import {
+  Conversation,
+  Room,
+  Agent,
+  ValidationResult,
+  ValidationSuccess,
+  ValidationError,
+} from "@panoptyk/core";
 
 /**
  * Check if a conversation is in given room.
@@ -8,12 +13,18 @@ import { ValidationError } from "./validationErrors";
  * @param {Object} conversation - conversation object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function conversationInAgentsRoom(conversation: Conversation, room: Room): ValidationResult {
+export function conversationInAgentsRoom(
+  conversation: Conversation,
+  room: Room
+): ValidationResult {
   if (room === undefined || conversation === undefined) {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs:" + (conversation === undefined ? " conversation" : "") + (room === undefined ? " room" : "")
+      message:
+        "Undefined Inputs:" +
+        (conversation === undefined ? " conversation" : "") +
+        (room === undefined ? " room" : ""),
     };
   }
 
@@ -21,7 +32,12 @@ export function conversationInAgentsRoom(conversation: Conversation, room: Room)
     return {
       success: false,
       errorCode: ValidationError.ConversationInDifferentRoom,
-      message: "Conversation (" + conversation + ") not in agent's room (" + room + ")"
+      message:
+        "Conversation (" +
+        conversation +
+        ") not in agent's room (" +
+        room +
+        ")",
     };
   }
 
@@ -33,12 +49,14 @@ export function conversationInAgentsRoom(conversation: Conversation, room: Room)
  * @param {Object} conversation - conversation object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function conversationHasSpace(conversation: Conversation): ValidationResult {
+export function conversationHasSpace(
+  conversation: Conversation
+): ValidationResult {
   if (conversation === undefined) {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undfined Inputs: conversation"
+      message: "Undfined Inputs: conversation",
     };
   }
 
@@ -46,7 +64,7 @@ export function conversationHasSpace(conversation: Conversation): ValidationResu
     return {
       success: false,
       errorCode: ValidationError.ConversationFull,
-      message: "Conversation (" + conversation + ") is full"
+      message: "Conversation (" + conversation + ") is full",
     };
   }
 
@@ -59,12 +77,18 @@ export function conversationHasSpace(conversation: Conversation): ValidationResu
  * @param {Object} agent - agent object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function hasAgent(conversation: Conversation, agent: Agent): ValidationResult {
+export function hasAgent(
+  conversation: Conversation,
+  agent: Agent
+): ValidationResult {
   if (conversation === undefined || agent === undefined) {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs:" + (conversation === undefined ? " conversation" : "") + (agent === undefined ? " agent" : "")
+      message:
+        "Undefined Inputs:" +
+        (conversation === undefined ? " conversation" : "") +
+        (agent === undefined ? " agent" : ""),
     };
   }
 
@@ -72,7 +96,12 @@ export function hasAgent(conversation: Conversation, agent: Agent): ValidationRe
     return {
       success: false,
       errorCode: ValidationError.ConversationMissingAgent,
-      message: "Conversation (" + conversation + ") does not include agent(" + agent + ")."
+      message:
+        "Conversation (" +
+        conversation +
+        ") does not include agent(" +
+        agent +
+        ").",
     };
   }
 

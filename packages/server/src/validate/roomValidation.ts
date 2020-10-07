@@ -1,6 +1,9 @@
-import { Room } from "@panoptyk/core";
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import {
+  Room,
+  ValidationResult,
+  ValidationSuccess,
+  ValidationError,
+} from "@panoptyk/core";
 
 /**
  * Validate one room is adjacent to another.
@@ -12,7 +15,10 @@ export function roomAdjacent(oldRoom: Room, newRoom: Room): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs:" + (oldRoom === undefined ? " oldRoom" : "") + (newRoom === undefined ? " newRoom" : "")
+      message:
+        "Undefined Inputs:" +
+        (oldRoom === undefined ? " oldRoom" : "") +
+        (newRoom === undefined ? " newRoom" : ""),
     };
   }
 
@@ -20,7 +26,7 @@ export function roomAdjacent(oldRoom: Room, newRoom: Room): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.RoomMovement,
-      message: "Invalid room movement"
+      message: "Invalid room movement",
     };
   }
 
@@ -32,7 +38,7 @@ export function roomHasSpace(room: Room): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: room"
+      message: "Undefined Inputs: room",
     };
   }
 
@@ -40,7 +46,7 @@ export function roomHasSpace(room: Room): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.RoomFull,
-      message: "Room (" + room + ") is full"
+      message: "Room (" + room + ") is full",
     };
   }
 

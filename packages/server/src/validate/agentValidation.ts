@@ -1,6 +1,10 @@
-import { Agent, Item } from "@panoptyk/core";
-import { ValidationResult, ValidationSuccess } from "./validationResults";
-import { ValidationError } from "./validationErrors";
+import {
+  Agent,
+  Item,
+  ValidationResult,
+  ValidationSuccess,
+  ValidationError,
+} from "@panoptyk/core";
 
 /**
  * Validate agent owns list of items.
@@ -10,7 +14,10 @@ export function ownsItems(agent: Agent, items: Item[]): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined inputs:" + (agent === undefined ? " agent" : "") + (items === undefined ? " items" : "")
+      message:
+        "Undefined inputs:" +
+        (agent === undefined ? " agent" : "") +
+        (items === undefined ? " items" : ""),
     };
   }
 
@@ -19,14 +26,14 @@ export function ownsItems(agent: Agent, items: Item[]): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.UndefinedInputs,
-        message: "Item list contains undefined elements"
+        message: "Item list contains undefined elements",
       };
     }
     if (item.agent !== agent) {
       return {
         success: false,
         errorCode: ValidationError.AgentOwnership,
-        message: "Agent (" + agent + ") does not have item (" + item + ")"
+        message: "Agent (" + agent + ") does not have item (" + item + ")",
       };
     }
   }
@@ -42,7 +49,7 @@ export function shareConversation(agents: Agent[]): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: agents"
+      message: "Undefined Inputs: agents",
     };
   }
 
@@ -53,7 +60,7 @@ export function shareConversation(agents: Agent[]): ValidationResult {
         return {
           success: false,
           errorCode: ValidationError.UndefinedInputs,
-          message: "Agent list contains undefined elements"
+          message: "Agent list contains undefined elements",
         };
       }
 
@@ -61,7 +68,7 @@ export function shareConversation(agents: Agent[]): ValidationResult {
         return {
           success: false,
           errorCode: ValidationError.AgentConversationNotShared,
-          message: "Agents are not all in the same conversation"
+          message: "Agents are not all in the same conversation",
         };
       }
     }
@@ -78,7 +85,7 @@ export function sameRoom(agents: Agent[]): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "UndefinedInputs: agents"
+      message: "UndefinedInputs: agents",
     };
   }
 
@@ -89,7 +96,7 @@ export function sameRoom(agents: Agent[]): ValidationResult {
         return {
           success: false,
           errorCode: ValidationError.UndefinedInputs,
-          message: "Agent list contains undefined elements"
+          message: "Agent list contains undefined elements",
         };
       }
 
@@ -97,7 +104,7 @@ export function sameRoom(agents: Agent[]): ValidationResult {
         return {
           success: false,
           errorCode: ValidationError.AgentRoomNotShared,
-          message: "Agents are not all in the same room"
+          message: "Agents are not all in the same room",
         };
       }
     }
@@ -115,7 +122,7 @@ export function notInConversation(agents: Agent[]): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: agents"
+      message: "Undefined Inputs: agents",
     };
   }
 
@@ -124,7 +131,7 @@ export function notInConversation(agents: Agent[]): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.UndefinedInputs,
-        message: "Agent list contains undefined elements"
+        message: "Agent list contains undefined elements",
       };
     }
 
@@ -132,7 +139,7 @@ export function notInConversation(agents: Agent[]): ValidationResult {
       return {
         success: false,
         errorCode: ValidationError.AgentAlreadyInCovnersation,
-        message: "Agent (" + agent + ") is already in a conversation"
+        message: "Agent (" + agent + ") is already in a conversation",
       };
     }
   }
@@ -144,12 +151,18 @@ export function notInConversation(agents: Agent[]): ValidationResult {
  * @param agent1
  * @param agent2
  */
-export function differentAgents(agent1: Agent, agent2: Agent): ValidationResult {
+export function differentAgents(
+  agent1: Agent,
+  agent2: Agent
+): ValidationResult {
   if (agent1 === undefined || agent2 === undefined) {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs:" + (agent1 === undefined ? " agent1" : "") + (agent2 === undefined ? " agent2" : "")
+      message:
+        "Undefined Inputs:" +
+        (agent1 === undefined ? " agent1" : "") +
+        (agent2 === undefined ? " agent2" : ""),
     };
   }
 
@@ -157,7 +170,7 @@ export function differentAgents(agent1: Agent, agent2: Agent): ValidationResult 
     return {
       success: false,
       errorCode: ValidationError.AgentIdentical,
-      message: "Agents are identical"
+      message: "Agents are identical",
     };
   }
 
@@ -174,7 +187,7 @@ export function hasEnoughGold(agent: Agent, gold: number): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: agent"
+      message: "Undefined Inputs: agent",
     };
   }
 
@@ -182,7 +195,7 @@ export function hasEnoughGold(agent: Agent, gold: number): ValidationResult {
     return {
       success: false,
       errorCode: ValidationError.AgentLackingGold,
-      message: "You do not have enough gold!"
+      message: "You do not have enough gold!",
     };
   }
   return ValidationSuccess;
