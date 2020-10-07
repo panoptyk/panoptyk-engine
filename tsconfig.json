@@ -1,12 +1,11 @@
 {
-  "extends": "./tsconfig.settings.json",
+  "extends": "./tsconfig.build.json",
+
   "compilerOptions": {
-  },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.ignore.ts"
-  ]
+    "baseUrl": "./packages",
+    "outDir": "./lib",
+    "paths": {
+      "@panoptyk/*": ["*", "*/src"],
+    }
+  }
 }

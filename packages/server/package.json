@@ -1,0 +1,39 @@
+{
+  "name": "@panoptyk/server",
+  "version": "2.0.0-alpha.0",
+  "description": "TODO",
+  "homepage": "https://github.com/panoptyk/panoptyk-engine/tree/master/packages/server#readme",
+  "author": "",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./lib",
+    "compile": "../../node_modules/.bin/tsc -p tsconfig.build.json",
+    "tsc": "../../node_modules/.bin/tsc",
+    "test": "../../node_modules/.bin/ts-mocha -p tsconfig.build.json \"src/**/*.spec.ts\"",
+    "lint": "../../node_modules/.bin/tslint -p tsconfig.build.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panoptyk/panoptyk-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/panoptyk/panoptyk-engine/issues"
+  },
+  "dependencies": {
+    "@panoptyk/core": "^2.0.0-alpha.0",
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
