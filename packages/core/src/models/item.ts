@@ -57,7 +57,7 @@ export class Item extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    const safeItem = Object.assign({}, this);
+    const safeItem = super.toJSON(forClient, context);
     if (forClient) {
       if (context && context.agent instanceof Agent) {
         // TODO: Remove hidden data

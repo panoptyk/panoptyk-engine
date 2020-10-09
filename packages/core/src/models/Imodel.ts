@@ -70,7 +70,9 @@ export abstract class BaseModel implements IModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    return this;
+    const safeCopy = Object.assign({}, this);
+    safeCopy.db = undefined;
+    return safeCopy;
   }
   fromJSON(json: any): void {
     if (json.id && json.id !== this.id) {

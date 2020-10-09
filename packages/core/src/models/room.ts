@@ -45,7 +45,7 @@ export class Room extends BaseModel {
     logger.log("Room " + this + " Initialized.", "ROOM");
   }
   toJSON(forClient: boolean, context: any): object {
-    const safeRoom = Object.assign({}, this);
+    const safeRoom = super.toJSON(forClient, context);
     if (forClient) {
       if (context) {
         // TODO: Remove hidden data

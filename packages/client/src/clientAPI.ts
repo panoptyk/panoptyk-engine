@@ -107,9 +107,10 @@ export class ClientAPI {
     }
     ClientAPI.socket = io.connect(ipAddress);
     // Sets up the hook to recieve updates on relevant models
-    ClientAPI.socket.on("updateModels", (data) => {
+    ClientAPI.socket.on("updateModels", (dataString) => {
       Util.logger.log("--Model updates recieved--", "CLIENT", 2);
       ClientAPI.updating.push(true);
+      const data = Util.SmartJSON.parse(dataString);
       const updates = updateModelsInMem(data);
 
       ClientAPI.updating.pop();

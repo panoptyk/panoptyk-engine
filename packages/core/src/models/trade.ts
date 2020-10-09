@@ -25,6 +25,7 @@ export class Trade extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    throw new Error("Method not implemented.");
+    const safeTrade = super.toJSON(forClient, context);
+    return safeTrade;
   }
 }

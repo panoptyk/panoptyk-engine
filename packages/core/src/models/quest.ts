@@ -20,6 +20,7 @@ export class Quest extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    throw new Error("Method not implemented.");
+    const safeQuest = super.toJSON(forClient, context);
+    return safeQuest;
   }
 }

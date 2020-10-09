@@ -6,7 +6,7 @@ Util.inject.db = new MemorySaveLoadDatabase();
 
 const server = new Server();
 
-function clock() {
+function testclock() {
   const time = Util.PanoptykDate.format(Util.PanoptykDate.now());
   Util.logger.log(
     "Current time in Panoptyk is: " +
@@ -21,8 +21,8 @@ function clock() {
     "TIME"
   );
   // tslint:disable-next-line: ban
-  setTimeout(clock, 200 + Math.random() * 50);
+  setTimeout(testclock, 1000 + Math.random() * 500);
 }
 
 server.start();
-clock();
+// clock();

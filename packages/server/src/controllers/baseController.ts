@@ -13,7 +13,7 @@ import {
   AgentManipulator,
   InformationManipulator,
   Predicates,
-  Util
+  Util,
 } from "@panoptyk/core";
 import { socketAgentMap } from "../util";
 
@@ -89,15 +89,23 @@ export class BaseController {
         }
         if (name === Information.name) {
           const info: Info = model as Info;
-          payload[name].push(info.toJSON(true, { agent }));
+          payload[name].push(
+            Util.SmartJSON.stringify(info.toJSON(true, { agent }))
+          );
         } else {
-          payload[name].push(model.toJSON(true, { agent }));
+          payload[name].push(
+            Util.SmartJSON.stringify(model.toJSON(true, { agent }))
+          );
         }
       }
 
       const socket = socketAgentMap.getSocketFromAgent(agent);
       if (socket) {
         socket.emit("updateModels", Util.SmartJSON.stringify(payload));
+        Util.logger.log("Updates sent to agent: " + agent, "SEND");
+      } else {
+        // TODO: handle PROBLEM
+        Util.logger.log("Couldn't send update to agent: " + agent, "SEND", Util.LOG.WARN);
       }
     }
   }
@@ -130,7 +138,10 @@ export class BaseController {
   giveInfoToAgents(
     info: Info,
     agents: Agent[],
-    mask?: { action: boolean; predMetaData: Predicates.metadata<Predicates.PredicateTerms> }
+    mask?: {
+      action: boolean;
+      predMetaData: Predicates.metadata<Predicates.PredicateTerms>;
+    }
   ) {
     agents.forEach((agent) => {
       this.giveInfoToAgent(info, agent, mask);
@@ -146,7 +157,10 @@ export class BaseController {
   giveInfoToAgent(
     info: Info,
     agent: Agent,
-    mask?: { action: boolean; predMetaData: Predicates.metadata<Predicates.PredicateTerms> }
+    mask?: {
+      action: boolean;
+      predMetaData: Predicates.metadata<Predicates.PredicateTerms>;
+    }
   ) {
     let existingCopy = info.getMasterCopy().getAgentCopy(agent);
     if (existingCopy) {

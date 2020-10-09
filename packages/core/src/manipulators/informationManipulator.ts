@@ -15,7 +15,9 @@ export class InformationManipulator {
     info: Information<P>,
     mask: { action: boolean; predMetaData: metadata<P> }
   ): void {
-    info._metadata = mask;
+    if (mask) {
+      info._metadata = mask;
+    }
   }
 
   static consolidateMask<P extends PredicateTerms>(

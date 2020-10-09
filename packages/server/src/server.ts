@@ -83,9 +83,9 @@ export class Server {
         fs.readFileSync("panoptyk-settings.json").toString()
       );
       settingsM.setSettings(json);
-      logger.log("Panoptyk settings loaded...", "SERVER");
+      logger.log("# Panoptyk settings loaded...", "SERVER");
     } catch (err) {
-      logger.log("No panoptyk settings found... creating one.", "SERVER");
+      logger.log("# No panoptyk settings found... creating one.", "SERVER");
       fs.writeFileSync(
         "panoptyk-settings.json",
         JSON.stringify(Util.PanoptykSettings.default)
@@ -93,9 +93,9 @@ export class Server {
     }
 
     // Report settings
-    logger.log("Panoptyk Settings:", "SERVER");
+    logger.log("# Panoptyk Settings:", "SERVER");
     for (const key in settingsM.settings) {
-      logger.log(
+      logger.log("# " +
         key + ": " + JSON.stringify(settingsM.settings[key]),
         "SERVER"
       );
@@ -181,7 +181,7 @@ export class Server {
     });
   }
 
-  async _loadModels() {
+  _loadModels() {
     return Util.inject.db.load();
   }
 
@@ -204,8 +204,9 @@ export class Server {
 
   start() {
     let loaded = false;
+    logger.log("Loading game models...", "SERVER");
     this._loadModels().finally(() => {
-      console.log("in finally");
+      logger.log("Load complete", "SERVER");
       loaded = true;
     });
 
@@ -213,12 +214,10 @@ export class Server {
     process.on("SIGINT", () => {
       logger.log("Shutting down...", "SERVER");
       this._logoutAll();
-      let done = false;
       this._saveModels().finally(() => {
-        done = true;
+        logger.log("Server closed", "SERVER");
+        process.exit(0);
       });
-      logger.log("Server closed", "SERVER");
-      process.exit(0);
     });
 
     // Start http server

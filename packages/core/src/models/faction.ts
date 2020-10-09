@@ -49,7 +49,8 @@ export class Faction extends BaseModel {
     }
 
     toJSON(forClient: boolean, context: any): object {
-        throw new Error("Method not implemented.");
+        const safeFaction = super.toJSON(forClient, context);
+        return safeFaction;
       }
 
     /**

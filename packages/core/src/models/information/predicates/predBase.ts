@@ -60,6 +60,7 @@ export abstract class PredicateBase implements IModel, IPredicate {
 
   toJSON(forClient: boolean, context: any): object {
     let json: any  = Object.assign({}, this._terms);
+    json.db = undefined;
     if (forClient) {
       if (context.mask) {
         json = PredicateBase.replaceTerms(json, context.mask);

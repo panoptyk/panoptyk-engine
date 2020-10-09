@@ -46,45 +46,8 @@ export function updateModelsInMem(data): UpdatedModels {
     Faction: [],
   };
   for (const key in data) {
-    for (const modelJson of data[key]) {
-      let model: IModel = undefined;
-      // Update seen sets
-      switch (key) {
-        case "Agent":
-          model = new Agent("", undefined, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Information":
-          model = new Information("", undefined, undefined, undefined, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Item":
-          model = new Item("", undefined, undefined, undefined, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Room":
-          model = new Room("", 1, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Trade":
-          model = new Trade(modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Conversation":
-          model = new Conversation(undefined, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Quest":
-          model = new Quest(modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        case "Faction":
-          model = new Faction("", undefined, modelJson.id);
-          model.fromJSON(modelJson);
-          break;
-        default:
-          break;
-      }
+    for (const stringJSON of data[key]) {
+      const model = Util.Deserialize.model(stringJSON, key);
       updates[key].push(model);
     }
   }

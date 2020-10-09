@@ -118,7 +118,7 @@ export class Agent extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    const safeAgent = Object.assign({}, this);
+    const safeAgent = super.toJSON(forClient, context);
     if (forClient) {
       if (context && context.agent instanceof Agent) {
         const agent: Agent = context.agent;

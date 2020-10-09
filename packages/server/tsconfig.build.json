@@ -8,6 +8,7 @@
     "./src"
   ],
   "exclude": [
+    "./src/makeGame.ts",
     "**/*.spec.ts",
     "**/*.ignore.ts"
   ]

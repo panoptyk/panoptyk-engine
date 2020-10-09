@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { Util, Agent, Room } from "@panoptyk/core";
 import { BaseController } from "./baseController";
 import { SpawnController } from "./spawnController";
+import { socketAgentMap } from "./../util";
 
 export class ConnectionController extends BaseController {
 
@@ -17,12 +18,18 @@ export class ConnectionController extends BaseController {
             return false;
         }
 
+        // store agent's socket
+        socketAgentMap.registerAgentSocket(socket, agent);
+
         const sc: SpawnController = new SpawnController(this);
 
-        this.updateChanges(agent, [ agent.inventory, agent.knowledge, agent.activeAssignedQuests, agent.activeGivenQuests]);
+        this.updateChanges(agent, [agent.inventory, agent.knowledge, agent.activeAssignedQuests, agent.activeGivenQuests]);
         if (agent.faction) {
             this.updateChanges(agent, [ agent.faction ]);
         }
+
+        // Assign login room to agent
+        agent.room = Util.inject.db.retrieveModel(Util.inject.settingsManager.settings.default_room_id, Room) as Room;
 
         sc.spawnAgent(agent, agent.room);
 
@@ -43,7 +50,6 @@ export class ConnectionController extends BaseController {
 
     createAgent(name: string): Agent {
         const agent: Agent = new Agent(name);
-        agent.room = Util.inject.db.retrieveModel(Util.inject.settingsManager.settings.default_room_id, Room) as Room;
         return agent;
     }
 

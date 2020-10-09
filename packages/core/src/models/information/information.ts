@@ -92,7 +92,10 @@ export class Information<P extends PredicateTerms> extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    const safeInfo = Object.assign({}, this);
+    const safeInfo: Information<P> = super.toJSON(
+      forClient,
+      context
+    ) as Information<P>;
     if (forClient) {
       if (context && context.agent instanceof Agent) {
         // TODO: Remove hidden data

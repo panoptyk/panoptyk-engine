@@ -41,7 +41,8 @@ export class Conversation extends BaseModel {
   }
 
   toJSON(forClient: boolean, context: any): object {
-    throw new Error("Method not implemented.");
+    const safeConvo = super.toJSON(forClient, context);
+    return safeConvo;
   }
 
   containsAgent(agent: Agent): boolean {
