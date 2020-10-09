@@ -25,8 +25,8 @@ dist/**/*
 dist/**/*
 
 # Panoptyk specific
-data/*
-
+packages/*/panoptyk-settings.json
+packages/*/game.dat.json
 # ignore vs code folders
 .vscode/*
 
