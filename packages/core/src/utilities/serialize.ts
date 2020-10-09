@@ -23,14 +23,14 @@ export class Deserialize {
     let model;
     const modelJson = SmartJSON.parse(data);
     switch (key) {
-      case "Agent":
+      case Agent.name:
         model = inject.db.retrieveModel(modelJson.id, Agent);
         if (model === undefined) {
           model = new Agent("", undefined, modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Information":
+      case Information.name:
         model = inject.db.retrieveModel(modelJson.id, Information);
         if (model === undefined) {
           model = new Information(
@@ -43,42 +43,42 @@ export class Deserialize {
         }
         model.fromJSON(modelJson);
         break;
-      case "Item":
+      case Item.name:
         model = inject.db.retrieveModel(modelJson.id, Item);
         if (model === undefined) {
           model = new Item("", "", undefined, undefined, undefined, modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Room":
+      case Room.name:
         model = inject.db.retrieveModel(modelJson.id, Room);
         if (model === undefined) {
           model = new Room("", 1, modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Trade":
+      case Trade.name:
         model = inject.db.retrieveModel(modelJson.id, Trade);
         if (model === undefined) {
           model = new Trade(modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Conversation":
+      case Conversation.name:
         model = inject.db.retrieveModel(modelJson.id, Conversation);
         if (model === undefined) {
           model = new Conversation(undefined, modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Quest":
+      case Quest.name:
         model = inject.db.retrieveModel(modelJson.id, Quest);
         if (model === undefined) {
           model = new Quest(modelJson.id);
         }
         model.fromJSON(modelJson);
         break;
-      case "Faction":
+      case Faction.name:
         model = inject.db.retrieveModel(modelJson.id, Faction);
         if (model === undefined) {
           model = new Faction("", undefined, modelJson.id);
