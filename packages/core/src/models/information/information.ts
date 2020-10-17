@@ -120,6 +120,8 @@ export class Information<P extends PredicateTerms> extends BaseModel {
       const pred = PredicateFactory[json._pred.predicateName]({});
       pred.fromJSON(json._pred._terms);
       this._pred = pred;
+    } else {
+      this._agentCopies = undefined;
     }
   }
 
