@@ -1,5 +1,5 @@
-import { ClientAPI } from "@panoptyk/client";
-import { TextClient } from "../../TextClient";
+import { ClientAPI } from "../../clientAPI";
+import { TextClient } from "../TextClient";
 
 export function playerObject(this: TextClient, args: string[]) {
   console.log(ClientAPI.playerAgent);

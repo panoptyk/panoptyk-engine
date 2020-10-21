@@ -1,7 +1,7 @@
 import readline from "readline";
 import { ClientAPI } from "../clientAPI";
 import * as cmds from "./cmds";
-import { TextClient } from "./textClient";
+import { TextClient } from "./TextClient";
 
 /////////////////////////////////////////////////////////////////
 ///////// CMD line Panoptyk Client (for devs) //////////////////
@@ -40,7 +40,7 @@ let rl: readline.Interface = undefined;
 
 function test_and_debug(this: TextClient, args: string[]) {
   // Place any debug code here
-  console.log(ClientAPI.playerAgent.inConversation)
+  console.log(ClientAPI.playerAgent.inConversation);
   this._result = "::debug::";
 }
 
@@ -80,7 +80,7 @@ function Prompt(promt: string, tc: TextClient) {
         tc.inputCommand(answ);
         r = tc.getResult();
       } catch (err) {
-        r = "!runtime error!"
+        r = "!runtime error!";
       }
       if (r !== undefined) {
         console.log(r);

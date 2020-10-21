@@ -1,1 +1,0 @@
-export * as debug from "./debug";
