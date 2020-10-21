@@ -4,9 +4,17 @@ import { Util, MemoryDatabase, IModel } from "@panoptyk/core";
 export class MemorySaveLoadDatabase extends MemoryDatabase {
   save(): Promise<boolean> {
     const serialModelMap = new Map<string, string[]>();
+    console.log(
+      "======================= LOAD =======================\n" +
+        "Saving models to game.dat.json...\n"
+    );
     this._models.forEach((val, key) => {
+      console.log("Saving " + key + "(s): ");
+
       const serialModels: string[] = [];
       val.forEach((model) => {
+        console.log("\t" + model.toString());
+
         serialModels.push(Util.Serialize.model(model));
       });
       serialModelMap.set(key, serialModels);
@@ -16,13 +24,16 @@ export class MemorySaveLoadDatabase extends MemoryDatabase {
       "game.dat.json",
       Util.SmartJSON.stringify({ idMap: this._idMap, models: serialModelMap })
     );
+
+    console.log("===================== COMPLETE =====================");
+
     return Promise.resolve(true);
   }
   load(): Promise<boolean> {
     return new Promise((resolve) => {
       console.log(
         "======================= LOAD =======================\n" +
-          "Loading models from game.dat.json..."
+          "Loading models from game.dat.json...\n"
       );
       const file = fs.readFileSync("game.dat.json").toString();
       const json = Util.SmartJSON.parse(file);
