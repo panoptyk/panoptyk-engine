@@ -2,6 +2,7 @@ import {
   Agent,
   Item,
   Room,
+  Recipe,
   RoomManipulator,
   AgentManipulator,
   ItemManipulator,
@@ -67,5 +68,22 @@ export class InventoryController extends BaseController {
     items.forEach((item) => {
       this.dropItem(agent, item, room);
     });
+  }
+
+  craft(agent: Agent, recipe: Recipe) {
+    [...recipe.resourcesRequired.keys()].forEach((resource) => {
+      AgentManipulator.modifyResources(
+        agent,
+        resource,
+        recipe.resourcesRequired.get(resource)
+      );
+    });
+
+    AgentManipulator.addItemInventory(
+      agent,
+      new Item(recipe.itemCreated, "unique", 1, undefined, agent)
+    );
+
+    //Tell Info
   }
 }

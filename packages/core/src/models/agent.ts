@@ -8,7 +8,7 @@ import { Conversation } from "./conversation";
 import { Faction } from "./faction";
 import { Trade } from "./trade";
 import { logger } from "../utilities";
-
+import { Recipe } from "./recipe";
 
 export class Agent extends BaseModel {
   _agentName: string;
@@ -40,7 +40,10 @@ export class Agent extends BaseModel {
   }
   _conversation = -1;
   get conversation(): Conversation {
-    return this.db.retrieveModel(this._conversation, Conversation) as Conversation;
+    return this.db.retrieveModel(
+      this._conversation,
+      Conversation
+    ) as Conversation;
   }
   set conversation(conversation: Conversation) {
     this._conversation = conversation ? conversation.id : -1;
@@ -51,14 +54,20 @@ export class Agent extends BaseModel {
    */
   _conversationRequests: Set<number>;
   get conversationRequesters(): Agent[] {
-    return this.db.retrieveModels([...this._conversationRequests], Agent) as Agent[];
+    return this.db.retrieveModels(
+      [...this._conversationRequests],
+      Agent
+    ) as Agent[];
   }
   /**
    * This agent to other agents
    */
   _conversationRequested: Set<number>;
   get conversationRequested(): Agent[] {
-    return this.db.retrieveModels([...this._conversationRequested], Agent) as Agent[];
+    return this.db.retrieveModels(
+      [...this._conversationRequested],
+      Agent
+    ) as Agent[];
   }
   _trade = -1;
   get trade(): Trade {
@@ -81,6 +90,14 @@ export class Agent extends BaseModel {
   _tradeRequested: Set<number>;
   get tradeRequested(): Agent[] {
     return this.db.retrieveModels([...this._tradeRequested], Agent) as Agent[];
+  }
+  _resources: Map<string, number>;
+  get resources(): Map<string, number> {
+    return this._resources;
+  }
+  _recipes: Set<number>;
+  get recipes(): Recipe[] {
+    return this.db.retrieveModels([...this._recipes], Recipe) as Recipe[];
   }
   _gold: number;
   get gold(): number {
@@ -113,6 +130,8 @@ export class Agent extends BaseModel {
     this._tradeRequested = new Set<number>();
     this._assignedQuests = new Set<number>();
     this._givenQuests = new Set<number>();
+    this._resources = new Map<string, number>();
+    this._recipes = new Set<number>();
 
     logger.log("Agent " + this + " Initialized.", "AGENT");
   }
@@ -166,5 +185,4 @@ export class Agent extends BaseModel {
   hasGold(gold: number): boolean {
     return this._gold >= gold;
   }
-
 }
