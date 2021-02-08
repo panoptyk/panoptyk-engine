@@ -1,6 +1,5 @@
-import { TextClient } from "@panoptyk/client/lib/textClient/TextClient";
 import * as dev_cmds from "./cmds";
 
-export { TextClient } from "./TextClient";
+export { TextClient } from "./tc";
 
 export { dev_cmds };

@@ -1,6 +1,6 @@
 import { ClientAPI } from "../../clientAPI";
 import { Agent, Room, Item } from "@panoptyk/core";
-import { TextClient } from "../TextClient";
+import { TextClient } from "../tc";
 
 // Commands for developers (not "player readable")
 

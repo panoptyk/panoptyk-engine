@@ -1,7 +1,7 @@
 import readline from "readline";
 import { ClientAPI } from "../clientAPI";
 import * as cmds from "./cmds";
-import { TextClient } from "./TextClient";
+import { TextClient } from "./tc";
 
 /////////////////////////////////////////////////////////////////
 ///////// CMD line Panoptyk Client (for devs) //////////////////
