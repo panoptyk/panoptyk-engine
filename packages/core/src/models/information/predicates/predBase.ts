@@ -60,7 +60,7 @@ export abstract class PredicateBase implements IModel, IPredicate {
 
   toJSON(forClient: boolean, context: any): object {
     let json: any  = Object.assign({}, this._terms);
-    json.db = undefined;
+    delete json.db;
     if (forClient) {
       if (context.mask) {
         json = PredicateBase.replaceTerms(json, context.mask);
@@ -70,7 +70,9 @@ export abstract class PredicateBase implements IModel, IPredicate {
   }
   fromJSON(json: any): void {
     for (const key in json) {
-      this._terms[key] = json[key];
+      if (json[key]) {
+        this._terms[key] = json[key];
+      }
     }
   }
   equals(model: any): boolean {

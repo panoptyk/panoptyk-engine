@@ -44,6 +44,12 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     return this.db.retrieveModel(this._owner, Agent) as Agent;
   }
   set owner(agent: Agent) {
+    let master = this.getMasterCopy();
+    master._agentCopies.delete(this._owner);
+    if (agent) {
+      // update masterInfo's agentCopies Map
+      master._agentCopies.set(agent.id, this.id);
+    }
     this._owner = agent ? agent.id : -1;
   }
   /**
@@ -66,9 +72,10 @@ export class Information<P extends PredicateTerms> extends BaseModel {
    */
   _referenceID: number;
   get reference(): Information<P> {
-    return this.db.retrieveModel(this._referenceID, Information) as Information<
-      P
-    >;
+    return this.db.retrieveModel(
+      this._referenceID,
+      Information
+    ) as Information<P>;
   }
 
   constructor(
@@ -110,12 +117,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
   }
 
   fromJSON(json: any) {
-    if (json.id && json.id !== this.id) {
-      return;
-    }
-    for (const key in json) {
-      this[key] = json[key];
-    }
+    super.fromJSON(json);
     if (this.isMaster()) {
       const pred = PredicateFactory[json._pred.predicateName]({});
       pred.fromJSON(json._pred._terms);

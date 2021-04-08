@@ -1,5 +1,6 @@
 import inject from "../utilities/injectables";
 import { IDatabase } from "../database/IDatabase";
+import { json } from "express";
 
 /**
  * Defines the necessary parameters and functions any Panoptyk game model needs.
@@ -71,7 +72,7 @@ export abstract class BaseModel implements IModel {
 
   toJSON(forClient: boolean, context: any): object {
     const safeCopy = Object.assign({}, this);
-    safeCopy.db = undefined;
+    delete safeCopy.db;
     return safeCopy;
   }
   fromJSON(json: any): void {
@@ -79,7 +80,9 @@ export abstract class BaseModel implements IModel {
       return;
     }
     for (const key in json) {
-      this[key] = json[key];
+      if (json[key]) {
+        this[key] = json[key];
+      }
     }
   }
   equals(model: any) {
