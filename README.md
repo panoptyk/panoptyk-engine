@@ -4,7 +4,7 @@ Massive Multiplayer Online Role Playing Game (MMORPG) engine built around inform
 
 ## Architecture 
 
-<img src=https://github.com/panoptyk/panoptyk-engine/blob/dev/docs/images/ArchitectureDiagram.png width=650 >
+<img src=https://github.com/panoptyk/panoptyk-engine/blob/trunk/docs/images/ArchitectureDiagram.png width=650 >
 
 ## Setting up your local dev environment
 Upon cloning this repository, there are a few steps you need to take to begin developing locally. You must be on a unix shell for everything to work. 
