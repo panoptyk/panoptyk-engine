@@ -80,7 +80,7 @@ export abstract class BaseModel implements IModel {
       return;
     }
     for (const key in json) {
-      if (json[key]) {
+      if (json[key] != undefined) {
         this[key] = json[key];
       }
     }
