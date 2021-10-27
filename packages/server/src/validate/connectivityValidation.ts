@@ -1,8 +1,8 @@
 import {
-  Agent,
-  ValidationResult,
-  ValidationSuccess,
-  ValidationError,
+    Agent,
+    ValidationResult,
+    ValidationSuccess,
+    ValidationError,
 } from "@panoptyk/core";
 
 /**
@@ -11,15 +11,15 @@ import {
  * @param {Object} agent - agent object.
  */
 export function loggedIn(agent: Agent): ValidationResult {
-  if (agent === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: agent",
-    };
-  }
+    if (agent === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undefined Inputs: agent",
+        };
+    }
 
-  return ValidationSuccess;
+    return ValidationSuccess;
 }
 
 /**
@@ -28,13 +28,13 @@ export function loggedIn(agent: Agent): ValidationResult {
  * @return {Object} {status: boolean, message: string}
  */
 export function loginUsername(username: string): ValidationResult {
-  if (!username || username.length <= 0) {
-    return {
-      success: false,
-      errorCode: ValidationError.Username,
-      message: "Invalid username (" + username + ")",
-    };
-  }
+    if (!username || username.length <= 0) {
+        return {
+            success: false,
+            errorCode: ValidationError.Username,
+            message: "Invalid username (" + username + ")",
+        };
+    }
 
-  return ValidationSuccess;
+    return ValidationSuccess;
 }

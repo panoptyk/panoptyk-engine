@@ -366,7 +366,10 @@ describe("RoomManipulator", () => {
             RoomManipulator.addConversation(room, conversation2);
             RoomManipulator.addConversation(room, conversation3);
 
-            assert.sameDeepMembers([conversation1, conversation2, conversation3], room.conversations);
+            assert.sameDeepMembers(
+                [conversation1, conversation2, conversation3],
+                room.conversations
+            );
         });
     });
     context("Remove Conversations", () => {
@@ -394,11 +397,17 @@ describe("RoomManipulator", () => {
             RoomManipulator.addConversation(room, conversation2);
             RoomManipulator.addConversation(room, conversation3);
 
-            assert.sameDeepMembers([conversation1, conversation2, conversation3], room.conversations);
+            assert.sameDeepMembers(
+                [conversation1, conversation2, conversation3],
+                room.conversations
+            );
 
             RoomManipulator.removeConversation(room, conversation1);
 
-            assert.sameDeepMembers([conversation2, conversation3], room.conversations);
+            assert.sameDeepMembers(
+                [conversation2, conversation3],
+                room.conversations
+            );
         });
         it("Multiple Times", () => {
             const conversation1: Conversation = new Conversation(room);
@@ -411,7 +420,10 @@ describe("RoomManipulator", () => {
             RoomManipulator.addConversation(room, conversation2);
             RoomManipulator.addConversation(room, conversation3);
 
-            assert.sameDeepMembers([conversation1, conversation2, conversation3], room.conversations);
+            assert.sameDeepMembers(
+                [conversation1, conversation2, conversation3],
+                room.conversations
+            );
 
             RoomManipulator.removeConversation(room, conversation1);
             RoomManipulator.removeConversation(room, conversation2);

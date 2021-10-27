@@ -1,11 +1,11 @@
 import {
-  Util,
-  Agent,
-  Room,
-  Item,
-  Info,
-  RoomManipulator,
-  Actions,
+    Util,
+    Agent,
+    Room,
+    Item,
+    Info,
+    RoomManipulator,
+    Actions,
 } from "@panoptyk/core";
 import { MemorySaveLoadDatabase } from "./database";
 
@@ -34,13 +34,13 @@ const i2 = new Item("essay", "document", 1, r3);
 const a1 = new Agent("Phil", r1);
 
 const info = Actions.pickedup(
-  { agent: a1, item: i1, room: i1.room, time: 123 },
-  a1
+    { agent: a1, item: i1, room: i1.room, time: 123 },
+    a1
 );
 
 db.save().finally(() => {
-  console.log("save complete");
-  const otherDB = new MemorySaveLoadDatabase();
-  Util.AppContext.db = otherDB;
-  otherDB.load().finally(() => {});
+    console.log("save complete");
+    const otherDB = new MemorySaveLoadDatabase();
+    Util.AppContext.db = otherDB;
+    otherDB.load().finally(() => {});
 });

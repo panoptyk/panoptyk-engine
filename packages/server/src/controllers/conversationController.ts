@@ -1,87 +1,93 @@
 import { BaseController } from "./baseController";
 import {
-  Conversation,
-  Agent,
-  Room,
-  ConversationManipulator,
-  AgentManipulator,
-  RoomManipulator,
-  Actions,
+    Conversation,
+    Agent,
+    Room,
+    ConversationManipulator,
+    AgentManipulator,
+    RoomManipulator,
+    Actions,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
-  addAgentToConversation(conversation: Conversation, agent: Agent): void {
-    if (!agent.conversation.equals(conversation)) {
-      this.removeAgentFromConversation(agent.conversation, agent);
+    addAgentToConversation(conversation: Conversation, agent: Agent): void {
+        if (!agent.conversation.equals(conversation)) {
+            this.removeAgentFromConversation(agent.conversation, agent);
+        }
+
+        ConversationManipulator.addAgentToConversation(conversation, agent);
+        AgentManipulator.joinConversation(agent, conversation);
+
+        agent.conversationRequested.forEach((conversation) => {
+            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        });
+        agent.conversationRequesters.forEach((conversation) => {
+            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        });
+
+        conversation.room.occupants.forEach((occupant) => {
+            this.updateChanges(occupant, [agent, conversation]);
+        });
     }
 
-    ConversationManipulator.addAgentToConversation(conversation, agent);
-    AgentManipulator.joinConversation(agent, conversation);
+    removeAgentFromConversation(
+        conversation: Conversation,
+        agent: Agent
+    ): void {
+        ConversationManipulator.removeAgentFromConversation(
+            conversation,
+            agent
+        );
+        AgentManipulator.leaveConversation(agent);
 
-    agent.conversationRequested.forEach((conversation) => {
-      AgentManipulator.removeRequestedCovnersation(agent, conversation);
-    });
-    agent.conversationRequesters.forEach((conversation) => {
-      AgentManipulator.removeRequestedCovnersation(agent, conversation);
-    });
+        agent.tradeRequested.forEach((trade) => {
+            AgentManipulator.removeRequestedTrade(agent, trade);
+        });
+        agent.tradeRequesters.forEach((trade) => {
+            AgentManipulator.removeRequestedTrade(agent, trade);
+        });
 
-    conversation.room.occupants.forEach((occupant) => {
-      this.updateChanges(occupant, [agent, conversation]);
-    });
-  }
+        conversation.room.occupants.forEach((occupant) => {
+            this.updateChanges(occupant, [agent, conversation]);
+        });
+    }
 
-  removeAgentFromConversation(conversation: Conversation, agent: Agent): void {
-    ConversationManipulator.removeAgentFromConversation(conversation, agent);
-    AgentManipulator.leaveConversation(agent);
+    requestConversation(requester: Agent, requestee: Agent): void {
+        AgentManipulator.requestConversation(requester, requestee);
 
-    agent.tradeRequested.forEach((trade) => {
-      AgentManipulator.removeRequestedTrade(agent, trade);
-    });
-    agent.tradeRequesters.forEach((trade) => {
-      AgentManipulator.removeRequestedTrade(agent, trade);
-    });
+        this.updateChanges(requester, [requester]);
+        this.updateChanges(requestee, [requestee]);
+    }
 
-    conversation.room.occupants.forEach((occupant) => {
-      this.updateChanges(occupant, [agent, conversation]);
-    });
-  }
+    createConversation(room: Room, agent1: Agent, agent2: Agent): Conversation {
+        const conversation: Conversation = new Conversation(room);
 
-  requestConversation(requester: Agent, requestee: Agent): void {
-    AgentManipulator.requestConversation(requester, requestee);
+        RoomManipulator.addConversation(room, conversation);
 
-    this.updateChanges(requester, [requester]);
-    this.updateChanges(requestee, [requestee]);
-  }
+        this.addAgentToConversation(conversation, agent1);
+        this.addAgentToConversation(conversation, agent2);
 
-  createConversation(room: Room, agent1: Agent, agent2: Agent): Conversation {
-    const conversation: Conversation = new Conversation(room);
+        room.occupants.forEach((occupant) => {
+            this.updateChanges(occupant, [room]);
+        });
 
-    RoomManipulator.addConversation(room, conversation);
+        // Give info
+        const info = Actions.conversed({
+            time: Date.now(),
+            agent: agent1,
+            agentB: agent2,
+            room,
+        });
+        this.giveInfoToAgents(info, [agent1, agent2]);
+        this.disperseInfo(info, room);
 
-    this.addAgentToConversation(conversation, agent1);
-    this.addAgentToConversation(conversation, agent2);
+        return conversation;
+    }
 
-    room.occupants.forEach((occupant) => {
-      this.updateChanges(occupant, [room]);
-    });
+    rejectConversation(requester: Agent, requestee: Agent): void {
+        AgentManipulator.removeRequestedCovnersation(requester, requestee);
 
-    // Give info
-    const info = Actions.conversed({
-      time: Date.now(),
-      agent: agent1,
-      agentB: agent2,
-      room,
-    });
-    this.giveInfoToAgents(info, [agent1, agent2]);
-    this.disperseInfo(info, room);
-
-    return conversation;
-  }
-
-  rejectConversation(requester: Agent, requestee: Agent): void {
-    AgentManipulator.removeRequestedCovnersation(requester, requestee);
-
-    this.updateChanges(requester, [requester]);
-    this.updateChanges(requestee, [requestee]);
-  }
+        this.updateChanges(requester, [requester]);
+        this.updateChanges(requestee, [requestee]);
+    }
 }

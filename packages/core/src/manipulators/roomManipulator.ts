@@ -1,7 +1,6 @@
 import { Room, Item, Agent, Conversation } from "../models";
 
 export class RoomManipulator {
-
     static connectRooms(from: Room, to: Room, twoWay = true): void {
         from._adjacentRooms.add(to.id);
         if (twoWay) {
@@ -39,5 +38,4 @@ export class RoomManipulator {
     static removeConversation(room: Room, conversation: Conversation): void {
         room._conversations.delete(conversation.id);
     }
-
 }

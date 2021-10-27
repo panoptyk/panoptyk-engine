@@ -4,7 +4,6 @@ import { MemoryDatabase } from "./MemoryDatabase";
 import { Room, Agent, Item } from "./../models/index";
 import AppContext from "../utilities/AppContext";
 
-
 describe("In-Memory Database", () => {
     let db: MemoryDatabase;
     beforeEach(() => {
@@ -61,7 +60,10 @@ describe("In-Memory Database", () => {
             const room2: Room = new Room("R2", 1);
             db.storeModels([room1, room2]);
             assert.deepEqual(room1, db.retrieveModel(room1.id, Room));
-            assert.sameDeepMembers([room1, room2], db.retrieveModels([room1.id, room2.id], Room));
+            assert.sameDeepMembers(
+                [room1, room2],
+                db.retrieveModels([room1.id, room2.id], Room)
+            );
         });
         it("Multiple Models of Different Types", () => {
             const room1: Room = new Room("R1", 1);
@@ -72,9 +74,18 @@ describe("In-Memory Database", () => {
             const agent2: Agent = new Agent("A2");
 
             db.storeModels([room1, room2, item1, item2, agent1, agent2]);
-            assert.sameDeepMembers([room1, room2], db.retrieveModels([room1.id, room2.id], Room));
-            assert.sameDeepMembers([item1, item2], db.retrieveModels([item1.id, item2.id], Item));
-            assert.sameDeepMembers([agent1, agent2], db.retrieveModels([agent1.id, agent2.id], Agent));
+            assert.sameDeepMembers(
+                [room1, room2],
+                db.retrieveModels([room1.id, room2.id], Room)
+            );
+            assert.sameDeepMembers(
+                [item1, item2],
+                db.retrieveModels([item1.id, item2.id], Item)
+            );
+            assert.sameDeepMembers(
+                [agent1, agent2],
+                db.retrieveModels([agent1.id, agent2.id], Agent)
+            );
         });
     });
 });

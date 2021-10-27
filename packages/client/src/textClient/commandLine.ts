@@ -18,19 +18,19 @@ const RETRY_INTERVAL = 100; // ms before attempLogin() is called again to retry 
 let _retries = 1;
 let _loggedIn = false;
 function attemptLogin() {
-  ClientAPI.login(username, password)
-    .catch((res) => {
-      console.log("Failed(%d)....retrying...", _retries);
-      if (_retries <= MAX_RETRY) {
-        _retries++;
-        // tslint:disable-next-line: ban
-        setTimeout(attemptLogin, RETRY_INTERVAL);
-      }
-    })
-    .then((res) => {
-      console.log("Logged in!");
-      _loggedIn = true;
-    });
+    ClientAPI.login(username, password)
+        .catch((res) => {
+            console.log("Failed(%d)....retrying...", _retries);
+            if (_retries <= MAX_RETRY) {
+                _retries++;
+                // tslint:disable-next-line: ban
+                setTimeout(attemptLogin, RETRY_INTERVAL);
+            }
+        })
+        .then((res) => {
+            console.log("Logged in!");
+            _loggedIn = true;
+        });
 }
 
 // Set up cmd line I/O
@@ -39,15 +39,15 @@ const tc = new TextClient();
 let rl: readline.Interface = undefined;
 
 function test_and_debug(this: TextClient, args: string[]) {
-  // Place any debug code here
-  console.log(ClientAPI.playerAgent.inConversation);
-  this._result = "::debug::";
+    // Place any debug code here
+    console.log(ClientAPI.playerAgent.inConversation);
+    this._result = "::debug::";
 }
 
 // add debug commands
 if (DEBUG) {
-  tc.addCommand("d", [], test_and_debug);
-  tc.addCommand(["debug:player", "d:player"], [], cmds.debug.playerObject);
+    tc.addCommand("d", [], test_and_debug);
+    tc.addCommand(["debug:player", "d:player"], [], cmds.debug.playerObject);
 }
 // add normal commands
 tc.addCommand("move", [1], cmds.move);
@@ -59,58 +59,58 @@ tc.addCommand("pickup", [], cmds.pickUp);
 tc.addCommand("drop", [], cmds.drop);
 
 function Prompt(promt: string, tc: TextClient) {
-  // wait till logged in:
-  if (!_loggedIn) {
-    // tslint:disable-next-line: ban
-    setTimeout(() => {
-      Prompt(promt, tc);
-    }, 150);
-    return;
-  }
-
-  rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  rl.question(promt, (answ) => {
-    if (answ !== "exit") {
-      let r;
-      try {
-        tc.inputCommand(answ);
-        r = tc.getResult();
-      } catch (err) {
-        r = "!runtime error!";
-      }
-      if (r !== undefined) {
-        console.log(r);
-      } else {
-        console.log("Unknown command.");
-      }
-      rl.close();
-      Prompt(promt, tc);
-    } else {
-      rl.close();
-      process.exit(0);
+    // wait till logged in:
+    if (!_loggedIn) {
+        // tslint:disable-next-line: ban
+        setTimeout(() => {
+            Prompt(promt, tc);
+        }, 150);
+        return;
     }
-  });
+
+    rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    rl.question(promt, (answ) => {
+        if (answ !== "exit") {
+            let r;
+            try {
+                tc.inputCommand(answ);
+                r = tc.getResult();
+            } catch (err) {
+                r = "!runtime error!";
+            }
+            if (r !== undefined) {
+                console.log(r);
+            } else {
+                console.log("Unknown command.");
+            }
+            rl.close();
+            Prompt(promt, tc);
+        } else {
+            rl.close();
+            process.exit(0);
+        }
+    });
 }
 
 // init program
 
 function init() {
-  console.log("Logging in as: " + username + " to server: " + address);
-  ClientAPI.init(address);
+    console.log("Logging in as: " + username + " to server: " + address);
+    ClientAPI.init(address);
 
-  process.on("SIGINT", () => {
-    if (rl) {
-      rl.close();
-    }
-    process.exit(0);
-  });
+    process.on("SIGINT", () => {
+        if (rl) {
+            rl.close();
+        }
+        process.exit(0);
+    });
 
-  attemptLogin();
-  Prompt("panoptyk > ", tc);
+    attemptLogin();
+    Prompt("panoptyk > ", tc);
 }
 // begin program
 init();

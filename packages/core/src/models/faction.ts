@@ -37,7 +37,7 @@ export class Faction extends BaseModel {
     }
     equals(model: any) {
         return model instanceof Faction && this.id === model.id;
-      }
+    }
 
     constructor(name: string, type: string, id?: number, db?: IDatabase) {
         super(id, db);
@@ -51,7 +51,7 @@ export class Faction extends BaseModel {
     toJSON(forClient: boolean, context: any): object {
         const safeFaction = super.toJSON(forClient, context);
         return safeFaction;
-      }
+    }
 
     /**
      * Returns numeric value of agent's rank or undefined if agent is not in faction
@@ -61,5 +61,4 @@ export class Faction extends BaseModel {
     public getAgentRank(agent: Agent) {
         return this._members.get(agent.id);
     }
-
 }

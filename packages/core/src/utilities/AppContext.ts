@@ -7,35 +7,33 @@ import { PanoptykSettings } from "./panoptykSettings";
  *  that are generally globally accessable
  */
 class AppContext {
-  //#region Singleton
-  static _instance: AppContext;
-  static get instance(): AppContext {
-    if (!AppContext._instance) {
-      AppContext._instance = new AppContext();
+    //#region Singleton
+    static _instance: AppContext;
+    static get instance(): AppContext {
+        if (!AppContext._instance) {
+            AppContext._instance = new AppContext();
+        }
+        return AppContext._instance;
     }
-    return AppContext._instance;
-  }
-  private constructor() {
-    this.settingsManager = new PanoptykSettings();
-  }
-  //#endregion
+    private constructor() {
+        this.settingsManager = new PanoptykSettings();
+    }
+    //#endregion
 
-  //#region Properties
-  db: IDatabase;
-  settingsManager: PanoptykSettings;
-  initialized = false;
-  //#endregion
+    //#region Properties
+    db: IDatabase;
+    settingsManager: PanoptykSettings;
+    initialized = false;
+    //#endregion
 
-  defaultInitialize() {
-    this.db = new MemoryDatabase();
-    this.initialized = true;
-  }
+    defaultInitialize() {
+        this.db = new MemoryDatabase();
+        this.initialized = true;
+    }
 
-  initialize(
-    db: IDatabase
-  ) {
-    this.db = db;
-  }
+    initialize(db: IDatabase) {
+        this.db = db;
+    }
 }
 
 export default AppContext.instance;

@@ -1,10 +1,10 @@
 import {
-  Conversation,
-  Room,
-  Agent,
-  ValidationResult,
-  ValidationSuccess,
-  ValidationError,
+    Conversation,
+    Room,
+    Agent,
+    ValidationResult,
+    ValidationSuccess,
+    ValidationError,
 } from "@panoptyk/core";
 
 /**
@@ -14,34 +14,34 @@ import {
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
 export function conversationInAgentsRoom(
-  conversation: Conversation,
-  room: Room
+    conversation: Conversation,
+    room: Room
 ): ValidationResult {
-  if (room === undefined || conversation === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message:
-        "Undefined Inputs:" +
-        (conversation === undefined ? " conversation" : "") +
-        (room === undefined ? " room" : ""),
-    };
-  }
+    if (room === undefined || conversation === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message:
+                "Undefined Inputs:" +
+                (conversation === undefined ? " conversation" : "") +
+                (room === undefined ? " room" : ""),
+        };
+    }
 
-  if (conversation.room !== room) {
-    return {
-      success: false,
-      errorCode: ValidationError.ConversationInDifferentRoom,
-      message:
-        "Conversation (" +
-        conversation +
-        ") not in agent's room (" +
-        room +
-        ")",
-    };
-  }
+    if (conversation.room !== room) {
+        return {
+            success: false,
+            errorCode: ValidationError.ConversationInDifferentRoom,
+            message:
+                "Conversation (" +
+                conversation +
+                ") not in agent's room (" +
+                room +
+                ")",
+        };
+    }
 
-  return ValidationSuccess;
+    return ValidationSuccess;
 }
 
 /**
@@ -50,25 +50,25 @@ export function conversationInAgentsRoom(
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
 export function conversationHasSpace(
-  conversation: Conversation
+    conversation: Conversation
 ): ValidationResult {
-  if (conversation === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message: "Undfined Inputs: conversation",
-    };
-  }
+    if (conversation === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undfined Inputs: conversation",
+        };
+    }
 
-  if (conversation.isFull()) {
-    return {
-      success: false,
-      errorCode: ValidationError.ConversationFull,
-      message: "Conversation (" + conversation + ") is full",
-    };
-  }
+    if (conversation.isFull()) {
+        return {
+            success: false,
+            errorCode: ValidationError.ConversationFull,
+            message: "Conversation (" + conversation + ") is full",
+        };
+    }
 
-  return ValidationSuccess;
+    return ValidationSuccess;
 }
 
 /**
@@ -78,32 +78,32 @@ export function conversationHasSpace(
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
 export function hasAgent(
-  conversation: Conversation,
-  agent: Agent
+    conversation: Conversation,
+    agent: Agent
 ): ValidationResult {
-  if (conversation === undefined || agent === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message:
-        "Undefined Inputs:" +
-        (conversation === undefined ? " conversation" : "") +
-        (agent === undefined ? " agent" : ""),
-    };
-  }
+    if (conversation === undefined || agent === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message:
+                "Undefined Inputs:" +
+                (conversation === undefined ? " conversation" : "") +
+                (agent === undefined ? " agent" : ""),
+        };
+    }
 
-  if (conversation.containsAgent(agent) === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.ConversationMissingAgent,
-      message:
-        "Conversation (" +
-        conversation +
-        ") does not include agent(" +
-        agent +
-        ").",
-    };
-  }
+    if (conversation.containsAgent(agent) === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.ConversationMissingAgent,
+            message:
+                "Conversation (" +
+                conversation +
+                ") does not include agent(" +
+                agent +
+                ").",
+        };
+    }
 
-  return ValidationSuccess;
+    return ValidationSuccess;
 }

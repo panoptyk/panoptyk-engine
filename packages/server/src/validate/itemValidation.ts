@@ -1,9 +1,9 @@
 import {
-  Item,
-  Room,
-  ValidationResult,
-  ValidationSuccess,
-  ValidationError,
+    Item,
+    Room,
+    ValidationResult,
+    ValidationSuccess,
+    ValidationError,
 } from "@panoptyk/core";
 
 /**
@@ -11,61 +11,61 @@ import {
  * @param {[Object]} items - items to check.
  */
 export function notInTransaction(items: Item[]): ValidationResult {
-  if (items === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: items",
-    };
-  }
-
-  for (const item of items) {
-    if (item === undefined) {
-      return {
-        success: false,
-        errorCode: ValidationError.UndefinedInputs,
-        message: "Item list contains undefined elements",
-      };
+    if (items === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undefined Inputs: items",
+        };
     }
 
-    if (item.inTransaction) {
-      return {
-        success: false,
-        errorCode: ValidationError.ItemInTransaction,
-        message: "Item (" + item + ") is currently in transaction",
-      };
-    }
-  }
+    for (const item of items) {
+        if (item === undefined) {
+            return {
+                success: false,
+                errorCode: ValidationError.UndefinedInputs,
+                message: "Item list contains undefined elements",
+            };
+        }
 
-  return ValidationSuccess;
+        if (item.inTransaction) {
+            return {
+                success: false,
+                errorCode: ValidationError.ItemInTransaction,
+                message: "Item (" + item + ") is currently in transaction",
+            };
+        }
+    }
+
+    return ValidationSuccess;
 }
 
 export function inRoom(items: Item[], room: Room): ValidationResult {
-  if (items === undefined) {
-    return {
-      success: false,
-      errorCode: ValidationError.UndefinedInputs,
-      message: "Undefined Inputs: items",
-    };
-  }
-
-  for (const item of items) {
-    if (item === undefined) {
-      return {
-        success: false,
-        errorCode: ValidationError.UndefinedInputs,
-        message: "Item list contains undefined elements",
-      };
+    if (items === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undefined Inputs: items",
+        };
     }
 
-    if (!item.room.equals(room)) {
-      return {
-        success: false,
-        errorCode: ValidationError.ItemNotInRoom,
-        message: "Item (" + item + ") is not in Room: (" + room + ")",
-      };
-    }
-  }
+    for (const item of items) {
+        if (item === undefined) {
+            return {
+                success: false,
+                errorCode: ValidationError.UndefinedInputs,
+                message: "Item list contains undefined elements",
+            };
+        }
 
-  return ValidationSuccess;
+        if (!item.room.equals(room)) {
+            return {
+                success: false,
+                errorCode: ValidationError.ItemNotInRoom,
+                message: "Item (" + item + ") is not in Room: (" + room + ")",
+            };
+        }
+    }
+
+    return ValidationSuccess;
 }

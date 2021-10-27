@@ -5,9 +5,11 @@ import { SpawnController } from "./spawnController";
 import { socketAgentMap } from "./../util";
 
 export class ConnectionController extends BaseController {
-
     login(username: string, socket: Socket): boolean {
-        const agents: Agent[] = Util.AppContext.db.matchModels({ _agentName: username }, Agent) as Agent[];
+        const agents: Agent[] = Util.AppContext.db.matchModels(
+            { _agentName: username },
+            Agent
+        ) as Agent[];
 
         let agent: Agent = undefined;
         if (agents.length === 1) {
@@ -23,21 +25,25 @@ export class ConnectionController extends BaseController {
 
         const sc: SpawnController = new SpawnController(this);
 
-        this.updateChanges(agent, [agent.inventory, agent.knowledge, agent.activeAssignedQuests, agent.activeGivenQuests]);
+        this.updateChanges(agent, [
+            agent.inventory,
+            agent.knowledge,
+            agent.activeAssignedQuests,
+            agent.activeGivenQuests,
+        ]);
         if (agent.faction) {
-            this.updateChanges(agent, [ agent.faction ]);
+            this.updateChanges(agent, [agent.faction]);
         }
 
         // Assign login room to agent
-        agent.room = Util.AppContext.db.retrieveModel(Util.AppContext.settingsManager.settings.default_room_id, Room) as Room;
+        agent.room = Util.AppContext.db.retrieveModel(
+            Util.AppContext.settingsManager.settings.default_room_id,
+            Room
+        ) as Room;
 
         sc.spawnAgent(agent, agent.room);
 
-        Util.logger.log(
-            agent + " logged in",
-            "CONTROL",
-            Util.LOG.INFO
-        );
+        Util.logger.log(agent + " logged in", "CONTROL", Util.LOG.INFO);
 
         return true;
     }
@@ -52,5 +58,4 @@ export class ConnectionController extends BaseController {
         const agent: Agent = new Agent(name);
         return agent;
     }
-
 }

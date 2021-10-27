@@ -1,7 +1,7 @@
 export {
-  ValidationResult,
-  ValidationSuccess,
-  ValidationError,
+    ValidationResult,
+    ValidationSuccess,
+    ValidationError,
 } from "@panoptyk/core";
 export * from "./agentValidation";
 export * from "./basicValidation";

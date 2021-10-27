@@ -5,10 +5,10 @@ import * as fs from "fs";
  * Create a directory if it doesn't exist.
  * @param {string} dir - path to new directory
  */
-export let makeDir = function(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
+export let makeDir = function (dir) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
 };
 
 /**
@@ -16,6 +16,6 @@ export let makeDir = function(dir) {
  * @param min inclusive min
  * @param max exclusive max
  */
-export let randomInt = function(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min)) + min;
+export let randomInt = function (min: number, max: number) {
+    return Math.floor(Math.random() * (max - min)) + min;
 };

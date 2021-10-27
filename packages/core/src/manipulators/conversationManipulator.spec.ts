@@ -21,7 +21,10 @@ describe("Conversation Manipulator", () => {
 
             db.storeModels([conversation, room, agent1]);
 
-            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent1
+            );
 
             assert.sameDeepMembers([agent1], conversation.participants);
         });
@@ -31,8 +34,14 @@ describe("Conversation Manipulator", () => {
 
             db.storeModels([conversation, room, agent1, agent2]);
 
-            ConversationManipulator.addAgentToConversation(conversation, agent1);
-            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent1
+            );
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent2
+            );
 
             assert.sameDeepMembers([agent1, agent2], conversation.participants);
         });
@@ -43,11 +52,17 @@ describe("Conversation Manipulator", () => {
 
             db.storeModels([conversation, room, agent1]);
 
-            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent1
+            );
 
             assert.sameDeepMembers([agent1], conversation.participants);
 
-            ConversationManipulator.removeAgentFromConversation(conversation, agent1);
+            ConversationManipulator.removeAgentFromConversation(
+                conversation,
+                agent1
+            );
 
             assert.sameDeepMembers([], conversation.participants);
         });
@@ -57,12 +72,21 @@ describe("Conversation Manipulator", () => {
 
             db.storeModels([conversation, room, agent1, agent2]);
 
-            ConversationManipulator.addAgentToConversation(conversation, agent1);
-            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent1
+            );
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent2
+            );
 
             assert.sameDeepMembers([agent1, agent2], conversation.participants);
 
-            ConversationManipulator.removeAgentFromConversation(conversation, agent1);
+            ConversationManipulator.removeAgentFromConversation(
+                conversation,
+                agent1
+            );
 
             assert.sameDeepMembers([agent2], conversation.participants);
         });
@@ -72,13 +96,25 @@ describe("Conversation Manipulator", () => {
 
             db.storeModels([conversation, room, agent1, agent2]);
 
-            ConversationManipulator.addAgentToConversation(conversation, agent1);
-            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent1
+            );
+            ConversationManipulator.addAgentToConversation(
+                conversation,
+                agent2
+            );
 
             assert.sameDeepMembers([agent1, agent2], conversation.participants);
 
-            ConversationManipulator.removeAgentFromConversation(conversation, agent1);
-            ConversationManipulator.removeAgentFromConversation(conversation, agent2);
+            ConversationManipulator.removeAgentFromConversation(
+                conversation,
+                agent1
+            );
+            ConversationManipulator.removeAgentFromConversation(
+                conversation,
+                agent2
+            );
 
             assert.sameDeepMembers([], conversation.participants);
         });

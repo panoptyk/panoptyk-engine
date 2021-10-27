@@ -9,5 +9,5 @@ export interface ValidationResult {
 export const ValidationSuccess: ValidationResult = {
     success: true,
     errorCode: ValidationError.None,
-    message: ""
+    message: "",
 };
