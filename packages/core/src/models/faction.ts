@@ -5,7 +5,7 @@ import { logger } from "../utilities";
 
 export class Faction extends BaseModel {
     _factionName: string;
-    get factionName(): string{
+    get factionName(): string {
         return this._factionName;
     }
     _factionType: string;

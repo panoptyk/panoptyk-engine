@@ -40,7 +40,12 @@ export interface IDatabase {
    */
   storeModels(models: IModel[]): boolean[];
 
-  matchModel(query: object, model: modelRef): IModel[];
+  /**
+   *
+   * @param query object with fields the returned models should match
+   * @param model the ModelRef to match against (type of IModel)
+   */
+  matchModels(query: object, model: modelRef): IModel[];
 
   // Normal database functions (async)
   /**

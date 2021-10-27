@@ -14,7 +14,7 @@ export const ActionCraft: Action = {
     const ic: InventoryController = new InventoryController();
     ic.craft(
       agent,
-      Util.inject.db.retrieveModel(inputData.recipeID, Recipe) as Recipe
+      Util.AppContext.db.retrieveModel(inputData.recipeID, Recipe) as Recipe
     );
 
     ic.sendUpdates();
@@ -27,7 +27,7 @@ export const ActionCraft: Action = {
     if (!(res = Validate.arrayTypes(inputData.recipeID, "number")).success) {
       return res;
     }
-    const recipe: Recipe = Util.inject.db.retrieveModel(
+    const recipe: Recipe = Util.AppContext.db.retrieveModel(
       inputData.recipeID,
       Recipe
     ) as Recipe;

@@ -9,8 +9,8 @@ import {
 } from "@panoptyk/core";
 import { MemorySaveLoadDatabase } from "./database";
 
-Util.inject.db = new MemorySaveLoadDatabase();
-const db = Util.inject.db;
+Util.AppContext.db = new MemorySaveLoadDatabase();
+const db = Util.AppContext.db;
 
 const r1 = new Room("town square", 10);
 const r2 = new Room("north area", 10);
@@ -41,6 +41,6 @@ const info = Actions.pickedup(
 db.save().finally(() => {
   console.log("save complete");
   const otherDB = new MemorySaveLoadDatabase();
-  Util.inject.db = otherDB;
+  Util.AppContext.db = otherDB;
   otherDB.load().finally(() => {});
 });

@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
-import inject from "../utilities/injectables";
+import AppContext from "../utilities/AppContext";
 import { Item, Room, Agent } from "../models";
 import { ItemManipulator } from "./itemManipulator";
 
@@ -10,7 +10,7 @@ describe("ItemManipulator", () => {
     let item: Item;
     beforeEach(() => {
         db = new MemoryDatabase();
-        inject.db = db;
+        AppContext.db = db;
         item = new Item("I");
     });
     context("Move Item", () => {

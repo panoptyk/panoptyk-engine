@@ -12,7 +12,7 @@ export const ActionDropItems: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const ic: InventoryController = new InventoryController();
-    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemID, Item) as Item[];
+    const items: Item[] = Util.AppContext.db.retrieveModels(inputData.itemID, Item) as Item[];
 
     ic.dropItems(agent, items, agent.room);
 
@@ -33,7 +33,7 @@ export const ActionDropItems: Action = {
     if (!(res = Validate.arrayTypes(inputData.itemIDs, "number")).success) {
       return res;
     }
-    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemID, Item) as Item[];
+    const items: Item[] = Util.AppContext.db.retrieveModels(inputData.itemID, Item) as Item[];
     if (!(res = Validate.ownsItems(agent, items)).success) {
       return res;
     }

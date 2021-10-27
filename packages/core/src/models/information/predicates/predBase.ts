@@ -1,5 +1,5 @@
 import { IDatabase } from "../../../database/IDatabase";
-import inject from "../../../utilities/injectables";
+import AppContext from "../../../utilities/AppContext";
 import {
   IPredicate,
   PredicateTerms,
@@ -51,11 +51,7 @@ export abstract class PredicateBase implements IModel, IPredicate {
   db: IDatabase;
 
   constructor(db?: IDatabase) {
-    if (db) {
-      this.db = db;
-    } else {
-      this.db = inject.db;
-    }
+    this.db = db ?? AppContext.db;
   }
 
   toJSON(forClient: boolean, context: any): object {

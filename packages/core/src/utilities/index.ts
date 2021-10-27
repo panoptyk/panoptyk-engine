@@ -1,4 +1,4 @@
-export { default as inject } from "./injectables";
+export { default as AppContext } from "./AppContext";
 export { SmartJSON } from "./smartJSON";
 export * from "./serialize";
 export * from "./logger";

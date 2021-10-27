@@ -8,7 +8,9 @@
     "test": "lerna run --stream test",
     "lint": "lerna run --stream lint",
     "lerna": "lerna",
-    "test_file": "ts-mocha -p tsconfig.build.json"
+    "test_file": "ts-mocha -p tsconfig.build.json",
+    "server": "cd packages/server && ts-node src/testServer.ts && cd -",
+    "cli": "ts-node packages/client/src/textClient/commandLine.ts"
   },
   "repository": {
     "type": "git",

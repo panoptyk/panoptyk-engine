@@ -54,7 +54,7 @@ export class ClientAPI {
       return ClientAPI._playerAgent;
     }
     // Search for player agent
-    const match = Util.inject.db.matchModel(
+    const match = Util.AppContext.db.matchModels(
       { _agentName: ClientAPI.playerAgentName },
       Agent
     );
@@ -65,15 +65,15 @@ export class ClientAPI {
   }
   private static _seenAgents = new Set<number>();
   public static get seenAgents(): Agent[] {
-    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenAgents), Agent) as Agent[];
+    return Util.AppContext.db.retrieveModels(Array.from(ClientAPI._seenAgents), Agent) as Agent[];
   }
   private static _seenRooms = new Set<number>();
   public static get seenRooms(): Room[] {
-    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenRooms), Room) as Room[];
+    return Util.AppContext.db.retrieveModels(Array.from(ClientAPI._seenRooms), Room) as Room[];
   }
   private static _seenItems = new Set<number>();
   public static get seenItems(): Item[] {
-    return Util.inject.db.retrieveModels(Array.from(ClientAPI._seenItems), Item) as Item[];
+    return Util.AppContext.db.retrieveModels(Array.from(ClientAPI._seenItems), Item) as Item[];
   }
 
   // sends communication to Panoptyk server
@@ -101,7 +101,7 @@ export class ClientAPI {
    * @param ipAddress address of panoptyk game server
    */
   public static init(ipAddress = "http://localhost:8080", mode = 0) {
-    Util.inject.db = new MemoryDatabase();
+    Util.AppContext.db = new MemoryDatabase();
     if (mode === 0) {
       Util.logger.silence();
     }

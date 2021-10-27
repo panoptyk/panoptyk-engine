@@ -1,6 +1,5 @@
-import inject from "../utilities/injectables";
+import AppContext from "../utilities/AppContext";
 import { IDatabase } from "../database/IDatabase";
-import { json } from "express";
 
 /**
  * Defines the necessary parameters and functions any Panoptyk game model needs.
@@ -56,17 +55,9 @@ export abstract class BaseModel implements IModel {
   db: IDatabase;
 
   constructor(id?: number, db?: IDatabase) {
-    if (db) {
-      this.db = db;
-    } else {
-      this.db = inject.db;
-    }
+    this.db = db ?? AppContext.db;
+    this.id = id ?? this.db.getNextID(this.constructor as any);
 
-    if (id) {
-      this.id = id;
-    } else {
-      this.id = this.db.getNextID(this.constructor as any);
-    }
     this.db.storeModel(this);
   }
 
@@ -80,7 +71,7 @@ export abstract class BaseModel implements IModel {
       return;
     }
     for (const key in json) {
-      if (json[key] != undefined) {
+      if (json[key] !== undefined) {
         this[key] = json[key];
       }
     }

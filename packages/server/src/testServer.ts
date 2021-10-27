@@ -2,7 +2,7 @@ import { Util } from "@panoptyk/core";
 import { MemorySaveLoadDatabase } from "./database/MemorySaveLoadDatabase";
 import { Server } from "./server";
 
-Util.inject.db = new MemorySaveLoadDatabase();
+Util.AppContext.db = new MemorySaveLoadDatabase();
 
 const server = new Server();
 

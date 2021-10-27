@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
-import inject from "../utilities/injectables";
+import AppContext from "../utilities/AppContext";
 import { Agent, Conversation, Room } from "../models";
 import { ConversationManipulator } from "./conversationManipulator";
 
@@ -11,7 +11,7 @@ describe("Conversation Manipulator", () => {
     let room: Room;
     beforeEach(() => {
         db = new MemoryDatabase();
-        inject.db = db;
+        AppContext.db = db;
         room = new Room("R", 5);
         conversation = new Conversation(room);
     });

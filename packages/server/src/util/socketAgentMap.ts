@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { Agent, Util } from "@panoptyk/core";
 
 export class SocketAgentMap {
+  //#region Singleton
   static _instance: SocketAgentMap;
   static get instance(): SocketAgentMap {
     if (!SocketAgentMap._instance) {
@@ -9,9 +10,13 @@ export class SocketAgentMap {
     }
     return SocketAgentMap._instance;
   }
+  private constructor() {};
+  //#endregion
 
+  //#region Fields
   _socketAgent = new Map<Socket, number>();
   _agentSocket = new Map<number, Socket>();
+  //#endregion
 
   registerAgentSocket(socket: Socket, agent: Agent) {
     if (agent && agent.id) {
@@ -29,7 +34,7 @@ export class SocketAgentMap {
 
   getAgentFromSocket(socket: Socket): Agent {
     try {
-      return Util.inject.db.retrieveModel(
+      return Util.AppContext.db.retrieveModel(
         this._socketAgent.get(socket),
         Agent
       ) as Agent;

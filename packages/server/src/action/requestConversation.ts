@@ -12,7 +12,7 @@ export const ActionRequestConversation: Action = {
   ],
   enact: (requester: Agent, inputData: any) => {
     const cc: ConversationController = new ConversationController();
-    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    const requestee: Agent = Util.AppContext.db.retrieveModel(inputData.agentID, Agent) as Agent;
 
     // if other agent has not requested a conversation
     if (requester.conversationRequesters.indexOf(requestee) === -1) {
@@ -52,7 +52,7 @@ export const ActionRequestConversation: Action = {
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    const requestee: Agent = Util.AppContext.db.retrieveModel(inputData.agentID, Agent) as Agent;
     if (!(res = Validate.differentAgents(agent, requestee)).success) {
       return res;
     }

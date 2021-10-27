@@ -76,7 +76,7 @@ export class Server {
   }
 
   _loadConfig(): void {
-    const settingsM = Util.inject.settingsManager;
+    const settingsM = Util.AppContext.settingsManager;
     // Read settings
     try {
       const json = JSON.parse(
@@ -109,7 +109,7 @@ export class Server {
    */
   _listen(): void {
     // Assign port
-    this._port = Util.inject.settingsManager.settings.port;
+    this._port = Util.AppContext.settingsManager.settings.port;
 
     this._server.listen(this._port, () => {
       logger.log("Starting server on port " + this._port, "SERVER");
@@ -182,15 +182,15 @@ export class Server {
   }
 
   _loadModels() {
-    return Util.inject.db.load();
+    return Util.AppContext.db.load();
   }
 
   async _saveModels() {
-    return await Util.inject.db.save();
+    return await Util.AppContext.db.save();
   }
 
   _logoutAll() {
-    const agents: Agent[] = Util.inject.db.retrieveModels(
+    const agents: Agent[] = Util.AppContext.db.retrieveModels(
       [...socketAgentMap._agentSocket.keys()],
       Agent
     ) as Agent[];

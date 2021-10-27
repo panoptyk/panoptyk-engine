@@ -14,7 +14,7 @@ export class AgentManipulator {
   }
 
   static deleteInfo(agent: Agent, info: Info): void {
-    agent._knowledge.add(info.id);
+    agent._knowledge.delete(info.id);
   }
 
   static putInRoom(agent: Agent, room: Room): void {

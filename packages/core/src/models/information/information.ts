@@ -44,7 +44,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     return this.db.retrieveModel(this._owner, Agent) as Agent;
   }
   set owner(agent: Agent) {
-    let master = this.getMasterCopy();
+    const master = this.getMasterCopy();
     master._agentCopies.delete(this._owner);
     if (agent) {
       // update masterInfo's agentCopies Map

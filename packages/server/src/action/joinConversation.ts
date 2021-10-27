@@ -12,7 +12,7 @@ export const ActionJoinConversation: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const cc: ConversationController = new ConversationController();
-    const conversation: Conversation = Util.inject.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
+    const conversation: Conversation = Util.AppContext.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
 
     cc.addAgentToConversation(conversation, agent);
 
@@ -25,7 +25,7 @@ export const ActionJoinConversation: Action = {
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const conversation: Conversation = Util.inject.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
+    const conversation: Conversation = Util.AppContext.db.retrieveModel(inputData.conversationID, Conversation) as Conversation;
     if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
       return res;
     }

@@ -1,6 +1,6 @@
 import { assert, expect } from "chai";
 import "mocha";
-import inject from "../../utilities/injectables";
+import AppContext from "../../utilities/AppContext";
 import { MemoryDatabase } from "../../database/MemoryDatabase";
 import { Agent, Item, Room } from "..";
 import {
@@ -29,15 +29,13 @@ import { Information } from "./information";
 import { InformationManipulator } from "../../manipulators/informationManipulator";
 
 describe("Information Model", () => {
-  let db: MemoryDatabase;
   let agentA: Agent;
   let agentB: Agent;
   let roomA: Room;
   let roomB: Room;
   let itemA: Item;
   beforeEach(() => {
-    db = new MemoryDatabase();
-    inject.db = db;
+    AppContext.defaultInitialize();
     agentA = new Agent("A");
     agentB = new Agent("B");
     roomA = new Room("A", 1);
@@ -122,7 +120,7 @@ describe("Information Model", () => {
     });
     it("all predicates", () => {
       const infoA = new Information<T>("test", new PredicateT({ time: 123 }));
-      const preds: { [key: string]: Information<PredicateTerms> } = {
+      const infos: { [key: string]: Information<PredicateTerms> } = {
         infoT: new Information<T>("test", new PredicateT({ time: 123 })),
         infoTA: new Information<TA>(
           "test",
@@ -165,18 +163,33 @@ describe("Information Model", () => {
         ),
       };
 
-      for (const key in preds) {
-        const json: any = preds[key].toJSON(false, {});
-        assert.exists(json, "failed to create json for " + key);
-        const info = new Information("", undefined, false, undefined, json.id);
+      for (const key in infos) {
+        const infoMaster = infos[key];
+        const infoMasterJson: any = infos[key].toJSON(false, {});
+        const infoCopy = infoMaster.getCopy(agentA);
+        const infoCopyJson: any = infoCopy.toJSON(false, {});
+        assert.exists(infoMasterJson, "failed to create json for info(master) " + key);
+        assert.exists(infoCopyJson, "failed to create json for info(copy) " + key);
+        const newInfoMaster = new Information("", undefined, false, undefined, infoMasterJson.id);
+        const newInfoCopy = new Information("", undefined, false, undefined, infoCopyJson.id);
 
+        // Test master info fromJson
         assert.doesNotThrow(() => {
-          info.fromJSON(json);
-        }, "failed to create info from json for " + key);
+          newInfoMaster.fromJSON(infoMasterJson);
+        }, "failed to create info(master) from json for " + key);
         assert.deepEqual(
-          info,
-          preds[key],
-          "info from json not equal for " + key
+          newInfoMaster,
+          infoMaster,
+          "info(master) from json not equal for " + key
+        );
+        // Test copy info fromJson
+        assert.doesNotThrow(() => {
+          newInfoCopy.fromJSON(infoCopyJson);
+        }, "failed to create info(copy) from json for " + key);
+        assert.deepEqual(
+          newInfoCopy,
+          infoCopy,
+          "info(copy) from json not equal for " + key
         );
       }
     });

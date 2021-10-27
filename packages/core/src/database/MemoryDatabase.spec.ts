@@ -2,14 +2,14 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "./MemoryDatabase";
 import { Room, Agent, Item } from "./../models/index";
-import inject from "../utilities/injectables";
+import AppContext from "../utilities/AppContext";
 
 
 describe("In-Memory Database", () => {
     let db: MemoryDatabase;
     beforeEach(() => {
         db = new MemoryDatabase();
-        inject.db = db;
+        AppContext.db = db;
     });
     context("Increments ID", () => {
         it("For One Model", () => {

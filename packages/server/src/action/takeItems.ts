@@ -12,7 +12,7 @@ export const ActionTakeItems: Action = {
   ],
   enact: (agent: Agent, inputData: any) => {
     const ic: InventoryController = new InventoryController();
-    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemIDs, Item) as Item[];
+    const items: Item[] = Util.AppContext.db.retrieveModels(inputData.itemIDs, Item) as Item[];
 
     ic.pickupItems(agent, items, agent.room);
 
@@ -31,7 +31,7 @@ export const ActionTakeItems: Action = {
       return res;
     }
     // check if item in room
-    const items: Item[] = Util.inject.db.retrieveModels(inputData.itemIDs, Item) as Item[];
+    const items: Item[] = Util.AppContext.db.retrieveModels(inputData.itemIDs, Item) as Item[];
     if (!(res = Validate.inRoom(items, agent.room)).success) {
       return res;
     }

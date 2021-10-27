@@ -1,4 +1,4 @@
-import inject from "./injectables";
+import AppContext from "./AppContext";
 
 const DAYNAMES = [
   "Sunday",
@@ -38,7 +38,7 @@ export class PanoptykDate {
     // This will be the "Panoptyk Days" since midnight, January 1, 1970 so let's offset it
     const irlTime = Date.now();
     if (offset < 0) {
-      offset = inject.settingsManager.settings.server_start_date_ms;
+      offset = AppContext.settingsManager.settings.server_start_date_ms;
     }
     return PanoptykDate.toPanoptykTime(irlTime, offset);
   }

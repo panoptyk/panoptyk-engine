@@ -1,7 +1,16 @@
 import { IDatabase } from "./IDatabase";
 import { modelRef, IModel } from "../models";
 
+/**
+ * In-memory database that does not retain its data between sessions
+ * On process end, all data is lost; Good for unit tests
+ */
 export class MemoryDatabase implements IDatabase {
+  //#region Fields
+  _idMap: Map<string, number> = new Map();
+  _models: Map<string, Map<number, IModel>> = new Map();
+  //#endregion
+
   storeModels(models: IModel[]): boolean[] {
     const success: boolean[] = [];
     models.forEach((model) => {
@@ -16,7 +25,6 @@ export class MemoryDatabase implements IDatabase {
     });
     return models;
   }
-  _idMap: Map<string, number> = new Map();
   getNextID(model: modelRef): number {
     if (!this._idMap.has(model.name)) {
       this._idMap.set(model.name, 1);
@@ -25,7 +33,6 @@ export class MemoryDatabase implements IDatabase {
     this._idMap.set(model.name, id + 1);
     return id;
   }
-  _models: Map<string, Map<number, IModel>> = new Map();
   retrieveModel(id: number, model: modelRef): IModel {
     try {
       return this._models.get(model.name).get(id);
@@ -54,7 +61,7 @@ export class MemoryDatabase implements IDatabase {
       return;
     });
   }
-  matchModel(query: object, model: modelRef): IModel[] {
+  matchModels(query: object, model: modelRef): IModel[] {
     const matches: IModel[] = [];
     let models: IModel[];
     try {

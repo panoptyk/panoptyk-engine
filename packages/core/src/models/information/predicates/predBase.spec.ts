@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../../../database/MemoryDatabase";
-import inject from "../../../utilities/injectables";
+import AppContext from "../../../utilities/AppContext";
 import { Agent, Item, Room } from "../../../models";
 import { masked, MASKED, metadata, query, QUERY } from "./IPredicate";
 import { PredicateBase } from "./predBase";
@@ -20,7 +20,7 @@ describe("PredicateBase", () => {
   let agent: Agent;
   beforeEach(() => {
     db = new MemoryDatabase();
-    inject.db = db;
+    AppContext.db = db;
     agent = new Agent("A");
   });
   context("equalTerms", () => {

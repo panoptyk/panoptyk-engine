@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
-import inject from "../utilities/injectables";
+import AppContext from "../utilities/AppContext";
 import { Item, Room, Agent, Conversation } from "../models";
 import { RoomManipulator } from "./roomManipulator";
 
@@ -10,7 +10,7 @@ describe("RoomManipulator", () => {
     let room: Room;
     beforeEach(() => {
         db = new MemoryDatabase();
-        inject.db = db;
+        AppContext.db = db;
         room = new Room("R", 5);
     });
     context("Connect Two-Way", () => {

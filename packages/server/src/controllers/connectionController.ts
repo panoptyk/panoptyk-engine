@@ -7,7 +7,7 @@ import { socketAgentMap } from "./../util";
 export class ConnectionController extends BaseController {
 
     login(username: string, socket: Socket): boolean {
-        const agents: Agent[] = Util.inject.db.matchModel({ _agentName: username }, Agent) as Agent[];
+        const agents: Agent[] = Util.AppContext.db.matchModels({ _agentName: username }, Agent) as Agent[];
 
         let agent: Agent = undefined;
         if (agents.length === 1) {
@@ -29,7 +29,7 @@ export class ConnectionController extends BaseController {
         }
 
         // Assign login room to agent
-        agent.room = Util.inject.db.retrieveModel(Util.inject.settingsManager.settings.default_room_id, Room) as Room;
+        agent.room = Util.AppContext.db.retrieveModel(Util.AppContext.settingsManager.settings.default_room_id, Room) as Room;
 
         sc.spawnAgent(agent, agent.room);
 

@@ -2,7 +2,10 @@ import * as fs from "fs";
 import { Util, MemoryDatabase, IModel } from "@panoptyk/core";
 
 export class MemorySaveLoadDatabase extends MemoryDatabase {
-  save(): Promise<boolean> {
+  async init(): Promise<boolean> {
+    return true;
+  }
+  async save(): Promise<boolean> {
     const serialModelMap = new Map<string, string[]>();
     console.log(
       "======================= LOAD =======================\n" +
@@ -27,34 +30,31 @@ export class MemorySaveLoadDatabase extends MemoryDatabase {
 
     console.log("===================== COMPLETE =====================");
 
-    return Promise.resolve(true);
+    return true;
   }
-  load(): Promise<boolean> {
-    return new Promise((resolve) => {
-      console.log(
-        "======================= LOAD =======================\n" +
-          "Loading models from game.dat.json...\n"
-      );
-      const file = fs.readFileSync("game.dat.json").toString();
-      const json = Util.SmartJSON.parse(file);
-      const serialModelMap: Map<string, string[]> = json.models;
-      this._idMap = json.idMap;
-      Util.logger.silence(true);
-      serialModelMap.forEach((val, key) => {
-        console.log("Loading " + key + "(s): ");
-        if (!this._models.has(key)) {
-          this._models.set(key, new Map());
-        }
-        val.forEach((serializedM) => {
-          const model = Util.Deserialize.model(serializedM, key);
-          console.log("\t" + model.toString());
-          this._models.get(key).set(model.id, model);
-        });
+  async load(): Promise<boolean> {
+    console.log(
+      "======================= LOAD =======================\n" +
+        "Loading models from game.dat.json...\n"
+    );
+    const file = fs.readFileSync("game.dat.json").toString();
+    const json = Util.SmartJSON.parse(file);
+    const serialModelMap: Map<string, string[]> = json.models;
+    this._idMap = json.idMap;
+    Util.logger.silence(true);
+    serialModelMap.forEach((val, key) => {
+      console.log("Loading " + key + "(s): ");
+      if (!this._models.has(key)) {
+        this._models.set(key, new Map());
+      }
+      val.forEach((serializedM) => {
+        const model = Util.Deserialize.model(serializedM, key);
+        console.log("\t" + model.toString());
+        this._models.get(key).set(model.id, model);
       });
-      Util.logger.logLevel = Util.LOG.INFO;
-      console.log("===================== COMPLETE =====================");
-      resolve(true);
-      return;
     });
+    Util.logger.logLevel = Util.LOG.INFO;
+    console.log("===================== COMPLETE =====================");
+    return true;
   }
 }

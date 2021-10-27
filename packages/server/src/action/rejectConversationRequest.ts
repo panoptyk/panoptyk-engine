@@ -12,7 +12,7 @@ export const ActionRejectConversationRequest: Action = {
   ],
   enact: (requester: Agent, inputData: any) => {
     const cc: ConversationController = new ConversationController();
-    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    const requestee: Agent = Util.AppContext.db.retrieveModel(inputData.agentID, Agent) as Agent;
     cc.rejectConversation(requester, requestee);
     Util.logger.log(
     "Event reject-conversation-request from (" +
@@ -29,7 +29,7 @@ export const ActionRejectConversationRequest: Action = {
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const requestee: Agent = Util.inject.db.retrieveModel(inputData.agentID, Agent) as Agent;
+    const requestee: Agent = Util.AppContext.db.retrieveModel(inputData.agentID, Agent) as Agent;
     if (!(res = Validate.loggedIn(requestee)).success) {
       return res;
     }

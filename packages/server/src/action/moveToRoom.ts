@@ -13,7 +13,7 @@ export const ActionMoveToRoom: Action = {
   enact: (agent: Agent, inputData: any) => {
     const mc: MovementController = new MovementController();
     const oldRoom = agent.room;
-    const newRoom: Room = Util.inject.db.retrieveModel(inputData.roomID, Room) as Room;
+    const newRoom: Room = Util.AppContext.db.retrieveModel(inputData.roomID, Room) as Room;
 
     mc.moveAgent(agent, oldRoom, newRoom);
 
@@ -26,7 +26,7 @@ export const ActionMoveToRoom: Action = {
     if (!(res = Validate.loggedIn(agent)).success) {
       return res;
     }
-    const newRoom: Room = Util.inject.db.retrieveModel(inputData.roomID, Room) as Room;
+    const newRoom: Room = Util.AppContext.db.retrieveModel(inputData.roomID, Room) as Room;
     if (!(res = Validate.roomAdjacent(agent.room, newRoom).success)) {
       return res;
     }
