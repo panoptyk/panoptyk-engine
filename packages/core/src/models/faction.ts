@@ -19,6 +19,9 @@ export class Faction extends BaseModel {
     get factionType(): string {
         return this._factionType;
     }
+    get members(): Agent[] {
+        return this.db.retrieveModels([...this._members.keys()], Agent);
+    }
     //#endregion
 
     //#region Fields
@@ -32,6 +35,7 @@ export class Faction extends BaseModel {
 
         this._factionName = name;
         this._factionType = type;
+        this._members = new Map<number, number>();
 
         logger.log("Faction " + this + " Initialized.", "FACTION");
     }
@@ -65,7 +69,7 @@ export class Faction extends BaseModel {
      * Client: A value of undefined may mean that the agent's rank is unknown
      * @param {Agent} agent
      */
-    getFactionStatusOfAgent?(agent: Agent): FactionStatus {
+    getFactionStatusOfAgent(agent: Agent): FactionStatus {
         if (this.includesAgent(agent)) {
             return {
                 rank: this._members.get(agent.id),

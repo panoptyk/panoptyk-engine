@@ -458,11 +458,11 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.joinFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.leaveFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 0);
+            assert.equal(agent.factions.length, 0);
         });
         it("(Multiple)", () => {
             const faction1: Faction = new Faction("F1", "");
@@ -473,27 +473,27 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.joinFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.joinFaction(agent, faction2);
 
-            assert.isTrue(agent.factions.length === 2);
+            assert.equal(agent.factions.length, 2);
 
             AgentManipulator.joinFaction(agent, faction3);
 
-            assert.isTrue(agent.factions.length === 3);
+            assert.equal(agent.factions.length, 3);
 
             AgentManipulator.leaveFaction(agent, faction3);
 
-            assert.isTrue(agent.factions.length === 2);
+            assert.equal(agent.factions.length, 2);
 
             AgentManipulator.leaveFaction(agent, faction2);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.leaveFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 0);
+            assert.equal(agent.factions.length, 0);
         });
         it("(Duplicate)", () => {
             const faction1: Faction = new Faction("F1", "");
@@ -503,31 +503,31 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.joinFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.joinFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.joinFaction(agent, faction2);
 
-            assert.isTrue(agent.factions.length === 2);
+            assert.equal(agent.factions.length, 2);
 
             AgentManipulator.joinFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 2);
+            assert.equal(agent.factions.length, 2);
 
             AgentManipulator.leaveFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.leaveFaction(agent, faction1);
 
-            assert.isTrue(agent.factions.length === 1);
+            assert.equal(agent.factions.length, 1);
 
             AgentManipulator.leaveFaction(agent, faction2);
 
-            assert.isTrue(agent.factions.length === 0);
+            assert.equal(agent.factions.length, 0);
         });
     });
 });
