@@ -37,9 +37,9 @@ export class PredicateTAAR extends PredicateBase {
     ): masked<TAAR> | query<TAAR> {
         const terms: TAAR = {
             time: this._terms.time,
-            agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
-            agentB: this.db.retrieveModel(this._terms.agentB, Agent) as Agent,
-            room: this.db.retrieveModel(this._terms.room, Room) as Room,
+            agent: this.db.retrieveModel(this._terms.agent, Agent),
+            agentB: this.db.retrieveModel(this._terms.agentB, Agent),
+            room: this.db.retrieveModel(this._terms.room, Room),
         };
 
         return PredicateBase.replaceTerms(

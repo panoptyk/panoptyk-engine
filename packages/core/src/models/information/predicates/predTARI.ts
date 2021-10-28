@@ -38,9 +38,9 @@ export class PredicateTARI extends PredicateBase {
     ): masked<TARI> | query<TARI> {
         const terms: TARI = {
             time: this._terms.time,
-            agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
-            room: this.db.retrieveModel(this._terms.room, Room) as Room,
-            item: this.db.retrieveModel(this._terms.item, Item) as Item,
+            agent: this.db.retrieveModel(this._terms.agent, Agent),
+            room: this.db.retrieveModel(this._terms.room, Room),
+            item: this.db.retrieveModel(this._terms.item, Item),
         };
 
         return PredicateBase.replaceTerms(

@@ -31,7 +31,7 @@ export class PredicateTA extends PredicateBase {
     getTerms(mask?: metadata<TA>, asQuery = false): masked<TA> | query<TA> {
         const terms: TA = {
             time: this._terms.time,
-            agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
+            agent: this.db.retrieveModel(this._terms.agent, Agent),
         };
 
         return PredicateBase.replaceTerms(

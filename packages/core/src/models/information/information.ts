@@ -41,7 +41,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
      */
     _owner: number;
     get owner(): Agent {
-        return this.db.retrieveModel(this._owner, Agent) as Agent;
+        return this.db.retrieveModel(this._owner, Agent);
     }
     set owner(agent: Agent) {
         const master = this.getMasterCopy();

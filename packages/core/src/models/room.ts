@@ -15,22 +15,22 @@ export class Room extends BaseModel {
     }
     _adjacentRooms: Set<number>;
     get adjacentRooms(): Room[] {
-        return this.db.retrieveModels([...this._adjacentRooms], Room) as Room[];
+        return this.db.retrieveModels([...this._adjacentRooms], Room);
     }
     _occupants: Set<number>;
     get occupants(): Agent[] {
-        return this.db.retrieveModels([...this._occupants], Agent) as Agent[];
+        return this.db.retrieveModels([...this._occupants], Agent);
     }
     _items: Set<number>;
     get items(): Item[] {
-        return this.db.retrieveModels([...this._items], Item) as Item[];
+        return this.db.retrieveModels([...this._items], Item);
     }
     _conversations: Set<number>;
     get conversations(): Conversation[] {
         return this.db.retrieveModels(
             [...this._conversations],
             Conversation
-        ) as Conversation[];
+        );
     }
     _maxOccupants: number;
     get maxOccupants(): number {

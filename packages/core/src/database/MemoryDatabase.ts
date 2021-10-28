@@ -1,5 +1,5 @@
 import { IDatabase } from "./IDatabase";
-import { modelRef, IModel } from "../models";
+import { modelRefGeneric, IModel } from "../models";
 
 /**
  * In-memory database that does not retain its data between sessions
@@ -11,21 +11,7 @@ export class MemoryDatabase implements IDatabase {
     _models: Map<string, Map<number, IModel>> = new Map();
     //#endregion
 
-    storeModels(models: IModel[]): boolean[] {
-        const success: boolean[] = [];
-        models.forEach((model) => {
-            success.push(this.storeModel(model));
-        });
-        return success;
-    }
-    retrieveModels(ids: number[], model: modelRef): IModel[] {
-        const models: IModel[] = [];
-        ids.forEach((id) => {
-            models.push(this.retrieveModel(id, model));
-        });
-        return models;
-    }
-    getNextID(model: modelRef): number {
+    getNextID<T extends IModel>(model: modelRefGeneric<T>): number {
         if (!this._idMap.has(model.name)) {
             this._idMap.set(model.name, 1);
         }
@@ -33,21 +19,38 @@ export class MemoryDatabase implements IDatabase {
         this._idMap.set(model.name, id + 1);
         return id;
     }
-    retrieveModel(id: number, model: modelRef): IModel {
-        try {
-            return this._models.get(model.name).get(id);
-        } catch (error) {
-            // console.log(error);
-            return undefined;
-        }
-    }
-    storeModel(model: IModel): boolean {
+
+    storeModel<T extends IModel>(model: T): boolean {
         if (!this._models.has(model.constructor.name)) {
             this._models.set(model.constructor.name, new Map<number, IModel>());
         }
         this._models.get(model.constructor.name).set(model.id, model);
         return true;
     }
+    storeModels<T extends IModel>(models: T[]): boolean[] {
+        const success: boolean[] = [];
+        models.forEach((model) => {
+            success.push(this.storeModel(model));
+        });
+        return success;
+    }
+
+    retrieveModel<T extends IModel>(id: number, model: modelRefGeneric<T>): T {
+        try {
+            return this._models.get(model.name).get(id) as T;
+        } catch (error) {
+            // console.log(error);
+            return undefined;
+        }
+    }
+    retrieveModels<T extends IModel>(ids: number[], model: modelRefGeneric<T>): T[] {
+        const models: T[] = [];
+        ids.forEach((id) => {
+            models.push(this.retrieveModel(id, model));
+        });
+        return models;
+    }
+
     init(): Promise<boolean> {
         this.load();
         return Promise.resolve(true);
@@ -61,12 +64,12 @@ export class MemoryDatabase implements IDatabase {
             return;
         });
     }
-    matchModels(query: object, model: modelRef): IModel[] {
-        const matches: IModel[] = [];
-        let models: IModel[];
+    matchModels<T extends IModel>(query: object, model: modelRefGeneric<T>): T[] {
+        const matches: T[] = [];
+        let models: T[];
         try {
-            models = [...this._models.get(model.name).values()];
-            models.forEach((m: IModel) => {
+            models = [...this._models.get(model.name).values()] as T[];
+            models.forEach((m: T) => {
                 let isMatch = true;
                 for (const key in query) {
                     if (query[key] instanceof Object && query[key].equals) {

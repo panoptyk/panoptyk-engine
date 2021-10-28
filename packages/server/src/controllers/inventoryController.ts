@@ -84,6 +84,6 @@ export class InventoryController extends BaseController {
             new Item(recipe.itemCreated, "unique", 1, undefined, agent)
         );
 
-        //Tell Info
+        // Tell Info
     }
 }

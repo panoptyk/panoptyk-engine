@@ -3,41 +3,29 @@ import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { logger } from "../utilities";
 
+/**
+ * Info on an Agent's status in a faction
+ */
+export interface FactionStatus {
+    rank: number;
+    rankName: string;
+}
+
 export class Faction extends BaseModel {
-    _factionName: string;
+    //#region Properties
     get factionName(): string {
         return this._factionName;
     }
-    _factionType: string;
     get factionType(): string {
         return this._factionType;
     }
-    _exp: number;
-    get exp(): number {
-        return this._exp;
-    }
-    _toNextLevel: number;
-    get toNextLevel(): number {
-        return this._toNextLevel;
-    }
-    _level: number;
-    get level(): number {
-        return this._level;
-    }
-    _rankName: string;
-    get rankName(): string {
-        return this._rankName;
-    }
-    _members: Map<number, number>;
-    displayName(): string {
-        return this._factionName;
-    }
-    toString(): string {
-        return this.factionName + " (id# " + this.id + ")";
-    }
-    equals(model: any) {
-        return model instanceof Faction && this.id === model.id;
-    }
+    //#endregion
+
+    //#region Fields
+    _factionName: string;
+    _factionType: string;
+    _members: Map<AgentID, number>;
+    //#endregion
 
     constructor(name: string, type: string, id?: number, db?: IDatabase) {
         super(id, db);
@@ -53,12 +41,25 @@ export class Faction extends BaseModel {
         return safeFaction;
     }
 
+    displayName(): string {
+        return this._factionName;
+    }
+    toString(): string {
+        return this.factionName + " (id# " + this.id + ")";
+    }
+    equals(model: any) {
+        return model instanceof Faction && this.id === model.id;
+    }
+
     /**
      * Returns numeric value of agent's rank or undefined if agent is not in faction
      * Client: A value of undefined may mean that the agent's rank is unknown
      * @param agent
      */
-    public getAgentRank(agent: Agent) {
-        return this._members.get(agent.id);
+    public getFactionStatusOfAgent(agent: Agent): FactionStatus {
+        return {
+            rank: this._members.get(agent.id),
+            rankName: ""
+        };
     }
 }

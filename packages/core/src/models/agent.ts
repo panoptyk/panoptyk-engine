@@ -5,129 +5,154 @@ import { Item } from "./item";
 import { Info, Information } from "./information";
 import { Quest } from "./quest";
 import { Conversation } from "./conversation";
-import { Faction } from "./faction";
+import { Faction, FactionStatus } from "./faction";
 import { Trade } from "./trade";
 import { logger } from "../utilities";
 import { Recipe } from "./recipe";
 
 export class Agent extends BaseModel {
-    _agentName: string;
+    //#region Properties
     get agentName(): string {
         return this._agentName;
     }
-    _room: number;
+
     get room() {
-        return this.db.retrieveModel(this._room, Room) as Room;
+        return this.db.retrieveModel(this._room, Room);
     }
     set room(room: Room) {
         this._room = room ? room.id : -1;
     }
-    _inventory: Set<number>;
+
     get inventory(): Item[] {
-        return this.db.retrieveModels([...this._inventory], Item) as Item[];
+        return this.db.retrieveModels([...this._inventory], Item);
     }
-    _knowledge: Set<number>;
+
     get knowledge(): Info[] {
         return this.db.retrieveModels(
             [...this._knowledge],
             Information
         ) as Info[];
     }
-    _assignedQuests: Set<number>;
+
     get activeAssignedQuests(): Quest[] {
         return this.db.retrieveModels(
             [...this._assignedQuests],
             Quest
-        ) as Quest[];
+        );
     }
-    _givenQuests: Set<number>;
     get activeGivenQuests(): Quest[] {
-        return this.db.retrieveModels([...this._givenQuests], Quest) as Quest[];
+        return this.db.retrieveModels([...this._givenQuests], Quest);
     }
-    _conversation = -1;
+
     get conversation(): Conversation {
         return this.db.retrieveModel(
             this._conversation,
             Conversation
-        ) as Conversation;
+        );
     }
     set conversation(conversation: Conversation) {
         this._conversation = conversation ? conversation.id : -1;
     }
 
     /**
-     * Other agents to this agent
+     * "Other" agents to this agent
      */
-    _conversationRequests: Set<number>;
+
     get conversationRequesters(): Agent[] {
         return this.db.retrieveModels(
             [...this._conversationRequests],
             Agent
-        ) as Agent[];
+        );
     }
     /**
-     * This agent to other agents
+     * This agent to "other" agents
      */
-    _conversationRequested: Set<number>;
+
     get conversationRequested(): Agent[] {
         return this.db.retrieveModels(
             [...this._conversationRequested],
             Agent
-        ) as Agent[];
+        );
     }
-    _trade = -1;
+
     get trade(): Trade {
-        return this.db.retrieveModel(this._trade, Trade) as Trade;
+        return this.db.retrieveModel(this._trade, Trade);
     }
     set trade(trade: Trade) {
         this._trade = trade ? trade.id : -1;
     }
     /**
-     * Other agents to this agent
+     * "Other" agents to this agent
      */
-    _tradeRequests: Set<number>;
+
     get tradeRequesters(): Agent[] {
         return this.db.retrieveModels(
             [...this._tradeRequests],
             Agent
-        ) as Agent[];
+        );
     }
 
     /**
-     * This agent to other agents
+     * This agent to "other" agents
      */
-    _tradeRequested: Set<number>;
+
     get tradeRequested(): Agent[] {
         return this.db.retrieveModels(
             [...this._tradeRequested],
             Agent
-        ) as Agent[];
+        );
     }
-    _resources: Map<string, number>;
+
     get resources(): Map<string, number> {
         return this._resources;
     }
-    _recipes: Set<number>;
+
     get recipes(): Recipe[] {
-        return this.db.retrieveModels([...this._recipes], Recipe) as Recipe[];
+        return this.db.retrieveModels([...this._recipes], Recipe);
     }
-    _gold: number;
+
     get gold(): number {
         return this._gold;
     }
-    _faction: number;
+
     get faction(): Faction {
-        return this.db.retrieveModel(this._faction, Faction) as Faction;
+        return this.db.retrieveModel(this._faction, Faction);
     }
     set faction(newFaction: Faction) {
         this._faction = newFaction ? newFaction.id : -1;
     }
-    get factionRank(): number {
+    get factionStatus(): FactionStatus {
         if (this.faction) {
-            return this.faction.getAgentRank(this);
+            return this.faction.getFactionStatusOfAgent(this);
         }
         return undefined;
     }
+    //#endregion
+
+    //#region Fields
+    _agentName: string;
+    _faction: FactionID;
+    _room: RoomID;
+
+    // TODO: https://github.com/panoptyk/panoptyk-engine/issues/91
+    _inventory: Set<number>;
+    _resources: Map<string, number>;
+    _gold: number;
+    _recipes: Set<number>;
+
+    _knowledge: Set<number>;
+
+    _assignedQuests: Set<number>;
+    _givenQuests: Set<number>;
+
+    _conversation = -1;
+    _conversationRequests: Set<number>;
+    _conversationRequested: Set<number>;
+
+    _trade = -1;
+    _tradeRequests: Set<number>;
+    _tradeRequested: Set<number>;
+    //#endregion
 
     constructor(username: string, room?: Room, id?: number, db?: IDatabase) {
         super(id, db);
@@ -180,6 +205,10 @@ export class Agent extends BaseModel {
 
     inConversation(): boolean {
         return this._conversation > 0;
+    }
+
+    inTrade(): boolean {
+        return this._trade > 0;
     }
 
     getInfoRef(targetInfo: Info): Info {

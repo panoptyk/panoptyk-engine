@@ -21,14 +21,14 @@ export class Item extends BaseModel {
     }
     _room: number;
     get room(): Room {
-        return this.db.retrieveModel(this._room, Room) as Room;
+        return this.db.retrieveModel(this._room, Room);
     }
     set room(room: Room) {
         this._room = room ? room.id : -1;
     }
     _agent: number;
     get agent(): Agent {
-        return this.db.retrieveModel(this._agent, Agent) as Agent;
+        return this.db.retrieveModel(this._agent, Agent);
     }
     set agent(agent: Agent) {
         this._agent = agent ? agent.id : -1;

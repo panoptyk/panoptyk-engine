@@ -44,7 +44,8 @@ export interface IModel {
 /**
  * Defines type that can be any model class implementing IModel.
  */
-export type modelRef = new (...args: any[]) => IModel;
+export type modelRefGeneric<T extends IModel> = new (...args: any[]) => T;
+export type modelRef = modelRefGeneric<IModel>;
 
 /**
  * Useful starter class for new model.

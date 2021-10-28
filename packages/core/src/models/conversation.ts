@@ -7,7 +7,7 @@ import { logger } from "../utilities";
 export class Conversation extends BaseModel {
     _room: number;
     get room() {
-        return this.db.retrieveModel(this._room, Room) as Room;
+        return this.db.retrieveModel(this._room, Room);
     }
     set room(room: Room) {
         this._room = room ? room.id : -1;
