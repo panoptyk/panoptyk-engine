@@ -115,23 +115,14 @@ export class Agent extends BaseModel {
         return this._gold;
     }
 
-    get faction(): Faction {
-        return this.db.retrieveModel(this._faction, Faction);
-    }
-    set faction(newFaction: Faction) {
-        this._faction = newFaction ? newFaction.id : -1;
-    }
-    get factionStatus(): FactionStatus {
-        if (this.faction) {
-            return this.faction.getFactionStatusOfAgent(this);
-        }
-        return undefined;
+    get factions(): Faction[] {
+        return this.db.retrieveModels([...this._factions], Faction);
     }
     //#endregion
 
     //#region Fields
     _agentName: string;
-    _faction: FactionID;
+    _factions: Set<FactionID>;
     _room: RoomID;
 
     // TODO: https://github.com/panoptyk/panoptyk-engine/issues/91
@@ -157,6 +148,7 @@ export class Agent extends BaseModel {
     constructor(username: string, room?: Room, id?: number, db?: IDatabase) {
         super(id, db);
         this._agentName = username;
+        this._factions = new Set<number>();
         this.room = room;
         this._inventory = new Set<number>();
         this._knowledge = new Set<number>();
@@ -193,6 +185,14 @@ export class Agent extends BaseModel {
     }
     equals(model: any) {
         return model instanceof Agent && this.id === model.id;
+    }
+
+    getAllFactionStatuses(): Map<FactionID, FactionStatus> {
+        const factionMap = new Map<number, FactionStatus>();
+        this.factions.forEach(faction => {
+            factionMap.set(faction.id, faction.getFactionStatusOfAgent(this));
+        });
+        return factionMap;
     }
 
     activeConversationRequestTo(other: Agent): boolean {

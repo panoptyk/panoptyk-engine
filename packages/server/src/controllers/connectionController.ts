@@ -9,7 +9,7 @@ export class ConnectionController extends BaseController {
         const agents: Agent[] = Util.AppContext.db.matchModels(
             { _agentName: username },
             Agent
-        ) as Agent[];
+        );
 
         let agent: Agent = undefined;
         if (agents.length === 1) {
@@ -26,20 +26,19 @@ export class ConnectionController extends BaseController {
         const sc: SpawnController = new SpawnController(this);
 
         this.updateChanges(agent, [
+            agent,
             agent.inventory,
             agent.knowledge,
             agent.activeAssignedQuests,
             agent.activeGivenQuests,
+            agent.factions
         ]);
-        if (agent.faction) {
-            this.updateChanges(agent, [agent.faction]);
-        }
 
         // Assign login room to agent
         agent.room = Util.AppContext.db.retrieveModel(
             Util.AppContext.settingsManager.settings.default_room_id,
             Room
-        ) as Room;
+        );
 
         sc.spawnAgent(agent, agent.room);
 

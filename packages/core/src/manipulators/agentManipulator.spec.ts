@@ -2,7 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
 import AppContext from "../utilities/AppContext";
-import { Agent, Item, Room, Conversation } from "../models";
+import { Agent, Item, Room, Conversation, Faction } from "../models";
 import { AgentManipulator } from "./agentManipulator";
 
 describe("Agent Manipulator", () => {
@@ -406,7 +406,7 @@ describe("Agent Manipulator", () => {
 
             assert.deepEqual(conversation1, agent.conversation);
         });
-        it("When Already In a Covnersation", () => {
+        it("When Already In a Conversation", () => {
             const room1: Room = new Room("R1", 5);
             const conversation1 = new Conversation(room1);
             const conversation2 = new Conversation(room1);
@@ -422,7 +422,7 @@ describe("Agent Manipulator", () => {
             assert.deepEqual(conversation2, agent.conversation);
         });
     });
-    context("Leaves a Covnersation", () => {
+    context("Leaves a Conversation", () => {
         it("When In One", () => {
             const room1: Room = new Room("R1", 5);
             const conversation1 = new Conversation(room1);
@@ -448,6 +448,86 @@ describe("Agent Manipulator", () => {
 
             assert.equal(-1, agent._conversation);
             assert.isUndefined(agent.conversation);
+        });
+    });
+    context("Factions", () => {
+        it("(One)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            
+            db.storeModels([agent, faction1]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 0);
+        });
+        it("(Multiple)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            const faction2: Faction = new Faction("F2", "");
+            const faction3: Faction = new Faction("F3", "");
+            
+            db.storeModels([agent, faction1, faction2, faction3]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.joinFaction(agent, faction2);
+
+            assert.isTrue(agent.factions.length === 2);
+
+            AgentManipulator.joinFaction(agent, faction3);
+
+            assert.isTrue(agent.factions.length === 3);
+
+            AgentManipulator.leaveFaction(agent, faction3);
+
+            assert.isTrue(agent.factions.length === 2);
+
+            AgentManipulator.leaveFaction(agent, faction2);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 0);
+        });
+        it("(Duplicate)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            const faction2: Faction = new Faction("F2", "");
+            
+            db.storeModels([agent, faction1, faction2]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.joinFaction(agent, faction2);
+
+            assert.isTrue(agent.factions.length === 2);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 2);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.isTrue(agent.factions.length === 1);
+
+            AgentManipulator.leaveFaction(agent, faction2);
+
+            assert.isTrue(agent.factions.length === 0);
         });
     });
 });

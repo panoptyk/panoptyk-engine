@@ -1,5 +1,6 @@
 export { AgentManipulator } from "./agentManipulator";
-export { RoomManipulator } from "./roomManipulator";
+export { ConversationManipulator } from "./conversationManipulator";
+export { FactionManipulator } from "./factionManipulator";
 export { InformationManipulator } from "./informationManipulator";
 export { ItemManipulator } from "./itemManipulator";
-export { ConversationManipulator } from "./conversationManipulator";
+export { RoomManipulator } from "./roomManipulator";

@@ -52,14 +52,26 @@ export class Faction extends BaseModel {
     }
 
     /**
+     * Is the provided agent part of this faction?
+     * @param {Agent} agent agent in question
+     * @returns {boolean} true if agent is a part of this faction
+     */
+    includesAgent(agent: Agent) {
+        return this._members.has(agent.id);
+    }
+
+    /**
      * Returns numeric value of agent's rank or undefined if agent is not in faction
      * Client: A value of undefined may mean that the agent's rank is unknown
-     * @param agent
+     * @param {Agent} agent
      */
-    public getFactionStatusOfAgent(agent: Agent): FactionStatus {
-        return {
-            rank: this._members.get(agent.id),
-            rankName: ""
-        };
+    getFactionStatusOfAgent?(agent: Agent): FactionStatus {
+        if (this.includesAgent(agent)) {
+            return {
+                rank: this._members.get(agent.id),
+                rankName: ""
+            };
+        }
+        return undefined;
     }
 }
