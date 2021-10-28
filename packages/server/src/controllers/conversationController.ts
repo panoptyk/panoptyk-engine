@@ -10,50 +10,15 @@ import {
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
-    addAgentToConversation(conversation: Conversation, agent: Agent): void {
-        if (!agent.conversation.equals(conversation)) {
-            this.removeAgentFromConversation(agent.conversation, agent);
-        }
-
-        ConversationManipulator.addAgentToConversation(conversation, agent);
-        AgentManipulator.joinConversation(agent, conversation);
-
-        agent.conversationRequested.forEach((conversation) => {
-            AgentManipulator.removeRequestedCovnersation(agent, conversation);
-        });
-        agent.conversationRequesters.forEach((conversation) => {
-            AgentManipulator.removeRequestedCovnersation(agent, conversation);
-        });
-
-        conversation.room.occupants.forEach((occupant) => {
-            this.updateChanges(occupant, [agent, conversation]);
-        });
-    }
-
-    removeAgentFromConversation(
-        conversation: Conversation,
-        agent: Agent
-    ): void {
-        ConversationManipulator.removeAgentFromConversation(
-            conversation,
-            agent
-        );
-        AgentManipulator.leaveConversation(agent);
-
-        agent.tradeRequested.forEach((trade) => {
-            AgentManipulator.removeRequestedTrade(agent, trade);
-        });
-        agent.tradeRequesters.forEach((trade) => {
-            AgentManipulator.removeRequestedTrade(agent, trade);
-        });
-
-        conversation.room.occupants.forEach((occupant) => {
-            this.updateChanges(occupant, [agent, conversation]);
-        });
-    }
-
     requestConversation(requester: Agent, requestee: Agent): void {
         AgentManipulator.requestConversation(requester, requestee);
+
+        this.updateChanges(requester, [requester]);
+        this.updateChanges(requestee, [requestee]);
+    }
+
+    rejectConversation(requester: Agent, requestee: Agent): void {
+        AgentManipulator.removeRequestedConversation(requester, requestee);
 
         this.updateChanges(requester, [requester]);
         this.updateChanges(requestee, [requestee]);
@@ -84,10 +49,45 @@ export class ConversationController extends BaseController {
         return conversation;
     }
 
-    rejectConversation(requester: Agent, requestee: Agent): void {
-        AgentManipulator.removeRequestedCovnersation(requester, requestee);
+    addAgentToConversation(conversation: Conversation, agent: Agent): void {
+        if (!agent.conversation.equals(conversation)) {
+            this.removeAgentFromConversation(agent.conversation, agent);
+        }
 
-        this.updateChanges(requester, [requester]);
-        this.updateChanges(requestee, [requestee]);
+        ConversationManipulator.addAgentToConversation(conversation, agent);
+        AgentManipulator.joinConversation(agent, conversation);
+
+        agent.conversationsRequested.forEach((requestee) => {
+            AgentManipulator.removeRequestedConversation(agent, requestee);
+        });
+        agent.conversationRequesters.forEach((requester) => {
+            AgentManipulator.removeRequestedConversation(requester, agent);
+        });
+
+        conversation.room.occupants.forEach((occupant) => {
+            this.updateChanges(occupant, [agent, conversation]);
+        });
+    }
+
+    removeAgentFromConversation(
+        conversation: Conversation,
+        agent: Agent
+    ): void {
+        ConversationManipulator.removeAgentFromConversation(
+            conversation,
+            agent
+        );
+        AgentManipulator.leaveConversation(agent);
+
+        agent.tradesRequested.forEach((requestee) => {
+            AgentManipulator.removeRequestedTrade(agent, requestee);
+        });
+        agent.tradeRequesters.forEach((requesters) => {
+            AgentManipulator.removeRequestedTrade(requesters, agent);
+        });
+
+        conversation.room.occupants.forEach((occupant) => {
+            this.updateChanges(occupant, [agent, conversation]);
+        });
     }
 }

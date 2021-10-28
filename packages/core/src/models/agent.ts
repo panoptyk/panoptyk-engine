@@ -68,9 +68,9 @@ export class Agent extends BaseModel {
      * This agent to "other" agents
      */
 
-    get conversationRequested(): Agent[] {
+    get conversationsRequested(): Agent[] {
         return this.db.retrieveModels(
-            [...this._conversationRequested],
+            [...this._conversationsRequested],
             Agent
         );
     }
@@ -96,9 +96,9 @@ export class Agent extends BaseModel {
      * This agent to "other" agents
      */
 
-    get tradeRequested(): Agent[] {
+    get tradesRequested(): Agent[] {
         return this.db.retrieveModels(
-            [...this._tradeRequested],
+            [...this._tradesRequested],
             Agent
         );
     }
@@ -135,23 +135,23 @@ export class Agent extends BaseModel {
     _room: RoomID;
 
     // TODO: https://github.com/panoptyk/panoptyk-engine/issues/91
-    _inventory: Set<number>;
+    _inventory: Set<ItemID>;
     _resources: Map<string, number>;
     _gold: number;
-    _recipes: Set<number>;
+    _recipes: Set<RecipeID>;
 
-    _knowledge: Set<number>;
+    _knowledge: Set<InfoID>;
 
-    _assignedQuests: Set<number>;
-    _givenQuests: Set<number>;
+    _assignedQuests: Set<QuestID>;
+    _givenQuests: Set<QuestID>;
 
     _conversation = -1;
-    _conversationRequests: Set<number>;
-    _conversationRequested: Set<number>;
+    _conversationRequests: Set<ConversationID>;
+    _conversationsRequested: Set<ConversationID>;
 
     _trade = -1;
-    _tradeRequests: Set<number>;
-    _tradeRequested: Set<number>;
+    _tradeRequests: Set<TradeID>;
+    _tradesRequested: Set<TradeID>;
     //#endregion
 
     constructor(username: string, room?: Room, id?: number, db?: IDatabase) {
@@ -162,9 +162,9 @@ export class Agent extends BaseModel {
         this._knowledge = new Set<number>();
         this._gold = 0;
         this._conversationRequests = new Set<number>();
-        this._conversationRequested = new Set<number>();
+        this._conversationsRequested = new Set<number>();
         this._tradeRequests = new Set<number>();
-        this._tradeRequested = new Set<number>();
+        this._tradesRequested = new Set<number>();
         this._assignedQuests = new Set<number>();
         this._givenQuests = new Set<number>();
         this._resources = new Map<string, number>();
@@ -196,11 +196,11 @@ export class Agent extends BaseModel {
     }
 
     activeConversationRequestTo(other: Agent): boolean {
-        return this._conversationRequested.has(other.id);
+        return this._conversationsRequested.has(other.id);
     }
 
     activeTradeRequestTo(other: Agent): boolean {
-        return this._tradeRequested.has(other.id);
+        return this._tradesRequested.has(other.id);
     }
 
     inConversation(): boolean {

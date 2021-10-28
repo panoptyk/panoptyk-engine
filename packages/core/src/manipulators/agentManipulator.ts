@@ -1,12 +1,16 @@
 import { Agent, Item, Info, Room, Conversation, Recipe } from "../models";
 
 export class AgentManipulator {
-    static addItemInventory(agent: Agent, item: Item): void {
-        agent._inventory.add(item.id);
+    static putInRoom(agent: Agent, room: Room): void {
+        agent.room = room;
     }
 
-    static removeItemInventory(agent: Agent, item: Item): void {
-        agent._inventory.delete(item.id);
+    static removeFromRoom(agent: Agent): void {
+        agent.room = undefined;
+    }
+
+    static addItemToInventory(agent: Agent, item: Item): void {
+        agent._inventory.add(item.id);
     }
 
     static addInfo(agent: Agent, info: Info): void {
@@ -17,47 +21,8 @@ export class AgentManipulator {
         agent._knowledge.delete(info.id);
     }
 
-    static putInRoom(agent: Agent, room: Room): void {
-        agent.room = room;
-    }
-
-    static removeFromRoom(agent: Agent): void {
-        agent.room = undefined;
-    }
-
-    static requestConversation(requester: Agent, requestee: Agent): void {
-        requester._conversationRequested.add(requestee.id);
-        requestee._conversationRequests.add(requester.id);
-    }
-
-    static removeRequestedCovnersation(
-        requester: Agent,
-        requestee: Agent
-    ): void {
-        requester._conversationRequested.delete(requestee.id);
-        requestee._conversationRequests.delete(requester.id);
-    }
-
-    static requestTrade(requester: Agent, requestee: Agent): void {
-        requester._tradeRequested.add(requestee.id);
-        requestee._tradeRequests.add(requester.id);
-    }
-
-    static removeRequestedTrade(requester: Agent, requestee: Agent): void {
-        requester._tradeRequested.delete(requestee.id);
-        requestee._tradeRequests.delete(requester.id);
-    }
-
-    static joinConversation(agent: Agent, conversation: Conversation): void {
-        agent.conversation = conversation;
-    }
-
-    static leaveConversation(agent: Agent): void {
-        agent.conversation = undefined;
-    }
-
-    static addQuest() {
-        throw new Error("Quest not implemented");
+    static removeItemFromInventory(agent: Agent, item: Item): void {
+        agent._inventory.delete(item.id);
     }
 
     static modifyResources(
@@ -77,7 +42,46 @@ export class AgentManipulator {
         agent._gold += amount;
     }
 
-    static learnRecipe(agent: Agent, recipe: Recipe): void {
+    static addRecipe(agent: Agent, recipe: Recipe): void {
         agent._recipes.add(recipe.id);
+    }
+
+    static deleteRecipe(agent: Agent, recipe: Recipe): void {
+        agent._recipes.delete(recipe.id);
+    }
+
+    static requestConversation(requester: Agent, requestee: Agent): void {
+        requester._conversationsRequested.add(requestee.id);
+        requestee._conversationRequests.add(requester.id);
+    }
+
+    static removeRequestedConversation(
+        requester: Agent,
+        requestee: Agent
+    ): void {
+        requester._conversationsRequested.delete(requestee.id);
+        requestee._conversationRequests.delete(requester.id);
+    }
+
+    static requestTrade(requester: Agent, requestee: Agent): void {
+        requester._tradesRequested.add(requestee.id);
+        requestee._tradeRequests.add(requester.id);
+    }
+
+    static removeRequestedTrade(requester: Agent, requestee: Agent): void {
+        requester._tradesRequested.delete(requestee.id);
+        requestee._tradeRequests.delete(requester.id);
+    }
+
+    static joinConversation(agent: Agent, conversation: Conversation): void {
+        agent.conversation = conversation;
+    }
+
+    static leaveConversation(agent: Agent): void {
+        agent.conversation = undefined;
+    }
+
+    static addQuest() {
+        throw new Error("Quest not implemented");
     }
 }

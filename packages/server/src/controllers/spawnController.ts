@@ -54,11 +54,11 @@ export class SpawnController extends BaseController {
             cc.removeAgentFromConversation(agent.conversation, agent);
         }
 
-        agent.conversationRequested.forEach((conversation) => {
-            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        agent.conversationsRequested.forEach((requestee) => {
+            AgentManipulator.removeRequestedConversation(agent, requestee);
         });
-        agent.conversationRequesters.forEach((conversation) => {
-            AgentManipulator.removeRequestedCovnersation(agent, conversation);
+        agent.conversationRequesters.forEach((requester) => {
+            AgentManipulator.removeRequestedConversation(requester, agent);
         });
 
         AgentManipulator.removeFromRoom(agent);
