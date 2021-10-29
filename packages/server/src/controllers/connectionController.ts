@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { Util, Agent, Room } from "@panoptyk/core";
+import { Util, Agent, Room, Faction } from "@panoptyk/core";
 import { BaseController } from "./baseController";
 import { SpawnController } from "./spawnController";
 import { socketAgentMap } from "./../util";
@@ -33,6 +33,13 @@ export class ConnectionController extends BaseController {
             agent.activeGivenQuests,
             agent.factions
         ]);
+
+        // TODO: fix \/
+        // Give agent references to all factions
+        this.updateChanges(agent, [
+            ...Util.AppContext.db.matchModels({}, Faction)
+        ])
+        // TODO: fix /\
 
         // Assign login room to agent
         agent.room = Util.AppContext.db.retrieveModel(
