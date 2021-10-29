@@ -31,7 +31,7 @@ describe("Faction Manipulator", () => {
 
             assert.equal(faction.members.length, 0);
             assert.isFalse(faction.includesAgent(agent));
-            assert.isUndefined(faction.getFactionStatusOfAgent(agent))
+            assert.isUndefined(faction.getFactionStatusOfAgent(agent));
         });
     });
 });
