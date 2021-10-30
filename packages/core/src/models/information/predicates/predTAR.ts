@@ -33,8 +33,8 @@ export class PredicateTAR extends PredicateBase {
     getTerms(mask?: metadata<TAR>, asQuery = false): masked<TAR> | query<TAR> {
         const terms: TAR = {
             time: this._terms.time,
-            agent: this.db.retrieveModel(this._terms.agent, Agent) as Agent,
-            room: this.db.retrieveModel(this._terms.room, Room) as Room,
+            agent: this.db.retrieveModel(this._terms.agent, Agent),
+            room: this.db.retrieveModel(this._terms.room, Room),
         };
 
         return PredicateBase.replaceTerms(

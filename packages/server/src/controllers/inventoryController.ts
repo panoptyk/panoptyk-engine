@@ -21,7 +21,7 @@ export class InventoryController extends BaseController {
 
         RoomManipulator.removeItem(room, item);
         ItemManipulator.removeFromRoom(item);
-        AgentManipulator.addItemInventory(agent, item);
+        AgentManipulator.addItemToInventory(agent, item);
 
         room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, item, room]);
@@ -45,7 +45,7 @@ export class InventoryController extends BaseController {
     }
 
     dropItem(agent: Agent, item: Item, room: Room): void {
-        AgentManipulator.removeItemInventory(agent, item);
+        AgentManipulator.removeItemFromInventory(agent, item);
         ItemManipulator.putInRoom(item, room);
         RoomManipulator.addItem(room, item);
 
@@ -79,11 +79,11 @@ export class InventoryController extends BaseController {
             );
         });
 
-        AgentManipulator.addItemInventory(
+        AgentManipulator.addItemToInventory(
             agent,
             new Item(recipe.itemCreated, "unique", 1, undefined, agent)
         );
 
-        //Tell Info
+        // Tell Info
     }
 }

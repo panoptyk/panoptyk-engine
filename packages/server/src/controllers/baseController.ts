@@ -69,9 +69,7 @@ export class BaseController {
             }
         } else if (change instanceof Agent) {
             // automatically give faction information of agents for now
-            if (change.faction) {
-                updates.add(change.faction);
-            }
+            change.factions.forEach(faction => updates.add(faction));
         }
     }
 

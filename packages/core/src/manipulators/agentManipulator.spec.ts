@@ -2,7 +2,7 @@ import { assert } from "chai";
 import "mocha";
 import { MemoryDatabase } from "../database/MemoryDatabase";
 import AppContext from "../utilities/AppContext";
-import { Agent, Item, Room, Conversation } from "../models";
+import { Agent, Item, Room, Conversation, Faction } from "../models";
 import { AgentManipulator } from "./agentManipulator";
 
 describe("Agent Manipulator", () => {
@@ -19,7 +19,7 @@ describe("Agent Manipulator", () => {
 
             db.storeModels([agent, item1]);
 
-            AgentManipulator.addItemInventory(agent, item1);
+            AgentManipulator.addItemToInventory(agent, item1);
 
             assert.deepEqual(item1, agent.inventory[0]);
         });
@@ -30,9 +30,9 @@ describe("Agent Manipulator", () => {
 
             db.storeModels([agent, item1, item2, item3]);
 
-            AgentManipulator.addItemInventory(agent, item1);
-            AgentManipulator.addItemInventory(agent, item2);
-            AgentManipulator.addItemInventory(agent, item3);
+            AgentManipulator.addItemToInventory(agent, item1);
+            AgentManipulator.addItemToInventory(agent, item2);
+            AgentManipulator.addItemToInventory(agent, item3);
 
             assert.sameDeepMembers([item1, item2, item3], agent.inventory);
         });
@@ -43,11 +43,11 @@ describe("Agent Manipulator", () => {
 
             db.storeModels([agent, item1]);
 
-            AgentManipulator.addItemInventory(agent, item1);
+            AgentManipulator.addItemToInventory(agent, item1);
 
             assert.deepEqual(item1, agent.inventory[0]);
 
-            AgentManipulator.removeItemInventory(agent, item1);
+            AgentManipulator.removeItemFromInventory(agent, item1);
 
             assert.equal(0, agent.inventory.length);
         });
@@ -58,13 +58,13 @@ describe("Agent Manipulator", () => {
 
             db.storeModels([agent, item1, item2, item3]);
 
-            AgentManipulator.addItemInventory(agent, item1);
-            AgentManipulator.addItemInventory(agent, item2);
-            AgentManipulator.addItemInventory(agent, item3);
+            AgentManipulator.addItemToInventory(agent, item1);
+            AgentManipulator.addItemToInventory(agent, item2);
+            AgentManipulator.addItemToInventory(agent, item3);
 
             assert.sameDeepMembers([item1, item2, item3], agent.inventory);
 
-            AgentManipulator.removeItemInventory(agent, item2);
+            AgentManipulator.removeItemFromInventory(agent, item2);
 
             assert.sameDeepMembers([item1, item3], agent.inventory);
         });
@@ -75,14 +75,14 @@ describe("Agent Manipulator", () => {
 
             db.storeModels([agent, item1, item2, item3]);
 
-            AgentManipulator.addItemInventory(agent, item1);
-            AgentManipulator.addItemInventory(agent, item2);
-            AgentManipulator.addItemInventory(agent, item3);
+            AgentManipulator.addItemToInventory(agent, item1);
+            AgentManipulator.addItemToInventory(agent, item2);
+            AgentManipulator.addItemToInventory(agent, item3);
 
             assert.sameDeepMembers([item1, item2, item3], agent.inventory);
 
-            AgentManipulator.removeItemInventory(agent, item1);
-            AgentManipulator.removeItemInventory(agent, item2);
+            AgentManipulator.removeItemFromInventory(agent, item1);
+            AgentManipulator.removeItemFromInventory(agent, item2);
 
             assert.sameDeepMembers([item3], agent.inventory);
         });
@@ -144,7 +144,7 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.requestTrade(agent, agent2);
 
-            assert.sameDeepMembers([agent2], agent.tradeRequested);
+            assert.sameDeepMembers([agent2], agent.tradesRequested);
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
         });
         it("Multiple Times", () => {
@@ -160,7 +160,7 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.tradeRequested
+                agent.tradesRequested
             );
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
             assert.sameDeepMembers([agent], agent3.tradeRequesters);
@@ -175,13 +175,13 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.requestTrade(agent, agent2);
 
-            assert.sameDeepMembers([agent2], agent.tradeRequested);
+            assert.sameDeepMembers([agent2], agent.tradesRequested);
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
 
             AgentManipulator.removeRequestedTrade(agent, agent2);
 
-            assert.sameDeepMembers([], agent.tradeRequested);
-            assert.sameDeepMembers([], agent.tradeRequested);
+            assert.sameDeepMembers([], agent.tradesRequested);
+            assert.sameDeepMembers([], agent.tradesRequested);
         });
         it("Once When Multiple are present", () => {
             const agent2 = new Agent("A2");
@@ -196,7 +196,7 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.tradeRequested
+                agent.tradesRequested
             );
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
             assert.sameDeepMembers([agent], agent3.tradeRequesters);
@@ -204,7 +204,7 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.removeRequestedTrade(agent, agent3);
 
-            assert.sameDeepMembers([agent2, agent4], agent.tradeRequested);
+            assert.sameDeepMembers([agent2, agent4], agent.tradesRequested);
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
             assert.sameDeepMembers([], agent3.tradeRequesters);
             assert.sameDeepMembers([agent], agent4.tradeRequesters);
@@ -222,7 +222,7 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.tradeRequested
+                agent.tradesRequested
             );
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
             assert.sameDeepMembers([agent], agent3.tradeRequesters);
@@ -231,7 +231,7 @@ describe("Agent Manipulator", () => {
             AgentManipulator.removeRequestedTrade(agent, agent3);
             AgentManipulator.removeRequestedTrade(agent, agent4);
 
-            assert.sameDeepMembers([agent2], agent.tradeRequested);
+            assert.sameDeepMembers([agent2], agent.tradesRequested);
             assert.sameDeepMembers([agent], agent2.tradeRequesters);
             assert.sameDeepMembers([], agent3.tradeRequesters);
             assert.sameDeepMembers([], agent4.tradeRequesters);
@@ -245,7 +245,7 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.requestConversation(agent, agent2);
 
-            assert.sameDeepMembers([agent2], agent.conversationRequested);
+            assert.sameDeepMembers([agent2], agent.conversationsRequested);
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
         });
         it("Multiple Times", () => {
@@ -261,7 +261,7 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.conversationRequested
+                agent.conversationsRequested
             );
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
             assert.sameDeepMembers([agent], agent3.conversationRequesters);
@@ -276,13 +276,13 @@ describe("Agent Manipulator", () => {
 
             AgentManipulator.requestConversation(agent, agent2);
 
-            assert.sameDeepMembers([agent2], agent.conversationRequested);
+            assert.sameDeepMembers([agent2], agent.conversationsRequested);
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
 
-            AgentManipulator.removeRequestedCovnersation(agent, agent2);
+            AgentManipulator.removeRequestedConversation(agent, agent2);
 
-            assert.sameDeepMembers([], agent.conversationRequested);
-            assert.sameDeepMembers([], agent.conversationRequested);
+            assert.sameDeepMembers([], agent.conversationsRequested);
+            assert.sameDeepMembers([], agent.conversationsRequested);
         });
         it("When Multiple are Present", () => {
             const agent2 = new Agent("A2");
@@ -297,17 +297,17 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.conversationRequested
+                agent.conversationsRequested
             );
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
             assert.sameDeepMembers([agent], agent3.conversationRequesters);
             assert.sameDeepMembers([agent], agent4.conversationRequesters);
 
-            AgentManipulator.removeRequestedCovnersation(agent, agent3);
+            AgentManipulator.removeRequestedConversation(agent, agent3);
 
             assert.sameDeepMembers(
                 [agent2, agent4],
-                agent.conversationRequested
+                agent.conversationsRequested
             );
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
             assert.sameDeepMembers([], agent3.conversationRequesters);
@@ -326,16 +326,16 @@ describe("Agent Manipulator", () => {
 
             assert.sameDeepMembers(
                 [agent2, agent3, agent4],
-                agent.conversationRequested
+                agent.conversationsRequested
             );
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
             assert.sameDeepMembers([agent], agent3.conversationRequesters);
             assert.sameDeepMembers([agent], agent4.conversationRequesters);
 
-            AgentManipulator.removeRequestedCovnersation(agent, agent3);
-            AgentManipulator.removeRequestedCovnersation(agent, agent4);
+            AgentManipulator.removeRequestedConversation(agent, agent3);
+            AgentManipulator.removeRequestedConversation(agent, agent4);
 
-            assert.sameDeepMembers([agent2], agent.conversationRequested);
+            assert.sameDeepMembers([agent2], agent.conversationsRequested);
             assert.sameDeepMembers([agent], agent2.conversationRequesters);
             assert.sameDeepMembers([], agent3.conversationRequesters);
             assert.sameDeepMembers([], agent4.conversationRequesters);
@@ -406,7 +406,7 @@ describe("Agent Manipulator", () => {
 
             assert.deepEqual(conversation1, agent.conversation);
         });
-        it("When Already In a Covnersation", () => {
+        it("When Already In a Conversation", () => {
             const room1: Room = new Room("R1", 5);
             const conversation1 = new Conversation(room1);
             const conversation2 = new Conversation(room1);
@@ -422,7 +422,7 @@ describe("Agent Manipulator", () => {
             assert.deepEqual(conversation2, agent.conversation);
         });
     });
-    context("Leaves a Covnersation", () => {
+    context("Leaves a Conversation", () => {
         it("When In One", () => {
             const room1: Room = new Room("R1", 5);
             const conversation1 = new Conversation(room1);
@@ -448,6 +448,86 @@ describe("Agent Manipulator", () => {
 
             assert.equal(-1, agent._conversation);
             assert.isUndefined(agent.conversation);
+        });
+    });
+    context("Factions", () => {
+        it("(One)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            
+            db.storeModels([agent, faction1]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 0);
+        });
+        it("(Multiple)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            const faction2: Faction = new Faction("F2", "");
+            const faction3: Faction = new Faction("F3", "");
+            
+            db.storeModels([agent, faction1, faction2, faction3]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.joinFaction(agent, faction2);
+
+            assert.equal(agent.factions.length, 2);
+
+            AgentManipulator.joinFaction(agent, faction3);
+
+            assert.equal(agent.factions.length, 3);
+
+            AgentManipulator.leaveFaction(agent, faction3);
+
+            assert.equal(agent.factions.length, 2);
+
+            AgentManipulator.leaveFaction(agent, faction2);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 0);
+        });
+        it("(Duplicate)", () => {
+            const faction1: Faction = new Faction("F1", "");
+            const faction2: Faction = new Faction("F2", "");
+            
+            db.storeModels([agent, faction1, faction2]);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.joinFaction(agent, faction2);
+
+            assert.equal(agent.factions.length, 2);
+
+            AgentManipulator.joinFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 2);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.leaveFaction(agent, faction1);
+
+            assert.equal(agent.factions.length, 1);
+
+            AgentManipulator.leaveFaction(agent, faction2);
+
+            assert.equal(agent.factions.length, 0);
         });
     });
 });

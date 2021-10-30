@@ -3,32 +3,48 @@ import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { logger } from "../utilities";
 
+/**
+ * Info on an Agent's status in a faction
+ */
+export interface FactionStatus {
+    rank: number;
+    rankName: string;
+}
+
 export class Faction extends BaseModel {
-    _factionName: string;
+    //#region Properties
     get factionName(): string {
         return this._factionName;
     }
-    _factionType: string;
     get factionType(): string {
         return this._factionType;
     }
-    _exp: number;
-    get exp(): number {
-        return this._exp;
+    get members(): Agent[] {
+        return this.db.retrieveModels([...this._members.keys()], Agent);
     }
-    _toNextLevel: number;
-    get toNextLevel(): number {
-        return this._toNextLevel;
+    //#endregion
+
+    //#region Fields
+    _factionName: string;
+    _factionType: string;
+    _members: Map<AgentID, number>;
+    //#endregion
+
+    constructor(name: string, type: string, id?: number, db?: IDatabase) {
+        super(id, db);
+
+        this._factionName = name;
+        this._factionType = type;
+        this._members = new Map<number, number>();
+
+        logger.log("Faction " + this + " Initialized.", "FACTION");
     }
-    _level: number;
-    get level(): number {
-        return this._level;
+
+    toJSON(forClient: boolean, context: any): object {
+        const safeFaction = super.toJSON(forClient, context);
+        return safeFaction;
     }
-    _rankName: string;
-    get rankName(): string {
-        return this._rankName;
-    }
-    _members: Map<number, number>;
+
     displayName(): string {
         return this._factionName;
     }
@@ -39,26 +55,27 @@ export class Faction extends BaseModel {
         return model instanceof Faction && this.id === model.id;
     }
 
-    constructor(name: string, type: string, id?: number, db?: IDatabase) {
-        super(id, db);
-
-        this._factionName = name;
-        this._factionType = type;
-
-        logger.log("Faction " + this + " Initialized.", "FACTION");
-    }
-
-    toJSON(forClient: boolean, context: any): object {
-        const safeFaction = super.toJSON(forClient, context);
-        return safeFaction;
+    /**
+     * Is the provided agent part of this faction?
+     * @param {Agent} agent agent in question
+     * @returns {boolean} true if agent is a part of this faction
+     */
+    includesAgent(agent: Agent) {
+        return this._members.has(agent.id);
     }
 
     /**
      * Returns numeric value of agent's rank or undefined if agent is not in faction
      * Client: A value of undefined may mean that the agent's rank is unknown
-     * @param agent
+     * @param {Agent} agent
      */
-    public getAgentRank(agent: Agent) {
-        return this._members.get(agent.id);
+    getFactionStatusOfAgent(agent: Agent): FactionStatus {
+        if (this.includesAgent(agent)) {
+            return {
+                rank: this._members.get(agent.id),
+                rankName: ""
+            };
+        }
+        return undefined;
     }
 }
