@@ -7,6 +7,7 @@ import {
     AgentManipulator,
     RoomManipulator,
     Actions,
+    Info,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -89,5 +90,41 @@ export class ConversationController extends BaseController {
         conversation.room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, conversation]);
         });
+    }
+
+    tellInfoInConversation(
+        conversation: Conversation,
+        agent: Agent,
+    ): Info {
+        const agents: Agent[] = conversation.participants;
+        const info_to_be_told: Info = (agent.knowledge ?? [])[0];
+       
+        if (info_to_be_told) {
+            for (let other of agents) {
+                if (other !== agent) {
+                    let knownInfo = Actions.told({
+                        time: Date.now(),
+                        agent: agent,
+                        agentB: other,
+                        room: agent.room,
+                        info: info_to_be_told.getCopy()
+                    });
+
+                    this.giveInfoToAgents(knownInfo, [other]);
+                    this.disperseInfo(knownInfo, agent.room);
+                }
+            }
+        }
+        
+        ConversationManipulator.addInfoToConversation(
+            conversation,
+            info_to_be_told.getMasterCopy()
+        );
+
+        conversation.participants.forEach((participant) => {
+            this.updateChanges(participant, [conversation])
+        });
+
+        return info_to_be_told;
     }
 }

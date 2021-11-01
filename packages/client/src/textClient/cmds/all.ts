@@ -175,3 +175,13 @@ export function drop(this: TextClient, items: string[]) {
         this._result = msg;
     }
 }
+
+export function tellInfo(this: TextClient) {
+    const player: Agent = ClientAPI.playerAgent;
+    let msg = "failed to tell info within the conversation";
+
+    ClientAPI.tellInfo(player.conversation);
+    msg = "info successfully told in the converstaion";
+
+    this._result = msg;
+}
