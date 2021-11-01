@@ -3,6 +3,7 @@ import { BaseModel } from "./Imodel";
 import { Agent } from "./agent";
 import { Room } from "./room";
 import { logger } from "../utilities";
+import { Info, Information } from "./information";
 
 export class Conversation extends BaseModel {
     _room: number;
@@ -20,6 +21,10 @@ export class Conversation extends BaseModel {
     get maxParticipants() {
         return this._maxParticipants;
     }
+    _infos: Set<InfoID>;
+    get infos(): Info[] {
+        return this.db.retrieveModels([...this._infos], Information);
+    }
     displayName(): string {
         throw new Error("Method not implemented.");
     }
@@ -35,6 +40,7 @@ export class Conversation extends BaseModel {
 
         this._room = room.id;
         this._participants = new Set<number>();
+        this._infos = new Set<InfoID>();
 
         logger.log("Conversation " + this + " Initialized.", "CONVO");
     }
