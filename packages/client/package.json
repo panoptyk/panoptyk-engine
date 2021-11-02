@@ -1,6 +1,6 @@
 {
   "name": "@panoptyk/client",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.1",
   "description": "TODO",
   "homepage": "https://github.com/panoptyk/panoptyk-engine/tree/master/packages/client#readme",
   "author": "",
@@ -32,7 +32,7 @@
     "url": "https://github.com/panoptyk/panoptyk-engine/issues"
   },
   "dependencies": {
-    "@panoptyk/core": "^2.0.0-alpha.1",
+    "@panoptyk/core": "^2.0.1",
     "socket.io-client": "^2.3.1"
   }
 }
