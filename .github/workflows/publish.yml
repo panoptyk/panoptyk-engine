@@ -23,17 +23,25 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-     - uses: actions/checkout@v2
+     -  uses: actions/checkout@v2
      #Install Node.js, with the version 12 and using the registry URL of npm, this could be changed to a custom registry or the GitHub registry.
-     - uses: actions/setup-node@v2
-       with:
+     -  uses: actions/setup-node@v2
+        with:
          node-version: 12
          registry-url: https://registry.npmjs.org/
          
       # npm install
-     - run: npm install
+     -  run: npm install
+     
+     -  name: Authenticate with Registry
+        run: |
+          echo "registry=http://registry.npmjs.org/" >> .npmrc
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
      
      # Publish to npm
-     - run: npx lerna publish from-package --yes
-       env:
+     -  run: npx lerna publish from-package --yes
+        env:
          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
