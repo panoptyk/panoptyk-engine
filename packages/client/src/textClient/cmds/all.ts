@@ -176,11 +176,11 @@ export function drop(this: TextClient, items: string[]) {
     }
 }
 
-export function tellInfo(this: TextClient) {
+export function tellInfo(this: TextClient, infoIDs: string[]) {
     const player: Agent = ClientAPI.playerAgent;
     let msg = "failed to tell info within the conversation";
 
-    ClientAPI.tellInfo(player.conversation);
+    ClientAPI.tellInfo(Number(infoIDs[0]));
     msg = "info successfully told in the converstaion";
 
     this._result = msg;

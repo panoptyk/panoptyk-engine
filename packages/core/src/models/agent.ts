@@ -34,13 +34,6 @@ export class Agent extends BaseModel {
         ) as Info[];
     }
 
-    set knowledge(knowledge: Info[]) {
-        const info_Ids: Set<InfoID> = new Set<InfoID>();
-
-        knowledge.forEach(info => info_Ids.add(info.id));
-        this._knowledge = info_Ids;
-    }
-
     get activeAssignedQuests(): Quest[] {
         return this.db.retrieveModels(
             [...this._assignedQuests],

@@ -94,37 +94,33 @@ export class ConversationController extends BaseController {
 
     tellInfoInConversation(
         conversation: Conversation,
-        agent: Agent,
-    ): Info {
+        teller: Agent,
+        infoToTell: Info,
+    ): void {
         const agents: Agent[] = conversation.participants;
-        const info_to_be_told: Info = (agent.knowledge ?? [])[0];
-       
-        if (info_to_be_told) {
-            for (let other of agents) {
-                if (other !== agent) {
-                    let knownInfo = Actions.told({
-                        time: Date.now(),
-                        agent: agent,
-                        agentB: other,
-                        room: agent.room,
-                        info: info_to_be_told.getCopy()
-                    });
+        const mask = {}; // to-do
 
-                    this.giveInfoToAgents(knownInfo, [other]);
-                    this.disperseInfo(knownInfo, agent.room);
-                }
+        for (let other of agents) {
+            if (other !== teller) {
+                let toldInfo = Actions.told({
+                    time: Date.now(),
+                    agent: teller,
+                    agentB: other,
+                    room: teller.room,
+                    info: infoToTell.getMasterCopy()
+                });
+
+                this.giveInfoToAgents(infoToTell, [other]);
+                this.giveInfoToAgents(toldInfo, [teller, other]);
+
+                ConversationManipulator.addInfoToConversation(
+                    conversation,
+                    toldInfo,
+                );
+                //    this.disperseInfo(knownInfo, agent.room);
             }
+
+            this.updateChanges(other, [conversation])
         }
-        
-        ConversationManipulator.addInfoToConversation(
-            conversation,
-            info_to_be_told.getMasterCopy()
-        );
-
-        conversation.participants.forEach((participant) => {
-            this.updateChanges(participant, [conversation])
-        });
-
-        return info_to_be_told;
     }
 }

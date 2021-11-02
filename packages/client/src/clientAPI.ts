@@ -380,9 +380,9 @@ export class ClientAPI {
     /**
      * Tell info within a conversation.
      */
-    public static async tellInfo(conversation: Conversation) {
+    public static async tellInfo(infoID: number) {
         const res = await ClientAPI.sendWrapper("tell-info", {
-            conversation: conversation.id
+            infoID: infoID,
         });
         return res;
     }

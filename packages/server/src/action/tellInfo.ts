@@ -1,4 +1,4 @@
-import { Agent, Util, Conversation } from "@panoptyk/core/lib";
+import { Agent, Util, Information } from "@panoptyk/core/lib";
 import { Action } from "./action";
 import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
@@ -7,31 +7,52 @@ export const ActionTellInfo: Action = {
     name: "tell-info",
     formats: [
         {
-            conversationId: "number",
+            infoID: "number",
         },
     ],
     enact: (agent: Agent, inputData: any) => {
         const cc: ConversationController = new ConversationController();
-        const conversation: Conversation = Util.AppContext.db.retrieveModel(
-            inputData.conversationID,
-            Conversation
-        ) as Conversation;
+        const info = Util.AppContext.db.retrieveModel(
+            inputData.infoID, 
+            Information
+        );
 
-        cc.addAgentToConversation(conversation, agent);
-        const info = cc.tellInfoInConversation(conversation, agent);
+        cc.tellInfoInConversation(
+            agent.conversation,
+            agent,
+            info
+        );
 
         Util.logger.log(
-            "Event tell-info (" +
-                info + 
-                ") in conversation (" + 
-                conversation +
-                ")",
+            `Event tell-info ${info} from teller ${agent} 
+                on conversation ${agent.conversation}`,
             "ACTION"
         );
-        
+
         cc.sendUpdates();
     },
     validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+
+        const conversation = agent.conversation;
+
+        if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
+            return res;
+        }
+
+        const info = Util.AppContext.db.retrieveModel(
+            inputData.infoID, 
+            Information
+        );
+
+        if (!(res = Validate.ownsInfos(agent, [info])).success) {
+            return res;
+        }
+
         return Validate.ValidationSuccess;
     }
 };
