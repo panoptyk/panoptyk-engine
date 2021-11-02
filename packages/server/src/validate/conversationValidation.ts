@@ -107,3 +107,25 @@ export function hasAgent(
 
     return ValidationSuccess;
 }
+
+export function missingAgentInConversation(
+    conversation: Conversation
+): ValidationResult {
+    if (conversation === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undefined Inputs: conversation",
+        };
+    }
+
+    if (conversation.participants.length < 2) {
+        return {
+            success: false,
+            errorCode: ValidationError.ConversationMissingAgent,
+            message: "Conversation has less than two agent",
+        };
+    }
+
+    return ValidationSuccess;
+}

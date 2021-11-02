@@ -44,6 +44,10 @@ export const ActionTellInfo: Action = {
             return res;
         }
 
+        if (!(res = Validate.missingAgentInConversation(conversation)).success) {
+            return res;
+        }
+
         const info = Util.AppContext.db.retrieveModel(
             inputData.infoID, 
             Information
