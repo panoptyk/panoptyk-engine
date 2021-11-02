@@ -1,6 +1,6 @@
 # panoptyk-engine
 
-Massive Multiplayer Online Role Playing Game (MMORPG) engine built around information flow.
+Massive Multiplayer Online Role Playing Game (MMORPG) engine built around information flow
 
 ## Architecture 
 
