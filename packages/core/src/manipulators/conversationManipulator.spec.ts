@@ -157,15 +157,74 @@ describe("Conversation Manipulator", () => {
             ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
 
             assert.sameDeepMembers(conversation.infos, [info_to_be_told, another_info_to_be_told]);
-
-            context("Removes Info from Conversation", () => {
-                it("Removes One from Multiple", () => {
-                    ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
-
-                    assert.sameDeepMembers(conversation.infos, [another_info_to_be_told]);
-                });
-            });
         }); 
     });
-    
+    context("Removes Info from Conversation", () => {
+        it("Removes One from Multiple", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const info_to_be_told = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const another_info_to_be_told = new Information<TA>(
+                "test",
+                new PredicateTA({ time: 456, agent: agent2})
+            )
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
+
+            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
+
+            assert.sameDeepMembers(conversation.infos, [another_info_to_be_told]);
+        });
+        it("Removes Two from Multiple", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const info_to_be_told = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const another_info_to_be_told = new Information<TA>(
+                "test",
+                new PredicateTA({ time: 456, agent: agent2})
+            )
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
+
+            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversation(conversation, another_info_to_be_told);
+
+            assert.sameDeepMembers(conversation.infos, []);
+        });
+        it("Removes One from One", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const info_to_be_told = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+
+            db.storeModels([conversation, room, agent1, agent2]);
+            
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
+
+            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
+
+            assert.sameDeepMembers(conversation.infos, []);
+        })
+    });
+
 });
