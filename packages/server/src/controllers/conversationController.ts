@@ -65,6 +65,10 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedConversation(requester, agent);
         });
 
+        if (conversation.participants.length >=2 && conversation.startTime === -1) {
+            conversation._startTime = Date.now();
+        }
+
         conversation.room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, conversation]);
         });
@@ -87,6 +91,10 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedTrade(requesters, agent);
         });
 
+        if (conversation.participants.length < 2 && conversation.endTime === -1) {
+            conversation._endTime = Date.now();
+        }
+
         conversation.room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, conversation]);
         });
@@ -106,7 +114,7 @@ export class ConversationController extends BaseController {
                     time: Date.now(),
                     agent: teller,
                     agentB: other,
-                    room: teller.room,
+                    room: conversation.room,
                     info: infoToTell.getMasterCopy()
                 });
 

@@ -122,7 +122,7 @@ export function invalidConversation(
     if (conversation.participants.length < 2) {
         return {
             success: false,
-            errorCode: ValidationError.ConversationMissingAgent,
+            errorCode: ValidationError.InvalidConversation,
             message: "Invalid Conversation",
         };
     }

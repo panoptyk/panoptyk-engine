@@ -3,9 +3,6 @@ import { Conversation, Agent, Info } from "../models";
 export class ConversationManipulator {
     static addAgentToConversation(conversation: Conversation, agent: Agent) {
         conversation._participants.add(agent.id);
-        if (conversation.participants.length >= 2 && !conversation.startTime) {
-            conversation._startTime = new Date();
-        }
     }
 
     static removeAgentFromConversation(
@@ -13,9 +10,6 @@ export class ConversationManipulator {
         agent: Agent
     ) {
         conversation._participants.delete(agent.id);
-        if (conversation.participants.length < 2 && !conversation.endTime) {
-            conversation._endTime = new Date();
-        }
     }
 
     static addInfoToConversationLog(

@@ -25,12 +25,12 @@ export class Conversation extends BaseModel {
     get log(): Info[] {
         return this.db.retrieveModels([...this._log], Information);
     }
-    _startTime: Date;
-    get startTime(): Date {
+    _startTime: number;
+    get startTime(): number {
         return this._startTime;
     }
-    _endTime: Date;
-    get endTime(): Date {
+    _endTime: number;
+    get endTime(): number {
         return this._endTime;
     }
     displayName(): string {
@@ -49,8 +49,8 @@ export class Conversation extends BaseModel {
         this._room = room.id;
         this._participants = new Set<number>();
         this._log = new Set<InfoID>();
-        this._startTime = null;
-        this._endTime = null;
+        this._startTime = -1;
+        this._endTime = -1;
 
         logger.log("Conversation " + this + " Initialized.", "CONVO");
     }
