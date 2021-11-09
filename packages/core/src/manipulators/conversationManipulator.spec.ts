@@ -133,9 +133,9 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
 
-            assert.sameDeepMembers(conversation.infos, [info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [info_to_be_told]);
         });
         it("Multiple Times", () => {
             const agent1: Agent = new Agent("A1");
@@ -153,10 +153,10 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
 
-            assert.sameDeepMembers(conversation.infos, [info_to_be_told, another_info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [info_to_be_told, another_info_to_be_told]);
         }); 
     });
     context("Removes Info from Conversation", () => {
@@ -176,12 +176,12 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
 
-            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
 
-            assert.sameDeepMembers(conversation.infos, [another_info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [another_info_to_be_told]);
         });
         it("Removes Two from Multiple", () => {
             const agent1: Agent = new Agent("A1");
@@ -199,13 +199,13 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversation(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
 
-            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
-            ConversationManipulator.removeInfoFromConversation(conversation, another_info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, another_info_to_be_told);
 
-            assert.sameDeepMembers(conversation.infos, []);
+            assert.sameDeepMembers(conversation.log, []);
         });
         it("Removes One from One", () => {
             const agent1: Agent = new Agent("A1");
@@ -219,11 +219,11 @@ describe("Conversation Manipulator", () => {
             
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversation(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
 
-            ConversationManipulator.removeInfoFromConversation(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
 
-            assert.sameDeepMembers(conversation.infos, []);
+            assert.sameDeepMembers(conversation.log, []);
         })
     });
 

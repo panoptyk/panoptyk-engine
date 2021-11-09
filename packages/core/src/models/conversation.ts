@@ -21,9 +21,17 @@ export class Conversation extends BaseModel {
     get maxParticipants() {
         return this._maxParticipants;
     }
-    _infos: Set<InfoID>;
-    get infos(): Info[] {
-        return this.db.retrieveModels([...this._infos], Information);
+    _log: Set<InfoID>;
+    get log(): Info[] {
+        return this.db.retrieveModels([...this._log], Information);
+    }
+    _startTime: Date;
+    get startTime(): Date {
+        return this._startTime;
+    }
+    _endTime: Date;
+    get endTime(): Date {
+        return this._endTime;
     }
     displayName(): string {
         throw new Error("Method not implemented.");
@@ -40,7 +48,9 @@ export class Conversation extends BaseModel {
 
         this._room = room.id;
         this._participants = new Set<number>();
-        this._infos = new Set<InfoID>();
+        this._log = new Set<InfoID>();
+        this._startTime = null;
+        this._endTime = null;
 
         logger.log("Conversation " + this + " Initialized.", "CONVO");
     }

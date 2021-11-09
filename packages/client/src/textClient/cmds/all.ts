@@ -1,6 +1,7 @@
 import { ClientAPI } from "../../clientAPI";
 import { Agent, Room, Item } from "@panoptyk/core";
 import { TextClient } from "../tc";
+import e from "express";
 
 // Commands for developers (not "player readable")
 
@@ -178,10 +179,18 @@ export function drop(this: TextClient, items: string[]) {
 
 export function tellInfo(this: TextClient, infoIDs: string[]) {
     const player: Agent = ClientAPI.playerAgent;
-    let msg = "failed to tell info within the conversation";
+    let msg = "TellInfo: failed to tell info within the conversation";
 
-    ClientAPI.tellInfo(Number(infoIDs[0]));
-    msg = "info successfully told in the converstaion";
+    const infos = ClientAPI.playerAgent.knowledge;
+    const info = infos.find((info) => info.id === Number(infoIDs[0]));
 
+    if (info) {
+        ClientAPI.tellInfo(info);
+        msg = `TellInfo: info (${info}) successfully told in the converstaion`;
+    }
+    else {
+        msg = "TellInfo: current agent doesn't own the info specified";
+    }
+    
     this._result = msg;
 }

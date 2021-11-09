@@ -96,9 +96,9 @@ export class ConversationController extends BaseController {
         conversation: Conversation,
         teller: Agent,
         infoToTell: Info,
+        mask: string[] = []
     ): void {
         const agents: Agent[] = conversation.participants;
-        const mask = {}; // to-do
 
         for (let other of agents) {
             if (other !== teller) {
@@ -113,7 +113,7 @@ export class ConversationController extends BaseController {
                 this.giveInfoToAgents(infoToTell, [other]);
                 this.giveInfoToAgents(toldInfo, [teller, other]);
 
-                ConversationManipulator.addInfoToConversation(
+                ConversationManipulator.addInfoToConversationLog(
                     conversation,
                     toldInfo,
                 );

@@ -108,7 +108,7 @@ export function hasAgent(
     return ValidationSuccess;
 }
 
-export function missingAgentInConversation(
+export function invalidConversation(
     conversation: Conversation
 ): ValidationResult {
     if (conversation === undefined) {
@@ -123,7 +123,7 @@ export function missingAgentInConversation(
         return {
             success: false,
             errorCode: ValidationError.ConversationMissingAgent,
-            message: "Conversation has less than two agent",
+            message: "Invalid Conversation",
         };
     }
 
