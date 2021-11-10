@@ -1,10 +1,12 @@
 import {
     Agent,
     Item,
+    Info,
     ValidationResult,
     ValidationSuccess,
     ValidationError,
 } from "@panoptyk/core";
+import { info } from "console";
 
 /**
  * Validate agent owns list of items.
@@ -199,5 +201,35 @@ export function hasEnoughGold(agent: Agent, gold: number): ValidationResult {
             message: "You do not have enough gold!",
         };
     }
+    return ValidationSuccess;
+}
+
+export function ownsInfos(agent: Agent, infos: Info[]): ValidationResult {
+    if (agent === undefined || infos === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: ${agent === undefined ? " agent" : ""}
+                ${infos === undefined ? " infos" :  ""}`, 
+        };
+    }
+
+    for (const info of infos) {
+        if (info == undefined) {
+            return {
+                success: false,
+                errorCode: ValidationError.UndefinedInputs,
+                message: "Info list contains undefined infos",
+            };
+        }
+        if (!agent.hasInfo(info)) {
+            return {
+                success: false,
+                errorCode: ValidationError.AgentOwnership,
+                message: `Agent (${agent}) does not have info ${info}`,
+            };
+        }
+    }
+    
     return ValidationSuccess;
 }

@@ -378,12 +378,11 @@ export class ClientAPI {
     }
 
     /**
-     * Freely give an information item in a conversation.
+     * Tell info within a conversation.
      */
-    public static async tellInfo(info: Info, mask: string[] = []) {
+    public static async tellInfo(info: Info) {
         const res = await ClientAPI.sendWrapper("tell-info", {
-            infoID: info.id,
-            mask,
+            info: info.id,
         });
         return res;
     }

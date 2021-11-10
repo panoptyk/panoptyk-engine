@@ -7,6 +7,7 @@ import {
     AgentManipulator,
     RoomManipulator,
     Actions,
+    Info,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -64,6 +65,10 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedConversation(requester, agent);
         });
 
+        if (conversation.participants.length >=2 && conversation.startTime === -1) {
+            conversation._startTime = Date.now();
+        }
+
         conversation.room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, conversation]);
         });
@@ -86,8 +91,44 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedTrade(requesters, agent);
         });
 
+        if (conversation.participants.length < 2 && conversation.endTime === -1) {
+            conversation._endTime = Date.now();
+        }
+
         conversation.room.occupants.forEach((occupant) => {
             this.updateChanges(occupant, [agent, conversation]);
         });
+    }
+
+    tellInfoInConversation(
+        conversation: Conversation,
+        teller: Agent,
+        infoToTell: Info,
+        mask: string[] = []
+    ): void {
+        const agents: Agent[] = conversation.participants;
+
+        for (let other of agents) {
+            if (other !== teller) {
+                let toldInfo = Actions.told({
+                    time: Date.now(),
+                    agent: teller,
+                    agentB: other,
+                    room: conversation.room,
+                    info: infoToTell.getMasterCopy()
+                });
+
+                this.giveInfoToAgents(infoToTell, [other]);
+                this.giveInfoToAgents(toldInfo, [teller, other]);
+
+                ConversationManipulator.addInfoToConversationLog(
+                    conversation,
+                    toldInfo,
+                );
+                //    this.disperseInfo(knownInfo, agent.room);
+            }
+
+            this.updateChanges(other, [conversation])
+        }
     }
 }

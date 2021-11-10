@@ -107,3 +107,25 @@ export function hasAgent(
 
     return ValidationSuccess;
 }
+
+export function invalidConversation(
+    conversation: Conversation
+): ValidationResult {
+    if (conversation === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: "Undefined Inputs: conversation",
+        };
+    }
+
+    if (conversation.participants.length < 2) {
+        return {
+            success: false,
+            errorCode: ValidationError.InvalidConversation,
+            message: "Invalid Conversation",
+        };
+    }
+
+    return ValidationSuccess;
+}

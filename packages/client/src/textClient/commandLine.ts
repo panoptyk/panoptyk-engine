@@ -57,6 +57,7 @@ tc.addCommand("leaveConvo", [0], cmds.leaveConvo);
 tc.addCommand("look", [], cmds.look);
 tc.addCommand("pickup", [], cmds.pickUp);
 tc.addCommand("drop", [], cmds.drop);
+tc.addCommand("tellInfo", [1], cmds.tellInfo);
 
 function Prompt(promt: string, tc: TextClient) {
     // wait till logged in:
