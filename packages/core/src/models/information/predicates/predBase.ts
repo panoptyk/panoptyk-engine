@@ -58,7 +58,7 @@ export abstract class PredicateBase implements IModel, IPredicate {
         let json: any = Object.assign({}, this._terms);
         delete json.db;
         if (forClient) {
-            if (context.mask) {
+            if (context?.mask) {
                 json = PredicateBase.replaceTerms(json, context.mask);
             }
         }

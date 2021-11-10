@@ -185,6 +185,6 @@ export class BaseController {
             }
         }
         // register info as change
-        this.updateChanges(agent, [existingCopy]);
+        this.updateChanges(agent, [agent, existingCopy]);
     }
 }
