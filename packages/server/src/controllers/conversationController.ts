@@ -131,4 +131,39 @@ export class ConversationController extends BaseController {
             this.updateChanges(other, [conversation])
         }
     }
+
+    askQuestionInConversation(
+        conversation: Conversation,
+        questioner: Agent,
+        question: Info
+    ): void {
+        const agents: Agent[] = conversation.participants;
+
+        for (let other of agents) {
+            if (other !== questioner) {
+                let askedQuestion = Actions.asked({
+                    time: Date.now(),
+                    agent: questioner,
+                    agentB: other,
+                    room: conversation.room,
+                    info: question.getMasterCopy()
+                });
+
+                this.giveInfoToAgents(question, [other]);
+                this.giveInfoToAgents(askedQuestion, [questioner, other]);
+
+                ConversationManipulator.addInfoToConversationLog(
+                    conversation,
+                    askedQuestion,
+                );
+
+                ConversationManipulator.addQuestionToAskedQuestions(
+                    conversation,
+                    question,
+                );
+            }
+
+            this.updateChanges(other, [conversation]);
+        }
+    }
 }

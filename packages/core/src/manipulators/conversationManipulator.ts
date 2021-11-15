@@ -25,4 +25,18 @@ export class ConversationManipulator {
     ) {
         conversation._log.delete(info.id);
     }
+
+    static addQuestionToAskedQuestions(
+        conversation: Conversation,
+        question: Info
+    ) {
+        conversation._askedQuestions.add(question.id);
+    }
+
+    static removeQuestionFromAskedQuestions(
+        conversation: Conversation,
+        question: Info
+    ) {
+        conversation._askedQuestions.delete(question.id);
+    }
 }

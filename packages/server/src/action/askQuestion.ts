@@ -1,3 +1,67 @@
+import { Agent, Util, Information } from "@panoptyk/core/lib";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { ConversationController } from "../controllers";
+
+export const ActionTellInfo: Action = {
+    name: "ask-question",
+    formats: [
+        {
+            questionID: "number",
+        },
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const cc: ConversationController = new ConversationController();
+        const question = Util.AppContext.db.retrieveModel(
+            inputData.questionID,
+            Information
+        );
+
+        cc.askQuestionInConversation(
+            agent.conversation,
+            agent,
+            question
+        );
+
+        Util.logger.log(
+            `Event ask-question ${question} from questioner ${agent}
+                on conversation ${agent.conversation}`,
+            "ACTION"
+        );
+
+        cc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+
+        const conversation = agent.conversation;
+
+        if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.hasAgent(conversation, agent)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.invalidConversation(conversation)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+};
+
+
+
+
+
+
+
 // import { Action } from "./action";
 // import { logger } from "../utilities/logger";
 // import { Validate } from "./validate";
