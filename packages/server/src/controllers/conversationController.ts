@@ -8,6 +8,7 @@ import {
     RoomManipulator,
     Actions,
     Info,
+    Query,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -132,24 +133,20 @@ export class ConversationController extends BaseController {
         }
     }
 
-    askQuestionInConversation(
+    askQuestionInConversation(   
         conversation: Conversation,
         questioner: Agent,
-        question: Info
+        predicate: string,
+        question: object
     ): void {
         const agents: Agent[] = conversation.participants;
 
         for (let other of agents) {
             if (other !== questioner) {
-                let askedQuestion = Actions.asked({
-                    time: Date.now(),
-                    agent: questioner,
-                    agentB: other,
-                    room: conversation.room,
-                    info: question.getMasterCopy()
+                let askedQuestion = Query[predicate]({
+                    ...question
                 });
 
-                this.giveInfoToAgents(question, [other]);
                 this.giveInfoToAgents(askedQuestion, [questioner, other]);
 
                 ConversationManipulator.addInfoToConversationLog(
@@ -159,7 +156,7 @@ export class ConversationController extends BaseController {
 
                 ConversationManipulator.addQuestionToAskedQuestions(
                     conversation,
-                    question,
+                    askedQuestion,
                 );
             }
 

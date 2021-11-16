@@ -7,7 +7,8 @@ export const ActionTellInfo: Action = {
     name: "ask-question",
     formats: [
         {
-            questionID: "number",
+            predicate: "string",
+            question: "object",
         },
     ],
     enact: (agent: Agent, inputData: any) => {
@@ -20,6 +21,7 @@ export const ActionTellInfo: Action = {
         cc.askQuestionInConversation(
             agent.conversation,
             agent,
+            inputData.predicate,
             question
         );
 
@@ -49,6 +51,10 @@ export const ActionTellInfo: Action = {
         }
 
         if (!(res = Validate.invalidConversation(conversation)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.invalidQuestion(inputData.prediate)).success) {
             return res;
         }
 

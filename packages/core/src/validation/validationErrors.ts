@@ -24,6 +24,7 @@ export const ValidationError = Object.freeze({
     ConversationFull: 501 as 501,
     ConversationMissingAgent: 502 as 502,
     InvalidConversation: 503 as 503,
+    InvalidQuestion: 504 as 504,
     CraftingAgentMissingResource: 600 as 600,
     CraftingAgentInsufficientResource: 601 as 601,
 });
