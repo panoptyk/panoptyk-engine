@@ -5,9 +5,8 @@ import {
     ValidationResult,
     ValidationSuccess,
     ValidationError,
-    Query,
+    Predicates,
 } from "@panoptyk/core";
-import { aNames } from "@panoptyk/core/lib/models/information";
 
 /**
  * Check if a conversation is in given room.
@@ -135,7 +134,7 @@ export function invalidConversation(
 export function invalidQuestion(
     predicate: string
 ): ValidationResult {
-    if (!(predicate in aNames)) {
+    if (!(predicate in Predicates)) {
         return {
             success: false,
             errorCode: ValidationError.InvalidQuestion,
