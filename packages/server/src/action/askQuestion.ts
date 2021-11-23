@@ -1,4 +1,4 @@
-import { Agent, Util, Information } from "@panoptyk/core/lib";
+import { Agent, Util, Information, Query, Info } from "@panoptyk/core/lib";
 import { Action } from "./action";
 import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
@@ -7,15 +7,15 @@ export const ActionTellInfo: Action = {
     name: "ask-question",
     formats: [
         {
-            questionID: "number",
+            question: "object",
+            action: "string",
         },
     ],
     enact: (agent: Agent, inputData: any) => {
         const cc: ConversationController = new ConversationController();
-        const question = Util.AppContext.db.retrieveModel(
-            inputData.questionID,
-            Information
-        );
+
+        const terms = (inputData.question as Info).getQueryTerms();
+        const question = Query[inputData.action](terms);
 
         cc.askQuestionInConversation(
             agent.conversation,

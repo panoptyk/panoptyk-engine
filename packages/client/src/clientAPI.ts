@@ -341,10 +341,12 @@ export class ClientAPI {
      * Ask a question in current conversation.
      */
     public static async askQuestion(
-        question: Info
+        question: any,
+        action: string
     ) {
         const res = await ClientAPI.sendWrapper("ask-question", {
-            questionID: question.id
+            question,
+            action
         });
         return res;
     }

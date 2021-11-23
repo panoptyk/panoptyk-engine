@@ -5,7 +5,7 @@ import {
     ValidationResult,
     ValidationSuccess,
     ValidationError,
-    Predicates,
+    Info,
 } from "@panoptyk/core";
 
 /**
@@ -132,9 +132,9 @@ export function invalidConversation(
 }
 
 export function invalidQuestion(
-    predicate: string
+    question: Info
 ): ValidationResult {
-    if (!(predicate in Predicates)) {
+    if (!question.isQuery) {
         return {
             success: false,
             errorCode: ValidationError.InvalidQuestion,
