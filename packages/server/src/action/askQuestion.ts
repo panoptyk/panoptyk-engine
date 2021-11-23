@@ -3,7 +3,7 @@ import { Action } from "./action";
 import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
 
-export const ActionTellInfo: Action = {
+export const ActionAskQuestion: Action = {
     name: "ask-question",
     formats: [
         {
