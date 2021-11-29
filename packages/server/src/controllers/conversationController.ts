@@ -35,7 +35,7 @@ export class ConversationController extends BaseController {
         this.addAgentToConversation(conversation, agent2);
 
         room.occupants.forEach((occupant) => {
-            this.updateChanges(occupant, [room]);
+            this.updateChanges(occupant, [room, conversation]);
         });
 
         // Give info
@@ -52,7 +52,7 @@ export class ConversationController extends BaseController {
     }
 
     addAgentToConversation(conversation: Conversation, agent: Agent): void {
-        if (!agent.conversation.equals(conversation)) {
+        if (agent.conversation && !agent.conversation.equals(conversation)) {
             this.removeAgentFromConversation(agent.conversation, agent);
         }
 

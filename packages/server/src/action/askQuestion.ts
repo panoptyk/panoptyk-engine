@@ -13,8 +13,7 @@ export const ActionAskQuestion: Action = {
     ],
     enact: (agent: Agent, inputData: any) => {
         const cc: ConversationController = new ConversationController();
-
-        const terms = (inputData.question as Info).getQueryTerms();
+        const terms = inputData.question;
         const question = Query[inputData.action](terms);
 
         cc.askQuestionInConversation(
