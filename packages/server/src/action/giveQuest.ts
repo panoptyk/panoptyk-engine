@@ -1,3 +1,59 @@
+import { Action } from "./action";
+import { QuestController } from "../controllers";
+import * as Validate from "../validate";
+import { Agent, Util, Query } from "@panoptyk/core/lib";
+
+export const ActionGiveQuest: Action = {
+    name: "give-quest",
+    formats: [
+        {
+            giverID: "number",
+            receiverID: "number",
+            deadline: "number",
+            task: "object",
+            action: "string"
+        },
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const qc: QuestController = new QuestController();
+        const terms = inputData.task;
+        const task = Query[inputData.action](terms);
+        const deadline = inputData.deadline;
+        const giver = Util.AppContext.db.retrieveModel(
+            inputData.giverID,
+            Agent
+        );
+        const receiver = Util.AppContext.db.retrieveModel(
+            inputData.receiverID,
+            Agent
+        );
+
+        const quest = qc.createQuest(giver, receiver, task, deadline);
+
+        Util.logger.log(
+            `Event give-quest ${quest} from giver ${giver}
+                to receiver ${receiver} with deadline ${deadline}`,
+            "ACTION"
+        );
+
+        qc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+}
+
+
+
+
+
+
 // import { Action } from "./action";
 // import { logger } from "../utilities/logger";
 // import { Validate } from "./validate";

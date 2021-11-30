@@ -427,6 +427,22 @@ export class ClientAPI {
      * @param deadline OPTIONAL deadline of 0 counts as no deadline
      */
     public static async giveQuest(
+        giver: Agent,
+        receiver: Agent,
+        task: any,
+        action: string,
+        deadline = 0
+    ) {
+        const res = await ClientAPI.sendWrapper("give-quest", {
+            giverID: giver.id,
+            receiver: receiver.id,
+            task: task,
+            action: action,
+            deadline: deadline
+        });
+        return res;
+    }
+/*    public static async giveQuest(
         toAgent: Agent,
         query: object,
         isQuestion: boolean,
@@ -439,7 +455,7 @@ export class ClientAPI {
             deadline,
         });
         return res;
-    }
+    } */
 
     /**
      * Quest giver marks quest as complete
@@ -470,13 +486,24 @@ export class ClientAPI {
      * @param quest
      * @param solution
      */
+    public static async turnInQuestInfo(
+        quest: Quest,
+        solution: Info
+    ) {
+        const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
+            questID: quest.id,
+            solutionID: solution.id
+        });
+        return res;
+    }
+    /* 
     public static async turnInQuestInfo(quest: Quest, solution: Info) {
         const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
             solutionID: solution.id,
             questID: quest.id,
         });
         return res;
-    }
+    } */
 
     /**
      * Reject conversation request from targetAgent
