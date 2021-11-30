@@ -5,6 +5,7 @@ import {
     ValidationResult,
     ValidationSuccess,
     ValidationError,
+    Info,
 } from "@panoptyk/core";
 
 /**
@@ -124,6 +125,20 @@ export function invalidConversation(
             success: false,
             errorCode: ValidationError.InvalidConversation,
             message: "Invalid Conversation",
+        };
+    }
+
+    return ValidationSuccess;
+}
+
+export function invalidQuestion(
+    question: Info
+): ValidationResult {
+    if (!question.isQuery) {
+        return {
+            success: false,
+            errorCode: ValidationError.InvalidQuestion,
+            message: "Invalid question",
         };
     }
 

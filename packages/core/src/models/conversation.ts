@@ -33,6 +33,10 @@ export class Conversation extends BaseModel {
     get endTime(): number {
         return this._endTime;
     }
+    _askedQuestions: Set<InfoID>;
+    get askedQuestions(): Info[] {
+        return this.db.retrieveModels([...this._askedQuestions], Information);
+    }
     displayName(): string {
         throw new Error("Method not implemented.");
     }
@@ -46,9 +50,10 @@ export class Conversation extends BaseModel {
     constructor(room: Room, id?: number, db?: IDatabase) {
         super(id, db);
 
-        this._room = room.id;
+        this._room = room?.id;
         this._participants = new Set<number>();
         this._log = new Set<InfoID>();
+        this._askedQuestions = new Set<InfoID>();
         this._startTime = -1;
         this._endTime = -1;
 

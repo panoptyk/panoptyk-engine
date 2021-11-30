@@ -124,7 +124,7 @@ describe("Conversation Manipulator", () => {
         it("Once", () => {
             const agent1: Agent = new Agent("A1");
             const agent2: Agent = new Agent("A2");
-            const info_to_be_told = new Information<T>(
+            const infoToBeTold = new Information<T>(
                 "test",
                 new PredicateT({ time: 123 })
             );
@@ -133,18 +133,18 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, infoToBeTold);
 
-            assert.sameDeepMembers(conversation.log, [info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [infoToBeTold]);
         });
         it("Multiple Times", () => {
             const agent1: Agent = new Agent("A1");
             const agent2: Agent = new Agent("A2");
-            const info_to_be_told = new Information<T>(
+            const infoToBeTold = new Information<T>(
                 "test",
                 new PredicateT({ time: 123 })
             );
-            const another_info_to_be_told = new Information<TA>(
+            const anotherInfoToBeTold = new Information<TA>(
                 "test",
                 new PredicateTA({ time: 456, agent: agent2})
             )
@@ -153,21 +153,21 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, infoToBeTold);
+            ConversationManipulator.addInfoToConversationLog(conversation, anotherInfoToBeTold);
 
-            assert.sameDeepMembers(conversation.log, [info_to_be_told, another_info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [infoToBeTold, anotherInfoToBeTold]);
         }); 
     });
     context("Removes Info from Conversation", () => {
         it("Removes One from Multiple", () => {
             const agent1: Agent = new Agent("A1");
             const agent2: Agent = new Agent("A2");
-            const info_to_be_told = new Information<T>(
+            const infoToBeTold = new Information<T>(
                 "test",
                 new PredicateT({ time: 123 })
             );
-            const another_info_to_be_told = new Information<TA>(
+            const anotherInfoToBeTold = new Information<TA>(
                 "test",
                 new PredicateTA({ time: 456, agent: agent2})
             )
@@ -176,21 +176,21 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, infoToBeTold);
+            ConversationManipulator.addInfoToConversationLog(conversation, anotherInfoToBeTold);
 
-            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, infoToBeTold);
 
-            assert.sameDeepMembers(conversation.log, [another_info_to_be_told]);
+            assert.sameDeepMembers(conversation.log, [anotherInfoToBeTold]);
         });
         it("Removes Two from Multiple", () => {
             const agent1: Agent = new Agent("A1");
             const agent2: Agent = new Agent("A2");
-            const info_to_be_told = new Information<T>(
+            const infoToBeTold = new Information<T>(
                 "test",
                 new PredicateT({ time: 123 })
             );
-            const another_info_to_be_told = new Information<TA>(
+            const anotherInfoToBeTold = new Information<TA>(
                 "test",
                 new PredicateTA({ time: 456, agent: agent2})
             )
@@ -199,18 +199,18 @@ describe("Conversation Manipulator", () => {
 
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
-            ConversationManipulator.addInfoToConversationLog(conversation, another_info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, infoToBeTold);
+            ConversationManipulator.addInfoToConversationLog(conversation, anotherInfoToBeTold);
 
-            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
-            ConversationManipulator.removeInfoFromConversationLog(conversation, another_info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, infoToBeTold);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, anotherInfoToBeTold);
 
             assert.sameDeepMembers(conversation.log, []);
         });
         it("Removes One from One", () => {
             const agent1: Agent = new Agent("A1");
             const agent2: Agent = new Agent("A2");
-            const info_to_be_told = new Information<T>(
+            const infoToBeTold = new Information<T>(
                 "test",
                 new PredicateT({ time: 123 })
             );
@@ -219,11 +219,118 @@ describe("Conversation Manipulator", () => {
             
             ConversationManipulator.addAgentToConversation(conversation, agent1);
             ConversationManipulator.addAgentToConversation(conversation, agent2);
-            ConversationManipulator.addInfoToConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.addInfoToConversationLog(conversation, infoToBeTold);
 
-            ConversationManipulator.removeInfoFromConversationLog(conversation, info_to_be_told);
+            ConversationManipulator.removeInfoFromConversationLog(conversation, infoToBeTold);
 
             assert.sameDeepMembers(conversation.log, []);
+        })
+    });
+    context("Adds question to Conversation", () => {
+        it("Once", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const question = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, question);
+    
+            assert.sameDeepMembers(conversation.askedQuestions, [question]);
+        });
+        it("Multiple Times", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const question = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const anotherQuestion = new Information<TA>(
+                "test",
+                new PredicateTA({ time: 456, agent: agent2})
+            )
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, question);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation,
+            anotherQuestion);
+
+            assert.sameDeepMembers(conversation.askedQuestions, [question, anotherQuestion]);
+        }); 
+    });
+    context("Removes Questions from Conversation", () => {
+        it("Removes One from Multiple", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const question = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const anotherQuestion = new Information<TA>(
+                "test",
+                new PredicateTA({ time: 456, agent: agent2})
+            )
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, question);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, anotherQuestion);
+
+            ConversationManipulator.removeQuestionFromAskedQuestions(conversation, question);
+
+            assert.sameDeepMembers(conversation.askedQuestions, [anotherQuestion]);
+        });
+        it("Removes Two from Multiple", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const question = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const anotherQuestion = new Information<TA>(
+                "test",
+                new PredicateTA({ time: 456, agent: agent2})
+            )
+
+            db.storeModels([conversation, room, agent1, agent2]);
+
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, question);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, anotherQuestion);
+
+            ConversationManipulator.removeQuestionFromAskedQuestions(conversation, question);
+            ConversationManipulator.removeQuestionFromAskedQuestions(conversation, anotherQuestion);
+
+            assert.sameDeepMembers(conversation.askedQuestions, []);
+        });
+        it("Removes One from One", () => {
+            const agent1: Agent = new Agent("A1");
+            const agent2: Agent = new Agent("A2");
+            const question = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+
+            db.storeModels([conversation, room, agent1, agent2]);
+            
+            ConversationManipulator.addAgentToConversation(conversation, agent1);
+            ConversationManipulator.addAgentToConversation(conversation, agent2);
+            ConversationManipulator.addQuestionToAskedQuestions(conversation, question);
+
+            ConversationManipulator.removeQuestionFromAskedQuestions(conversation, question);
+
+            assert.sameDeepMembers(conversation.askedQuestions, []);
         })
     });
 

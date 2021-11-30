@@ -8,6 +8,7 @@ import {
     RoomManipulator,
     Actions,
     Info,
+    Query,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -34,7 +35,7 @@ export class ConversationController extends BaseController {
         this.addAgentToConversation(conversation, agent2);
 
         room.occupants.forEach((occupant) => {
-            this.updateChanges(occupant, [room]);
+            this.updateChanges(occupant, [room, conversation]);
         });
 
         // Give info
@@ -51,7 +52,7 @@ export class ConversationController extends BaseController {
     }
 
     addAgentToConversation(conversation: Conversation, agent: Agent): void {
-        if (!agent.conversation.equals(conversation)) {
+        if (agent.conversation && !agent.conversation.equals(conversation)) {
             this.removeAgentFromConversation(agent.conversation, agent);
         }
 
@@ -129,6 +130,42 @@ export class ConversationController extends BaseController {
             }
 
             this.updateChanges(other, [conversation])
+        }
+    }
+
+    askQuestionInConversation(   
+        conversation: Conversation,
+        questioner: Agent,
+        question: Info,
+        mask: string[] = []
+    ): void {
+        const agents: Agent[] = conversation.participants;
+
+        for (let other of agents) {
+            if (other !== questioner) {
+                let askedQuestion = Actions.asked({
+                    time: Date.now(),
+                    agent: questioner,
+                    agentB: other,
+                    room: conversation.room,
+                    info: question
+                });
+
+                this.giveInfoToAgents(question, [other]);
+                this.giveInfoToAgents(askedQuestion, [questioner, other]);
+
+                ConversationManipulator.addInfoToConversationLog(
+                    conversation,
+                    askedQuestion,
+                );
+                ConversationManipulator.addQuestionToAskedQuestions(
+                    conversation,
+                    askedQuestion,
+                );
+                
+            }
+
+            this.updateChanges(other, [conversation]);
         }
     }
 }

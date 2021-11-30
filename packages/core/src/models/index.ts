@@ -7,4 +7,5 @@ export { Trade } from "./trade";
 export { Quest } from "./quest";
 export { Faction } from "./faction";
 export { Recipe } from "./recipe";
+export { aNames as Predicates } from "./information";
 export * from "./Imodel";

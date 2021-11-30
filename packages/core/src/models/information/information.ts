@@ -188,6 +188,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         | query<P>
     ) {
         const master = this.getMasterCopy();
+
         if (this.isQuery()) {
             return master.getQueryTerms();
         }
