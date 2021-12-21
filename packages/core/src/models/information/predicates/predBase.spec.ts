@@ -10,10 +10,12 @@ import { TA, PredicateTA } from "./predTA";
 import { TAA, PredicateTAA } from "./predTAA";
 import { TAAR, PredicateTAAR } from "./predTAAR";
 import { TAARK, PredicateTAARK } from "./predTAARK";
+import { TAARQ, PredicateTAARQ } from "./predTAARQ";
 import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
 import { Information } from "../information";
+import { Quest } from "../../quest";
 
 describe("PredicateBase", () => {
     let db: MemoryDatabase;
@@ -167,6 +169,47 @@ describe("PredicateBase", () => {
             assert.deepEqual(pred1.getTerms(metaData), termsM);
             assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
         });
+        it("PredicateTAARQ", () => {
+            const room = new Room("rA", 1);
+            const agentB = new Agent("B");
+            const infoA = new Information<T>(
+                "test",
+                new PredicateT({ time: 123 })
+            );
+            const quest = new Quest(agent, agentB, infoA, "ACTIVE", 123);
+            const terms: TAARQ = {
+                time: 123,
+                agent,
+                agentB,
+                room,
+                quest,
+            };
+            const termsM: masked<TAARQ> = {
+                time: MASKED,
+                agent: MASKED,
+                agentB: MASKED,
+                room: MASKED,
+                quest: MASKED,
+            };
+            const termsQ: query<TAARQ> = {
+                time: QUERY,
+                agent: QUERY,
+                agentB: QUERY,
+                room: QUERY,
+                quest: QUERY,
+            };
+            const pred1 = new PredicateTAARQ(terms);
+            const metaData: metadata<TAARQ> = {
+                time: true,
+                agent: true,
+                agentB: true,
+                room: true,
+                quest: true,
+            };
+            assert.deepEqual(pred1.getTerms(), terms);
+            assert.deepEqual(pred1.getTerms(metaData), termsM);
+            assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+        }),
         it("PredicateTAR", () => {
             const room = new Room("rA", 1);
             const terms: TAR = { time: 123, agent, room };

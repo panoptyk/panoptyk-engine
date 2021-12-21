@@ -4,6 +4,7 @@ import {
     TAA,
     TAAR,
     TAARK,
+    TAARQ,
     TAR,
     TARI,
     TARR,
@@ -12,6 +13,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
     PredicateTARR,
@@ -49,6 +51,7 @@ export const aNames = {
     DROPPED: "dropped",
     ASKED: "asked",
     TOLD: "told",
+    QUEST: "quest",
 };
 
 export const Actions = {
@@ -96,6 +99,14 @@ export const Actions = {
         return new Information<TARI>(
             aNames.DROPPED,
             new PredicateTARI(terms),
+            false,
+            owner
+        );
+    },
+    quest(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST,
+            new PredicateTAARQ(terms),
             false,
             owner
         );
@@ -195,4 +206,17 @@ export const Query = {
         });
         return query;
     },
+    quest(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    }
 };

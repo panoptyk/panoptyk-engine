@@ -2,13 +2,14 @@ import { assert, expect } from "chai";
 import "mocha";
 import AppContext from "../../utilities/AppContext";
 import { MemoryDatabase } from "../../database/MemoryDatabase";
-import { Agent, Item, Room } from "..";
+import { Agent, Item, Quest, Room } from "..";
 import {
     T,
     TA,
     TAA,
     TAAR,
     TAARK,
+    TAARQ,
     TAR,
     TARI,
     TARR,
@@ -17,6 +18,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
     PredicateTARR,
@@ -132,6 +134,7 @@ describe("Information Model", () => {
                 "test",
                 new PredicateT({ time: 123 })
             );
+            const quest = new Quest(agentA, agentB, infoA, "ACTIVE", 123);
             const infos: { [key: string]: Information<PredicateTerms> } = {
                 infoT: new Information<T>(
                     "test",
@@ -162,6 +165,16 @@ describe("Information Model", () => {
                         agentB,
                         room: roomA,
                         info: infoA,
+                    })
+                ),
+                infoTAARQ: new Information<TAARQ>(
+                    "test",
+                    new PredicateTAARQ({
+                        time: 123,
+                        agent: agentA,
+                        agentB,
+                        room: roomA,
+                        quest,
                     })
                 ),
                 infoTAR: new Information<TAR>(

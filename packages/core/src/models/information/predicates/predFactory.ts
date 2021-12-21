@@ -7,6 +7,7 @@ import { TAARK, PredicateTAARK } from "./predTAARK";
 import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
+import { TAARQ, PredicateTAARQ } from "./predTAARQ";
 
 export const PredicateFactory: {
     [key: string]: (terms: any) => PredicateBase;
@@ -25,6 +26,9 @@ export const PredicateFactory: {
     },
     TAARK(terms) {
         return new PredicateTAARK(terms);
+    },
+    TAARQ(terms) {
+        return new PredicateTAARQ(terms);
     },
     TAR(terms) {
         return new PredicateTAR(terms);
