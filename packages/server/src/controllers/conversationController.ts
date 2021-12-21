@@ -8,7 +8,7 @@ import {
     RoomManipulator,
     Actions,
     Info,
-    Query,
+    Quest,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -167,5 +167,85 @@ export class ConversationController extends BaseController {
 
             this.updateChanges(other, [conversation]);
         }
+    }
+
+    createQuestInConversation (
+        conversation: Conversation,
+        questGiver: Agent,
+        questReceiver: Agent,
+        task: Info,
+        deadline: number
+    ): Quest {
+        const quest: Quest = new Quest(questGiver, questReceiver, task, "ACTIVE", deadline);
+        const agents: Agent[] = conversation.participants;
+
+        AgentManipulator.giveQuest(questGiver, quest);
+        AgentManipulator.addQuest(questReceiver, quest);
+
+        this.updateChanges(questGiver, [quest, questGiver]);
+        this.updateChanges(questReceiver, [quest, questReceiver]);
+
+        let questCreated = Actions.quest({
+            time: Date.now(),
+            agent: questGiver,
+            agentB: questReceiver,
+            room: conversation.room,
+            quest: quest
+        });
+
+        for (let agent of agents) {
+            this.giveInfoToAgent(questCreated, agent);
+
+            ConversationManipulator.addInfoToConversationLog(
+                conversation,
+                questCreated,
+            );
+
+            this.updateChanges(agent, [conversation]);
+        }
+
+        return quest;
+    }
+
+    turnInQuest(
+        conversation: Conversation,
+        quest: Quest,
+        answer: Info,
+        agent: Agent
+    ): boolean {
+        const isAnswer = quest.isQuestCompleted(answer);
+        const agents: Agent[] = conversation.participants;
+
+        if (isAnswer) {
+            quest.turnInQuest("Succeed");
+            AgentManipulator.turnInQuest(agent, quest);
+        }
+        else {
+            quest.turnInQuest("Failed");
+        }
+        
+        this.updateChanges(quest.giver, [quest, quest.giver]);
+        this.updateChanges(quest.receiver, [quest, quest.receiver]);
+
+        let questCreated = Actions.quest({
+            time: Date.now(),
+            agent: quest.giver,
+            agentB: quest.receiver,
+            room: conversation.room,
+            quest: quest
+        });
+
+        for (let agent of agents) {
+            this.giveInfoToAgent(questCreated, agent);
+
+            ConversationManipulator.addInfoToConversationLog(
+                conversation,
+                questCreated,
+            );
+
+            this.updateChanges(agent, [conversation]);
+        }
+
+        return isAnswer;
     }
 }

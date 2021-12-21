@@ -1,7 +1,7 @@
 import { Action } from "./action";
-import { QuestController } from "../controllers";
 import * as Validate from "../validate";
 import { Agent, Util, Quest, Information } from "@panoptyk/core/lib";
+import { ConversationController } from "../controllers";
 
 export const ActionTurnInQuestInfo: Action = {
     name: "turn-in-quest-info",
@@ -12,7 +12,7 @@ export const ActionTurnInQuestInfo: Action = {
         },
     ],
     enact: (agent: Agent, inputData: any) => {
-        const qc: QuestController = new QuestController();
+        const cc: ConversationController = new ConversationController();
         const quest = Util.AppContext.db.retrieveModel(
             inputData.questID,
             Quest
@@ -22,7 +22,7 @@ export const ActionTurnInQuestInfo: Action = {
             Information
         );
 
-        const result = qc.turnInQuest(quest, answer);
+        const result = cc.turnInQuest(agent.conversation, quest, answer, agent);
 
         Util.logger.log(
             `Event turn-in-quest-info ${answer}
@@ -30,12 +30,26 @@ export const ActionTurnInQuestInfo: Action = {
             "ACTION"
         );
 
-        qc.sendUpdates();
+        cc.sendUpdates();
     },
     validate: (agent: Agent, socket: any, inputData: any) => {
         let res;
 
         if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+
+        const conversation = agent.conversation;
+
+        if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.hasAgent(conversation, agent)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.invalidConversation(conversation)).success) {
             return res;
         }
 

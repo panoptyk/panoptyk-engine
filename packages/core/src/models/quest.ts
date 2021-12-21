@@ -2,7 +2,7 @@ import { BaseModel } from "./Imodel";
 import { IDatabase } from "../database/IDatabase";
 import { logger } from "../utilities";
 import { Agent } from "./agent";
-import { Info } from "./information";
+import { Info, Information } from "./information";
 
 export class Quest extends BaseModel {
     displayName(): string {
@@ -20,7 +20,27 @@ export class Quest extends BaseModel {
     }
 
     get task(): Info {
-        return this._task;
+        return this.db.retrieveModel(this._task, Information);
+    }
+
+    set task(task: Info) {
+        this._task = task ? task.id : -1;
+    }
+
+    get giver(): Agent {
+        return this.db.retrieveModel(this._giver, Agent);
+    }
+
+    set giver(giver: Agent) {
+        this._giver = giver ? giver.id : -1;
+    }
+
+    get receiver(): Agent {
+        return this.db.retrieveModel(this._receiver, Agent);
+    }
+
+    set receiver(receiver: Agent) {
+        this._receiver = receiver ? receiver.id : -1;
     }
 
     isActive(time: number): boolean {
@@ -31,9 +51,9 @@ export class Quest extends BaseModel {
         this._status = status;
     }
 
-    _giver: Agent;
-    _receiver: Agent;
-    _task: Info;
+    _giver: number;
+    _receiver: number;
+    _task: InfoID;
     _status: string;
     _deadline: number;
     _creationTime: number;
@@ -49,14 +69,20 @@ export class Quest extends BaseModel {
     ) {
         super(id, db);
 
-        this._giver = questGiver;
-        this._receiver = questReceiver;
-        this._task = task;
+        this.giver = questGiver;
+        this.receiver = questReceiver;
+        this.task = task;
         this._status = status;
         this._deadline = deadline;
         this._creationTime = Date.now();
 
         logger.log("Quest " + this + " Initialized", "QUEST");
+    }
+
+    isQuestCompleted(answer: Info): boolean {
+        let task: Info = this.task;
+
+        return task.isAnswer(answer);
     }
 
     toJSON(forClient: boolean, context: any): object {

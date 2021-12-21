@@ -429,16 +429,15 @@ export class ClientAPI {
     public static async giveQuest(
         giver: Agent,
         receiver: Agent,
-        task: any,
+        taskID: any,
         action: string,
-        deadline = 0
+        deadline = 0,
     ) {
         const res = await ClientAPI.sendWrapper("give-quest", {
             giverID: giver.id,
-            receiver: receiver.id,
-            task: task,
-            action: action,
-            deadline: deadline
+            receiverID: receiver.id,
+            task: taskID,
+            deadline: deadline,
         });
         return res;
     }

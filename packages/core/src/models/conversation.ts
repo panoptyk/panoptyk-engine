@@ -50,7 +50,7 @@ export class Conversation extends BaseModel {
     constructor(room: Room, id?: number, db?: IDatabase) {
         super(id, db);
 
-        this._room = room?.id;
+        this.room = room;
         this._participants = new Set<number>();
         this._log = new Set<InfoID>();
         this._askedQuestions = new Set<InfoID>();
