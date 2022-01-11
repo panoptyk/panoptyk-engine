@@ -140,6 +140,9 @@ export class ConversationController extends BaseController {
         mask: string[] = []
     ): void {
         const agents: Agent[] = conversation.participants;
+        
+        AgentManipulator.addQuestionAsked(questioner, question);
+        this.updateChanges(questioner, [questioner]);
 
         for (let other of agents) {
             if (other !== questioner) {

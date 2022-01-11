@@ -54,6 +54,13 @@ export class Agent extends BaseModel {
         this._conversation = conversation ? conversation.id : -1;
     }
 
+    get questionsAsked(): Info[] {
+        return this.db.retrieveModels(
+            [...this._questionsAsked],
+            Information
+        ) as Info[];
+    }
+
     /**
      * "Other" agents to this agent
      */
@@ -143,6 +150,8 @@ export class Agent extends BaseModel {
     _trade = -1;
     _tradeRequests: Set<TradeID>;
     _tradesRequested: Set<TradeID>;
+
+    _questionsAsked: Set<InfoID>
     //#endregion
 
     constructor(username: string, room?: Room, id?: number, db?: IDatabase) {
@@ -161,6 +170,7 @@ export class Agent extends BaseModel {
         this._givenQuests = new Set<number>();
         this._resources = new Map<string, number>();
         this._recipes = new Set<number>();
+        this._questionsAsked = new Set<number>();
 
         logger.log("Agent " + this + " Initialized.", "AGENT");
     }
@@ -225,5 +235,12 @@ export class Agent extends BaseModel {
 
     hasGold(gold: number): boolean {
         return this._gold >= gold;
+    }
+
+    getLatestQuestionAsked(): Info {
+        return this.db.retrieveModel(
+            [...this._questionsAsked].pop(),
+            Information
+        ) as Info;
     }
 }
