@@ -209,9 +209,27 @@ export class ConversationController extends BaseController {
             AgentManipulator.addItemToInventory(initiator, item);
         });
 
+        AgentManipulator.removeTradeRequest(initiator, trade);
+        AgentManipulator.removeTradeRequested(receiver, trade);
+
         trade.updateTradeStatus(1);
 
         this.updateChanges(initiator, [initiator, itemsFromInitiator]);
         this.updateChanges(receiver, [receiver, itemsFromReceiver]);
+    }
+
+    rejectTrade(
+        trade: Trade
+    ): void {
+        const initiator = trade.initiator;
+        const receiver = trade.receiver;
+
+        AgentManipulator.removeTradeRequest(initiator, trade);
+        AgentManipulator.removeTradeRequested(receiver, trade);
+
+        trade.updateTradeStatus(0);
+
+        this.updateChanges(initiator, [initiator]);
+        this.updateChanges(receiver, [receiver]);
     }
 }

@@ -23,7 +23,7 @@ export { ActionTellInfo } from "./tellInfo";
 // export { ActionRequestItemTrade } from "./requestItemTrade";
 // export { ActionCloseQuest } from "./closeQuest";
 // export { ActionTurnInQuestInfo } from "./turnInQuestInfo";
-// export { ActionRejectTradeRequest } from "./rejectTradeRequest";
+export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 // export { ActionModifyModels.AgentFaction } from "./modifyModels.AgentFaction";
 // export { ActionModifyGoldTrade } from "./modifyGoldTrade";
 // export { ActionDropGold } from "./dropGold";

@@ -514,12 +514,12 @@ export class ClientAPI {
     }
 
     /**
-     * Reject trade request from targetAgent
-     * @param targetAgent
+     * Reject trade requested
+     * @param trade
      */
-    public static async rejectTrade(targetAgent: Agent) {
+    public static async rejectTradeRequest(trade: Trade) {
         const res = await ClientAPI.sendWrapper("reject-trade-request", {
-            agentID: targetAgent.id,
+            tradeID: trade.id
         });
         return res;
     }
