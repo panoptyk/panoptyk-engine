@@ -17,6 +17,7 @@ import {
     ActionTellInfo,
     ActionAskQuestion,
     ActionRequestTrade,
+    ActionAcceptTradeRequest,
 } from "./action";
 import * as Validate from "./validate";
 import { ConnectionController } from "./controllers";
@@ -35,7 +36,8 @@ const defaultActions: Action[] = [
     ActionLeaveConversation,
     ActionTellInfo,
     ActionAskQuestion,
-    ActionRequestTrade
+    ActionRequestTrade,
+    ActionAcceptTradeRequest,
 ];
 
 const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms

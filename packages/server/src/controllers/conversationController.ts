@@ -10,7 +10,8 @@ import {
     Info,
     Query,
     Trade,
-    Item
+    Item,
+    ItemManipulator
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -187,5 +188,30 @@ export class ConversationController extends BaseController {
 
         // TO-DO: add trade info to conversation log
         return trade;
+    }
+
+    acceptTrade(
+        trade: Trade
+    ): void {
+        const initiator = trade.initiator;
+        const receiver = trade.receiver;
+        const itemsFromInitiator = trade.itemsFromInitiator;
+        const itemsFromReceiver = trade.itemsFromReceiver;
+
+        itemsFromInitiator.forEach(item => {
+            ItemManipulator.giveToAgent(item, receiver);
+            AgentManipulator.removeItemFromInventory(initiator, item);AgentManipulator.addItemToInventory(receiver, item);
+        });
+
+        itemsFromReceiver.forEach(item => {
+            ItemManipulator.giveToAgent(item, initiator);
+            AgentManipulator.removeItemFromInventory(receiver, item);
+            AgentManipulator.addItemToInventory(initiator, item);
+        });
+
+        trade.updateTradeStatus(1);
+
+        this.updateChanges(initiator, [initiator, itemsFromInitiator]);
+        this.updateChanges(receiver, [receiver, itemsFromReceiver]);
     }
 }

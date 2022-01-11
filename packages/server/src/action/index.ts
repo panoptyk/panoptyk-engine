@@ -31,3 +31,4 @@ export { ActionTellInfo } from "./tellInfo";
 // export { ActionConfiscateItem } from "./confiscateItem";
 // export { ActionTellItemOwnership } from "./tellItemOwnership";
 // export {} from "./"; <- future Actions
+export { ActionAcceptTradeRequest } from "./acceptTradeRequest";

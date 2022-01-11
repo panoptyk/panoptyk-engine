@@ -81,4 +81,8 @@ export class Trade extends BaseModel {
         const safeTrade = super.toJSON(forClient, context);
         return safeTrade;
     }
+
+    updateTradeStatus(status: number) {
+        this._status = status;
+    }
 }

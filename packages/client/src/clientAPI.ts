@@ -254,6 +254,19 @@ export class ClientAPI {
         });
         return res;
     }
+    
+    /**
+     * Accept a requested trade
+     * @param trade to accept
+     */
+    public static async acceptTradeRequest(
+        trade: Trade
+    ) {
+        const res = await ClientAPI.sendWrapper("accept-trade-request", {
+            tradeID: trade.id
+        });
+        return res;
+    }
 
     /**
      * Accept trade from another agent in current Conversation
