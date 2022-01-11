@@ -9,6 +9,8 @@ import {
     Actions,
     Info,
     Query,
+    Trade,
+    Item
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -167,5 +169,23 @@ export class ConversationController extends BaseController {
 
             this.updateChanges(other, [conversation]);
         }
+    }
+
+    createTrade(
+        initiator: Agent,
+        receiver: Agent,
+        itemsFromInitiator: Item[],
+        itemsFromReceiver: Item[]
+    ): Trade {
+        const trade = new Trade(initiator, receiver, itemsFromInitiator, itemsFromReceiver);
+
+        AgentManipulator.addTradeRequest(initiator, trade);
+        AgentManipulator.addTradeRequested(receiver, trade);
+
+        this.updateChanges(initiator, [initiator]);
+        this.updateChanges(receiver, [receiver]);
+
+        // TO-DO: add trade info to conversation log
+        return trade;
     }
 }

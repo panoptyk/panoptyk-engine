@@ -235,11 +235,22 @@ export class ClientAPI {
 
     /**
      * Request trade between 2 agents in a Conversation
-     * @param targetAgent agent to request trade with
+     * @param initiator agent to request the trade
+     * @param receiver agent to whom the trade is requested with
+     * @param itemsFromInitiator items initiator traded with
+     * @param itemsFromReceiver items receiver traded with
      */
-    public static async requestTrade(targetAgent: Agent) {
+     public static async requestTrade(
+        initiator: Agent,
+        receiver: Agent,
+        itemsFromInitiator: Item[] = [],
+        itemsFromReceiver: Item[] = []
+    ) {
         const res = await ClientAPI.sendWrapper("request-trade", {
-            agentID: targetAgent.id,
+            initiator: initiator.id,
+            receiver: receiver.id,
+            itemsFromInitiator,
+            itemsFromReceiver
         });
         return res;
     }
