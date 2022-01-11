@@ -36,35 +36,42 @@ export class Trade extends BaseModel {
         return this.db.retrieveModel(this._receiver, Agent);
     }
 
-    set itemFromInitiator(item: Item) {
-        this._itemFromInitiator = item ? item.id : -1;
+    set itemsFromInitiator(items: Item[]) {
+        this._itemsFromInitiator = items ? new Set(items.map(item => item.id)) : new Set<ItemID>();
     }
 
-    get itemFromInitiator(): Item {
-        return this.db.retrieveModel(this._itemFromInitiator, Item);
+    get itemsFromInitiator(): Item[] {
+        return this.db.retrieveModels(
+            [...this._itemsFromInitiator],
+            Item
+        ) as Item[];
     }
 
-    set itemFromReceiver(item: Item) {
-        this._itemFromReceiver = item ? item.id: -1;
+    set itemsFromReceiver(items: Item[]) {
+        this._itemsFromReceiver = items ? new Set(items.map(item => item.id)) : new Set<ItemID>();
     }
 
-    get itemFromReceiver(): Item {
-        return this.db.retrieveModel(this._itemFromReceiver, Item);
+    get itemsFromReceiver(): Item[] {
+        return this.db.retrieveModels(
+            [...this._itemsFromReceiver],
+            Item
+        ) as Item[];
     }
 
-    _initiator: number;
-    _receiver: number;
+    _initiator: AgentID;
+    _receiver: AgentID;
     _status: number;  // 0: failed, 1: success, 2: in-progress
-    _itemFromInitiator: number;
-    _itemFromReceiver: number;
+    _itemsFromInitiator: Set<ItemID>;
+    _itemsFromReceiver: Set<ItemID>;
     
-    constructor(initiator: Agent, receiver: Agent, itemFromInitiator: Item, itemFromReceiver: Item, id?: number, db?: IDatabase) {
+    constructor(initiator: Agent, receiver: Agent, itemsFromInitiator?: Item[], itemsFromReceiver?: Item[], id?: number, db?: IDatabase) {
         super(id, db);
 
         this.initiator = initiator;
         this.receiver = receiver;
-        this.itemFromInitiator = itemFromInitiator;
-        this.itemFromReceiver = itemFromReceiver;
+        this._itemsFromInitiator
+        this.itemsFromInitiator = itemsFromInitiator;
+        this.itemsFromReceiver = itemsFromReceiver;
         this._status = 2;
 
         logger.log("Trade " + this + " Initialized", "TRADE");
