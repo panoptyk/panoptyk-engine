@@ -32,3 +32,5 @@ export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 // export { ActionTellItemOwnership } from "./tellItemOwnership";
 // export {} from "./"; <- future Actions
 export { ActionAcceptTradeRequest } from "./acceptTradeRequest";
+export { ActionAddItemsToTrade } from "./addItemsToTrade";
+export { ActionRemoveItemsFromTrade } from "./removeItemsFromTrade";

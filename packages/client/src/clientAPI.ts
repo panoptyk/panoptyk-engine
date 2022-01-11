@@ -576,4 +576,22 @@ export class ClientAPI {
         });
         return res;
     }
+
+    public static async addItemsToTrade(agent: Agent, trade: Trade, items: Item[]) {
+        const res = await ClientAPI.sendWrapper("add-items-to-trade", {
+            agentID: agent.id,
+            tradeID: trade.id,
+            items
+        });
+        return res;
+    }
+
+    public static async removeItemToTrade(agent: Agent, trade: Trade, items: Item[]) {
+        const res = await ClientAPI.sendWrapper("remove-items-from-trade", {
+            agentID: agent.id,
+            tradeID: trade.id,
+            items
+        });
+        return res;
+    }
 }
