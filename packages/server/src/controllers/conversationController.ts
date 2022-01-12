@@ -94,6 +94,10 @@ export class ConversationController extends BaseController {
 
         if (conversation.participants.length < 2 && conversation.endTime === -1) {
             conversation._endTime = Date.now();
+            conversation.participants.forEach(agent => {
+                AgentManipulator.leaveConversation(agent);
+                this.updateChanges(agent, [agent, conversation]);
+            });
         }
 
         conversation.room.occupants.forEach((occupant) => {
