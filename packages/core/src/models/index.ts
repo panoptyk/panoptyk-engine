@@ -4,7 +4,7 @@ export { Item } from "./item";
 export { Info, Information, IPredicate } from "./information";
 export { Conversation } from "./conversation";
 export { Trade } from "./trade";
-export { Quest } from "./quest";
+export { Quest, QuestStatus } from "./quest";
 export { Faction } from "./faction";
 export { Recipe } from "./recipe";
 export { aNames as Predicates } from "./information";

@@ -78,7 +78,7 @@ export function conversationHasSpace(
  * @param {Object} agent - agent object.
  * @returns {Object} {status: boolean, message: string, conversation: Object}
  */
-export function hasAgent(
+export function conversationContainsAgent(
     conversation: Conversation,
     agent: Agent
 ): ValidationResult {

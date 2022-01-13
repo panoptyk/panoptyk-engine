@@ -2,7 +2,7 @@ import { assert, expect } from "chai";
 import "mocha";
 import AppContext from "../../utilities/AppContext";
 import { MemoryDatabase } from "../../database/MemoryDatabase";
-import { Agent, Item, Quest, Room } from "..";
+import { Agent, Item, Quest, Room} from "..";
 import {
     T,
     TA,
@@ -29,6 +29,8 @@ import {
 import { Actions, Query } from "./actionshortcuts";
 import { Information } from "./information";
 import { InformationManipulator } from "../../manipulators/informationManipulator";
+import { Info } from ".";
+import { QuestStatus } from "../quest";
 
 describe("Information Model", () => {
     let agentA: Agent;
@@ -36,6 +38,7 @@ describe("Information Model", () => {
     let roomA: Room;
     let roomB: Room;
     let itemA: Item;
+    let quest: Quest;
     beforeEach(() => {
         AppContext.defaultInitialize();
         agentA = new Agent("A");
@@ -43,6 +46,7 @@ describe("Information Model", () => {
         roomA = new Room("A", 1);
         roomB = new Room("B", 1);
         itemA = new Item("A");
+        quest = new Quest(agentA, agentB, undefined, QuestStatus.Given, 123);
     });
     context("ID numbering", () => {
         it("basic creation", () => {
@@ -134,7 +138,6 @@ describe("Information Model", () => {
                 "test",
                 new PredicateT({ time: 123 })
             );
-            const quest = new Quest(agentA, agentB, infoA, "ACTIVE", 123);
             const infos: { [key: string]: Information<PredicateTerms> } = {
                 infoT: new Information<T>(
                     "test",

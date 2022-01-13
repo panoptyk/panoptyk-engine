@@ -51,7 +51,9 @@ export const aNames = {
     DROPPED: "dropped",
     ASKED: "asked",
     TOLD: "told",
-    QUEST: "quest",
+    QUEST_GIVEN: "quest given",
+    QUEST_COMPLETED: "quest completed",
+    QUEST_FAILED: "quest failed"
 };
 
 export const Actions = {
@@ -103,14 +105,30 @@ export const Actions = {
             owner
         );
     },
-    quest(terms: TAARQ, owner?: Agent) {
+    questGiven(terms: TAARQ, owner?: Agent) {
         return new Information<TAARQ>(
-            aNames.QUEST,
+            aNames.QUEST_GIVEN,
             new PredicateTAARQ(terms),
             false,
             owner
         );
     },
+    questCompleted(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_COMPLETED,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    },
+    questFailed(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_FAILED,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    }
 };
 
 export const Query = {
@@ -206,10 +224,36 @@ export const Query = {
         });
         return query;
     },
-    quest(terms: query<TAARQ>) {
+    questGiven(terms: query<TAARQ>) {
         const split = splitQuery(terms);
         const query = new Information<TAARQ>(
-            aNames.QUEST,
+            aNames.QUEST_GIVEN,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
+    questCompleted(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_COMPLETED,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
+    questFailed(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_FAILED,
             new PredicateTAARQ(split.terms),
             true    
         );

@@ -46,7 +46,7 @@ export const ActionLeaveConversation: Action = {
         ) {
             return res;
         }
-        if (!(res = Validate.hasAgent(conversation, agent)).success) {
+        if (!(res = Validate.conversationContainsAgent(conversation, agent)).success) {
             return res;
         }
         return Validate.ValidationSuccess;

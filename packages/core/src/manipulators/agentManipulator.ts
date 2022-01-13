@@ -101,11 +101,4 @@ export class AgentManipulator {
         agent._factions.delete(faction.id);
     }
 
-    static addQuestionAsked(agent: Agent, question: Info): void {
-        agent._questionsAsked.add(question.id);
-    }
-
-    static deleteQuestionAsked(agent: Agent, question: Info): void {
-        agent._questionsAsked.delete(question.id);
-    }
 }

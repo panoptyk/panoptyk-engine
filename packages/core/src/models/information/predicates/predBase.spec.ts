@@ -15,7 +15,7 @@ import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
 import { Information } from "../information";
-import { Quest } from "../../quest";
+import { Quest, QuestStatus } from "../../quest";
 
 describe("PredicateBase", () => {
     let db: MemoryDatabase;
@@ -176,7 +176,7 @@ describe("PredicateBase", () => {
                 "test",
                 new PredicateT({ time: 123 })
             );
-            const quest = new Quest(agent, agentB, infoA, "ACTIVE", 123);
+            const quest = new Quest(agent, agentB, infoA, QuestStatus.Given, 123);
             const terms: TAARQ = {
                 time: 123,
                 agent,

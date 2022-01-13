@@ -4,6 +4,12 @@ import { logger } from "../utilities";
 import { Agent } from "./agent";
 import { Info, Information } from "./information";
 
+export const enum QuestStatus {
+    Failed = 0,
+    Completed = 1,
+    Given = 2
+};
+
 export class Quest extends BaseModel {
     displayName(): string {
         throw new Error("Method not implemented.");
@@ -15,16 +21,12 @@ export class Quest extends BaseModel {
         return model instanceof Quest && this.id === model.id;
     }
 
-    get checkQuestStatus(): string {
-        return this._status;
+    get question(): Info {
+        return this.db.retrieveModel(this._question, Information);
     }
 
-    get task(): Info {
-        return this.db.retrieveModel(this._task, Information);
-    }
-
-    set task(task: Info) {
-        this._task = task ? task.id : -1;
+    set question(question: Info) {
+        this._question = question ? question.id : -1;
     }
 
     get giver(): Agent {
@@ -43,26 +45,34 @@ export class Quest extends BaseModel {
         this._receiver = receiver ? receiver.id : -1;
     }
 
+    get status(): number {
+        return this._status;
+    }
+
+    set status(status: number) {
+        this._status = status === QuestStatus.Completed || status === QuestStatus.Failed ? status : QuestStatus.Given;
+    }
+
     isActive(time: number): boolean {
         return time >= this._creationTime && time <= this._deadline;
     }
 
-    turnInQuest(status): void {
-        this._status = status;
+    verifyQuestInfoTurnedIn(info: Info): boolean {
+        return this.question.isAnswer(info);
     }
 
     _giver: number;
     _receiver: number;
-    _task: InfoID;
-    _status: string;
+    _question: InfoID;
+    _status: number;
     _deadline: number;
     _creationTime: number;
 
     constructor(
         questGiver: Agent,
         questReceiver: Agent,
-        task: Info,
-        status: string = "ACTIVE",
+        question: Info,
+        status: number = 2,
         deadline: number,
         id?: number, 
         db?: IDatabase
@@ -71,18 +81,12 @@ export class Quest extends BaseModel {
 
         this.giver = questGiver;
         this.receiver = questReceiver;
-        this.task = task;
+        this.question = question;
         this._status = status;
         this._deadline = deadline;
         this._creationTime = Date.now();
 
         logger.log("Quest " + this + " Initialized", "QUEST");
-    }
-
-    isQuestCompleted(answer: Info): boolean {
-        let task: Info = this.task;
-
-        return task.isAnswer(answer);
     }
 
     toJSON(forClient: boolean, context: any): object {
