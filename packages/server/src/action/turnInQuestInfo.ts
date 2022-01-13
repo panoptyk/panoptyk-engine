@@ -22,7 +22,7 @@ export const ActionTurnInQuestInfo: Action = {
             Information
         );
 
-        const result = qc.turnInQuestInfo(agent.conversation, quest, answer, agent);
+        const result = qc.turnInQuestInfo(agent.conversation, quest, answer);
 
         Util.logger.log(
             `Event turn-in-quest-info ${answer}

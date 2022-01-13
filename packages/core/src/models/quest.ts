@@ -4,10 +4,10 @@ import { logger } from "../utilities";
 import { Agent } from "./agent";
 import { Info, Information } from "./information";
 
-export const enum QuestStatus {
-    Failed = 0,
-    Completed = 1,
-    Given = 2
+export const QuestStatus = {
+    CLOSED: "closed",
+    COMPLETED: "completed",
+    ACTIVE: "active"
 };
 
 export class Quest extends BaseModel {
@@ -45,26 +45,22 @@ export class Quest extends BaseModel {
         this._receiver = receiver ? receiver.id : -1;
     }
 
-    get status(): number {
+    get status(): string {
         return this._status;
     }
 
-    set status(status: number) {
-        this._status = status === QuestStatus.Completed || status === QuestStatus.Failed ? status : QuestStatus.Given;
+    set status(status: string) {
+        this._status = status;
     }
 
     isActive(time: number): boolean {
         return time >= this._creationTime && time <= this._deadline;
     }
 
-    verifyQuestInfoTurnedIn(info: Info): boolean {
-        return this.question.isAnswer(info);
-    }
-
     _giver: number;
     _receiver: number;
     _question: InfoID;
-    _status: number;
+    _status: string;
     _deadline: number;
     _creationTime: number;
 
@@ -72,7 +68,7 @@ export class Quest extends BaseModel {
         questGiver: Agent,
         questReceiver: Agent,
         question: Info,
-        status: number = 2,
+        status: string,
         deadline: number,
         id?: number, 
         db?: IDatabase

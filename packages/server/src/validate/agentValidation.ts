@@ -233,3 +233,24 @@ export function ownsInfos(agent: Agent, infos: Info[]): ValidationResult {
     
     return ValidationSuccess;
 }
+
+export function isAgentTheTargetAgent(agent: Agent, target: Agent): ValidationResult {
+    if (agent === undefined || target === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: ${agent === undefined ? " agent": ""}
+                ${target === undefined ? " target agent" : ""}`
+        };
+    }
+
+    if (agent !== target) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentNotTheTarget,
+            message: `Agent (${agent}) is not the target agent (${target})`
+        };
+    }
+
+    return ValidationSuccess;
+}

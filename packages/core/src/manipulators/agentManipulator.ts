@@ -93,6 +93,10 @@ export class AgentManipulator {
         agent._assignedQuests.delete(quest.id);
     }
 
+    static removeQuestAssigned(agent: Agent, quest: Quest) {
+        agent._assignedQuests.delete(quest.id);
+    }
+
     static joinFaction(agent: Agent, faction: Faction) {
         agent._factions.add(faction.id);
     }
