@@ -1,8 +1,7 @@
 import { assert, expect } from "chai";
 import "mocha";
 import AppContext from "../../utilities/AppContext";
-import { MemoryDatabase } from "../../database/MemoryDatabase";
-import { Agent, Item, Quest, Room} from "..";
+import { Agent, Item, Quest, Room, QuestStatus } from "..";
 import {
     T,
     TA,
@@ -29,8 +28,6 @@ import {
 import { Actions, Query } from "./actionshortcuts";
 import { Information } from "./information";
 import { InformationManipulator } from "../../manipulators/informationManipulator";
-import { Info } from ".";
-import { QuestStatus } from "../quest";
 
 describe("Information Model", () => {
     let agentA: Agent;
