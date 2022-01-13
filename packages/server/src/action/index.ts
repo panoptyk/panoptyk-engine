@@ -21,7 +21,7 @@ export { ActionTellInfo } from "./tellInfo";
 export { ActionGiveQuest } from "./giveQuest";
 // export { ActionPassItemRequest } from "./passItemRequest";
 // export { ActionRequestItemTrade } from "./requestItemTrade";
-export { ActionCloseQuest } from "./closeQuest";
+// export { ActionCloseQuest } from "./closeQuest";
 export { ActionTurnInQuestInfo } from "./turnInQuestInfo";
 // export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 // export { ActionModifyModels.AgentFaction } from "./modifyModels.AgentFaction";

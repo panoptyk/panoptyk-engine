@@ -19,7 +19,7 @@ export class QuestController extends BaseController {
         deadline: number
     ): Quest {
         const quest: Quest = new Quest(questGiver, questReceiver, task, QuestStatus.ACTIVE, deadline);
-        const agents: Agent[] = conversation.participants;
+        const converstaionParticipants: Agent[] = conversation.participants;
 
         AgentManipulator.giveQuest(questGiver, quest);
         AgentManipulator.addQuest(questReceiver, quest);
@@ -35,7 +35,7 @@ export class QuestController extends BaseController {
             quest: quest
         });
 
-        for (let agent of agents) {
+        for (let agent of converstaionParticipants) {
             this.giveInfoToAgent(questGiven, agent);
 
             ConversationManipulator.addInfoToConversationLog(
@@ -55,7 +55,7 @@ export class QuestController extends BaseController {
         answer: Info
     ): boolean {
         const isQuestCompleted = quest.question.isAnswer(answer);
-        const agents: Agent[] = conversation.participants;
+        const conversationParticipants: Agent[] = conversation.participants;
         const questGiver = quest.giver;
         const questReceiver = quest.receiver;
 
@@ -88,7 +88,7 @@ export class QuestController extends BaseController {
             this.updateChanges(questReceiver, [quest, questReceiver]);
         }
         
-        for (let agent of agents) {
+        for (let agent of conversationParticipants) {
             this.giveInfoToAgent(questResultInfo, agent);
 
             ConversationManipulator.addInfoToConversationLog(
@@ -100,27 +100,5 @@ export class QuestController extends BaseController {
         }
 
         return isQuestCompleted;
-    }
-
-    closeQuest(quest: Quest) {
-        const room = quest.giver.room;
-        const questGiver = quest.giver;
-        const questReceiver = quest.receiver;
-        const questResultInfo = Actions.questClosed({
-            time: Date.now(),
-            agent: questGiver,
-            agentB: questReceiver,
-            room: room,
-            quest: quest
-        });
-
-        quest.status = QuestStatus.CLOSED;
-        
-        AgentManipulator.removeQuestAssigned(questReceiver, quest);
-
-        this.updateChanges(questReceiver, [questReceiver, quest]);
-        this.updateChanges(questGiver, [quest]);
-
-        this.disperseInfo(questResultInfo, room);
     }
 }

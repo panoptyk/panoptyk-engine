@@ -18,7 +18,6 @@ export const ValidationError = Object.freeze({
     AgentAlreadyInCovnersation: 303 as 303,
     AgentIdentical: 304 as 304,
     AgentLackingGold: 305 as 305,
-    AgentNotTheTarget: 306 as 306,
     ItemInTransaction: 400 as 400,
     ItemNotInRoom: 401 as 401,
     ConversationInDifferentRoom: 500 as 500,

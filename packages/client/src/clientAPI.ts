@@ -442,12 +442,25 @@ export class ClientAPI {
     }
 
     /**
-     * Quest giver closes the quest
+     * Quest giver marks quest as complete
      * @param quest
      */
-    public static async closeQuest(quest: Quest) {
+     public static async completeQuest(quest: Quest) {
         const res = await ClientAPI.sendWrapper("close-quest", {
-            questID: quest.id
+            questID: quest.id,
+            status: "COMPLETE",
+        });
+        return res;
+    }
+
+    /**
+     * Quest giver marks quest as failed
+     * @param quest
+     */
+    public static async failQuest(quest: Quest) {
+        const res = await ClientAPI.sendWrapper("close-quest", {
+            questID: quest.id,
+            status: "FAILED",
         });
         return res;
     }
