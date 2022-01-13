@@ -70,7 +70,7 @@ export class QuestController extends BaseController {
                 room: conversation.room,
                 quest: quest
             });
-            quest.status = 1;
+            quest.status = QuestStatus.Completed;
         }
         else {
             questResultInfo = Actions.questFailed({
@@ -80,7 +80,7 @@ export class QuestController extends BaseController {
                 room: agent.conversation.room,
                 quest: quest
             });
-            quest.status = 0;
+            quest.status = QuestStatus.Failed;
         }
         
         this.updateChanges(questGiver, [quest, questGiver]);
