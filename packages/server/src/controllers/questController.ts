@@ -58,31 +58,32 @@ export class QuestController extends BaseController {
         const conversationParticipants: Agent[] = conversation.participants;
         const questGiver = quest.giver;
         const questReceiver = quest.receiver;
+        const room = conversation.room;
 
         let questResultInfo;
         
         if (isQuestCompleted) {
+            quest.status = QuestStatus.COMPLETED;
+            
             questResultInfo = Actions.questCompleted({
                 time: Date.now(),
                 agent: questGiver,
                 agentB: questReceiver,
-                room: conversation.room,
+                room: room,
                 quest: quest
             });
-            
-            quest.status = QuestStatus.COMPLETED;
 
             // tell the answer back to the quest receiver
-            const toldAnswerToTheQuestQuestion = Actions.told({
+            const toldAnswerInfo = Actions.told({
                 time: Date.now(),
                 agent: questGiver,
                 agentB: questReceiver,
-                room: conversation.room,
+                room: room,
                 info: answer.getMasterCopy()
             });
 
             this.giveInfoToAgent(answer, questReceiver);
-            this.giveInfoToAgents(toldAnswerToTheQuestQuestion, [questGiver, questReceiver]);
+            this.giveInfoToAgents(toldAnswerInfo, [questGiver, questReceiver]);
 
             this.updateChanges(questGiver, [quest, questGiver]);
             this.updateChanges(questReceiver, [quest, questReceiver]);

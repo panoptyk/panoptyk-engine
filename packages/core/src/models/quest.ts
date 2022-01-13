@@ -6,6 +6,7 @@ import { Info, Information } from "./information";
 
 export const QuestStatus = {
     CLOSED: "closed",
+    FALED: "failed",
     COMPLETED: "completed",
     ACTIVE: "active"
 };
