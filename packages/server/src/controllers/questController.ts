@@ -59,7 +59,7 @@ export class QuestController extends BaseController {
         const questGiver = quest.giver;
         const questReceiver = quest.receiver;
         const room = conversation.room;
-        const cc: ConversationController = new ConversationController();
+        const cc: ConversationController = new ConversationController(this);
         const questResultInfo = Actions.questCompleted({
             time: Date.now(),
             agent: questGiver,

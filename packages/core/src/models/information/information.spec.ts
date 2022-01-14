@@ -43,7 +43,7 @@ describe("Information Model", () => {
         roomA = new Room("A", 1);
         roomB = new Room("B", 1);
         itemA = new Item("A");
-        quest = new Quest(agentA, agentB, undefined, QuestStatus.Given, 123);
+        quest = new Quest(agentA, agentB, undefined, QuestStatus.ACTIVE, 123);
     });
     context("ID numbering", () => {
         it("basic creation", () => {
