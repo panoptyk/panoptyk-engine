@@ -10,3 +10,4 @@ export * from "./conversationValidation";
 export * from "./itemValidation";
 export * from "./roomValidation";
 export * from "./craftingValidation";
+export * from "./questValidation";

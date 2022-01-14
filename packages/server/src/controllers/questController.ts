@@ -8,6 +8,7 @@ import {
     Quest,
     QuestStatus
 } from "@panoptyk/core";
+import { ConversationController } from "./conversationController";
 import { BaseController } from "./baseController";
 
 export class QuestController extends BaseController {
@@ -21,8 +22,8 @@ export class QuestController extends BaseController {
         const quest: Quest = new Quest(questGiver, questReceiver, task, QuestStatus.ACTIVE, deadline);
         const converstaionParticipants: Agent[] = conversation.participants;
 
-        AgentManipulator.giveQuest(questGiver, quest);
-        AgentManipulator.addQuest(questReceiver, quest);
+        AgentManipulator.addGivenQuest(questGiver, quest);
+        AgentManipulator.addAssignedQuest(questReceiver, quest);
 
         this.updateChanges(questGiver, [quest, questGiver]);
         this.updateChanges(questReceiver, [quest, questReceiver]);
@@ -53,42 +54,30 @@ export class QuestController extends BaseController {
         conversation: Conversation,
         quest: Quest,
         answer: Info
-    ): boolean {
-        const isQuestCompleted = quest.question.isAnswer(answer);
+    ): void{
         const conversationParticipants: Agent[] = conversation.participants;
         const questGiver = quest.giver;
         const questReceiver = quest.receiver;
         const room = conversation.room;
-
-        let questResultInfo;
+        const cc: ConversationController = new ConversationController();
+        const questResultInfo = Actions.questCompleted({
+            time: Date.now(),
+            agent: questGiver,
+            agentB: questReceiver,
+            room: room,
+            quest: quest
+        });
         
-        if (isQuestCompleted) {
-            quest.status = QuestStatus.COMPLETED;
-            
-            questResultInfo = Actions.questCompleted({
-                time: Date.now(),
-                agent: questGiver,
-                agentB: questReceiver,
-                room: room,
-                quest: quest
-            });
+        quest.status = QuestStatus.COMPLETED;
 
-            // tell the answer back to the quest receiver
-            const toldAnswerInfo = Actions.told({
-                time: Date.now(),
-                agent: questGiver,
-                agentB: questReceiver,
-                room: room,
-                info: answer.getMasterCopy()
-            });
+        // tell the answer back to the quest receiver
+        cc.tellInfoInConversation(conversation, questGiver, answer);
 
-            this.giveInfoToAgent(answer, questReceiver);
-            this.giveInfoToAgents(toldAnswerInfo, [questGiver, questReceiver]);
+        AgentManipulator.removeAssignedQuest(questReceiver, quest);
 
-            this.updateChanges(questGiver, [quest, questGiver]);
-            this.updateChanges(questReceiver, [quest, questReceiver]);
-        }
-        
+        this.updateChanges(questGiver, [quest, questGiver]);
+        this.updateChanges(questReceiver, [quest, questReceiver]);
+    
         for (let agent of conversationParticipants) {
             this.giveInfoToAgent(questResultInfo, agent);
 
@@ -99,7 +88,5 @@ export class QuestController extends BaseController {
 
             this.updateChanges(agent, [conversation]);
         }
-
-        return isQuestCompleted;
     }
 }

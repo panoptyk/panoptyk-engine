@@ -22,11 +22,11 @@ export const ActionTurnInQuestInfo: Action = {
             Information
         );
 
-        const result = qc.turnInQuestInfo(agent.conversation, quest, answer);
+        qc.turnInQuestInfo(agent.conversation, quest, answer);
 
         Util.logger.log(
             `Event turn-in-quest-info ${answer}
-                in quest ${quest} with result ${result ? "succeed" : "failed"}`,
+                in quest ${quest}`,
             "ACTION"
         );
 
@@ -34,6 +34,8 @@ export const ActionTurnInQuestInfo: Action = {
     },
     validate: (agent: Agent, socket: any, inputData: any) => {
         let res;
+        const quest = Util.AppContext.db.retrieveModel(inputData.questID, Quest);
+        const answer = Util.AppContext.db.retrieveModel(inputData.solutionID, Information);
 
         if (!(res = Validate.loggedIn(agent)).success) {
             return res;
@@ -50,6 +52,10 @@ export const ActionTurnInQuestInfo: Action = {
         }
 
         if (!(res = Validate.invalidConversation(conversation)).success) {
+            return res;
+        }
+
+        if (!(res = Validate.isAnswerToTheQuestQuestion(quest, answer)).success) {
             return res;
         }
 

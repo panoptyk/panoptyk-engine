@@ -6,7 +6,6 @@ import {
     ValidationSuccess,
     ValidationError,
 } from "@panoptyk/core";
-import { info } from "console";
 
 /**
  * Validate agent owns list of items.

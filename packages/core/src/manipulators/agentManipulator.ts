@@ -81,20 +81,20 @@ export class AgentManipulator {
         agent.conversation = undefined;
     }
 
-    static addQuest(agent: Agent, quest: Quest) {
+    static addAssignedQuest(agent: Agent, quest: Quest) {
         agent._assignedQuests.add(quest.id);
     }
+    
+    static removeAssignedQuest(agent: Agent, quest: Quest) {
+        agent._assignedQuests.delete(quest.id);
+    }
 
-    static giveQuest(agent: Agent, quest: Quest) {
+    static addGivenQuest(agent: Agent, quest: Quest) {
         agent._givenQuests.add(quest.id);
     }
 
-    static turnInQuest(agent: Agent, quest: Quest) {
-        agent._assignedQuests.delete(quest.id);
-    }
-
-    static removeQuestAssigned(agent: Agent, quest: Quest) {
-        agent._assignedQuests.delete(quest.id);
+    static removeGivenQuest(agent: Agent, quest: Quest) {
+        agent._givenQuests.delete(quest.id);
     }
 
     static joinFaction(agent: Agent, faction: Faction) {
