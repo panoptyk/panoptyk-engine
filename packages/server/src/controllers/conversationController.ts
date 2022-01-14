@@ -92,9 +92,11 @@ export class ConversationController extends BaseController {
         });
 
         // end conversation when there's only one participant left
-        if (conversation.participants.length === 1) {
+        if (conversation.participants.length < 2 && conversation.endTime === -1) {
             conversation._endTime = Date.now();
-            this.removeAgentFromConversation(conversation, conversation.participants[0]);
+            if (conversation.participants.length) {
+                this.removeAgentFromConversation(conversation, conversation.participants[0]);
+            }
         }
 
         conversation.room.occupants.forEach((occupant) => {
