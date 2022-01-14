@@ -47,6 +47,10 @@ export class Quest extends BaseModel {
         this._receiver = receiver ? receiver.id : -1;
     }
 
+    get status() {
+        return this._status;
+    }
+
     isActive(time: number): boolean {
         return time >= this._creationTime && time <= this._deadline;
     }
@@ -54,7 +58,7 @@ export class Quest extends BaseModel {
     _giver: number;
     _receiver: number;
     _question: InfoID;
-    status: string;
+    _status: string;
     _deadline: number;
     _creationTime: number;
 
@@ -72,7 +76,7 @@ export class Quest extends BaseModel {
         this.giver = questGiver;
         this.receiver = questReceiver;
         this.question = question;
-        this.status = status;
+        this._status = status;
         this._deadline = deadline;
         this._creationTime = Date.now();
 

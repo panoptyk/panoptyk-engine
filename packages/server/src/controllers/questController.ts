@@ -68,7 +68,7 @@ export class QuestController extends BaseController {
             quest: quest
         });
         
-        quest.status = QuestStatus.COMPLETED;
+        quest._status = QuestStatus.COMPLETED;
 
         // tell the answer back to the quest receiver
         cc.tellInfoInConversation(conversation, questGiver, answer);
