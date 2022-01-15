@@ -1,14 +1,14 @@
 import { assert, expect } from "chai";
 import "mocha";
 import AppContext from "../../utilities/AppContext";
-import { MemoryDatabase } from "../../database/MemoryDatabase";
-import { Agent, Item, Room } from "..";
+import { Agent, Item, Quest, Room, QuestStatus } from "..";
 import {
     T,
     TA,
     TAA,
     TAAR,
     TAARK,
+    TAARQ,
     TAR,
     TARI,
     TARR,
@@ -17,6 +17,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
     PredicateTARR,
@@ -34,6 +35,7 @@ describe("Information Model", () => {
     let roomA: Room;
     let roomB: Room;
     let itemA: Item;
+    let quest: Quest;
     beforeEach(() => {
         AppContext.defaultInitialize();
         agentA = new Agent("A");
@@ -41,6 +43,7 @@ describe("Information Model", () => {
         roomA = new Room("A", 1);
         roomB = new Room("B", 1);
         itemA = new Item("A");
+        quest = new Quest(agentA, agentB, undefined, QuestStatus.ACTIVE, 123);
     });
     context("ID numbering", () => {
         it("basic creation", () => {
@@ -162,6 +165,16 @@ describe("Information Model", () => {
                         agentB,
                         room: roomA,
                         info: infoA,
+                    })
+                ),
+                infoTAARQ: new Information<TAARQ>(
+                    "test",
+                    new PredicateTAARQ({
+                        time: 123,
+                        agent: agentA,
+                        agentB,
+                        room: roomA,
+                        quest,
                     })
                 ),
                 infoTAR: new Information<TAR>(

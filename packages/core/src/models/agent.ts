@@ -143,6 +143,7 @@ export class Agent extends BaseModel {
     _trade = -1;
     _tradeRequests: Set<TradeID>;
     _tradesRequested: Set<TradeID>;
+
     //#endregion
 
     constructor(username: string, room?: Room, id?: number, db?: IDatabase) {

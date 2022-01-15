@@ -420,23 +420,23 @@ export class ClientAPI {
     }
 
     /**
-     * Give quest to another toAgent in current Conversation
-     * @param toAgent
-     * @param query
-     * @param isQuestion
+     * Quest giver gives quest to quest receiver in current Conversation
+     * @param giver
+     * @param receiver
+     * @param taskID questionID
      * @param deadline OPTIONAL deadline of 0 counts as no deadline
      */
     public static async giveQuest(
-        toAgent: Agent,
-        query: object,
-        isQuestion: boolean,
-        deadline = 0
+        giver: Agent,
+        receiver: Agent,
+        taskID: any,
+        deadline = 0,
     ) {
         const res = await ClientAPI.sendWrapper("give-quest", {
-            receiverID: toAgent.id,
-            rawInfo: query,
-            isQuestion,
-            deadline,
+            giverID: giver.id,
+            receiverID: receiver.id,
+            taskID: taskID,
+            deadline: deadline,
         });
         return res;
     }
@@ -445,7 +445,7 @@ export class ClientAPI {
      * Quest giver marks quest as complete
      * @param quest
      */
-    public static async completeQuest(quest: Quest) {
+     public static async completeQuest(quest: Quest) {
         const res = await ClientAPI.sendWrapper("close-quest", {
             questID: quest.id,
             status: "COMPLETE",
@@ -470,10 +470,13 @@ export class ClientAPI {
      * @param quest
      * @param solution
      */
-    public static async turnInQuestInfo(quest: Quest, solution: Info) {
+    public static async turnInQuestInfo(
+        quest: Quest,
+        solution: Info
+    ) {
         const res = await ClientAPI.sendWrapper("turn-in-quest-info", {
-            solutionID: solution.id,
             questID: quest.id,
+            solutionID: solution.id
         });
         return res;
     }

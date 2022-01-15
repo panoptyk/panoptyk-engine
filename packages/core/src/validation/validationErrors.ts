@@ -27,4 +27,5 @@ export const ValidationError = Object.freeze({
     InvalidQuestion: 504 as 504,
     CraftingAgentMissingResource: 600 as 600,
     CraftingAgentInsufficientResource: 601 as 601,
+    QuestAnswerIncorrect: 700 as 700,
 });

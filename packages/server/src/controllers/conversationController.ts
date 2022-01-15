@@ -8,7 +8,6 @@ import {
     RoomManipulator,
     Actions,
     Info,
-    Query,
 } from "@panoptyk/core";
 
 export class ConversationController extends BaseController {
@@ -92,8 +91,12 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedTrade(requesters, agent);
         });
 
+        // end conversation when there's only one participant left
         if (conversation.participants.length < 2 && conversation.endTime === -1) {
             conversation._endTime = Date.now();
+            if (conversation.participants.length) {
+                this.removeAgentFromConversation(conversation, conversation.participants[0]);
+            }
         }
 
         conversation.room.occupants.forEach((occupant) => {
@@ -140,6 +143,8 @@ export class ConversationController extends BaseController {
         mask: string[] = []
     ): void {
         const agents: Agent[] = conversation.participants;
+        
+        this.updateChanges(questioner, [questioner]);
 
         for (let other of agents) {
             if (other !== questioner) {
@@ -160,9 +165,8 @@ export class ConversationController extends BaseController {
                 );
                 ConversationManipulator.addQuestionToAskedQuestions(
                     conversation,
-                    askedQuestion,
+                    question,
                 );
-                
             }
 
             this.updateChanges(other, [conversation]);

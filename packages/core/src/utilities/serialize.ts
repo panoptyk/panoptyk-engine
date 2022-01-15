@@ -81,7 +81,7 @@ export class Deserialize {
             case Quest.name:
                 model = AppContext.db.retrieveModel(modelJson.id, Quest);
                 if (model === undefined) {
-                    model = new Quest(modelJson.id);
+                    model = new Quest(undefined, undefined, undefined, "", undefined, modelJson.id);
                 }
                 model.fromJSON(modelJson);
                 break;

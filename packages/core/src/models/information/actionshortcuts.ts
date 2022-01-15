@@ -4,6 +4,7 @@ import {
     TAA,
     TAAR,
     TAARK,
+    TAARQ,
     TAR,
     TARI,
     TARR,
@@ -12,6 +13,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
     PredicateTARR,
@@ -45,10 +47,14 @@ function splitQuery<P extends PredicateTerms>(
 export const aNames = {
     MOVED: "moved",
     CONVERSED: "conversed",
-    PICKED_UP: "picked up",
+    PICKED_UP: "picked_up",
     DROPPED: "dropped",
     ASKED: "asked",
     TOLD: "told",
+    QUEST_GIVEN: "quest_given",
+    QUEST_COMPLETED: "quest_completed",
+    QUEST_FAILED: "quest_failed",
+    QUEST_CLOSED: "quest_closed"
 };
 
 export const Actions = {
@@ -100,6 +106,38 @@ export const Actions = {
             owner
         );
     },
+    questGiven(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_GIVEN,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    },
+    questCompleted(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_COMPLETED,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    },
+    questFailed(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_FAILED,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    },
+    questClosed(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_CLOSED,
+            new PredicateTAARQ(terms),
+            false,
+            owner
+        );
+    }
 };
 
 export const Query = {
@@ -195,4 +233,56 @@ export const Query = {
         });
         return query;
     },
+    questGiven(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_GIVEN,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
+    questCompleted(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_COMPLETED,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
+    questFailed(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_FAILED,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
+    questClosed(terms: query<TAARQ>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARQ>(
+            aNames.QUEST_CLOSED,
+            new PredicateTAARQ(split.terms),
+            true    
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    }
 };

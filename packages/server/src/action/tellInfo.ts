@@ -44,7 +44,7 @@ export const ActionTellInfo: Action = {
             return res;
         }
 
-        if (!(res = Validate.hasAgent(conversation, agent)).success) {
+        if (!(res = Validate.conversationContainsAgent(conversation, agent)).success) {
             return res;
         }
 

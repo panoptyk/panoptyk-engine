@@ -1,4 +1,4 @@
-import { Agent, Item, Info, Room, Conversation, Recipe, Faction } from "../models";
+import { Agent, Item, Info, Room, Conversation, Recipe, Faction, Quest } from "../models";
 
 export class AgentManipulator {
     static putInRoom(agent: Agent, room: Room): void {
@@ -81,8 +81,20 @@ export class AgentManipulator {
         agent.conversation = undefined;
     }
 
-    static addQuest() {
-        throw new Error("Quest not implemented");
+    static addAssignedQuest(agent: Agent, quest: Quest) {
+        agent._assignedQuests.add(quest.id);
+    }
+    
+    static removeAssignedQuest(agent: Agent, quest: Quest) {
+        agent._assignedQuests.delete(quest.id);
+    }
+
+    static addGivenQuest(agent: Agent, quest: Quest) {
+        agent._givenQuests.add(quest.id);
+    }
+
+    static removeGivenQuest(agent: Agent, quest: Quest) {
+        agent._givenQuests.delete(quest.id);
     }
 
     static joinFaction(agent: Agent, faction: Faction) {
@@ -92,4 +104,5 @@ export class AgentManipulator {
     static leaveFaction(agent: Agent, faction: Faction) {
         agent._factions.delete(faction.id);
     }
+
 }
