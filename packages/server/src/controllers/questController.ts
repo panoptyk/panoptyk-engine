@@ -71,7 +71,7 @@ export class QuestController extends BaseController {
         quest._status = QuestStatus.COMPLETED;
 
         // tell the answer back to the quest receiver
-        cc.tellInfoInConversation(conversation, questGiver, answer);
+        cc.tellInfoInConversation(conversation, questGiver, answer, quest.question);
 
         AgentManipulator.removeAssignedQuest(questReceiver, quest);
 
