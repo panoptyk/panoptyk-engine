@@ -10,3 +10,5 @@ export * from "./predTAR";
 export * from "./predTARI";
 export * from "./predTARR";
 export * from "./predFactory";
+
+export * from "./predUtil";
