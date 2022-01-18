@@ -4,6 +4,7 @@ import {
     TAA,
     TAAR,
     TAARK,
+    TAARKK,
     TAARQ,
     TAR,
     TARI,
@@ -13,6 +14,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARKK,
     PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
@@ -74,10 +76,10 @@ export const Actions = {
             owner
         );
     },
-    told(terms: TAARK, owner?: Agent) {
-        return new Information<TAARK>(
+    told(terms: TAARKK, owner?: Agent) {
+        return new Information<TAARKK>(
             aNames.TOLD,
-            new PredicateTAARK(terms),
+            new PredicateTAARKK(terms),
             false,
             owner
         );
@@ -181,11 +183,11 @@ export const Query = {
         });
         return query;
     },
-    told(terms: query<TAARK>) {
+    told(terms: query<TAARKK>) {
         const split = splitQuery(terms);
-        const query = new Information<TAARK>(
+        const query = new Information<TAARKK>(
             aNames.TOLD,
-            new PredicateTAARK(split.terms),
+            new PredicateTAARKK(split.terms),
             true
         );
         InformationManipulator.setQueryTargets(query, {
@@ -238,7 +240,7 @@ export const Query = {
         const query = new Information<TAARQ>(
             aNames.QUEST_GIVEN,
             new PredicateTAARQ(split.terms),
-            true    
+            true
         );
         InformationManipulator.setQueryTargets(query, {
             action: true,
@@ -251,7 +253,7 @@ export const Query = {
         const query = new Information<TAARQ>(
             aNames.QUEST_COMPLETED,
             new PredicateTAARQ(split.terms),
-            true    
+            true
         );
         InformationManipulator.setQueryTargets(query, {
             action: true,
@@ -264,7 +266,7 @@ export const Query = {
         const query = new Information<TAARQ>(
             aNames.QUEST_FAILED,
             new PredicateTAARQ(split.terms),
-            true    
+            true
         );
         InformationManipulator.setQueryTargets(query, {
             action: true,
@@ -277,7 +279,7 @@ export const Query = {
         const query = new Information<TAARQ>(
             aNames.QUEST_CLOSED,
             new PredicateTAARQ(split.terms),
-            true    
+            true
         );
         InformationManipulator.setQueryTargets(query, {
             action: true,

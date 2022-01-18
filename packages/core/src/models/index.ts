@@ -1,7 +1,7 @@
 export { Room } from "./room";
 export { Agent } from "./agent";
 export { Item } from "./item";
-export { Info, Information, IPredicate } from "./information";
+export * from "./information";
 export { Conversation } from "./conversation";
 export { Trade } from "./trade";
 export { Quest, QuestStatus } from "./quest";

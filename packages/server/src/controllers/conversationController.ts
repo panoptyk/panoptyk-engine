@@ -108,6 +108,7 @@ export class ConversationController extends BaseController {
         conversation: Conversation,
         teller: Agent,
         infoToTell: Info,
+        answerToQuestion?: Info,
         mask: string[] = []
     ): void {
         const agents: Agent[] = conversation.participants;
@@ -119,7 +120,8 @@ export class ConversationController extends BaseController {
                     agent: teller,
                     agentB: other,
                     room: conversation.room,
-                    info: infoToTell.getMasterCopy()
+                    info: infoToTell.getMasterCopy(), 
+                    infoB: answerToQuestion?.getMasterCopy(),
                 });
 
                 this.giveInfoToAgents(infoToTell, [other]);

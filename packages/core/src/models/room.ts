@@ -65,7 +65,7 @@ export class Room extends BaseModel {
         return this._roomName;
     }
     toString(): string {
-        return this._roomName + " (id# " + this.id + ")";
+        return this._roomName + " (id#" + this.id + ")";
     }
     equals(model: any) {
         return model instanceof Room && this.id === model.id;

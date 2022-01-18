@@ -95,7 +95,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         this._pred = pred;
         this.owner = owner;
 
-        logger.log(this + " initialized", "INFO");
+        logger.log(`${this} initialized! ${this._pred ? this.toFOL() : ""}`, "INFO");
     }
 
     toJSON(forClient: boolean, context: any): object {
@@ -133,8 +133,26 @@ export class Information<P extends PredicateTerms> extends BaseModel {
     displayName(): string {
         return this.toString();
     }
+
     toString(): string {
         return "Info#" + this.id;
+    }
+
+    toFOL(): string {
+        let termList = "";
+        for (const [key, value] of Object.entries(this.getTerms(false))) {
+            if (key == "action") {
+                continue;
+            }
+            if (typeof value === "object") {
+                termList += `${value.toString()}, `;
+            }
+            else {
+                termList += `${value}, `;
+            }
+        }
+
+        return `${this._action} (${termList.slice(0, -2)})`;
     }
 
     isMasked(): boolean {
@@ -176,6 +194,10 @@ export class Information<P extends PredicateTerms> extends BaseModel {
             ) as Information<P>;
         }
         return undefined;
+    }
+
+    getPredicate(): PredicateBase {
+        return this._pred;
     }
 
     getTerms(withMask: false): { action: string } & P;
