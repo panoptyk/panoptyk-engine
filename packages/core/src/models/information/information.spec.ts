@@ -8,6 +8,7 @@ import {
     TAA,
     TAAR,
     TAARK,
+    TAARKK,
     TAARQ,
     TAR,
     TARI,
@@ -17,6 +18,7 @@ import {
     PredicateTAA,
     PredicateTAAR,
     PredicateTAARK,
+    PredicateTAARKK,
     PredicateTAARQ,
     PredicateTAR,
     PredicateTARI,
@@ -135,6 +137,10 @@ describe("Information Model", () => {
                 "test",
                 new PredicateT({ time: 123 })
             );
+            const infoB = new Information<T>(
+                "test2",
+                new PredicateT({ time: 321 })
+            );
             const infos: { [key: string]: Information<PredicateTerms> } = {
                 infoT: new Information<T>(
                     "test",
@@ -165,6 +171,17 @@ describe("Information Model", () => {
                         agentB,
                         room: roomA,
                         info: infoA,
+                    })
+                ),
+                infoTAARKK: new Information<TAARKK>(
+                    "test",
+                    new PredicateTAARKK({
+                        time: 123,
+                        agent: agentA,
+                        agentB,
+                        room: roomA,
+                        info: infoA,
+                        infoB: infoB,
                     })
                 ),
                 infoTAARQ: new Information<TAARQ>(

@@ -4,6 +4,7 @@ import { TA, PredicateTA } from "./predTA";
 import { TAA, PredicateTAA } from "./predTAA";
 import { TAAR, PredicateTAAR } from "./predTAAR";
 import { TAARK, PredicateTAARK } from "./predTAARK";
+import { TAARKK, PredicateTAARKK } from "./predTAARKK";
 import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
@@ -26,6 +27,9 @@ export const PredicateFactory: {
     },
     TAARK(terms) {
         return new PredicateTAARK(terms);
+    },
+    TAARKK(terms) {
+        return new PredicateTAARKK(terms);
     },
     TAARQ(terms) {
         return new PredicateTAARQ(terms);
