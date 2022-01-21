@@ -39,7 +39,7 @@ export class Trade extends BaseModel {
 
     _status: Map<number, boolean>;
 
-    static activeTrades: Set<Trade> = new Set();
+    static activeTrades: Set<number> = new Set();
 
     set conversation(conversation: Conversation) {
         this._conversation = conversation ? conversation.id : -1;

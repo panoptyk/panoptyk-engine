@@ -2,13 +2,13 @@ import { Trade, Agent, Item, Info } from "../models";
 
 export class TradeManipulator {
     static addToActiveTrades(trade: Trade) {
-        Trade.activeTrades.add(trade);
+        Trade.activeTrades.add(trade.id);
     }
 
     static removeFromActiveTrades(trade: Trade) {
-        Trade.activeTrades.forEach(t => {
-            if (t.id === trade.id) { 
-                Trade.activeTrades.delete(t);
+        Trade.activeTrades.forEach(tradeID => {
+            if (trade.id === tradeID) { 
+                Trade.activeTrades.delete(trade.id);
             }
         });
     }
@@ -85,11 +85,12 @@ export class TradeManipulator {
         const itemIDs = items.map(item => item.id);
 
         if (trade._itemRequests.has(agent.id)) {
-            trade._itemRequests.get(agent.id).forEach((itemRequest, idx) => {
-                if (itemIDs.includes(itemRequest.data)) {
-                    trade._itemRequests.get(agent.id).splice(idx, 1);
-                }
-            })
+            const itemRequests = trade._itemRequests.get(agent.id);
+
+            trade._itemRequests.set(
+                agent.id,
+                itemRequests.filter(request => !itemIDs.includes(request.data))
+            );
         }
     }
 
@@ -130,11 +131,12 @@ export class TradeManipulator {
         const questionIDs = questions.map(question => question.getMasterCopy().id);
 
         if (trade._answerRequests.has(agent.id)) {
-            trade._answerRequests.get(agent.id).forEach((answerRequest, idx) => {
-                if (questionIDs.includes(answerRequest.data)) {
-                    trade._answerRequests.get(agent.id).splice(idx, 1);
-                }
-            })
+            const answerRequests = trade._answerRequests.get(agent.id);
+
+            trade._answerRequests.set(
+                agent.id, 
+                answerRequests.filter(request => !questionIDs.includes(request.data))
+            );
         }
     }
 
@@ -145,7 +147,6 @@ export class TradeManipulator {
             for (let req of trade._answerRequests.get(agent.id)) {
                 if (questionIDs.includes(req.data)) {
                     req.pass = true;
-                    break;
                 }
             }
         }
@@ -156,6 +157,6 @@ export class TradeManipulator {
             trade._goldRequest.set(agent.id, 0);
         }
         const gold = trade._goldRequest.get(agent.id);
-        trade._gold.set(agent.id, gold + amount);
+        trade._goldRequest.set(agent.id, gold + amount);
     }
 }
