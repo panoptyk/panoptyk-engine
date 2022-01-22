@@ -18,6 +18,7 @@ import {
     ActionAskQuestion,
     ActionGiveQuest,
     ActionTurnInQuestInfo,
+    ActionRequestTrade,
 } from "./action";
 import * as Validate from "./validate";
 import { ConnectionController } from "./controllers";
@@ -38,6 +39,7 @@ const defaultActions: Action[] = [
     ActionAskQuestion,
     ActionGiveQuest,
     ActionTurnInQuestInfo,
+    ActionRequestTrade,
 ];
 
 const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms

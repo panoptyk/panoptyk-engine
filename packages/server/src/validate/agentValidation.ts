@@ -232,3 +232,24 @@ export function ownsInfos(agent: Agent, infos: Info[]): ValidationResult {
     
     return ValidationSuccess;
 }
+
+export function agentsNotInTrade(agent: Agent, agentB: Agent): ValidationResult {
+    if (agent === undefined || agentB === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: ${agent === undefined ? " agent" : ""}
+                ${agentB === undefined ? " agentB" : ""}`
+        };
+    }
+
+    if (agent.trade || agentB.trade) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentInTrade,
+            message: `Agents ${agent.trade ? agent : ""} ${agentB.trade ? agentB : ""} in trade`
+        };
+    }
+
+    return ValidationSuccess;
+}

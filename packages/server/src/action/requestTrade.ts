@@ -1,49 +1,53 @@
-// import { Action } from "./action";
-// import { logger } from "../utilities/logger";
-// import { Validate } from "./validate";
-// import { Controller } from "../../controllers/controller";
-// import { Models.Agent, Trade, Conversation } from "../models/index";
+import { Agent, Util } from "@panoptyk/core";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { TradeController } from "..";
 
-// export const ActionRequestTrade: Action = {
-//   name: "request-trade",
-//   formats: [
-//     {
-//       agentID: "number"
-//     }
-//   ],
-//   enact: (agent: Models.Agent, inputData: any) => {
-//     const controller = new Controller();
-//     const conversation: Conversation = agent.conversation;
-//     const toModels.Agent: Models.Agent = Models.Agent.getByID(inputData.agentID);
+export const ActionRequestTrade: Action = {
+    name: "request-trade",
+    formats: [
+        {
+            agentID: "number"
+        },
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const tc: TradeController = new TradeController();
+        const agentB = Util.AppContext.db.retrieveModel(inputData.agentID, Agent);
 
-//     if (!toModels.Agent.activeTradeRequestTo(agent)) {
-//       controller.requestTrade(agent, toModels.Agent);
-//       logger.log("Event request-trade from (" + agent + ") to agent " + toModels.Agent + " registered.", 2);
-//     }
-//     else {  // accept trade if receiving agent sent this
-//       const trade: Trade = controller.createTrade(conversation, agent, toModels.Agent);
-//       logger.log("Event accept-trade (" + trade + ") for agent " + trade.agentIni + "/" + trade.agentRec + " registered.", 2);
-//     }
-//     controller.sendUpdates();
-//   },
-//   validate: (agent: Models.Agent, socket: any, inputData: any) => {
-//     let res;
-//     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-//       return res;
-//     }
-//     const toModels.Agent = Models.Agent.getByID(inputData.agentID);
-//     if (!(res = Validate.validate_agent_logged_in(toModels.Agent)).status) {
-//       return res;
-//     }
-//     if (!(res = Validate.validate_not_same_agent(agent, toModels.Agent)).status) {
-//       return res;
-//     }
-//     if (!(res = Validate.validate_agents_share_conversation(agent, toModels.Agent)).status) {
-//       return res;
-//     }
-//     if (!(res = Validate.validate_agents_not_already_trading(agent, toModels.Agent)).status) {
-//       return res;
-//     }
-//     return Validate.successMsg;
-//   }
-// };
+        const trade = tc.createTrade(agent, agentB, agent.conversation);
+
+        Util.logger.log(
+            `Event request-trade agent (${agent}) requested trade (${trade})
+            with agent (${agentB})`,
+            "ACTION"
+        );
+
+        tc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+        const agentB = Util.AppContext.db.retrieveModel(inputData.agentID, Agent);
+        const conversation = agent.conversation;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.loggedIn(agentB)).success) {
+            return res;
+        }
+        if (!(res = Validate.conversationInAgentsRoom(conversation, agent.room)).success) {
+            return res;
+        }
+        if (!(res = Validate.differentAgents(agent, agentB)).success) {
+            return res;
+        }
+        if (!(res = Validate.shareConversation([agent, agentB])).success) {
+            return res;
+        }
+        if (!(res = Validate.agentsNotInTrade(agent, agentB)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+}

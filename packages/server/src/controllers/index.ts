@@ -4,3 +4,4 @@ export { MovementController } from "./movementController";
 export { InventoryController } from "./inventoryController";
 export { ConversationController } from "./conversationController";
 export { QuestController } from "./questController";
+export { TradeController } from "./tradeController";
