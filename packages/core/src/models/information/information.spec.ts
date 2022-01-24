@@ -1,12 +1,13 @@
 import { assert, expect } from "chai";
 import "mocha";
 import AppContext from "../../utilities/AppContext";
-import { Agent, Item, Quest, Room, QuestStatus } from "..";
+import { Agent, Item, Quest, Room, QuestStatus, Trade } from "..";
 import {
     T,
     TA,
     TAA,
     TAAR,
+    TAARD,
     TAARK,
     TAARKK,
     TAARQ,
@@ -17,6 +18,7 @@ import {
     PredicateTA,
     PredicateTAA,
     PredicateTAAR,
+    PredicateTAARD,
     PredicateTAARK,
     PredicateTAARKK,
     PredicateTAARQ,
@@ -38,6 +40,7 @@ describe("Information Model", () => {
     let roomB: Room;
     let itemA: Item;
     let quest: Quest;
+    let trade: Trade;
     beforeEach(() => {
         AppContext.defaultInitialize();
         agentA = new Agent("A");
@@ -46,6 +49,7 @@ describe("Information Model", () => {
         roomB = new Room("B", 1);
         itemA = new Item("A");
         quest = new Quest(agentA, agentB, undefined, QuestStatus.ACTIVE, 123);
+        trade = new Trade(agentA, agentB, undefined);
     });
     context("ID numbering", () => {
         it("basic creation", () => {
@@ -163,6 +167,16 @@ describe("Information Model", () => {
                         room: roomA,
                     })
                 ),
+                infoTAARD: new Information<TAARD>(
+                    "test",
+                    new PredicateTAARD({
+                        time: 123,
+                        agent: agentA,
+                        agentB,
+                        room: roomA,
+                        trade: trade
+                    })
+                ),
                 infoTAARK: new Information<TAARK>(
                     "test",
                     new PredicateTAARK({
@@ -204,7 +218,7 @@ describe("Information Model", () => {
                         time: 123,
                         agent: agentA,
                         room: roomA,
-                        item: itemA,
+                        item: itemA
                     })
                 ),
                 infoTARR: new Information<TARR>(

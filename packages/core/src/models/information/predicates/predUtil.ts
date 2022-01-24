@@ -9,6 +9,7 @@ import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
 import { TAARQ, PredicateTAARQ } from "./predTAARQ";
+import { TAARD, PredicateTAARD } from "./predTAARD";
 
 
 
@@ -51,5 +52,9 @@ export class Check {
 
     static isPredicateTAARQ(info: Info): info is Information<TAARQ> {
         return info?.getPredicate()?.predicateName === "TAARQ";
+    }
+
+    static isPredicateTAARD(info: Info): info is Information<TAARD> {
+        return info?.getPredicate()?.predicateName === "TAARD";
     }
 }

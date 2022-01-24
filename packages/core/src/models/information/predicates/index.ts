@@ -4,6 +4,7 @@ export * from "./predT";
 export * from "./predTA";
 export * from "./predTAA";
 export * from "./predTAAR";
+export * from "./predTAARD";
 export * from "./predTAARK";
 export * from "./predTAARKK";
 export * from "./predTAARQ";
