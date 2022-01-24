@@ -77,16 +77,15 @@ export class Trade extends BaseModel {
         this._goldRequest = new Map();
         this._status = new Map();
 
-        this._agentIDs.add(initiator.id);
-        this._agentIDs.add(receiver.id);
-
         if (initiator) {
             this._status.set(initiator.id, false);
             this._gold.set(initiator.id, 0);
+            this._agentIDs.add(initiator.id);
         }
         if (receiver) {
             this._status.set(receiver.id, false);
             this._gold.set(receiver.id, 0);
+            this._agentIDs.add(receiver.id);
         }
 
         logger.log("Trade " + this + " Initialized.", "TRADE");
@@ -97,11 +96,16 @@ export class Trade extends BaseModel {
     }
 
     toString(): string {
-        return `Trade(id#${this.id})`;
+        return "Trade (id#" + this.id + ")";
+    }
+    
+    equals(model: any) {
+        return model instanceof Trade && this.id === model.id;
     }
 
-    equals(model: any): boolean {
-        return model instanceof Trade && this.id === model.id;
+    toJSON(forClient: boolean, context: any): object {
+        const safeTrade = super.toJSON(forClient, context);
+        return safeTrade;
     }
 
     /**
