@@ -253,3 +253,21 @@ export function agentsNotInTrade(agent: Agent, agentB: Agent): ValidationResult 
 
     return ValidationSuccess;
 }
+
+export function agentInTrade(agent: Agent): ValidationResult {
+    if (agent === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: agent`
+        };
+    }
+    if (!agent.trade) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentNotInTrade,
+            message: `Agent ${agent} not in trade`
+        };
+    }
+    return ValidationSuccess;
+}

@@ -11,3 +11,4 @@ export * from "./itemValidation";
 export * from "./roomValidation";
 export * from "./craftingValidation";
 export * from "./questValidation";
+export * from "./tradeValidation";

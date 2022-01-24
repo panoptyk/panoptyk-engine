@@ -25,7 +25,7 @@ export class Trade extends BaseModel {
     _conversation: number
     _agentIDs: Set<number>;
     _conversationID: number;
-    _tradeStatus: number;
+    tradeStatus: number;
     _itemIDs: Map<number, Set<number>>;
     _itemRequests: Map<number, Request[]>;
 
@@ -45,10 +45,6 @@ export class Trade extends BaseModel {
 
     get conversation(): Conversation {
         return this.db.retrieveModel(this._conversation, Conversation);
-    }
-
-    get tradeStatus(): number {
-        return this._tradeStatus;
     }
 
     get agents(): Agent[] {
@@ -78,7 +74,7 @@ export class Trade extends BaseModel {
 
         this._agentIDs = new Set();
         this.conversation = conversation;
-        this._tradeStatus = TradeStatus.IN_PROGRESS;
+        this.tradeStatus = TradeStatus.IN_PROGRESS;
         this._itemIDs = new Map();
         this._itemRequests = new Map();
         this._answerIDs = new Map();
@@ -102,7 +98,7 @@ export class Trade extends BaseModel {
     }
 
     displayName(): string {
-        throw new Error("Method not implemented.");
+        return this.toString();
     }
 
     toString(): string {

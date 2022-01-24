@@ -31,7 +31,9 @@ export class ConnectionController extends BaseController {
             agent.knowledge,
             agent.activeAssignedQuests,
             agent.activeGivenQuests,
-            agent.factions
+            agent.factions,
+        //    agent.trade
+       //     agent.room,
         ]);
 
         // TODO: fix \/
