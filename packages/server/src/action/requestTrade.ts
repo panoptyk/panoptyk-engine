@@ -10,18 +10,29 @@ export const ActionRequestTrade: Action = {
             agentID: "number"
         },
     ],
-    enact: (agent: Agent, inputData: any) => {
+    enact: (initiator: Agent, inputData: any) => {
         const tc: TradeController = new TradeController();
-        const agentB = Util.AppContext.db.retrieveModel(inputData.agentID, Agent);
+        const receiver = Util.AppContext.db.retrieveModel(inputData.agentID, Agent);
 
-        const trade = tc.createTrade(agent, agentB, agent.conversation);
-
-        Util.logger.log(
-            `Event request-trade agent (${agent}) requested trade (${trade})
-            with agent (${agentB})`,
-            "ACTION"
-        );
-
+       
+        if (initiator.tradeRequesters.indexOf(receiver) === -1) {
+            tc.requestTrade(initiator, receiver);
+            Util.logger.log(
+                `Event request-trade agent (${initiator}) requested trade \ 
+                with agent ${receiver}`,
+                "ACTION"
+            );
+        }
+        else {
+            const trade = tc.createTrade(initiator, receiver, initiator.conversation);
+        
+            Util.logger.log(
+                `Event accept-trade agent (${initiator}) accepted trade ${trade} \
+                with agent (${receiver})`,
+                "ACTION"
+            );
+        }
+        
         tc.sendUpdates();
     },
     validate: (agent: Agent, socket: any, inputData: any) => {
