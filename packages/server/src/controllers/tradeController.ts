@@ -90,6 +90,24 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, items, trade]);
     }
 
+    offerAnswers(
+        agent: Agent,
+        trade: Trade,
+        answer: Info,
+        question: Info,
+        mask: string[] = []
+    ): void {
+        TradeManipulator.addInfo(trade, agent, question, answer, mask);
+
+        // perform transaction if all agents ready
+        if (TradeController.allAgentsReady(trade)) {
+            // make transaction
+            this.makeTransaction(trade);
+        }
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
     makeTransaction(
         trade: Trade
     ): void {

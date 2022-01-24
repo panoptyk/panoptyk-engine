@@ -10,7 +10,7 @@ import {
 } from "@panoptyk/core";
 import { TradeController } from "..";
 
-export function validTrade(trade: Trade, agent: Agent, status: boolean): ValidationResult {
+export function validTrade(trade: Trade, agent: Agent, status?: boolean): ValidationResult {
     if (trade === undefined) {
         return {
             success: false,
@@ -55,5 +55,20 @@ export function validTrade(trade: Trade, agent: Agent, status: boolean): Validat
         }
     }
 
+    return ValidationSuccess;
+}
+
+export function isAnswerToQuestion(
+    answer: Info, 
+    question: Info
+): ValidationResult {
+    if (!question.isAnswer(answer)) {
+        return {
+            success: false,
+            errorCode: ValidationError.TradeAnswerIncorrect,
+            message: `Trade answer is incorrect`
+        };
+    }
+    
     return ValidationSuccess;
 }

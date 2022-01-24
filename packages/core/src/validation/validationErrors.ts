@@ -31,4 +31,5 @@ export const ValidationError = Object.freeze({
     CraftingAgentInsufficientResource: 601 as 601,
     QuestAnswerIncorrect: 700 as 700,
     InvalidTrade: 800 as 800,
+    TradeAnswerIncorrect: 801 as 801,
 });
