@@ -382,7 +382,7 @@ export class ClientAPI {
      */
     public static async tellInfo(info: Info) {
         const res = await ClientAPI.sendWrapper("tell-info", {
-            info: info.id,
+            infoID: info.id,
         });
         return res;
     }

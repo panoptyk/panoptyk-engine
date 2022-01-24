@@ -21,6 +21,8 @@ export class InventoryController extends BaseController {
 
         RoomManipulator.removeItem(room, item);
         ItemManipulator.removeFromRoom(item);
+        
+        ItemManipulator.giveToAgent(item, agent);
         AgentManipulator.addItemToInventory(agent, item);
 
         room.occupants.forEach((occupant) => {

@@ -34,6 +34,7 @@ export const ActionMoveToRoom: Action = {
     },
     validate: (agent: Agent, socket: any, inputData: any) => {
         let res;
+
         if (!(res = Validate.loggedIn(agent)).success) {
             return res;
         }
@@ -41,13 +42,12 @@ export const ActionMoveToRoom: Action = {
             inputData.roomID,
             Room
         ) as Room;
-        if (!(res = Validate.roomAdjacent(agent.room, newRoom).success)) {
+        if (!(res = Validate.roomAdjacent(agent.room, newRoom)).success) {
             return res;
         }
-        if (!(res = Validate.roomHasSpace(newRoom).success)) {
+        if (!(res = Validate.roomHasSpace(newRoom)).success) {
             return res;
         }
-
         return Validate.ValidationSuccess;
     },
 };
