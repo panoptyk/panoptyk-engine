@@ -82,7 +82,7 @@ export class TradeController extends BaseController {
         items.forEach(item => item.inTransaction = true);
 
         // perform transaction if all agents ready
-        if (this.allAgentsReady(trade)) {
+        if (TradeController.allAgentsReady(trade)) {
             // make transaction
             this.makeTransaction(trade);
         }
@@ -98,8 +98,8 @@ export class TradeController extends BaseController {
             const agentB = trade.agents[1];
 
             // trade items
-            const itemsFromAgent: Item[] = this.getAgentItemsOffered(agent, trade);
-            const itemsFromAgentB: Item[] = this.getAgentItemsOffered(agentB, trade);
+            const itemsFromAgent: Item[] = TradeController.getAgentItemsOffered(agent, trade);
+            const itemsFromAgentB: Item[] = TradeController.getAgentItemsOffered(agentB, trade);
 
             this.tradeItems(agent, agentB, itemsFromAgent);
             this.tradeItems(agentB, agent, itemsFromAgentB);
@@ -107,8 +107,8 @@ export class TradeController extends BaseController {
             // TO-DO: trade gold
             
             // trade info
-            const questionAnswersMapFromAgent = this.getAgentQuestionAnswerMap(agent, trade);
-            const questionAnswersMapFromAgentB = this.getAgentQuestionAnswerMap(agentB, trade);
+            const questionAnswersMapFromAgent = TradeController.getAgentQuestionAnswerMap(agent, trade);
+            const questionAnswersMapFromAgentB = TradeController.getAgentQuestionAnswerMap(agentB, trade);
 
             this.tradeInfo(agent, questionAnswersMapFromAgent);
             this.tradeInfo(agentB, questionAnswersMapFromAgentB);
@@ -180,7 +180,7 @@ export class TradeController extends BaseController {
         });
     }
 
-    getAgentItemsOffered(
+    static getAgentItemsOffered(
         agent: Agent,
         trade: Trade
     ): Item[] {
@@ -196,14 +196,14 @@ export class TradeController extends BaseController {
         return items;
     }
 
-    getAgentGoldOffered(
+    static getAgentGoldOffered(
         agent: Agent,
         trade: Trade
     ): number {
         return trade.gold.get(agent.id);
     }
 
-    getAgentQuestionAnswerMap(
+    static getAgentQuestionAnswerMap(
         agent: Agent,
         trade: Trade
     ): Map<number, AnswerInfo[]> {
@@ -214,6 +214,20 @@ export class TradeController extends BaseController {
         }
 
         return map;
+    }
+
+    static getAnswers(
+        agent: Agent,
+        trade: Trade
+    ): number[] {
+        let answers = [];
+        let map = TradeController.getAgentQuestionAnswerMap(agent, trade);
+
+        map.forEach((answerInfos) => {
+            answers = answers.concat(answerInfos.map(info => info.answerID));
+        });
+
+        return answers;
     }
 
     getAgentReadyStatus(
@@ -236,12 +250,12 @@ export class TradeController extends BaseController {
     ) {
         trade.status.set(agent.id, status);
 
-        if (this.allAgentsReady(agent.trade)) {
+        if (TradeController.allAgentsReady(agent.trade)) {
             this.makeTransaction(agent.trade);
         }
     }
 
-    allAgentsReady(
+    static allAgentsReady(
         trade: Trade
     ): boolean {
         return Array.from(trade.status.values()).reduce((a, b) => a && b);

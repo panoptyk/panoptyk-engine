@@ -8,8 +8,9 @@ import {
     Trade,
     TradeStatus
 } from "@panoptyk/core";
+import { TradeController } from "..";
 
-export function validTrade(trade: Trade): ValidationResult {
+export function validTrade(trade: Trade, agent: Agent, status: boolean): ValidationResult {
     if (trade === undefined) {
         return {
             success: false,
@@ -22,8 +23,36 @@ export function validTrade(trade: Trade): ValidationResult {
         return {
             success: false,
             errorCode: ValidationError.InvalidTrade,
-            message: `Invalid trade`
+            message: `Invalid trade: trade not in progress`
         };
+    }
+
+    // if all agents are ready and all have nothing to offer
+    let nothingToOffer = true;
+    let statusMap = trade.status;
+    statusMap.set(agent.id, status);
+
+    if (
+        status && 
+        Array.from(statusMap.values()).reduce((a, b) => a && b)
+    ) {
+        trade.agents.forEach(agent => {
+            if (
+                TradeController.getAgentItemsOffered(agent, trade).length > 0 ||
+                TradeController.getAgentGoldOffered(agent, trade) !== 0 ||
+                TradeController.getAnswers(agent, trade).length > 0
+            ) {
+                nothingToOffer = false;
+            }
+        });
+
+        if (nothingToOffer) {
+            return {
+                success: false,
+                errorCode: ValidationError.InvalidTrade,
+                message: `Invalid trade: all agents have nothing to offer`
+            };
+        }
     }
 
     return ValidationSuccess;
