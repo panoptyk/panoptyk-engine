@@ -112,12 +112,6 @@ export class TradeController extends BaseController {
 
         items.forEach(item => item.inTransaction = true);
 
-        // perform transaction if all agents ready
-        if (TradeController.allAgentsReady(trade)) {
-            // make transaction
-            this.makeTransaction(trade);
-        }
-
         this.updateChanges(agent, [agent, items, trade]);
     }
 
@@ -142,12 +136,6 @@ export class TradeController extends BaseController {
     ): void {
         TradeManipulator.addInfo(trade, agent, question, answer, mask);
 
-        // perform transaction if all agents ready
-        if (TradeController.allAgentsReady(trade)) {
-            // make transaction
-            this.makeTransaction(trade);
-        }
-
         this.updateChanges(agent, [agent, trade]);
     }
 
@@ -167,12 +155,6 @@ export class TradeController extends BaseController {
         amount: number
     ): void {
         TradeManipulator.updateOfferedGold(trade, agent, amount);
-
-        // perform transaction if all agents ready
-        if (TradeController.allAgentsReady(trade)) {
-            // make transaction
-            this.makeTransaction(trade);
-        }
 
         this.updateChanges(agent, [agent, trade]);
     }
