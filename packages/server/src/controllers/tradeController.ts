@@ -151,6 +151,16 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, trade]);
     }
 
+    removeInfo(
+        agent: Agent,
+        trade: Trade,
+        info: Info
+    ): void {
+        TradeManipulator.removeInfo(trade, [info], agent);
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
     makeTransaction(
         trade: Trade
     ): void {

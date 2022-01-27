@@ -1,38 +1,52 @@
-// import { Action } from "./action";
-// import { logger } from "../utilities/logger";
-// import { Validate } from "./validate";
-// import { Controller } from "../../controllers/controller";
-// import { Models.Agent, Info, Trade } from "../models/index";
+import { Agent, Util, Information } from "@panoptyk/core";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { TradeController } from "..";
 
-// export const ActionWithdrawInfoTrade: Action = {
-//   name: "withdraw-info-trade",
-//   formats: [
-//     {
-//       "infoID": "number"
-//     }
-//   ],
-//   enact: (agent: Models.Agent, inputData: any) => {
-//     const controller = new Controller();
-//     const trade: Trade = agent.trade;
-//     const info: Info = Info.getByID(inputData.infoID);
+export const ActionWithdrawInfoTrade: Action = {
+    name: "withdraw-info-trade",
+    formats: [
+        {
+            "infoID": "number"
+        }
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const info = Util.AppContext.db.retrieveModel(
+            inputData.infoID,
+            Information
+        );
+        const tc: TradeController = new TradeController();
 
-//     controller.removeInfoFromTrade(trade, info, agent);
-//     logger.log("Event withdraw-info-trade from " + agent + " on " + trade + " registered.", 2);
-//     controller.sendUpdates();
-//   },
-//   validate: (agent: Models.Agent, socket: any, inputData: any) => {
-//     let res;
-//     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-//       return res;
-//     }
-//     const trade: Trade = agent.trade;
-//     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
-//       return res;
-//     }
-//     const info: Info = Info.getByID(inputData.infoID);
-//     if (!(res = Validate.validate_agent_owns_info(agent, info)).status) {
-//         return res;
-//     }
-//     return Validate.successMsg;
-//   }
-// };
+        tc.removeInfo(agent, agent.trade, info);
+
+        Util.logger.log(
+            `Event withdraw-info-trade agent (${agent}) withdraw \
+            info (${info}) in trade`,
+            "ACTION"
+        );
+
+        tc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+        const info = Util.AppContext.db.retrieveModel(
+            inputData.infoID,
+            Information
+        );
+    
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.agentInTrade(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.validTrade(agent.trade, agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.ownsInfos(agent, [info])).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+}
