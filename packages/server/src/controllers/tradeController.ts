@@ -37,6 +37,27 @@ export class TradeController extends BaseController {
         this.updateChanges(receiver, [receiver]);
     }
 
+    cancelTrade(
+        trade: Trade
+    ): void {
+        const agents = trade.agents;
+
+        TradeManipulator.removeFromActiveTrades(trade);
+        trade.tradeStatus = TradeStatus.FAILED;
+
+        agents.forEach(agent => {
+            this.removeAgentFromTrade(agent);
+        
+            const items = TradeController.getAgentItemsOffered(agent, trade);
+
+            items.forEach(item => item.inTransaction = false);
+
+            TradeManipulator.removeAllOffersFromTrade(trade, agent);
+
+            this.updateChanges(agent, [agent, trade, items]);
+        });
+    }
+
     createTrade(
         initiator: Agent,
         receiver: Agent,
@@ -52,10 +73,20 @@ export class TradeController extends BaseController {
         this.updateChanges(initiator, [initiator, trade]);
         this.updateChanges(receiver, [receiver, trade]);
 
-        // TO-DO: add in trade creation info to conversation log
-        // TO-DO: spread trade creation info to participants
-
         return trade;
+    }
+
+    removeAgentFromTrade(
+        agent: Agent,
+    ): void {
+        AgentManipulator.leaveTrade(agent);
+
+        agent.tradesRequested.forEach((requestee) => {
+            AgentManipulator.removeRequestedTrade(agent, requestee);
+        });
+        agent.tradeRequesters.forEach((requester) => {
+            AgentManipulator.removeRequestedTrade(requester, agent);
+        });
     }
 
     addAgentToTrade(

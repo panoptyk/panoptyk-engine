@@ -8,7 +8,7 @@ export { ActionRejectConversationRequest } from "./rejectConversationRequest";
 export { ActionJoinConversation } from "./joinConversation";
 export { ActionLeaveConversation } from "./leaveConversation";
 export { ActionCraft } from "./craft";
-// export { ActionCancelTrade } from "./cancelTrade";
+export { ActionCancelTrade } from "./cancelTrade";
 export { ActionOfferItemsTrade } from "./offerItemsTrade";
 export { ActionReadyTrade } from "./readyTrade";
 export { ActionRequestTrade } from "./requestTrade";

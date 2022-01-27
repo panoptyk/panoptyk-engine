@@ -14,7 +14,6 @@ export const ActionRequestTrade: Action = {
         const tc: TradeController = new TradeController();
         const receiver = Util.AppContext.db.retrieveModel(inputData.agentID, Agent);
 
-       
         if (initiator.tradeRequesters.indexOf(receiver) === -1) {
             tc.requestTrade(initiator, receiver);
             Util.logger.log(
