@@ -12,7 +12,7 @@ export { ActionCancelTrade } from "./cancelTrade";
 export { ActionOfferItemsTrade } from "./offerItemsTrade";
 export { ActionReadyTrade } from "./readyTrade";
 export { ActionRequestTrade } from "./requestTrade";
-// export { ActionWithdrawItemsTrade } from "./withdrawItemsTrade";
+export { ActionWithdrawItemsTrade } from "./withdrawItemsTrade";
 export { ActionAskQuestion } from "./askQuestion";
 export { ActionOfferAnswerTrade } from "./offerAnswerTrade";
 // export { ActionWithdrawInfoTrade } from "./withdrawInfoTrade";

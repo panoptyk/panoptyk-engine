@@ -121,6 +121,18 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, items, trade]);
     }
 
+    removeItems(
+        agent: Agent,
+        trade: Trade,
+        items: Item[]
+    ): void {
+        TradeManipulator.removeItems(trade, agent, items);
+
+        items.forEach(item => item.inTransaction = false);
+
+        this.updateChanges(agent, [agent, items, trade]);
+    }
+
     offerAnswers(
         agent: Agent,
         trade: Trade,
