@@ -161,6 +161,22 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, trade]);
     }
 
+    modifyGoldOffered(
+        agent: Agent,
+        trade: Trade,
+        amount: number
+    ): void {
+        TradeManipulator.updateOfferedGold(trade, agent, amount);
+
+        // perform transaction if all agents ready
+        if (TradeController.allAgentsReady(trade)) {
+            // make transaction
+            this.makeTransaction(trade);
+        }
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
     makeTransaction(
         trade: Trade
     ): void {

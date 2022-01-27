@@ -25,7 +25,7 @@ export { ActionGiveQuest } from "./giveQuest";
 export { ActionTurnInQuestInfo } from "./turnInQuestInfo";
 export { ActionRejectTradeRequest } from "./rejectTradeRequest";
 // export { ActionModifyModels.AgentFaction } from "./modifyModels.AgentFaction";
-// export { ActionModifyGoldTrade } from "./modifyGoldTrade";
+export { ActionModifyGoldTrade } from "./modifyGoldTrade";
 // export { ActionDropGold } from "./dropGold";
 // export { ActionStealItem } from "./stealItem";
 // export { ActionConfiscateItem } from "./confiscateItem";

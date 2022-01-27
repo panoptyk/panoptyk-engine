@@ -1,40 +1,39 @@
-// import { Action } from "./action";
-// import { logger } from "../utilities/logger";
-// import { Validate } from "./validate";
-// import { Controller } from "../../controllers/controller";
-// import { Models.Agent, Trade } from "../models/index";
+import { Agent, Util } from "@panoptyk/core";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { TradeController } from "..";
 
-// export const ActionModifyGoldTrade: Action = {
-//   name: "modify-gold-trade",
-//   formats: [
-//     {
-//       "amount": "number"
-//     }
-//   ],
-//   enact: (agent: Models.Agent, inputData: any) => {
-//     const controller = new Controller();
-//     const trade: Trade = agent.trade;
+export const ActionModifyGoldTrade: Action = {
+    name: "modify-gold-trade",
+    formats: [
+        {
+            "amount": "number"
+        }
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const tc: TradeController = new TradeController();
+        const amount = inputData.amount;
 
-//     controller.modifyGoldTrade(agent, trade, inputData.amount);
+        tc.modifyGoldOffered(agent, agent.trade, amount);
 
-//     logger.log("Event modify-gold-trade from " + agent + " on " + trade + " registered.", 2);
-//     controller.sendUpdates();
-//   },
-//   validate: (agent: Models.Agent, socket: any, inputData: any) => {
-//     let res;
-//     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-//       return res;
-//     }
-//     if (!(res = Validate.validate_agent_has_enough_gold(agent, inputData.amount)).status) {
-//         return res;
-//     }
-//     const trade: Trade = agent.trade;
-//     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
-//       return res;
-//     }
-//     if (!(res = Validate.validate_trade_gold_change(agent, trade, inputData.amount)).status) {
-//         return res;
-//     }
-//     return Validate.successMsg;
-//   }
-// };
+        Util.logger.log(
+            `Event modify-gold-trade Agent ${agent} \
+            modified gold with amount ${amount}`,
+            "ACTION"
+        );
+
+        tc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.agentInTrade(agent)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+}

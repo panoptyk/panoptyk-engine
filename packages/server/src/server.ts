@@ -26,6 +26,7 @@ import {
     ActionCancelTrade,
     ActionWithdrawItemsTrade,
     ActionWithdrawInfoTrade,
+    ActionModifyGoldTrade,
 } from "./action";
 import * as Validate from "./validate";
 import { ConnectionController } from "./controllers";
@@ -54,6 +55,7 @@ const defaultActions: Action[] = [
     ActionCancelTrade,
     ActionWithdrawItemsTrade,
     ActionWithdrawInfoTrade,
+    ActionModifyGoldTrade,
 ];
 
 const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms
