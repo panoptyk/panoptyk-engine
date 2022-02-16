@@ -41,6 +41,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
      
+     # run build
+     - run: npm run build
+     
      # Publish to npm
      -  run: npx lerna publish from-package --no-verify-access --yes
         env:
