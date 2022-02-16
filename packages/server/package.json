@@ -1,6 +1,6 @@
 {
   "name": "@panoptyk/server",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "TODO",
   "homepage": "https://github.com/panoptyk/panoptyk-engine/tree/master/packages/server#readme",
   "author": "",
@@ -17,6 +17,7 @@
     "access": "public"
   },
   "scripts": {
+    "prpeare": "npm run build",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib",
     "compile": "../../node_modules/.bin/tsc -p tsconfig.build.json",
@@ -32,7 +33,7 @@
     "url": "https://github.com/panoptyk/panoptyk-engine/issues"
   },
   "dependencies": {
-    "@panoptyk/core": "^2.0.3",
+    "@panoptyk/core": "^2.0.4",
     "express": "^4.17.1",
     "socket.io": "^2.2.0"
   }
