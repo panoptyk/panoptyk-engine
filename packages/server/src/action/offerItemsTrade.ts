@@ -1,4 +1,4 @@
-import { Agent, Util, Item, Trade } from "@panoptyk/core";
+import { Agent, Util, Item } from "@panoptyk/core";
 import { Action } from "./action";
 import * as Validate from "../validate";
 import { TradeController } from "..";
@@ -20,8 +20,8 @@ export const ActionOfferItemsTrade: Action = {
         tc.offerItems(agent, agent.trade, items);
         
         Util.logger.log(
-            `Event offer-items-trade agent ${agent} offered \
-            items (${items}) in trade`,
+            `Event offer-items-trade agent ${agent} offered` +
+            `items (${items}) in trade`,
             "ACTION"
         );
 
@@ -38,6 +38,9 @@ export const ActionOfferItemsTrade: Action = {
             return res;
         }
         if (!(res = Validate.agentInTrade(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.validTrade(agent.trade, agent)).success) {
             return res;
         }
         if (!(res = Validate.ownsItems(agent, items)).success) {
