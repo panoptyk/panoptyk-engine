@@ -33,7 +33,7 @@ export class Trade extends BaseModel {
     _answerRequests: Map<number, Request[]>;
 
     _gold: Map<number, number>;
-    _goldRequest: Map<number, number>;
+    _goldRequest: Map<number, Request>;
 
     status: Map<number, boolean>;
 
@@ -61,6 +61,18 @@ export class Trade extends BaseModel {
 
     get gold() {
         return this._gold;
+    }
+
+    get itemRequests() {
+        return this._itemRequests;
+    }
+
+    get goldRequest() {
+        return this._goldRequest;
+    }
+
+    get answerRequests() {
+        return this._answerRequests;
     }
 
     constructor(

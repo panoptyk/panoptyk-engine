@@ -24,11 +24,11 @@ export const ActionOfferAnswerTrade: Action = {
         const mask: string[] = inputData.mask;
         const tc: TradeController = new TradeController();
 
-        tc.offerAnswers(agent, agent.trade, answer, question, mask);
+        tc.offerAnswer(agent, agent.trade, answer, question, mask);
 
         Util.logger.log(
-            `Event offer-answer-trade agent (${agent}) offer \
-            answer (${answer}) to question (${question}) in trade`,
+            `Event offer-answer-trade agent (${agent}) offer` +
+            `answer (${answer}) to question (${question}) in trade`,
             "ACTION"
         );
 

@@ -127,7 +127,7 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, items, trade]);
     }
 
-    offerAnswers(
+    offerAnswer(
         agent: Agent,
         trade: Trade,
         answer: Info,
@@ -159,6 +159,81 @@ export class TradeController extends BaseController {
         this.updateChanges(agent, [agent, trade]);
     }
 
+    addItemRequests(
+        agent: Agent,
+        trade: Trade,
+        items: Item[]
+    ): void {
+        TradeManipulator.addItemsToItemRequests(trade, agent, items);
+
+        this.updateChanges(agent, [agent, items, trade]);
+    }
+
+    addGoldRequest(
+        agent: Agent,
+        trade: Trade,
+        amount: number
+    ): void {
+        TradeManipulator.updateGoldInGoldRequest(trade, agent, amount);
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
+    addAnswerRequests(
+        agent: Agent,
+        trade: Trade,
+        questions: Info[]
+    ): void {
+        TradeManipulator.addQuestionsToAnswerRequests(trade, agent, questions);
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
+    passOnItemRequests(
+        agent: Agent,
+        trade: Trade,
+        items: Item[]
+    ): void {
+        TradeManipulator.passOnRequestedItems(trade, agent, items);
+
+        // add requested items to items offered
+        this.offerItems(agent, trade, items);
+
+        this.updateChanges(agent, [agent, items, trade]);
+    }
+
+    passOnGoldRequest(
+        agent: Agent,
+        trade: Trade
+    ): void {
+        const amount = TradeController.getGoldFromGoldRequests(agent, trade);
+
+        TradeManipulator.passOnRequestedGold(trade, agent);
+
+        // add requested gold to gold offered
+        this.modifyGoldOffered(agent, trade, amount);
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
+    passOnAnswerRequests(
+        agent: Agent,
+        trade: Trade,
+        questions: Info[]
+    ): void {
+        TradeManipulator.passOnRequestedQuestions(trade, agent, questions);
+
+        // add requested answer to info
+        questions.forEach(question => {
+            let answer = agent.knowledge.find(k => question.isAnswer(k));
+            if (answer) {
+                this.offerAnswer(agent, trade, answer, question);
+            }
+        })
+
+        this.updateChanges(agent, [agent, trade]);
+    }
+
     makeTransaction(
         trade: Trade
     ): void {
@@ -172,9 +247,14 @@ export class TradeController extends BaseController {
 
             this.tradeItems(agent, agentB, itemsFromAgent);
             this.tradeItems(agentB, agent, itemsFromAgentB);
-
-            // TO-DO: trade gold
             
+            // TO-DO: trade gold
+            const goldFromAgent = TradeController.getAgentGoldOffered(agent, trade);
+            const goldFromAgentB = TradeController.getAgentGoldOffered(agentB, trade);
+
+            this.tradeGold(agent, agentB, goldFromAgent);
+            this.tradeGold(agentB, agent, goldFromAgentB);
+
             // trade info
             const questionAnswersMapFromAgent = TradeController.getAgentQuestionAnswerMap(agent, trade);
             const questionAnswersMapFromAgentB = TradeController.getAgentQuestionAnswerMap(agentB, trade);
@@ -249,6 +329,18 @@ export class TradeController extends BaseController {
         });
     }
 
+    tradeGold(
+        giver: Agent,
+        receiver: Agent,
+        amount: number
+    ): void {
+        AgentManipulator.modifyGold(receiver, amount);
+        AgentManipulator.modifyGold(giver, -amount);
+
+        this.updateChanges(giver, [giver]);
+        this.updateChanges(receiver, [receiver]);
+    }
+
     static getAgentItemsOffered(
         agent: Agent,
         trade: Trade
@@ -299,6 +391,65 @@ export class TradeController extends BaseController {
         return answers;
     }
 
+    static getItemsFromItemRequests(
+        agent: Agent,
+        trade: Trade
+    ): Item[] {
+        let items = [];
+
+        const itemRequests = trade.itemRequests;
+        if (itemRequests.has(agent.id)) {
+            const itemIDs = itemRequests.get(agent.id)
+                .filter(request => request.pass === false)
+                .map(request => request.data);
+
+            items = Util.AppContext.db.retrieveModels(
+                itemIDs,
+                Item
+            );
+        }
+
+        return items;
+    }
+
+    static getGoldFromGoldRequests(
+        agent: Agent,
+        trade: Trade
+    ): number {
+        let gold = 0;
+
+        if (trade.goldRequest.get(agent.id)) {
+            const goldRequest = trade.goldRequest.get(agent.id);
+
+            if (goldRequest.pass === false) {
+                gold = goldRequest.data;
+            }
+        }
+
+        return gold;
+    }
+
+    static getQuestionsFromAnswerRequests(
+        agent: Agent,
+        trade: Trade
+    ): Info[] {
+        let questions = [];
+
+        const answerRequests = trade.answerRequests;
+        if (answerRequests.has(agent.id)) {
+            const questionIDs = answerRequests.get(agent.id)
+                .filter(request => request.pass === false)
+                .map(request => request.data);
+
+            questions = Util.AppContext.db.retrieveModels(
+                questionIDs,
+                Information
+            );
+        }
+
+        return questions;
+    }
+ 
     getAgentReadyStatus(
         agent: Agent,
         trade: Trade

@@ -19,8 +19,8 @@ export { ActionWithdrawInfoTrade } from "./withdrawInfoTrade";
 export { ActionTellInfo } from "./tellInfo";
 // export { ActionPassQuestion } from "./passQuestion";
 export { ActionGiveQuest } from "./giveQuest";
-// export { ActionPassItemRequest } from "./passItemRequest";
-// export { ActionRequestItemTrade } from "./requestItemTrade";
+export { ActionPassItemRequest } from "./passItemRequest";
+export { ActionRequestItemTrade } from "./requestItemTrade";
 // export { ActionCloseQuest } from "./closeQuest";
 export { ActionTurnInQuestInfo } from "./turnInQuestInfo";
 export { ActionRejectTradeRequest } from "./rejectTradeRequest";
@@ -31,3 +31,7 @@ export { ActionModifyGoldTrade } from "./modifyGoldTrade";
 // export { ActionConfiscateItem } from "./confiscateItem";
 // export { ActionTellItemOwnership } from "./tellItemOwnership";
 // export {} from "./"; <- future Actions
+export { ActionRequestGoldTrade } from "./requestGoldTrade";
+export { ActionPassGoldRequest } from "./passGoldRequest";
+export { ActionRequestAnswerTrade } from "./requestAnswerTrade";
+export { ActionPassAnswerRequest } from "./passAnswerRequest";
