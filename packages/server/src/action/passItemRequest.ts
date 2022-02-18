@@ -1,35 +1,55 @@
-// import { Action } from "./action";
-// import { logger } from "../utilities/logger";
-// import { Validate } from "./validate";
-// import { Controller } from "../../controllers/controller";
-// import { Models.Agent, Item, Trade } from "../models/index";
+import { Agent, Util, Item } from "@panoptyk/core";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { TradeController } from "..";
 
-// export const ActionPassItemRequest: Action = {
-//   name: "pass-item-request",
-//   formats: [
-//     {
-//         itemID: "number"
-//     }
-//   ],
-//   enact: (agent: Models.Agent, inputData: any) => {
-//     const controller = new Controller();
-//     const item: Item = Item.getByID(inputData.itemID);
-//     const trade: Trade = agent.trade;
+export const ActionPassItemRequest: Action = {
+    name: "pass-item-request",
+    formats: [
+        {
+            itemIDs: "object"
+        }
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const tc: TradeController = new TradeController();
+        const items = Util.AppContext.db.retrieveModels(
+            inputData.itemIDs,
+            Item
+        );
+        
+        tc.passOnItemRequests(agent, agent.trade, items);
 
-//     controller.passOnItemRequest(agent, trade, item);
+        Util.logger.log(
+            `Event pass-item-request ${agent} agreed to offer` +
+            `${items} in trade`,
+            "ACTION"
+        );
 
-//     logger.log("Event pass-item-request from " + agent + " on " + trade + " registered.", 2);
-//     controller.sendUpdates();
-//   },
-//   validate: (agent: Models.Agent, socket: any, inputData: any) => {
-//     let res;
-//     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-//       return res;
-//     }
-//     const trade: Trade = agent.trade;
-//     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
-//       return res;
-//     }
-//     return Validate.successMsg;
-//   }
-// };
+        tc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+        const items = Util.AppContext.db.retrieveModels(
+            inputData.itemIDs,
+            Item
+        );
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.agentInTrade(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.validTrade(agent.trade, agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.ownsItems(agent, items)).success) {
+            return res;
+        }
+        if (!(res = Validate.notInTransaction(items)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess;
+    }
+}
