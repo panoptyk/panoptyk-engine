@@ -1,4 +1,4 @@
-import { Util, Agent, Room, Item } from "@panoptyk/core";
+import { Util, Agent } from "@panoptyk/core";
 import { Action } from "./action";
 import * as Validate from "../validate";
 import { ConversationController } from "../controllers";
@@ -8,6 +8,7 @@ export const ActionRejectConversationRequest: Action = {
     formats: [
         {
             agentID: "number",
+            reject: "boolean",
         },
     ],
     enact: (requester: Agent, inputData: any) => {
@@ -16,7 +17,12 @@ export const ActionRejectConversationRequest: Action = {
             inputData.agentID,
             Agent
         ) as Agent;
-        cc.rejectConversation(requester, requestee);
+        if (inputData.reject) {
+            cc.rejectConversation(requester, requestee);
+        }
+        else {
+            cc.rejectConversation(requestee, requester);
+        }
         Util.logger.log(
             "Event reject-conversation-request from (" +
                 requester +
