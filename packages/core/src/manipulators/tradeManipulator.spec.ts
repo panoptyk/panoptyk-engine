@@ -843,7 +843,7 @@ describe("TradeManipulator", () => {
             TradeManipulator.updateGoldInGoldRequest(trade, initiator, 10);
 
             const res = new Map([
-                [initiator.id, 10]
+                [initiator.id, {data: 10, pass: false}]
             ]);
 
             assert.hasAllDeepKeys(res, Array.from(trade._goldRequest.keys()));
@@ -855,7 +855,7 @@ describe("TradeManipulator", () => {
             TradeManipulator.updateGoldInGoldRequest(trade, initiator, 10);
 
             const res = new Map([
-                [initiator.id, 10]
+                [initiator.id, {data: 10, pass: false}]
             ]);
 
             assert.hasAllDeepKeys(res, Array.from(trade._goldRequest.keys()));
@@ -864,11 +864,36 @@ describe("TradeManipulator", () => {
             TradeManipulator.updateGoldInGoldRequest(trade, initiator, -7);
 
             const res2 = new Map([
-                [initiator.id, 3]
+                [initiator.id, {data: 3, pass: false}]
             ]);
 
             assert.hasAllDeepKeys(res2, Array.from(trade._goldRequest.keys()));
             assert.sameDeepMembers(Array.from(res2), Array.from(trade._goldRequest));
+        });
+    });
+    context("Pass On Requested Gold", () => {
+        it("", () => {
+            () => {
+                db.storeModels([trade, initiator]);
+
+                TradeManipulator.updateGoldInGoldRequest(trade, initiator, 10);
+
+                const res = new Map([
+                    [initiator.id, {data: 10, pass: false}]
+                ]);
+
+                assert.hasAllDeepKeys(res, Array.from(trade._goldRequest.keys()));
+                assert.sameDeepMembers(Array.from(res), Array.from(trade._goldRequest));
+
+                TradeManipulator.passOnRequestedGold(trade, initiator);
+
+                const res2 = new Map([
+                    [initiator.id, {data: 10, pass: true}]
+                ]);
+
+                assert.hasAllDeepKeys(res2, Array.from(trade._goldRequest.keys()));
+                assert.sameDeepMembers(Array.from(res2), Array.from(trade._goldRequest));
+            }
         });
     });
 });

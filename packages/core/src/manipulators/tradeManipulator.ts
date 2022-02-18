@@ -154,9 +154,18 @@ export class TradeManipulator {
 
     static updateGoldInGoldRequest(trade: Trade, agent: Agent, amount: number) {
         if (!trade._goldRequest.has(agent.id)) {
-            trade._goldRequest.set(agent.id, 0);
+            trade._goldRequest.set(agent.id, {data: 0, pass: false});
         }
-        const gold = trade._goldRequest.get(agent.id);
-        trade._goldRequest.set(agent.id, gold + amount);
+
+        const gold = trade._goldRequest.get(agent.id).data + amount;
+
+        trade._goldRequest.set(agent.id, {data: gold, pass: false});
+    }
+
+    static passOnRequestedGold(trade: Trade, agent: Agent) {
+        if (trade._goldRequest.has(agent.id)) {
+            const gold = trade._goldRequest.get(agent.id).data
+            trade._goldRequest.set(agent.id, {data: gold, pass: true});
+        }
     }
 }
