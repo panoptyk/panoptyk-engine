@@ -3,6 +3,7 @@ import { IDatabase } from "../database/IDatabase";
 import { logger } from "../utilities";
 import { Agent } from "./agent";
 import { Info, Information } from "./information";
+import { Item } from "./item";
 
 export const QuestStatus = {
     CANCELLED: "cancelled",
@@ -23,12 +24,12 @@ export class Quest extends BaseModel {
         return model instanceof Quest && this.id === model.id;
     }
 
-    get question(): Info {
-        return this.db.retrieveModel(this._question, Information);
+    get task(): Info {
+        return this.db.retrieveModel(this._task, Information);
     }
 
-    set question(question: Info) {
-        this._question = question ? question.id : -1;
+    set task(task: Info) {
+        this._task = task ? task.id : -1;
     }
 
     get giver(): Agent {
@@ -57,17 +58,19 @@ export class Quest extends BaseModel {
 
     _giver: number;
     _receiver: number;
-    _question: InfoID;
+    _task: InfoID;
     _status: string;
     _deadline: number;
     _creationTime: number;
+    rewards: Item[];
 
     constructor(
         questGiver: Agent,
         questReceiver: Agent,
-        question: Info,
+        task: Info,
         status: string,
         deadline: number,
+        rewards: Item[],
         id?: number, 
         db?: IDatabase
     ) {
@@ -75,10 +78,11 @@ export class Quest extends BaseModel {
 
         this.giver = questGiver;
         this.receiver = questReceiver;
-        this.question = question;
+        this.task = task;
         this._status = status;
         this._deadline = deadline;
         this._creationTime = Date.now();
+        this.rewards = rewards;
 
         logger.log("Quest " + this + " Initialized", "QUEST");
     }
