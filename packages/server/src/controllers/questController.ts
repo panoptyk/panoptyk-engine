@@ -6,7 +6,9 @@ import {
     Actions,
     Info,
     Quest,
-    QuestStatus
+    QuestStatus,
+    Item,
+    ItemManipulator
 } from "@panoptyk/core";
 import { ConversationController } from "./conversationController";
 import { BaseController } from "./baseController";
@@ -17,9 +19,10 @@ export class QuestController extends BaseController {
         questGiver: Agent,
         questReceiver: Agent,
         task: Info,
-        deadline: number
+        deadline: number,
+        rewards: Item[]
     ): Quest {
-        const quest: Quest = new Quest(questGiver, questReceiver, task, QuestStatus.ACTIVE, deadline);
+        const quest: Quest = new Quest(questGiver, questReceiver, task, QuestStatus.ACTIVE, deadline, rewards);
         const converstaionParticipants: Agent[] = conversation.participants;
 
         AgentManipulator.addGivenQuest(questGiver, quest);
@@ -70,8 +73,11 @@ export class QuestController extends BaseController {
         
         quest._status = QuestStatus.COMPLETED;
 
+        // give out rewards
+        this.assignRewards(questReceiver, quest.rewards);
+
         // tell the answer back to the quest receiver
-        cc.tellInfoInConversation(conversation, questGiver, answer, quest.question);
+        cc.tellInfoInConversation(conversation, questGiver, answer, quest.task);
 
         AgentManipulator.removeAssignedQuest(questReceiver, quest);
 
@@ -88,5 +94,21 @@ export class QuestController extends BaseController {
 
             this.updateChanges(agent, [conversation]);
         }
+    }
+
+    assignRewards(
+        receiver: Agent,
+        rewards: Item[]
+    ): void {
+        rewards.forEach(item => {
+            if (item.itemName.toLowerCase() === 'gold') {
+                AgentManipulator.modifyGold(receiver, 1);
+            };
+
+            AgentManipulator.addItemToInventory(receiver, item);
+            ItemManipulator.giveToAgent(item, receiver);
+
+            this.updateChanges(receiver, [receiver, item]);
+        });
     }
 }

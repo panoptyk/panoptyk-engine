@@ -44,11 +44,13 @@ export class ConnectionController extends BaseController {
         // TODO: fix /\
 
         // Assign login room to agent
-        agent.room = Util.AppContext.db.retrieveModel(
-            Util.AppContext.settingsManager.settings.default_room_id,
-            Room
-        );
-
+        if (!agent.room) {
+            agent.room = Util.AppContext.db.retrieveModel(
+                Util.AppContext.settingsManager.settings.default_room_id,
+                Room
+            );
+        }
+        
         sc.spawnAgent(agent, agent.room);
 
         Util.logger.log(agent + " logged in", "CONTROL", Util.LOG.INFO);
@@ -59,7 +61,8 @@ export class ConnectionController extends BaseController {
     logout(agent: Agent) {
         const sc: SpawnController = new SpawnController(this);
 
-        sc.despawnAgent(agent, agent.room);
+        if (agent.room)
+            sc.despawnAgent(agent, agent.room);
     }
 
     createAgent(name: string): Agent {

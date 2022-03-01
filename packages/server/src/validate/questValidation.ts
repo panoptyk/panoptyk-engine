@@ -19,12 +19,21 @@ export function isAnswerToTheQuestQuestion(
         };
     }
 
-    if (!quest.question.isAnswer(answer)) {
+    if (quest.task.isQuery() && !quest.task.isAnswer(answer)) {
         return {
             success: false,
             errorCode: ValidationError.QuestAnswerIncorrect,
             message: `Answer to the quest question is incorrect`
         };
     }
+
+    if (quest.task.isCommand() && !quest.task.isExecuted(answer)) {
+        return {
+            success: false,
+            errorCode: ValidationError.QuestAnswerIncorrect,
+            message: `Result to the quest command is undesirable`
+        }
+    }
+
     return ValidationSuccess;
 }

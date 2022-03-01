@@ -446,12 +446,14 @@ export class ClientAPI {
         giver: Agent,
         receiver: Agent,
         task: Info,
+        rewards: String[],
         deadline = 0,
     ) {
         const res = await ClientAPI.sendWrapper("give-quest", {
             giverID: giver.id,
             receiverID: receiver.id,
             taskID: task.id,
+            rewards: rewards,
             deadline: deadline,
         });
         return res;
@@ -591,6 +593,14 @@ export class ClientAPI {
 
     public static async passGoldRequest() {
         const res = await ClientAPI.sendWrapper("pass-gold-request", {});
+        return res;
+    }
+
+    public static async spawnItems(itemName: string, amount: number) {
+        const res = await ClientAPI.sendWrapper("spawn-items", {
+            itemName: itemName,
+            amount: amount
+        });
         return res;
     }
 }

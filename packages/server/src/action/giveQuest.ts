@@ -1,6 +1,6 @@
 import { Action } from "./action";
 import * as Validate from "../validate";
-import { Agent, Util, Information } from "@panoptyk/core/lib";
+import { Agent, Util, Information, Item } from "@panoptyk/core/lib";
 import { QuestController } from "../controllers";
 
 export const ActionGiveQuest: Action = {
@@ -10,6 +10,7 @@ export const ActionGiveQuest: Action = {
             giverID: "number",
             receiverID: "number",
             taskID: "number",
+            rewards: "object",
             deadline: "number",
         },
     ],
@@ -28,8 +29,11 @@ export const ActionGiveQuest: Action = {
             Information
         );
         const deadline = inputData.deadline;
+        const rewards = inputData.rewards.forEach(reward => {
+            new Item(reward, "", 1);
+        });
         
-        const quest = qc.createQuest(agent.conversation, giver, receiver, task, deadline);
+        const quest = qc.createQuest(agent.conversation, giver, receiver, task, deadline, rewards);
 
         Util.logger.log(
             `Event give-quest ${quest} from giver ${giver}
