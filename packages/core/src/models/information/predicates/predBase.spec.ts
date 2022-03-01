@@ -17,6 +17,8 @@ import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
 import { Information } from "../information";
 import { Quest, QuestStatus } from "../../quest";
+import { TAARD, PredicateTAARD } from "./predTAARD"
+import { Trade } from "../../trade";
 
 describe("PredicateBase", () => {
     let db: MemoryDatabase;
@@ -130,6 +132,43 @@ describe("PredicateBase", () => {
             assert.deepEqual(pred1.getTerms(metaData), termsM);
             assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
         });
+        it("PredicateTAARD", () => {
+            const room = new Room("rA", 1);
+            const agentB = new Agent("B");
+            const trade = new Trade(agent, agentB, undefined);
+            const terms: TAARD = {
+                time: 123,
+                agent,
+                agentB,
+                room,
+                trade
+            };
+            const termsM: masked<TAARD> = {
+                time: MASKED,
+                agent: MASKED,
+                agentB: MASKED,
+                room: MASKED,
+                trade: MASKED,
+            };
+            const termsQ: query<TAARD> = {
+                time: QUERY,
+                agent: QUERY,
+                agentB: QUERY,
+                room: QUERY,
+                trade: QUERY,
+            };
+            const pred1 = new PredicateTAARD(terms);
+            const metaData: metadata<TAARD> = {
+                time: true,
+                agent: true,
+                agentB: true,
+                room: true,
+                trade: true,
+            };
+            assert.deepEqual(pred1.getTerms(), terms);
+            assert.deepEqual(pred1.getTerms(metaData), termsM);
+            assert.deepEqual(pred1.getTerms(metaData, true), termsQ);
+        })
         it("PredicateTAARK", () => {
             const room = new Room("rA", 1);
             const agentB = new Agent("B");

@@ -91,6 +91,8 @@ export class ConversationController extends BaseController {
             AgentManipulator.removeRequestedTrade(requesters, agent);
         });
 
+        AgentManipulator.leaveTrade(agent);
+
         // end conversation when there's only one participant left
         if (conversation.participants.length < 2 && conversation.endTime === -1) {
             conversation._endTime = Date.now();

@@ -3,7 +3,7 @@ export { Agent } from "./agent";
 export { Item } from "./item";
 export * from "./information";
 export { Conversation } from "./conversation";
-export { Trade } from "./trade";
+export { Trade, TradeStatus, AnswerInfo } from "./trade";
 export { Quest, QuestStatus } from "./quest";
 export { Faction } from "./faction";
 export { Recipe } from "./recipe";

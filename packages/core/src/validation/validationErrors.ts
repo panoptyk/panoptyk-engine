@@ -18,6 +18,9 @@ export const ValidationError = Object.freeze({
     AgentAlreadyInCovnersation: 303 as 303,
     AgentIdentical: 304 as 304,
     AgentLackingGold: 305 as 305,
+    AgentInTrade: 306 as 306,
+    AgentNotInTrade: 307 as 307,
+    AgentTradeNotShared: 308 as 308,
     ItemInTransaction: 400 as 400,
     ItemNotInRoom: 401 as 401,
     ConversationInDifferentRoom: 500 as 500,
@@ -28,4 +31,6 @@ export const ValidationError = Object.freeze({
     CraftingAgentMissingResource: 600 as 600,
     CraftingAgentInsufficientResource: 601 as 601,
     QuestAnswerIncorrect: 700 as 700,
+    InvalidTrade: 800 as 800,
+    TradeAnswerIncorrect: 801 as 801,
 });

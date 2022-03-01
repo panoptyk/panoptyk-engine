@@ -18,6 +18,21 @@ import {
     ActionAskQuestion,
     ActionGiveQuest,
     ActionTurnInQuestInfo,
+    ActionRequestTrade,
+    ActionRejectTradeRequest,
+    ActionOfferItemsTrade,
+    ActionReadyTrade,
+    ActionOfferAnswerTrade,
+    ActionCancelTrade,
+    ActionWithdrawItemsTrade,
+    ActionWithdrawInfoTrade,
+    ActionModifyGoldTrade,
+    ActionRequestItemTrade,
+    ActionPassItemRequest,
+    ActionRequestGoldTrade,
+    ActionPassGoldRequest,
+    ActionRequestAnswerTrade,
+    ActionPassAnswerRequest,
 } from "./action";
 import * as Validate from "./validate";
 import { ConnectionController } from "./controllers";
@@ -38,6 +53,21 @@ const defaultActions: Action[] = [
     ActionAskQuestion,
     ActionGiveQuest,
     ActionTurnInQuestInfo,
+    ActionRequestTrade,
+    ActionRejectTradeRequest,
+    ActionOfferItemsTrade,
+    ActionReadyTrade,
+    ActionOfferAnswerTrade,
+    ActionCancelTrade,
+    ActionWithdrawItemsTrade,
+    ActionWithdrawInfoTrade,
+    ActionModifyGoldTrade,
+    ActionRequestItemTrade,
+    ActionPassItemRequest,
+    ActionRequestGoldTrade,
+    ActionPassGoldRequest,
+    ActionRequestAnswerTrade,
+    ActionPassAnswerRequest,
 ];
 
 const MIN_TIME_BETWEEN_ACTIONS = 100; // in ms
@@ -71,6 +101,10 @@ export class Server {
 
     _createApp(app?: express.Application): void {
         this._app = app ? app : express();
+        this._app.use(function(req, res, next) {
+            res.setHeader('Access-Control-Allow-Origin', '*')
+            next();
+          });
     }
 
     _createServer(): void {
@@ -79,6 +113,8 @@ export class Server {
 
     _makeSockets(): void {
         this._io = socketIO(this._server);
+        
+    //    this._io = this._io.origins('*:*');
     }
 
     _loadConfig(): void {
@@ -124,10 +160,10 @@ export class Server {
             logger.log("Starting server on port " + this._port, "SERVER");
         });
 
+
         // Adds hook to set up all action hooks for each client
         this._io.on("connection", (socket) => {
             logger.log("Web client Connected", "SERVER");
-
             for (const action of this._actions) {
                 socket.on(
                     action.name,

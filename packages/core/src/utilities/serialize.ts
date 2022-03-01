@@ -67,7 +67,7 @@ export class Deserialize {
             case Trade.name:
                 model = AppContext.db.retrieveModel(modelJson.id, Trade);
                 if (model === undefined) {
-                    model = new Trade(modelJson.id);
+                    model = new Trade(undefined, undefined, undefined, modelJson.id);
                 }
                 model.fromJSON(modelJson);
                 break;

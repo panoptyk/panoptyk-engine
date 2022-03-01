@@ -1,4 +1,4 @@
-import { Agent, Item, Info, Room, Conversation, Recipe, Faction, Quest } from "../models";
+import { Agent, Item, Info, Room, Conversation, Recipe, Faction, Quest, Trade } from "../models";
 
 export class AgentManipulator {
     static putInRoom(agent: Agent, room: Room): void {
@@ -71,6 +71,14 @@ export class AgentManipulator {
     static removeRequestedTrade(requester: Agent, requestee: Agent): void {
         requester._tradesRequested.delete(requestee.id);
         requestee._tradeRequests.delete(requester.id);
+    }
+
+    static enterTrade(agent: Agent, trade: Trade): void {
+        agent.trade = trade;
+    }
+
+    static leaveTrade(agent: Agent): void {
+        agent.trade = undefined;
     }
 
     static joinConversation(agent: Agent, conversation: Conversation): void {

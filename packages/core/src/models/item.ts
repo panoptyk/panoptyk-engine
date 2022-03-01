@@ -60,6 +60,7 @@ export class Item extends BaseModel {
         this._quantity = quantity;
         this.room = room;
         this.agent = agent;
+        this.inTransaction = false;
 
         logger.log("Item " + this + " Initialized.", "ITEM");
     }

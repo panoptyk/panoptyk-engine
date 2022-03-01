@@ -43,6 +43,33 @@ export function ownsItems(agent: Agent, items: Item[]): ValidationResult {
     return ValidationSuccess;
 }
 
+export function ownsAnswers(agent: Agent, questions: Info[]): ValidationResult {
+    if (questions === undefined || agent === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message:
+                "Undefined inputs:" +
+                (agent === undefined ? " agent" : "") +
+                (questions === undefined ? " questions" : ""),
+        };
+    }
+
+    for (const question of questions) {
+        let answer = agent.knowledge.find(k => question.isAnswer(k));
+
+        if (!answer) {
+            return {
+                success: false,
+                errorCode: ValidationError.AgentOwnership,
+                message: `Agent doesn't have answer to the question ${question}`
+            };
+        }
+    }
+
+    return ValidationSuccess;
+}
+
 /**
  * Check if two agents are in the same conversation.
  */
@@ -230,5 +257,68 @@ export function ownsInfos(agent: Agent, infos: Info[]): ValidationResult {
         }
     }
     
+    return ValidationSuccess;
+}
+
+export function agentsNotInTrade(agent: Agent, agentB: Agent): ValidationResult {
+    if (agent === undefined || agentB === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: ${agent === undefined ? " agent" : ""}
+                ${agentB === undefined ? " agentB" : ""}`
+        };
+    }
+
+    if (agent.trade || agentB.trade) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentInTrade,
+            message: `Agents ${agent.trade ? agent : ""} ${agentB.trade ? agentB : ""} in trade`
+        };
+    }
+
+    return ValidationSuccess;
+}
+
+export function agentInTrade(agent: Agent): ValidationResult {
+    if (agent === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: agent`
+        };
+    }
+    if (!agent.trade) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentNotInTrade,
+            message: `Agent ${agent} not in trade`
+        };
+    }
+    return ValidationSuccess;
+}
+
+export function agentsShareTrade(
+    agent: Agent,
+    agentB: Agent
+): ValidationResult {
+    if (agent === undefined || agentB === undefined) {
+        return {
+            success: false,
+            errorCode: ValidationError.UndefinedInputs,
+            message: `Undefined inputs: ${agent === undefined ? " agent" : ""}\
+            ${agentB === undefined ? " agentB" : ""}`
+        };
+    }
+
+    if (agent.trade !== agentB.trade) {
+        return {
+            success: false,
+            errorCode: ValidationError.AgentTradeNotShared,
+            message: `Agents did not share trades`
+        };
+    }
+
     return ValidationSuccess;
 }

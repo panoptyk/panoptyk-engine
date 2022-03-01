@@ -1,49 +1,43 @@
-// import { Action } from "./action";
-// import { logger } from "../utilities/logger";
-// import { Validate } from "./validate";
-// import { Controller } from "../../controllers/controller";
-// import { Models.Agent, Trade } from "../models/index";
+import { Agent, Util, Item, Trade } from "@panoptyk/core";
+import { Action } from "./action";
+import * as Validate from "../validate";
+import { TradeController } from "..";
 
-// export const ActionReadyTrade: Action = {
-//   name: "ready-trade",
-//   formats: [
-//     {
-//       readyStatus: "boolean"
-//     }
-//   ],
-//   enact: (agent: Models.Agent, inputData: any) => {
-//     const controller = new Controller();
-//     const trade: Trade = agent.trade;
-//     const readyStatus: boolean = inputData.readyStatus;
+export const ActionReadyTrade: Action = {
+    name: "ready-trade",
+    formats: [
+        {
+            readyStatus: "boolean"
+        }
+    ],
+    enact: (agent: Agent, inputData: any) => {
+        const tc: TradeController = new TradeController();
+        const status = inputData.readyStatus;
 
-//     controller.setTradeModels.AgentStatus(
-//       trade,
-//       agent,
-//       readyStatus
-//     );
+        tc.setAgentReady(agent, status, agent.trade);
 
-//     logger.log("Event ready-trade " + trade + " from " + agent + " registered.", 2);
-//     controller.sendUpdates();
-//   },
-//   validate: (agent: Models.Agent, socket: any, inputData: any) => {
-//     let res;
-//     if (!(res = Validate.validate_agent_logged_in(agent)).status) {
-//       return res;
-//     }
-//     const trade: Trade = agent.trade;
-//     if (!(res = Validate.validate_trade_status(trade, [2])).status) {
-//       return res;
-//     }
-//     if (
-//       !(res = Validate.validate_ready_status(
-//         trade,
-//         agent,
-//         !inputData.readyStatus
-//       )).status
-//     ) {
-//       return res;
-//     }
+        Util.logger.log(
+            `Event ready-trade agent (${agent}) set \
+            ready status to (${status})`,
+            "ACTION"
+        );
 
-//     return Validate.successMsg;
-//   }
-// };
+        tc.sendUpdates();
+    },
+    validate: (agent: Agent, socket: any, inputData: any) => {
+        let res;
+        const status = inputData.readyStatus;
+
+        if (!(res = Validate.loggedIn(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.agentInTrade(agent)).success) {
+            return res;
+        }
+        if (!(res = Validate.validTrade(agent.trade, agent, status)).success) {
+            return res;
+        }
+
+        return Validate.ValidationSuccess
+    }
+}

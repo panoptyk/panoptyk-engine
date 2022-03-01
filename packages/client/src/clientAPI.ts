@@ -5,7 +5,6 @@ import {
     Agent,
     Room,
     Info,
-    Information,
     Trade,
     Item,
     Conversation,
@@ -25,7 +24,7 @@ const emit = function (
         socket.emit(event, payload, (result: ValidationResult) => {
             resolve(result);
         });
-    });
+    });   
 };
 
 export class ClientAPI {
@@ -399,11 +398,13 @@ export class ClientAPI {
 
     /**
      * Request an item in current trade
-     * @param item
+     * @param items
+     * @param agent
      */
-    public static async requestItemTrade(item: Item) {
+    public static async requestItemTrade(items: String[], agent: Agent) {
         const res = await ClientAPI.sendWrapper("request-item-trade", {
-            itemID: item.id,
+            itemNames: items,
+            agentID: agent.id
         });
         return res;
     }
@@ -412,9 +413,24 @@ export class ClientAPI {
      * Pass on item request in current trade
      * @param item
      */
-    public static async passItemRequestTrade(item: Item) {
+    public static async passItemRequestTrade(items: Item[]) {
         const res = await ClientAPI.sendWrapper("pass-item-request", {
-            itemID: item.id,
+            itemIDs: items.map(item => item.id)
+        });
+        return res;
+    }
+
+    public static async requestAnswerTrade(questions: Info[], agent: Agent) {
+        const res = await ClientAPI.sendWrapper("request-answer-trade", {
+            questionIDs: questions.map(question => question.id),
+            agentID: agent.id
+        });
+        return res;
+    }
+
+    public static async passAnswerRequestTrade(questions: Info[]) {
+        const res = await ClientAPI.sendWrapper("pass-answer-request", {
+            questionIDs: questions.map(question => question.id)
         });
         return res;
     }
@@ -429,13 +445,13 @@ export class ClientAPI {
     public static async giveQuest(
         giver: Agent,
         receiver: Agent,
-        taskID: any,
+        task: Info,
         deadline = 0,
     ) {
         const res = await ClientAPI.sendWrapper("give-quest", {
             giverID: giver.id,
             receiverID: receiver.id,
-            taskID: taskID,
+            taskID: task.id,
             deadline: deadline,
         });
         return res;
@@ -488,6 +504,15 @@ export class ClientAPI {
     public static async rejectConversation(targetAgent: Agent) {
         const res = await ClientAPI.sendWrapper("reject-conversation-request", {
             agentID: targetAgent.id,
+            reject: true
+        });
+        return res;
+    }
+
+    public static async withdrawConversationRequest(targetAgent: Agent) {
+        const res = await ClientAPI.sendWrapper("reject-conversation-request", {
+            agentID: targetAgent.id,
+            reject: false
         });
         return res;
     }
@@ -553,6 +578,19 @@ export class ClientAPI {
         const res = await ClientAPI.sendWrapper("drop-gold", {
             amount,
         });
+        return res;
+    }
+
+    public static async requestGoldTrade(amount: number, agent: Agent) {
+        const res = await ClientAPI.sendWrapper("request-gold-trade", {
+            amount: amount,
+            agentID: agent.id
+        });
+        return res;
+    }
+
+    public static async passGoldRequest() {
+        const res = await ClientAPI.sendWrapper("pass-gold-request", {});
         return res;
     }
 }

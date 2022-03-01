@@ -3,6 +3,7 @@ import {
     TA,
     TAA,
     TAAR,
+    TAARD,
     TAARK,
     TAARKK,
     TAARQ,
@@ -13,6 +14,7 @@ import {
     PredicateTA,
     PredicateTAA,
     PredicateTAAR,
+    PredicateTAARD,
     PredicateTAARK,
     PredicateTAARKK,
     PredicateTAARQ,
@@ -56,7 +58,8 @@ export const aNames = {
     QUEST_GIVEN: "quest_given",
     QUEST_COMPLETED: "quest_completed",
     QUEST_FAILED: "quest_failed",
-    QUEST_CLOSED: "quest_closed"
+    QUEST_CLOSED: "quest_closed",
+    TRADE_COMPLETED: "trade_completed",
 };
 
 export const Actions = {
@@ -139,8 +142,17 @@ export const Actions = {
             false,
             owner
         );
-    }
+    },
+    tradeCompleted(terms: TAARD, owner?: Agent) {
+        return new Information<TAARD>(
+            aNames.TRADE_COMPLETED,
+            new PredicateTAARD(terms),
+            false,
+            owner
+        );
+    },
 };
+
 
 export const Query = {
     about: {
@@ -286,5 +298,18 @@ export const Query = {
             predMetaData: split.meta,
         });
         return query;
-    }
+    },
+    tradeCompleted(terms: query<TAARD>) {
+        const split = splitQuery(terms);
+        const query = new Information<TAARD>(
+            aNames.TRADE_COMPLETED,
+            new PredicateTAARD(split.terms),
+            true
+        );
+        InformationManipulator.setQueryTargets(query, {
+            action: true,
+            predMetaData: split.meta,
+        });
+        return query;
+    },
 };

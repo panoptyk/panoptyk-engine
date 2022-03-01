@@ -3,12 +3,14 @@ import { T, PredicateT } from "./predT";
 import { TA, PredicateTA } from "./predTA";
 import { TAA, PredicateTAA } from "./predTAA";
 import { TAAR, PredicateTAAR } from "./predTAAR";
+import { TAARD, PredicateTAARD } from "./predTAARD";
 import { TAARK, PredicateTAARK } from "./predTAARK";
 import { TAARKK, PredicateTAARKK } from "./predTAARKK";
 import { TAR, PredicateTAR } from "./predTAR";
 import { TARI, PredicateTARI } from "./predTARI";
 import { TARR, PredicateTARR } from "./predTARR";
 import { TAARQ, PredicateTAARQ } from "./predTAARQ";
+
 
 export const PredicateFactory: {
     [key: string]: (terms: any) => PredicateBase;
@@ -24,6 +26,9 @@ export const PredicateFactory: {
     },
     TAAR(terms) {
         return new PredicateTAAR(terms);
+    },
+    TAARD(terms) {
+        return new PredicateTAARD(terms);
     },
     TAARK(terms) {
         return new PredicateTAARK(terms);
