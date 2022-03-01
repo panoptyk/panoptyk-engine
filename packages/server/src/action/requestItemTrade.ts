@@ -17,8 +17,10 @@ export const ActionRequestItemTrade: Action = {
             inputData.agentID,
             Agent
         );
-        const items = requestee.inventory
-            .filter(item => inputData.itemNames.includes(item.itemName));
+        let items = [];
+        inputData.itemNames.forEach(name => {
+            items.push(requestee.inventory.find(item => item.itemName === name))
+        });
 
         tc.addItemRequests(requestee, requester.trade, items);
 
@@ -36,8 +38,10 @@ export const ActionRequestItemTrade: Action = {
             inputData.agentID,
             Agent
         );
-        const items = requestee.inventory
-            .filter(item => inputData.itemNames.includes(item.itemName));
+        let items = [];
+        inputData.itemNames.forEach(name => {
+            items.push(requestee.inventory.find(item => item.itemName === name))
+        });
 
         if (!(res = Validate.loggedIn(agent)).success) {
             return res;
