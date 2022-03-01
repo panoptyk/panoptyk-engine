@@ -130,6 +130,7 @@ describe("Information Model", () => {
                 "",
                 undefined,
                 false,
+                false,
                 undefined,
                 info1.id
             );
@@ -249,12 +250,14 @@ describe("Information Model", () => {
                     "",
                     undefined,
                     false,
+                    false,
                     undefined,
                     infoMasterJson.id
                 );
                 const newInfoCopy = new Information(
                     "",
                     undefined,
+                    false,
                     false,
                     undefined,
                     infoCopyJson.id

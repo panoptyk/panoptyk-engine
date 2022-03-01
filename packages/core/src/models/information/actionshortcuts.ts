@@ -68,6 +68,7 @@ export const Actions = {
             aNames.MOVED,
             new PredicateTARR(terms),
             false,
+            false,
             owner
         );
     },
@@ -75,6 +76,7 @@ export const Actions = {
         return new Information<TAAR>(
             aNames.CONVERSED,
             new PredicateTAAR(terms),
+            false,
             false,
             owner
         );
@@ -84,6 +86,7 @@ export const Actions = {
             aNames.TOLD,
             new PredicateTAARKK(terms),
             false,
+            false,
             owner
         );
     },
@@ -91,6 +94,7 @@ export const Actions = {
         return new Information<TAARK>(
             aNames.ASKED,
             new PredicateTAARK(terms),
+            false,
             false,
             owner
         );
@@ -100,6 +104,7 @@ export const Actions = {
             aNames.PICKED_UP,
             new PredicateTARI(terms),
             false,
+            false,
             owner
         );
     },
@@ -107,6 +112,7 @@ export const Actions = {
         return new Information<TARI>(
             aNames.DROPPED,
             new PredicateTARI(terms),
+            false,
             false,
             owner
         );
@@ -116,6 +122,7 @@ export const Actions = {
             aNames.QUEST_GIVEN,
             new PredicateTAARQ(terms),
             false,
+            false,
             owner
         );
     },
@@ -123,6 +130,7 @@ export const Actions = {
         return new Information<TAARQ>(
             aNames.QUEST_COMPLETED,
             new PredicateTAARQ(terms),
+            false,
             false,
             owner
         );
@@ -132,6 +140,7 @@ export const Actions = {
             aNames.QUEST_FAILED,
             new PredicateTAARQ(terms),
             false,
+            false,
             owner
         );
     },
@@ -139,6 +148,7 @@ export const Actions = {
         return new Information<TAARQ>(
             aNames.QUEST_CLOSED,
             new PredicateTAARQ(terms),
+            false,
             false,
             owner
         );
@@ -148,11 +158,11 @@ export const Actions = {
             aNames.TRADE_COMPLETED,
             new PredicateTAARD(terms),
             false,
+            false,
             owner
         );
     },
 };
-
 
 export const Query = {
     about: {
@@ -311,5 +321,107 @@ export const Query = {
             predMetaData: split.meta,
         });
         return query;
+    },
+};
+
+export const Command = {
+    moved(terms: TARR, owner?: Agent) {
+        return new Information<TARR>(
+            aNames.MOVED,
+            new PredicateTARR(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    conversed(terms: TAAR, owner?: Agent) {
+        return new Information<TAAR>(
+            aNames.CONVERSED,
+            new PredicateTAAR(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    told(terms: TAARKK, owner?: Agent) {
+        return new Information<TAARKK>(
+            aNames.TOLD,
+            new PredicateTAARKK(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    asked(terms: TAARK, owner?: Agent) {
+        return new Information<TAARK>(
+            aNames.ASKED,
+            new PredicateTAARK(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    pickedup(terms: TARI, owner?: Agent) {
+        return new Information<TARI>(
+            aNames.PICKED_UP,
+            new PredicateTARI(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    dropped(terms: TARI, owner?: Agent) {
+        return new Information<TARI>(
+            aNames.DROPPED,
+            new PredicateTARI(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    questGiven(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_GIVEN,
+            new PredicateTAARQ(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    questCompleted(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_COMPLETED,
+            new PredicateTAARQ(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    questFailed(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_FAILED,
+            new PredicateTAARQ(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    questClosed(terms: TAARQ, owner?: Agent) {
+        return new Information<TAARQ>(
+            aNames.QUEST_CLOSED,
+            new PredicateTAARQ(terms),
+            false,
+            true,
+            owner
+        );
+    },
+    tradeCompleted(terms: TAARD, owner?: Agent) {
+        return new Information<TAARD>(
+            aNames.TRADE_COMPLETED,
+            new PredicateTAARD(terms),
+            false,
+            true,
+            owner
+        );
     },
 };

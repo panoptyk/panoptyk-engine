@@ -60,7 +60,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
      * does this information represent a question instead of an action
      */
     _query: boolean;
-    // _command: boolean; TODO
+    _command: boolean;
     _masterCopy: boolean;
     /**
      * in master copies of information keeps track of agent possessed info copies that reference
@@ -82,6 +82,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         action: string,
         pred: PredicateBase,
         query = false,
+        command = false,
         owner?: Agent,
         id?: number,
         db?: IDatabase
@@ -91,6 +92,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         this._agentCopies = new Map();
         this._creationTime = Date.now();
         this._query = query;
+        this._command = command;
         this._action = action;
         this._pred = pred;
         this.owner = owner;
@@ -176,6 +178,10 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         return this.getMasterCopy()._query;
     }
 
+    isCommand(): boolean {
+        return this.getMasterCopy()._command;
+    }
+
     shareMasterCopy(info: Information<PredicateTerms>) {
         const master = this.getMasterCopy();
         const otherMaster = info.getMasterCopy();
@@ -242,6 +248,7 @@ export class Information<P extends PredicateTerms> extends BaseModel {
             master._action,
             undefined,
             master._query,
+            master._command,
             owner,
             undefined,
             this.db
@@ -298,6 +305,26 @@ export class Information<P extends PredicateTerms> extends BaseModel {
         );
         return (
             (masterQ._metadata.action || masterQ._action === masterA._action) &&
+            (predCompare === "equal" || predCompare === "subset")
+        );
+    }
+
+    /**
+     * checks if provided result is the a valid execution of the command
+     * @param result result of the command info; cannot be a query
+     */
+    isExecuted(result: Information<PredicateTerms>): boolean {
+        const masterC = this.getMasterCopy();
+        const masterR = result.getMasterCopy();
+
+        if (!masterC.isCommand() || masterR.isQuery()) {
+            return false;
+        }
+
+        const predCompare = masterC._pred.commandCompare(masterR._pred);
+
+        return (
+            (masterC._action === masterR._action) &&
             (predCompare === "equal" || predCompare === "subset")
         );
     }

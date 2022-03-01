@@ -32,14 +32,19 @@ export interface IPredicate {
         answer: IPredicate,
         querydata?: metadata<PredicateTerms>
     ): "equal" | "not equal" | "superset" | "subset" | "error";
+    commandCompare(
+        result: IPredicate
+    ): "equal" | "not equal" | "superset" | "subset" | "error";
 }
 
 export const MASKED: "masked" = "masked";
 export const QUERY: "query" = "query";
+export const COMMAND: "command" = "command";
 
 export type PredicateTerm =
     | typeof MASKED
     | typeof QUERY
+    | typeof COMMAND
     | number
     | boolean
     | IModel;
@@ -62,4 +67,8 @@ export type masked<T extends PredicateTerms> = {
 
 export type query<T extends PredicateTerms> = {
     [P in keyof T]: typeof QUERY | T[P];
+};
+
+export type command<T extends PredicateTerms> = {
+    [P in keyof T]: typeof COMMAND | T[P];
 };

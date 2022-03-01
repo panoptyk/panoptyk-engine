@@ -10,6 +10,7 @@ import {
     masked,
     query,
     QUERY,
+    COMMAND
 } from "./IPredicate";
 import { IModel } from "../../Imodel";
 
@@ -169,6 +170,51 @@ export abstract class PredicateBase implements IModel, IPredicate {
         } else if (qKeys.length > otherKeys.length) {
             for (const key of otherKeys) {
                 if (!PredicateBase.equalTerms(terms[key], otherTerms[key])) {
+                    return "not equal";
+                }
+            }
+            return "superset";
+        }
+
+        return "error";
+    }
+
+    commandCompare(
+        result: IPredicate
+    ): "equal" | "not equal" | "superset" | "subset" | "error" {
+        const cTerms = this.getTerms();
+        const terms = {};
+        for (const key in cTerms) {
+            if (cTerms[key] !== COMMAND) {
+                terms[key] = cTerms[key];
+            }
+        }
+        const rTerms = result.getTerms();
+
+        const cKeys = Object.keys(cTerms);
+        const keys = Object.keys(terms);
+        const rKeys = Object.keys(rTerms);
+
+        if (cKeys.length === rKeys.length) {
+            if (this.predicateName !== result.predicateName) {
+                return "not equal";
+            }
+            for (const key of keys) {
+                if (!PredicateBase.equalTerms(terms[key], rTerms[key])) {
+                    return "not equal";
+                }
+            }
+            return "equal";
+        } else if (cKeys.length < rKeys.length) {
+            for (const key of keys) {
+                if (!PredicateBase.equalTerms(terms[key], rTerms[key])) {
+                    return "not equal";
+                }
+            }
+            return "subset";
+        } else if (cKeys.length > rKeys.length) {
+            for (const key of rKeys) {
+                if (!PredicateBase.equalTerms(terms[key], rTerms[key])) {
                     return "not equal";
                 }
             }

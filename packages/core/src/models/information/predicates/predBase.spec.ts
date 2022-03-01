@@ -459,4 +459,34 @@ describe("PredicateBase", () => {
             assert.equal(pred2.queryCompare(pred1, pred2Q1), "subset");
         });
     });
+
+    context("commandCompare", () => {
+        it("equal", () => {
+            const pred1 = new PredicateTA({ time: 123, agent });
+            const pred2 = new PredicateTA({ time: 123, agent });
+
+            assert.equal(pred1.commandCompare(pred2), "equal");
+        });
+        it("not equal", () => {
+            const agentB = new Agent("B");
+            const pred1 = new PredicateTA({ time: 123, agent });
+            const pred2 = new PredicateTA({ time: 123, agent: agentB });
+
+            assert.equal(pred1.commandCompare(pred2), "not equal");
+        });
+        it("superset", () => {
+            const room = new Room("rA", 1);
+            const pred1 = new PredicateTAR({ time: 123, agent, room });
+            const pred2 = new PredicateTA({ time: 123, agent });
+
+            assert.equal(pred1.commandCompare(pred2), "superset");
+        });
+        it("subset", () => {
+            const room = new Room("rA", 1);
+            const pred1 = new PredicateTAR({ time: 123, agent, room });
+            const pred2 = new PredicateTA({ time: 123, agent });
+
+            assert.equal(pred2.commandCompare(pred1), "subset");
+        });
+    });
 });
